@@ -1,0 +1,162 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    
+    <!-- 全国热门城市cityId -->
+    <string-array name="nation_hotCity">
+        <item>101010100,北京,39.904030,116.407526</item>
+		<item>101020100,上海,31.230416,121.473701</item>
+		<item>101030100,天津,39.084158,117.200983</item>
+		<item>101040100,重庆,29.563010,106.551557</item>
+		<item>101050101,哈尔滨,45.802270,126.536260</item>
+		<item>101060101,长春,43.817072,125.323544</item>
+		<item>101070101,沈阳,41.805698,123.431475</item>
+		<item>101080101,呼和浩特,40.842585,111.749181</item>
+		<item>101090101,石家庄,38.042307,114.514860</item>
+		<item>101100101,太原,37.870590,112.548879</item>
+		<item>101110101,西安,34.341568,108.940175</item>
+		<item>101120101,济南,36.650997,117.120497</item>
+		<item>101130101,乌鲁木齐,43.825592,87.616848</item>
+		<item>101140101,拉萨,29.645554,91.140856</item>
+		<item>101150101,西宁,36.617144,101.778228</item>
+		<item>101160101,兰州,36.061089,103.834304</item>
+		<item>101170101,银川,38.487194,106.230909</item>
+		<item>101180101,郑州,34.746600,113.625368</item>
+		<item>101190101,南京,32.060255,118.796877</item>
+		<item>101200101,武汉,30.593099,114.305393</item>
+		<item>101210101,杭州,30.274085,120.155070</item>
+		<item>101220101,合肥,31.820587,117.227239</item>
+		<item>101230101,福州,26.074508,119.296494</item>
+		<item>101240101,南昌,28.683213,115.858121</item>
+		<item>101250101,长沙,28.228209,112.938814</item>
+		<item>101260101,贵阳,26.647661,106.630154</item>
+		<item>101270101,成都,30.572269,104.066541</item>
+		<item>101280101,广州,23.129163,113.264435</item>
+		<item>101290101,昆明,24.880095,102.832892</item>
+		<item>101300101,南宁,22.817239,108.366129</item>
+		<item>101310101,海口,20.030793,110.328859</item>
+		<item>101320101,香港,22.396428,114.109497</item>
+		<item>101330101,澳门,22.201874,113.544202</item>
+		<item>101340101,台北,25.091075,121.559834</item>
+    </string-array>
+    
+    <!-- 预警类型 -->
+    <string-array name="warningType">
+        <item>999999,全部</item>
+        <item>11B01,台风</item>
+		<item>11B03,暴雨</item>
+		<item>11B04,暴雪</item>
+		<item>11B05,寒潮</item>
+		<item>11B06,大风</item>
+		<item>11B07,沙尘暴</item>
+		<item>11B09,高温</item>
+		<item>11B22,干旱</item>
+		<item>11B14,雷电</item>
+		<item>11B15,冰雹</item>
+		<item>11B16,霜冻</item>
+		<item>11B17,大雾</item>
+		<item>11B19,霾</item>
+		<item>11B20,雷雨大风</item>
+		<item>11B21,道路结冰</item>
+    </string-array>
+    
+	<!-- 预警等级 -->
+	<string-array name="warningColor">
+        <item>999999,全部</item>
+        <item>01,蓝色</item>
+		<item>02,黄色</item>
+		<item>03,橙色</item>
+		<item>04,红色</item>
+    </string-array>
+
+	<string-array name="warningColor2">
+		<item>999999,全部</item>
+		<item>Blue,蓝色</item>
+		<item>Yellow,黄色</item>
+		<item>Orange,橙色</item>
+		<item>Red,红色</item>
+	</string-array>
+    
+	<!-- 发布区域-->
+    <string-array name="warningDis">
+        <item>999999,全部,116.4,39.9</item>
+        <item>00,国家,116.4,39.9</item>
+        <item>11,北京,116.4,39.9</item>	
+		<item>12,天津,117.2,39.12</item>	
+		<item>13,河北,114.52,38.05</item>	
+		<item>14,山西,112.55,37.87</item>	
+		<item>15,内蒙古,111.73,40.83</item>
+		<item>21,辽宁,123.43,41.8</item>	
+		<item>22,吉林,125.32,43.9</item>	
+		<item>23,黑龙江,126.53,45.8</item>
+		<item>31,上海,121.47,31.23</item>
+		<item>32,江苏,118.78,32.07</item>
+		<item>33,浙江,120.15,30.28</item>
+		<item>34,安徽,117.25,31.83</item>
+		<item>35,福建,119.3,26.08</item>
+		<item>36,江西,115.85,28.68</item>
+		<item>37,山东,116.98,36.67</item>
+		<item>41,河南,113.62,34.75</item>
+		<item>42,湖北,114.3,30.6</item>
+		<item>43,湖南,112.93,28.23</item>
+		<item>44,广东,113.27,23.13</item>
+		<item>45,广西,108.37,22.82</item>
+		<item>46,海南,110.32,20.03</item>
+		<item>50,重庆,106.55,29.57</item>
+		<item>51,四川,104.07,30.67</item>
+		<item>52,贵州,106.63,26.65</item>
+		<item>53,云南,102.72,25.05</item>
+		<item>54,西藏,91.13,29.65</item>
+		<item>61,陕西,108.93,34.27</item>
+		<item>62,甘肃,103.82,36.07</item>
+		<item>63,青海,101.78,36.62</item>
+		<item>64,宁夏,106.28,38.47</item>
+		<item>65,新疆,87.62,43.82</item>
+		<item>71,台湾,121.5,25.03</item>
+		<item>81,香港,114.08,22.2</item>	
+		<item>82,澳门,113.33,22.13</item>	
+    </string-array>
+    
+
+    <!-- umeng -->
+    <string-array name="repeatingUnit">
+        <item>年</item>
+        <item>月</item>
+        <item selected="true">日</item>
+        <item>小时</item>
+        <item>分钟</item>
+        <item>秒</item>
+    </string-array>
+    <string-array name="specialDay">
+        <item></item>
+        <item>元旦</item>
+        <item>除夕</item>
+        <item>春节</item>
+        <item>元宵节</item>
+        <item>清明节</item>
+        <item>劳动节</item>
+        <item>端午节</item>
+        <item>七夕节</item>
+        <item>中秋节</item>
+        <item>国庆节</item>
+        <item>重阳节</item>
+        <item>腊八节</item>
+    </string-array>
+    <string-array name="playVibrate">
+        <item>true</item>
+        <item>false</item>
+    </string-array>
+    <string-array name="playLights">
+        <item>true</item>
+        <item>false</item>
+    </string-array>
+    <string-array name="playSound">
+        <item>true</item>
+        <item>false</item>
+    </string-array>
+    <string-array name="screenOn">
+        <item>true</item>
+        <item>false</item>
+    </string-array>
+    <!-- umeng -->
+    
+</resources>

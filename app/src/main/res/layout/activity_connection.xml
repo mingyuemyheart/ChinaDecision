@@ -1,0 +1,39 @@
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/white" >
+
+    <include
+        android:id="@+id/reTitle"
+        layout="@layout/layout_title" />
+
+
+    <TextView
+        android:id="@+id/tvWifi"
+        android:layout_below="@+id/reTitle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_margin="10dp"
+        android:textColor="@color/text_color3"
+        android:textSize="@dimen/level_4" />
+
+    <TextView
+        android:id="@+id/tvScane"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerInParent="true"
+        android:background="@drawable/bg_connection"
+        android:textColor="@color/white"
+        android:text="扫码连接"
+        android:gravity="center"
+        android:textSize="@dimen/level_4" />
+
+    <TextView
+        android:id="@id/tvPrompt"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerHorizontal="true"
+        android:layout_below="@id/tvScane"
+        android:layout_marginTop="15dp"/>
+
+</RelativeLayout>

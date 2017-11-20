@@ -1,0 +1,311 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+          package="com.china" >
+
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+    <uses-permission android:name="android.permission.READ_PHONE_STATE" />
+    <uses-permission android:name="android.permission.CHANGE_WIFI_STATE" />
+    <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
+    <uses-permission android:name="android.permission.CHANGE_CONFIGURATION" />
+    <uses-permission android:name="android.permission.WAKE_LOCK" />
+    <uses-permission android:name="android.permission.WRITE_SETTINGS" />
+    <uses-permission android:name="android.permission.VIBRATE" />
+    <uses-permission android:name="android.permission.CAMERA" />
+    <uses-feature android:name="android.hardware.camera" />
+    <uses-feature android:name="android.hardware.camera.autofocus" />
+
+    <!-- umeng -->
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+    <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
+    <uses-permission android:name="android.permission.READ_PHONE_STATE" />
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.READ_LOGS" />
+    <uses-permission android:name="android.permission.CALL_PHONE" />
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
+    <uses-permission android:name="android.permission.GET_TASKS" />
+    <uses-permission android:name="android.permission.SET_DEBUG_APP" />
+    <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW" />
+    <uses-permission android:name="android.permission.GET_ACCOUNTS" />
+    <uses-permission android:name="android.permission.USE_CREDENTIALS" />
+    <uses-permission android:name="android.permission.MANAGE_ACCOUNTS" />
+    <!-- umeng -->
+
+    <application
+        android:name="com.china.common.MyApplication"
+        android:allowBackup="true"
+        android:icon="@drawable/iv_icon"
+        android:label="@string/app_name"
+        android:theme="@android:style/Theme.Light.NoTitleBar" >
+
+        <!-- 自动更新下载完成广播 -->
+        <receiver android:name="com.china.utils.AutoUpdateBroadcastReceiver" >
+            <intent-filter>
+                <action android:name="android.intent.action.DOWNLOAD_COMPLETE" />
+                <!-- <action android:name="android.intent.action.PACKAGE_INSTALL" /> -->
+            </intent-filter>
+        </receiver>
+
+        <meta-data
+            android:name="com.amap.api.v2.apikey"
+            android:value="7d98aa68b0755496a3c142591a0e862b"/>
+
+        <!-- 定位需要的服务 -->
+        <service android:name="com.amap.api.location.APSService" />
+
+        <activity
+            android:name="com.china.WelcomeActivity"
+            android:theme="@android:style/Theme.Light.NoTitleBar.Fullscreen" >
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+
+        <activity
+            android:name="com.china.MainActivity"
+            android:screenOrientation="portrait" />
+
+        <activity
+            android:name="com.china.GuideActivity"
+            android:theme="@android:style/Theme.Light.NoTitleBar.Fullscreen"
+            android:screenOrientation="portrait" />
+
+        <activity
+            android:name="com.china.LoginActivity"
+            android:launchMode="singleTask"
+            android:screenOrientation="portrait" />
+
+        <activity
+            android:name="com.china.CityActivity"
+            android:launchMode="singleTask"
+            android:screenOrientation="portrait" />
+
+        <activity
+            android:name="com.china.CityForecastActivity"
+            android:screenOrientation="portrait" />
+
+        <activity
+            android:name="com.china.FeedbackActivity"
+            android:screenOrientation="portrait" />
+
+        <activity
+            android:name="com.china.UrlActivity"
+            android:screenOrientation="portrait" />
+
+        <activity
+            android:name="com.china.Url2Activity"
+            android:screenOrientation="portrait" />
+
+        <activity
+            android:name="com.china.ProductActivity"
+            android:screenOrientation="portrait" />
+
+        <activity
+            android:name="com.china.ProductActivity2"
+            android:screenOrientation="portrait" />
+
+        <activity
+            android:name="com.china.NewsActivity"
+            android:screenOrientation="portrait" />
+
+        <activity
+            android:name="com.china.TyphoonRouteActivity"
+            android:screenOrientation="portrait" />
+
+        <activity
+            android:name="com.china.HeadWarningActivity"
+            android:screenOrientation="portrait" />
+
+        <activity
+            android:name="com.china.ForecastActivity"
+            android:screenOrientation="portrait" />
+
+        <activity
+            android:name="com.china.MinuteFallActivity"
+            android:screenOrientation="portrait" />
+
+        <activity
+            android:name="com.china.StrongStreamActivity"
+            android:screenOrientation="portrait" />
+
+        <activity
+            android:name="com.china.SocietyObserveActivity"
+            android:screenOrientation="portrait" />
+
+        <activity
+            android:name="com.china.AirPolutionActivity"
+            android:screenOrientation="nosensor"
+            android:configChanges="orientation|keyboard|keyboardHidden|screenSize" />
+
+        <activity
+            android:name="com.china.StaticsActivity"
+            android:screenOrientation="portrait" />
+
+        <activity
+            android:name="com.china.StationMonitorActivity"
+            android:screenOrientation="portrait" />
+
+        <activity
+            android:name="com.china.StationMonitorDetailActivity"
+            android:screenOrientation="sensor"
+            android:configChanges="orientation|keyboard|keyboardHidden|screenSize" />
+
+        <activity
+            android:name="com.china.StationMonitorSearchActivity"
+            android:screenOrientation="portrait" />
+
+        <activity
+            android:name="com.china.DisasterActivity"
+            android:screenOrientation="portrait" />
+
+        <activity
+            android:name="com.china.WaitWindActivity"
+            android:screenOrientation="portrait" />
+
+        <activity
+            android:name="com.china.WarningActivity"
+            android:screenOrientation="portrait" />
+
+        <activity
+            android:name="com.china.WarningDetailActivity"
+            android:screenOrientation="portrait" />
+
+        <activity
+            android:name="com.china.WarningListActivity"
+            android:windowSoftInputMode="stateHidden|adjustUnspecified"
+            android:screenOrientation="portrait" />
+
+        <activity
+            android:name="com.china.StationMonitorRankActivity"
+            android:screenOrientation="portrait" />
+
+        <activity
+            android:name="com.china.StationMonitorRankSearchActivity"
+            android:screenOrientation="portrait" />
+
+        <activity
+            android:name="com.china.DecisionNewsActivity"
+            android:screenOrientation="portrait" />
+
+        <activity
+            android:name="com.china.JPGActivity"
+            android:screenOrientation="sensor"
+            android:configChanges="orientation|keyboard|keyboardHidden|screenSize" />
+
+        <activity
+            android:name="com.china.MyCollectionActivity"
+            android:screenOrientation="portrait" />
+
+        <activity
+            android:name="com.china.PDFActivity"
+            android:launchMode="singleTask"
+            android:screenOrientation="portrait" />
+
+        <activity
+            android:name="com.china.DisasterReportActivity"
+            android:launchMode="singleTask"
+            android:screenOrientation="portrait" />
+
+        <activity
+            android:name="com.china.DisasterReportDetailActivity"
+            android:launchMode="singleTask"
+            android:screenOrientation="portrait" />
+
+        <activity
+            android:name="com.china.WeatherMeetingActivity"
+            android:screenOrientation="portrait" />
+
+        <activity
+            android:name="com.china.WeatherMeetingDetailActivity"
+            android:screenOrientation="sensor"
+            android:configChanges="orientation|keyboard|keyboardHidden|screenSize"
+            android:windowSoftInputMode="adjustResize" />
+
+        <activity
+            android:name="com.china.WeatherMeetingVideoActivity"
+            android:screenOrientation="sensor"
+            android:configChanges="orientation|keyboard|keyboardHidden|screenSize"
+            android:windowSoftInputMode="adjustResize" />
+
+        <activity
+            android:name="com.china.AboutActivity"
+            android:screenOrientation="portrait" />
+
+        <activity
+            android:name="com.china.ConnectionActivity"
+            android:screenOrientation="portrait" />
+
+        <activity
+            android:name="com.china.ZXingActivity"
+            android:screenOrientation="portrait" />
+
+        <activity
+            android:name="com.china.ScreenActivity"
+            android:screenOrientation="portrait" />
+
+        <activity
+            android:name="com.china.EmptyActivity"
+            android:screenOrientation="portrait" />
+
+        <activity
+            android:name="com.china.WarningStatisticActivity"
+            android:screenOrientation="portrait" />
+
+        <activity
+            android:name="com.china.WarningStatisticListActivity"
+            android:screenOrientation="portrait" />
+
+        <activity
+            android:name="com.china.WarningStatisticScreenActivity"
+            android:screenOrientation="portrait" />
+
+        <activity
+            android:name="com.china.WarningStatisticScreenAreaActivity"
+            android:screenOrientation="portrait" />
+
+
+        <!-- umeng -->
+        <meta-data
+            android:name="UMENG_APPKEY"
+            android:value="57f06441e0f55a8930001bdb" />
+
+        <!-- 微信 -->
+        <activity
+            android:name=".wxapi.WXEntryActivity"
+            android:configChanges="keyboardHidden|orientation|screenSize"
+            android:exported="true"
+            android:screenOrientation="portrait"
+            android:theme="@android:style/Theme.Translucent.NoTitleBar" />
+
+        <!-- QQ -->
+        <activity
+            android:name="com.umeng.qq.tencent.AuthActivity"
+            android:launchMode="singleTask"
+            android:noHistory="true" >
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+
+                <data android:scheme="tencent1105801723" />
+            </intent-filter>
+        </activity>
+        <activity
+            android:name="com.umeng.qq.tencent.AssistActivity"
+            android:configChanges="orientation|keyboardHidden|screenSize"
+            android:screenOrientation="portrait"
+            android:theme="@android:style/Theme.Translucent.NoTitleBar" />
+        <!-- umeng -->
+
+    </application>
+
+</manifest>
