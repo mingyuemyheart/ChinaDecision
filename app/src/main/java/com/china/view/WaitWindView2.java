@@ -1,7 +1,6 @@
 package com.china.view;
 
 import android.annotation.SuppressLint;
-import android.app.Activity;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
@@ -11,14 +10,12 @@ import android.os.Handler;
 import android.os.Message;
 import android.text.TextUtils;
 import android.util.AttributeSet;
-import android.util.DisplayMetrics;
 import android.view.View;
 import android.view.ViewGroup.LayoutParams;
-import android.view.WindowManager;
 import android.widget.ImageView;
 
 import com.amap.api.maps.model.LatLng;
-import com.china.WaitWindActivity;
+import com.china.activity.WaitWindActivity;
 import com.china.dto.WindData;
 import com.china.dto.WindDto;
 

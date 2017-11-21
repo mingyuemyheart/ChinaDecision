@@ -24,7 +24,7 @@ import android.os.Message;
 import android.util.Log;
 
 import com.china.R;
-import com.china.ZXingActivity;
+import com.china.activity.ZXingActivity;
 import com.google.zxing.BinaryBitmap;
 import com.google.zxing.DecodeHintType;
 import com.google.zxing.MultiFormatReader;

@@ -14,7 +14,7 @@ import android.os.Message;
 import android.util.AttributeSet;
 import android.view.View;
 
-import com.china.MainActivity;
+import com.china.activity.MainActivity;
 import com.china.common.CONST;
 import com.china.dto.WeatherDto;
 import com.china.utils.CommonUtil;

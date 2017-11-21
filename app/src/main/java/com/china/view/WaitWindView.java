@@ -16,7 +16,7 @@ import android.view.ViewGroup.LayoutParams;
 import android.widget.ImageView;
 
 import com.amap.api.maps.model.LatLng;
-import com.china.TyphoonRouteActivity;
+import com.china.activity.TyphoonRouteActivity;
 import com.china.dto.WindData;
 import com.china.dto.WindDto;
 

@@ -2,7 +2,6 @@ package com.china.adapter;
 
 import android.content.Context;
 import android.content.Intent;
-import android.graphics.Paint;
 import android.os.Bundle;
 import android.text.SpannableString;
 import android.text.Spanned;
@@ -15,11 +14,10 @@ import android.widget.BaseExpandableListAdapter;
 import android.widget.ExpandableListView;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
-import android.widget.ListView;
 import android.widget.TextView;
 
 import com.china.R;
-import com.china.WarningStatisticActivity;
+import com.china.activity.WarningStatisticActivity;
 import com.china.dto.WarningDto;
 
 import java.util.List;

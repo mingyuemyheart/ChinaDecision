@@ -23,7 +23,7 @@ import java.util.concurrent.CountDownLatch;
 import android.os.Handler;
 import android.os.Looper;
 
-import com.china.ZXingActivity;
+import com.china.activity.ZXingActivity;
 import com.google.zxing.BarcodeFormat;
 import com.google.zxing.DecodeHintType;
 import com.google.zxing.ResultPointCallback;

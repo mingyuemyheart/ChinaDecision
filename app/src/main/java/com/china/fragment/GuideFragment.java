@@ -1,5 +1,9 @@
 package com.china.fragment;
 
+/**
+ * 引导页
+ */
+
 import android.app.Fragment;
 import android.content.Context;
 import android.content.Intent;
@@ -12,7 +16,7 @@ import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.widget.RelativeLayout;
 
-import com.china.LoginActivity;
+import com.china.activity.LoginActivity;
 import com.china.R;
 import com.china.common.CONST;
 import com.china.utils.CommonUtil;

@@ -60,7 +60,7 @@
         <service android:name="com.amap.api.location.APSService" />
 
         <activity
-            android:name="com.china.WelcomeActivity"
+            android:name="com.china.activity.WelcomeActivity"
             android:theme="@android:style/Theme.Light.NoTitleBar.Fullscreen" >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -70,205 +70,205 @@
         </activity>
 
         <activity
-            android:name="com.china.MainActivity"
+            android:name="com.china.activity.MainActivity"
             android:screenOrientation="portrait" />
 
         <activity
-            android:name="com.china.GuideActivity"
+            android:name="com.china.activity.GuideActivity"
             android:theme="@android:style/Theme.Light.NoTitleBar.Fullscreen"
             android:screenOrientation="portrait" />
 
         <activity
-            android:name="com.china.LoginActivity"
+            android:name="com.china.activity.LoginActivity"
             android:launchMode="singleTask"
             android:screenOrientation="portrait" />
 
         <activity
-            android:name="com.china.CityActivity"
+            android:name="com.china.activity.CityActivity"
             android:launchMode="singleTask"
             android:screenOrientation="portrait" />
 
         <activity
-            android:name="com.china.CityForecastActivity"
+            android:name="com.china.activity.CityForecastActivity"
             android:screenOrientation="portrait" />
 
         <activity
-            android:name="com.china.FeedbackActivity"
+            android:name="com.china.activity.FeedbackActivity"
             android:screenOrientation="portrait" />
 
         <activity
-            android:name="com.china.UrlActivity"
+            android:name="com.china.activity.UrlActivity"
             android:screenOrientation="portrait" />
 
         <activity
-            android:name="com.china.Url2Activity"
+            android:name="com.china.activity.Url2Activity"
             android:screenOrientation="portrait" />
 
         <activity
-            android:name="com.china.ProductActivity"
+            android:name="com.china.activity.ProductActivity"
             android:screenOrientation="portrait" />
 
         <activity
-            android:name="com.china.ProductActivity2"
+            android:name="com.china.activity.ProductActivity2"
             android:screenOrientation="portrait" />
 
         <activity
-            android:name="com.china.NewsActivity"
+            android:name="com.china.activity.NewsActivity"
             android:screenOrientation="portrait" />
 
         <activity
-            android:name="com.china.TyphoonRouteActivity"
+            android:name="com.china.activity.TyphoonRouteActivity"
             android:screenOrientation="portrait" />
 
         <activity
-            android:name="com.china.HeadWarningActivity"
+            android:name="com.china.activity.HeadWarningActivity"
             android:screenOrientation="portrait" />
 
         <activity
-            android:name="com.china.ForecastActivity"
+            android:name="com.china.activity.ForecastActivity"
             android:screenOrientation="portrait" />
 
         <activity
-            android:name="com.china.MinuteFallActivity"
+            android:name="com.china.activity.MinuteFallActivity"
             android:screenOrientation="portrait" />
 
         <activity
-            android:name="com.china.StrongStreamActivity"
+            android:name="com.china.activity.StrongStreamActivity"
             android:screenOrientation="portrait" />
 
         <activity
-            android:name="com.china.SocietyObserveActivity"
+            android:name="com.china.activity.SocietyObserveActivity"
             android:screenOrientation="portrait" />
 
         <activity
-            android:name="com.china.AirPolutionActivity"
+            android:name="com.china.activity.AirPolutionActivity"
             android:screenOrientation="nosensor"
             android:configChanges="orientation|keyboard|keyboardHidden|screenSize" />
 
         <activity
-            android:name="com.china.StaticsActivity"
+            android:name="com.china.activity.StaticsActivity"
             android:screenOrientation="portrait" />
 
         <activity
-            android:name="com.china.StationMonitorActivity"
+            android:name="com.china.activity.StationMonitorActivity"
             android:screenOrientation="portrait" />
 
         <activity
-            android:name="com.china.StationMonitorDetailActivity"
+            android:name="com.china.activity.StationMonitorDetailActivity"
             android:screenOrientation="sensor"
             android:configChanges="orientation|keyboard|keyboardHidden|screenSize" />
 
         <activity
-            android:name="com.china.StationMonitorSearchActivity"
+            android:name="com.china.activity.StationMonitorSearchActivity"
             android:screenOrientation="portrait" />
 
         <activity
-            android:name="com.china.DisasterActivity"
+            android:name="com.china.activity.DisasterActivity"
             android:screenOrientation="portrait" />
 
         <activity
-            android:name="com.china.WaitWindActivity"
+            android:name="com.china.activity.WaitWindActivity"
             android:screenOrientation="portrait" />
 
         <activity
-            android:name="com.china.WarningActivity"
+            android:name="com.china.activity.WarningActivity"
             android:screenOrientation="portrait" />
 
         <activity
-            android:name="com.china.WarningDetailActivity"
+            android:name="com.china.activity.WarningDetailActivity"
             android:screenOrientation="portrait" />
 
         <activity
-            android:name="com.china.WarningListActivity"
+            android:name="com.china.activity.WarningListActivity"
             android:windowSoftInputMode="stateHidden|adjustUnspecified"
             android:screenOrientation="portrait" />
 
         <activity
-            android:name="com.china.StationMonitorRankActivity"
+            android:name="com.china.activity.StationMonitorRankActivity"
             android:screenOrientation="portrait" />
 
         <activity
-            android:name="com.china.StationMonitorRankSearchActivity"
+            android:name="com.china.activity.StationMonitorRankSearchActivity"
             android:screenOrientation="portrait" />
 
         <activity
-            android:name="com.china.DecisionNewsActivity"
+            android:name="com.china.activity.DecisionNewsActivity"
             android:screenOrientation="portrait" />
 
         <activity
-            android:name="com.china.JPGActivity"
+            android:name="com.china.activity.JPGActivity"
             android:screenOrientation="sensor"
             android:configChanges="orientation|keyboard|keyboardHidden|screenSize" />
 
         <activity
-            android:name="com.china.MyCollectionActivity"
+            android:name="com.china.activity.MyCollectionActivity"
             android:screenOrientation="portrait" />
 
         <activity
-            android:name="com.china.PDFActivity"
+            android:name="com.china.activity.PDFActivity"
             android:launchMode="singleTask"
             android:screenOrientation="portrait" />
 
         <activity
-            android:name="com.china.DisasterReportActivity"
+            android:name="com.china.activity.DisasterReportActivity"
             android:launchMode="singleTask"
             android:screenOrientation="portrait" />
 
         <activity
-            android:name="com.china.DisasterReportDetailActivity"
+            android:name="com.china.activity.DisasterReportDetailActivity"
             android:launchMode="singleTask"
             android:screenOrientation="portrait" />
 
         <activity
-            android:name="com.china.WeatherMeetingActivity"
+            android:name="com.china.activity.WeatherMeetingActivity"
             android:screenOrientation="portrait" />
 
         <activity
-            android:name="com.china.WeatherMeetingDetailActivity"
+            android:name="com.china.activity.WeatherMeetingDetailActivity"
             android:screenOrientation="sensor"
             android:configChanges="orientation|keyboard|keyboardHidden|screenSize"
             android:windowSoftInputMode="adjustResize" />
 
         <activity
-            android:name="com.china.WeatherMeetingVideoActivity"
+            android:name="com.china.activity.WeatherMeetingVideoActivity"
             android:screenOrientation="sensor"
             android:configChanges="orientation|keyboard|keyboardHidden|screenSize"
             android:windowSoftInputMode="adjustResize" />
 
         <activity
-            android:name="com.china.AboutActivity"
+            android:name="com.china.activity.AboutActivity"
             android:screenOrientation="portrait" />
 
         <activity
-            android:name="com.china.ConnectionActivity"
+            android:name="com.china.activity.ConnectionActivity"
             android:screenOrientation="portrait" />
 
         <activity
-            android:name="com.china.ZXingActivity"
+            android:name="com.china.activity.ZXingActivity"
             android:screenOrientation="portrait" />
 
         <activity
-            android:name="com.china.ScreenActivity"
+            android:name="com.china.activity.ScreenActivity"
             android:screenOrientation="portrait" />
 
         <activity
-            android:name="com.china.EmptyActivity"
+            android:name="com.china.activity.EmptyActivity"
             android:screenOrientation="portrait" />
 
         <activity
-            android:name="com.china.WarningStatisticActivity"
+            android:name="com.china.activity.WarningStatisticActivity"
             android:screenOrientation="portrait" />
 
         <activity
-            android:name="com.china.WarningStatisticListActivity"
+            android:name="com.china.activity.WarningStatisticListActivity"
             android:screenOrientation="portrait" />
 
         <activity
-            android:name="com.china.WarningStatisticScreenActivity"
+            android:name="com.china.activity.WarningStatisticScreenActivity"
             android:screenOrientation="portrait" />
 
         <activity
-            android:name="com.china.WarningStatisticScreenAreaActivity"
+            android:name="com.china.activity.WarningStatisticScreenAreaActivity"
             android:screenOrientation="portrait" />
 
 

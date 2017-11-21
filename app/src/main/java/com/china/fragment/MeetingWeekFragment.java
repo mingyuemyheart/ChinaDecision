@@ -13,8 +13,8 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import com.china.R;
-import com.china.WeatherMeetingDetailActivity;
-import com.china.WeatherMeetingVideoActivity;
+import com.china.activity.WeatherMeetingDetailActivity;
+import com.china.activity.WeatherMeetingVideoActivity;
 import com.china.adapter.FragmentMeetingWeekAdapter;
 import com.china.common.CONST;
 import com.china.dto.WeatherMeetingDto;

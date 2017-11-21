@@ -28,7 +28,7 @@ import android.os.Message;
 import android.util.Log;
 
 import com.china.R;
-import com.china.ZXingActivity;
+import com.china.activity.ZXingActivity;
 import com.google.zxing.BarcodeFormat;
 import com.google.zxing.Result;
 import com.mining.app.zxing.camera.CameraManager;
