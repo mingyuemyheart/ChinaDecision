@@ -11,7 +11,7 @@ android {
 
     defaultConfig {
         applicationId "com.china"
-        minSdkVersion 15
+        minSdkVersion 16
         targetSdkVersion 22
         versionCode 78
         versionName "3.0.93"

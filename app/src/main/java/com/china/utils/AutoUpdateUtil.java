@@ -1,5 +1,6 @@
 package com.china.utils;
 
+import android.app.Activity;
 import android.app.Dialog;
 import android.app.DownloadManager;
 import android.app.DownloadManager.Request;
@@ -8,7 +9,6 @@ import android.content.SharedPreferences;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.net.Uri;
-import android.os.AsyncTask;
 import android.os.Handler;
 import android.os.Message;
 import android.text.TextUtils;
@@ -21,13 +21,16 @@ import android.widget.Toast;
 
 import com.china.R;
 
-import org.apache.http.NameValuePair;
-import org.apache.http.message.BasicNameValuePair;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.io.IOException;
+
+import okhttp3.Call;
+import okhttp3.Callback;
+import okhttp3.FormBody;
+import okhttp3.RequestBody;
+import okhttp3.Response;
 
 /**
  * 自动更新
@@ -36,7 +39,7 @@ import java.util.List;
  */
 
 public class AutoUpdateUtil {
-	
+
 	private static Context mContext = null;
 	private static String appName = null;
 	private static boolean flag = true;
@@ -62,112 +65,69 @@ public class AutoUpdateUtil {
 	 * @param app_id
 	 * @param is_flag true为主界面自己请求，false为个人点击获取
 	 */
-	public static void checkUpdate(Context context, String app_id, String app_name, boolean is_flag) {
+	public static void checkUpdate(final Activity activity, Context context, String app_id, String app_name, boolean is_flag) {
 		mContext = context;
 		appName = app_name;
 		flag = is_flag;
 		if (TextUtils.isEmpty(app_id)) {
-			Toast.makeText(context, "The app_id is empty", Toast.LENGTH_SHORT).show();
+			Toast.makeText(mContext, "The app_id is empty", Toast.LENGTH_SHORT).show();
 			return;
 		}
-		HttpAsyncTaskUpdate task = new HttpAsyncTaskUpdate(app_id);
-		task.setMethod("POST");
-		task.setTimeOut(CustomHttpClient.TIME_OUT);
-		task.execute("https://app.tianqi.cn/update/check");
-	}
-	
-	/**
-	 * 异步请求方法
-	 * @author dell
-	 *
-	 */
-	private static class HttpAsyncTaskUpdate extends AsyncTask<String, Void, String> {
-		private String method = "POST";
-		private List<NameValuePair> nvpList = new ArrayList<NameValuePair>();
-		private String app_id = null;
-		
-		public HttpAsyncTaskUpdate(String app_id) {
-			this.app_id = app_id;
-			transParams();
-		}
-		
-		/**
-		 * 传参数
-		 */
-		private void transParams() {
-			NameValuePair pair1 = new BasicNameValuePair("app_id", app_id);
-			nvpList.add(pair1);
-		}
+		String url = "https://app.tianqi.cn/update/check";
+		FormBody.Builder builder = new FormBody.Builder();
+		builder.add("app_id", app_id);
+		RequestBody body = builder.build();
+		OkHttpUtil.enqueue(new okhttp3.Request.Builder().post(body).url(url).build(), new Callback() {
+			@Override
+			public void onFailure(Call call, IOException e) {
 
-		@Override
-		protected String doInBackground(String... url) {
-			String result = null;
-			if (method.equalsIgnoreCase("POST")) {
-				result = CustomHttpClient.post(url[0], nvpList);
-			} else if (method.equalsIgnoreCase("GET")) {
-				result = CustomHttpClient.get(url[0]);
 			}
-			return result;
-		}
 
-		@Override
-		protected void onPostExecute(String requestResult) {
-			super.onPostExecute(requestResult);
-			if (requestResult != null) {
-				try {
-					JSONObject obj = new JSONObject(requestResult);
-					UpdateDto dto = new UpdateDto();
-					if (!obj.isNull("version")) {
-						dto.version = obj.getString("version");
-					}
-					if (!obj.isNull("update_info")) {
-						dto.update_info = obj.getString("update_info");
-					}
-					if (!obj.isNull("dl_url")) {
-						dto.dl_url = obj.getString("dl_url");
-					}
-					if (!obj.isNull("versionCode")) {
-						dto.versionCode = obj.getInt("versionCode");
-					}
-					
-					//检查版本不一样时候才更新
-					if (dto.versionCode > getVersionCode(mContext)) {
-						Message msg = new Message();
-						msg.what = 1000;
-						msg.obj = dto;
-						handler.sendMessage(msg);
-					}else {
-						if (flag == false) {
-							Toast.makeText(mContext, "已经是最新版本", Toast.LENGTH_SHORT).show();
+			@Override
+			public void onResponse(Call call, Response response) throws IOException {
+				if (!response.isSuccessful()) {
+					return;
+				}
+				String result = response.body().string();
+				if (!TextUtils.isEmpty(result)) {
+					try {
+						JSONObject obj = new JSONObject(result);
+						UpdateDto dto = new UpdateDto();
+						if (!obj.isNull("version")) {
+							dto.version = obj.getString("version");
 						}
+						if (!obj.isNull("update_info")) {
+							dto.update_info = obj.getString("update_info");
+						}
+						if (!obj.isNull("dl_url")) {
+							dto.dl_url = obj.getString("dl_url");
+						}
+						if (!obj.isNull("versionCode")) {
+							dto.versionCode = obj.getInt("versionCode");
+						}
+
+						//检查版本不一样时候才更新
+						if (dto.versionCode > getVersionCode(mContext)) {
+							Message msg = new Message();
+							msg.what = 1000;
+							msg.obj = dto;
+							handler.sendMessage(msg);
+						}else {
+							if (flag == false) {
+								activity.runOnUiThread(new Runnable() {
+									@Override
+									public void run() {
+										Toast.makeText(mContext, "已经是最新版本", Toast.LENGTH_SHORT).show();
+									}
+								});
+							}
+						}
+					} catch (JSONException e) {
+						e.printStackTrace();
 					}
-				} catch (JSONException e) {
-					e.printStackTrace();
 				}
 			}
-		}
-
-		@SuppressWarnings("unused")
-		private void setParams(NameValuePair nvp) {
-			nvpList.add(nvp);
-		}
-
-		private void setMethod(String method) {
-			this.method = method;
-		}
-
-		private void setTimeOut(int timeOut) {
-			CustomHttpClient.TIME_OUT = timeOut;
-		}
-
-		/**
-		 * 取消当前task
-		 */
-		@SuppressWarnings("unused")
-		private void cancelTask() {
-			CustomHttpClient.shuttdownRequest();
-			this.cancel(true);
-		}
+		});
 	}
 	
 	private static class UpdateDto {

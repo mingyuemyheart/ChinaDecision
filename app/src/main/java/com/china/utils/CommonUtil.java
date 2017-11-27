@@ -23,7 +23,6 @@ import android.graphics.RectF;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.location.LocationManager;
-import android.os.AsyncTask;
 import android.text.TextUtils;
 import android.view.View;
 import android.view.ViewGroup;
@@ -46,8 +45,6 @@ import com.umeng.socialize.media.UMImage;
 import com.umeng.socialize.media.UMWeb;
 import com.umeng.socialize.shareboard.SnsPlatform;
 import com.umeng.socialize.utils.ShareBoardlistener;
-
-import org.apache.http.NameValuePair;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -75,7 +72,7 @@ public class CommonUtil {
      */  
     public static float dip2px(Context context, float dpValue) {  
         final float scale = context.getResources().getDisplayMetrics().density;  
-        return (float) (dpValue * scale);  
+        return dpValue * scale;
     }  
   
     /** 
@@ -83,7 +80,7 @@ public class CommonUtil {
      */  
     public static float px2dip(Context context, float pxValue) {  
         final float scale = context.getResources().getDisplayMetrics().density;  
-        return (float) (pxValue / scale);  
+        return pxValue / scale;
     } 
     
     /**
@@ -165,38 +162,6 @@ public class CommonUtil {
 	}
 	
 	/**
-	 * 根据当前时间获取星期几
-	 * @param context
-	 * @param i (+1为后一天，-1为前一天，0表示当天)
-	 * @return
-	 */
-	public static String getWeek(Context context, int i) {
-		String week = null;
-		
-		Calendar c = Calendar.getInstance();
-		int day = c.get(Calendar.DATE);
-		c.set(Calendar.DATE, day+i);
-		
-		if (c.get(Calendar.DAY_OF_WEEK) == 1) {
-			week = context.getString(R.string.seven);
-		}else if (c.get(Calendar.DAY_OF_WEEK) == 2) {
-			week = context.getString(R.string.one);
-		}else if (c.get(Calendar.DAY_OF_WEEK) == 3) {
-			week = context.getString(R.string.two);
-		}else if (c.get(Calendar.DAY_OF_WEEK) == 4) {
-			week = context.getString(R.string.three);
-		}else if (c.get(Calendar.DAY_OF_WEEK) == 5) {
-			week = context.getString(R.string.four);
-		}else if (c.get(Calendar.DAY_OF_WEEK) == 6) {
-			week = context.getString(R.string.five);
-		}else if (c.get(Calendar.DAY_OF_WEEK) == 7) {
-			week = context.getString(R.string.six);
-		}
-		
-		return context.getString(R.string.week)+week;
-	}
-
-	/**
 	 * 日期转星期
 	 *
 	 * @param datetime
@@ -217,47 +182,6 @@ public class CommonUtil {
 		if (w < 0)
 			w = 0;
 		return weekDays[w];
-	}
-	
-	/**
-	 * 根据当前时间获取日期，格式为MM/dd
-	 * @param i (+1为后一天，-1为前一天，0表示当天)
-	 * @return
-	 */
-	public static String getDate(int i) {
-		String date = null;
-		
-		Calendar c = Calendar.getInstance();
-		int day = c.get(Calendar.DATE);
-		c.set(Calendar.DATE, day+i);
-		
-		if (c.get(Calendar.MONTH) == 0) {
-			date = "01";
-		}else if (c.get(Calendar.MONTH) == 1) {
-			date = "02";
-		}else if (c.get(Calendar.MONTH) == 2) {
-			date = "03";
-		}else if (c.get(Calendar.MONTH) == 3) {
-			date = "04";
-		}else if (c.get(Calendar.MONTH) == 4) {
-			date = "05";
-		}else if (c.get(Calendar.MONTH) == 5) {
-			date = "06";
-		}else if (c.get(Calendar.MONTH) == 6) {
-			date = "07";
-		}else if (c.get(Calendar.MONTH) == 7) {
-			date = "08";
-		}else if (c.get(Calendar.MONTH) == 8) {
-			date = "09";
-		}else if (c.get(Calendar.MONTH) == 9) {
-			date = "10";
-		}else if (c.get(Calendar.MONTH) == 10) {
-			date = "11";
-		}else if (c.get(Calendar.MONTH) == 11) {
-			date = "12";
-		}
-		
-		return date+"/"+c.get(Calendar.DAY_OF_MONTH);
 	}
 	
 	/**
@@ -432,7 +356,6 @@ public class CommonUtil {
 	
 	/**
 	 * 转换图片成六边形
-	 * @param scaleBitmapImage
 	 * @return
 	 */
 	public static Bitmap getHexagonShape(Bitmap bitmap) {
@@ -572,7 +495,7 @@ public class CommonUtil {
 	 * @return  
 	 */  
 	@SuppressWarnings("deprecation")
-	public static Bitmap captureWebView(WebView webView){  
+	public static Bitmap captureWebView(WebView webView){
 	    Picture snapShot = webView.capturePicture();  
 	    Bitmap bitmap = Bitmap.createBitmap(snapShot.getWidth(),snapShot.getHeight(), Config.ARGB_8888);
 	    Canvas canvas = new Canvas(bitmap);  
@@ -612,7 +535,7 @@ public class CommonUtil {
         if (count > 30) {
         	count = 30;
 		}
-        List<View> childViews = new ArrayList<View>(count);
+        List<View> childViews = new ArrayList<>(count);
         int totalHeight = 0;
         for(int i = 0; i < count; i++){
         	View itemView = listAdapter.getView(i, null, listView);
@@ -663,8 +586,6 @@ public class CommonUtil {
     
 	/**
      * 截屏,可是区域
-     * @param shotView 截屏view
-     * @param id view id
      * @return
      */
 	public static Bitmap captureView(View view) {

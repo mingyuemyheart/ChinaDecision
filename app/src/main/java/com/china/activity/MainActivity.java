@@ -285,7 +285,7 @@ public class MainActivity extends BaseActivity implements OnClickListener, AMapL
 			tvUserName.setText(userName);
 		}
 		
-		AutoUpdateUtil.checkUpdate(mContext, "52", getString(R.string.app_name), true);
+		AutoUpdateUtil.checkUpdate(MainActivity.this, mContext, "52", getString(R.string.app_name), true);
 		
 		refresh();
 	}

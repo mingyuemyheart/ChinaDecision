@@ -31,7 +31,7 @@ public class WaitWindView2 extends View {
 
 	private Paint paint = null;
 	private int width = 0, height = 0;//手机屏幕宽高
-	private List<WindDto> particles = new ArrayList<WindDto>();//存放随机点的list
+	private List<WindDto> particles = new ArrayList<>();//存放随机点的list
 	private int time = 30;//ms,刷新画布时间
 	private int maxLife = 100;//长度，粒子的最大生命周期
 	private Bitmap bitmap = null;//每一帧图像承载对象
@@ -39,7 +39,7 @@ public class WaitWindView2 extends View {
 	private WindThread mThread = null;
 	private WaitWindActivity activity = null;
 	private WindData windData = null;
-	private List<ImageView> images = new ArrayList<ImageView>();//存放位图的list
+	private List<ImageView> images = new ArrayList<>();//存放位图的list
 
 	//高配
 	private int partileCount = 800;//绘制粒子个数
