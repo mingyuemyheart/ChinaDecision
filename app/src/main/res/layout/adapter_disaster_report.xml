@@ -22,7 +22,6 @@
             android:layout_height="wrap_content"
             android:layout_marginLeft="5dp"
             android:singleLine="true"
-            android:text="湖北多地降温降雨  武汉最高气温创下半年最低"
             android:textColor="@color/text_color3"
             android:textSize="@dimen/level_3" />
     </LinearLayout>
@@ -39,7 +38,6 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:text="灾情类别：暴雨"
             android:textColor="@color/text_color4"
             android:textSize="@dimen/level_4" />
 
@@ -48,7 +46,6 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:text="灾情类别：暴雨"
             android:textColor="@color/text_color4"
             android:textSize="@dimen/level_4" />
     </LinearLayout>
@@ -65,7 +62,6 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:text="灾情类别：暴雨"
             android:textColor="@color/text_color4"
             android:textSize="@dimen/level_4" />
 
@@ -74,7 +70,6 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:text="灾情类别：暴雨"
             android:textColor="@color/text_color4"
             android:textSize="@dimen/level_4" />
     </LinearLayout>

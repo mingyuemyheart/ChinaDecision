@@ -44,12 +44,12 @@ public class CityActivity extends BaseActivity implements OnClickListener {
     //搜索城市后的结果列表
     private ListView mListView = null;
     private CityAdapter cityAdapter = null;
-    private List<CityDto> cityList = new ArrayList<CityDto>();
+    private List<CityDto> cityList = new ArrayList<>();
 
     //全国热门
     private GridView nGridView = null;
     private CityFragmentAdapter nAdapter = null;
-    private List<CityDto> nList = new ArrayList<CityDto>();
+    private List<CityDto> nList = new ArrayList<>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -180,8 +180,7 @@ public class CityActivity extends BaseActivity implements OnClickListener {
         dbManager.openDateBase();
         dbManager.closeDatabase();
         SQLiteDatabase database = SQLiteDatabase.openOrCreateDatabase(DBManager.DB_PATH + "/" + DBManager.DB_NAME, null);
-        Cursor cursor = null;
-        cursor = database.rawQuery("select * from "+DBManager.TABLE_NAME3+" where pro like "+"\"%"+keyword+"%\""+" or city like "+"\"%"+keyword+"%\""+" or dis like "+"\"%"+keyword+"%\"",null);
+        Cursor cursor = database.rawQuery("select * from "+DBManager.TABLE_NAME3+" where pro like "+"\"%"+keyword+"%\""+" or city like "+"\"%"+keyword+"%\""+" or dis like "+"\"%"+keyword+"%\"",null);
         for (int i = 0; i < cursor.getCount(); i++) {
             cursor.moveToPosition(i);
             CityDto dto = new CityDto();

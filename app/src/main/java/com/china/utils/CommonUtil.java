@@ -264,6 +264,15 @@ public class CommonUtil {
 		InputMethodManager imm = (InputMethodManager) context.getSystemService(Context.INPUT_METHOD_SERVICE);
 		imm.hideSoftInputFromWindow(editText.getWindowToken(), 0);
 	}
+
+	/**
+	 * 显示虚拟键盘
+	 * @param context 上下文
+	 */
+	public static void showInputSoft(Context context) {
+		InputMethodManager imm = (InputMethodManager) context.getSystemService(Context.INPUT_METHOD_SERVICE);
+		imm.toggleSoftInput(0, InputMethodManager.HIDE_NOT_ALWAYS);
+	}
 	
 	/**
 	 * 转换图片成圆形

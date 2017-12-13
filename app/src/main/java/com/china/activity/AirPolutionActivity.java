@@ -83,9 +83,9 @@ OnMapClickListener, OnCameraChangeListener, OnMapScreenShotListener{
 	private ImageView ivShare = null;
 	private MapView mMapView = null;
 	private AMap aMap = null;
-	private List<AirPolutionDto> provinceList = new ArrayList<AirPolutionDto>();//省级
-	private List<AirPolutionDto> cityList = new ArrayList<AirPolutionDto>();//市级
-	private List<AirPolutionDto> districtList = new ArrayList<AirPolutionDto>();//县级
+	private List<AirPolutionDto> provinceList = new ArrayList<>();//省级
+	private List<AirPolutionDto> cityList = new ArrayList<>();//市级
+	private List<AirPolutionDto> districtList = new ArrayList<>();//县级
 	private TextView tvName = null;
 	private TextView tvTime = null;
 	private TextView tvAqiCount = null;
@@ -111,14 +111,14 @@ OnMapClickListener, OnCameraChangeListener, OnMapScreenShotListener{
 	private SimpleDateFormat sdf3 = new SimpleDateFormat("yyyyMMddHH");
 	private HorizontalScrollView hScrollView = null;
 	private LinearLayout llContainer = null;
-	private List<AqiDto> aqiList = new ArrayList<AqiDto>();
-	private List<AqiDto> factAqiList = new ArrayList<AqiDto>();//实况aqi数据
-	private List<AqiDto> foreAqiList = new ArrayList<AqiDto>();//预报aqi数据
+	private List<AqiDto> aqiList = new ArrayList<>();
+	private List<AqiDto> factAqiList = new ArrayList<>();//实况aqi数据
+	private List<AqiDto> foreAqiList = new ArrayList<>();//预报aqi数据
 	private int maxAqi = 0, minAqi = 0;
 	private String aqiDate = null;
 	private ImageView ivExpand = null;
 	private Configuration configuration = null;
-	private List<Marker> markerList = new ArrayList<Marker>();
+	private List<Marker> markerList = new ArrayList<>();
 	private LatLng leftlatlng = null;
 	private LatLng rightLatlng = null;
 
@@ -845,13 +845,19 @@ OnMapClickListener, OnCameraChangeListener, OnMapScreenShotListener{
 	@Override
 	public boolean onKeyDown(int keyCode, KeyEvent event) {
 		if (keyCode == KeyEvent.KEYCODE_BACK) {
-			if (reContent.getVisibility() == View.VISIBLE) {
-				hideAnimation(reContent);
-				llCity.setVisibility(View.GONE);
-				return false;
-			} else {
-				setBackEmit();
-				finish();
+			if (configuration.orientation == Configuration.ORIENTATION_PORTRAIT) {
+				if (reContent.getVisibility() == View.VISIBLE) {
+					hideAnimation(reContent);
+					llCity.setVisibility(View.GONE);
+					return false;
+				} else {
+					setBackEmit();
+					finish();
+				}
+			}else {
+				setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
+				showPortrait();
+				ivExpand.setImageResource(R.drawable.iv_expand);
 			}
 		}
 		return super.onKeyDown(keyCode, event);
@@ -861,12 +867,18 @@ OnMapClickListener, OnCameraChangeListener, OnMapScreenShotListener{
 	public void onClick(View v) {
 		switch (v.getId()) {
 		case R.id.llBack:
-			if (reContent.getVisibility() == View.VISIBLE) {
-				hideAnimation(reContent);
-				llCity.setVisibility(View.GONE);
-			} else {
-				setBackEmit();
-				finish();
+			if (configuration.orientation == Configuration.ORIENTATION_PORTRAIT) {
+				if (reContent.getVisibility() == View.VISIBLE) {
+					hideAnimation(reContent);
+					llCity.setVisibility(View.GONE);
+				} else {
+					setBackEmit();
+					finish();
+				}
+			}else {
+				setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
+				showPortrait();
+				ivExpand.setImageResource(R.drawable.iv_expand);
 			}
 			break;
 		case R.id.ivShare:

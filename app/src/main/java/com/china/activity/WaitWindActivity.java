@@ -1,6 +1,9 @@
 package com.china.activity;
 
-import android.annotation.SuppressLint;
+/**
+ * 等风来
+ */
+
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -46,7 +49,6 @@ import okhttp3.Callback;
 import okhttp3.Request;
 import okhttp3.Response;
 
-@SuppressLint("SimpleDateFormat")
 public class WaitWindActivity extends BaseActivity implements OnClickListener, AMap.OnMapScreenShotListener, OnCameraChangeListener {
 
     private Context mContext = null;
@@ -141,60 +143,61 @@ public class WaitWindActivity extends BaseActivity implements OnClickListener, A
 
                     @Override
                     public void onResponse(Call call, Response response) throws IOException {
-                        if (response.isSuccessful()) {
-                            String requestResult = response.body().string();
-                            if (requestResult != null) {
-                                try {
-                                    JSONObject obj = new JSONObject(requestResult);
-                                    if (windData2 == null) {
-                                        windData2 = new WindData();
-                                    }
-                                    if (obj != null) {
-                                        if (!obj.isNull("gridHeight")) {
-                                            windData2.height = obj.getInt("gridHeight");
-                                        }
-                                        if (!obj.isNull("gridWidth")) {
-                                            windData2.width = obj.getInt("gridWidth");
-                                        }
-                                        if (!obj.isNull("x0")) {
-                                            windData2.x0 = obj.getDouble("x0");
-                                        }
-                                        if (!obj.isNull("y0")) {
-                                            windData2.y0 = obj.getDouble("y0");
-                                        }
-                                        if (!obj.isNull("x1")) {
-                                            windData2.x1 = obj.getDouble("x1");
-                                        }
-                                        if (!obj.isNull("y1")) {
-                                            windData2.y1 = obj.getDouble("y1");
-                                        }
-                                        if (!obj.isNull("filetime")) {
-                                            windData2.filetime = obj.getString("filetime");
-                                        }
-
-                                        if (!obj.isNull("field")) {
-                                            windData2.dataList.clear();
-                                            JSONArray array = new JSONArray(obj.getString("field"));
-                                            for (int i = 0; i < array.length(); i += 2) {
-                                                WindDto dto2 = new WindDto();
-                                                dto2.initX = (float) (array.optDouble(i));
-                                                dto2.initY = (float) (array.optDouble(i + 1));
-                                                windData2.dataList.add(dto2);
-                                            }
-                                        }
-
-                                        runOnUiThread(new Runnable() {
-                                            @Override
-                                            public void run() {
-                                                cancelDialog();
-                                                reloadWind(true);
-                                            }
-                                        });
-
-                                    }
-                                } catch (JSONException e1) {
-                                    e1.printStackTrace();
+                        if (!response.isSuccessful()) {
+                            return;
+                        }
+                        String result = response.body().string();
+                        if (!TextUtils.isEmpty(result)) {
+                            try {
+                                JSONObject obj = new JSONObject(result);
+                                if (windData2 == null) {
+                                    windData2 = new WindData();
                                 }
+                                if (obj != null) {
+                                    if (!obj.isNull("gridHeight")) {
+                                        windData2.height = obj.getInt("gridHeight");
+                                    }
+                                    if (!obj.isNull("gridWidth")) {
+                                        windData2.width = obj.getInt("gridWidth");
+                                    }
+                                    if (!obj.isNull("x0")) {
+                                        windData2.x0 = obj.getDouble("x0");
+                                    }
+                                    if (!obj.isNull("y0")) {
+                                        windData2.y0 = obj.getDouble("y0");
+                                    }
+                                    if (!obj.isNull("x1")) {
+                                        windData2.x1 = obj.getDouble("x1");
+                                    }
+                                    if (!obj.isNull("y1")) {
+                                        windData2.y1 = obj.getDouble("y1");
+                                    }
+                                    if (!obj.isNull("filetime")) {
+                                        windData2.filetime = obj.getString("filetime");
+                                    }
+
+                                    if (!obj.isNull("field")) {
+                                        windData2.dataList.clear();
+                                        JSONArray array = new JSONArray(obj.getString("field"));
+                                        for (int i = 0; i < array.length(); i += 2) {
+                                            WindDto dto2 = new WindDto();
+                                            dto2.initX = (float) (array.optDouble(i));
+                                            dto2.initY = (float) (array.optDouble(i + 1));
+                                            windData2.dataList.add(dto2);
+                                        }
+                                    }
+
+                                    runOnUiThread(new Runnable() {
+                                        @Override
+                                        public void run() {
+                                            cancelDialog();
+                                            reloadWind(true);
+                                        }
+                                    });
+
+                                }
+                            } catch (JSONException e1) {
+                                e1.printStackTrace();
                             }
                         }
                     }
@@ -219,60 +222,61 @@ public class WaitWindActivity extends BaseActivity implements OnClickListener, A
 
                     @Override
                     public void onResponse(Call call, Response response) throws IOException {
-                        if (response.isSuccessful()) {
-                            String requestResult = response.body().string();
-                            if (requestResult != null) {
-                                try {
-                                    JSONObject obj = new JSONObject(requestResult);
-                                    if (windData1 == null) {
-                                        windData1 = new WindData();
-                                    }
-                                    if (obj != null) {
-                                        if (!obj.isNull("gridHeight")) {
-                                            windData1.height = obj.getInt("gridHeight");
-                                        }
-                                        if (!obj.isNull("gridWidth")) {
-                                            windData1.width = obj.getInt("gridWidth");
-                                        }
-                                        if (!obj.isNull("x0")) {
-                                            windData1.x0 = obj.getDouble("x0");
-                                        }
-                                        if (!obj.isNull("y0")) {
-                                            windData1.y0 = obj.getDouble("y0");
-                                        }
-                                        if (!obj.isNull("x1")) {
-                                            windData1.x1 = obj.getDouble("x1");
-                                        }
-                                        if (!obj.isNull("y1")) {
-                                            windData1.y1 = obj.getDouble("y1");
-                                        }
-                                        if (!obj.isNull("filetime")) {
-                                            windData1.filetime = obj.getString("filetime");
-                                        }
-
-                                        if (!obj.isNull("field")) {
-                                            windData1.dataList.clear();
-                                            JSONArray array = new JSONArray(obj.getString("field"));
-                                            for (int i = 0; i < array.length(); i += 2) {
-                                                WindDto dto2 = new WindDto();
-                                                dto2.initX = (float) (array.optDouble(i));
-                                                dto2.initY = (float) (array.optDouble(i + 1));
-                                                windData1.dataList.add(dto2);
-                                            }
-                                        }
-
-                                        runOnUiThread(new Runnable() {
-                                            @Override
-                                            public void run() {
-                                                cancelDialog();
-                                                reloadWind(false);
-                                            }
-                                        });
-
-                                    }
-                                } catch (JSONException e1) {
-                                    e1.printStackTrace();
+                        if (!response.isSuccessful()) {
+                            return;
+                        }
+                        String result = response.body().string();
+                        if (!TextUtils.isEmpty(result)) {
+                            try {
+                                JSONObject obj = new JSONObject(result);
+                                if (windData1 == null) {
+                                    windData1 = new WindData();
                                 }
+                                if (obj != null) {
+                                    if (!obj.isNull("gridHeight")) {
+                                        windData1.height = obj.getInt("gridHeight");
+                                    }
+                                    if (!obj.isNull("gridWidth")) {
+                                        windData1.width = obj.getInt("gridWidth");
+                                    }
+                                    if (!obj.isNull("x0")) {
+                                        windData1.x0 = obj.getDouble("x0");
+                                    }
+                                    if (!obj.isNull("y0")) {
+                                        windData1.y0 = obj.getDouble("y0");
+                                    }
+                                    if (!obj.isNull("x1")) {
+                                        windData1.x1 = obj.getDouble("x1");
+                                    }
+                                    if (!obj.isNull("y1")) {
+                                        windData1.y1 = obj.getDouble("y1");
+                                    }
+                                    if (!obj.isNull("filetime")) {
+                                        windData1.filetime = obj.getString("filetime");
+                                    }
+
+                                    if (!obj.isNull("field")) {
+                                        windData1.dataList.clear();
+                                        JSONArray array = new JSONArray(obj.getString("field"));
+                                        for (int i = 0; i < array.length(); i += 2) {
+                                            WindDto dto2 = new WindDto();
+                                            dto2.initX = (float) (array.optDouble(i));
+                                            dto2.initY = (float) (array.optDouble(i + 1));
+                                            windData1.dataList.add(dto2);
+                                        }
+                                    }
+
+                                    runOnUiThread(new Runnable() {
+                                        @Override
+                                        public void run() {
+                                            cancelDialog();
+                                            reloadWind(false);
+                                        }
+                                    });
+
+                                }
+                            } catch (JSONException e1) {
+                                e1.printStackTrace();
                             }
                         }
                     }
@@ -450,7 +454,6 @@ public class WaitWindActivity extends BaseActivity implements OnClickListener, A
                 break;
             case R.id.ivSwitch:
                 if (isGfs) {
-                    ivSwitch.setImageResource(R.drawable.gfs);
                     if (windData1 == null) {
                         asyncT639();
                     }else {
@@ -458,7 +461,6 @@ public class WaitWindActivity extends BaseActivity implements OnClickListener, A
                     }
                     isGfs = false;
                 }else {
-                    ivSwitch.setImageResource(R.drawable.t639);
                     if (windData2 == null) {
                         asyncGFS();
                     }else {

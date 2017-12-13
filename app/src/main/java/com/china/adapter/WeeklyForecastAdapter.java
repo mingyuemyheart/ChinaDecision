@@ -1,7 +1,10 @@
 package com.china.adapter;
 
+/**
+ * 15天预报
+ */
+
 import android.content.Context;
-import android.graphics.drawable.Drawable;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -11,7 +14,6 @@ import android.widget.TextView;
 
 import com.china.R;
 import com.china.dto.WeatherDto;
-import com.china.utils.CommonUtil;
 import com.china.utils.WeatherUtil;
 
 import java.text.ParseException;
@@ -23,7 +25,7 @@ public class WeeklyForecastAdapter extends BaseAdapter{
 	
 	private Context mContext = null;
 	private LayoutInflater mInflater = null;
-	private List<WeatherDto> mArrayList = new ArrayList<WeatherDto>();
+	private List<WeatherDto> mArrayList = new ArrayList<>();
 	private SimpleDateFormat sdf1 = new SimpleDateFormat("yyyyMMdd");
 	private SimpleDateFormat sdf2 = new SimpleDateFormat("MM/dd");
 	
@@ -103,26 +105,33 @@ public class WeeklyForecastAdapter extends BaseAdapter{
 		if (dto.highTemp >= 35) {
 			mHolder.ivHighPhe.setBackgroundResource(R.drawable.bg_weather_temp);
 			mHolder.ivHighPhe.setImageBitmap(WeatherUtil.getDayBitmapWhite(mContext, dto.highPheCode));
-		}else {
-			if (dto.highPhe.contains("雨") || dto.highPhe.contains("雪")) {
+		} else if (dto.highPhe.contains("雨") || dto.highPhe.contains("雪")) {
+			mHolder.ivHighPhe.setBackgroundResource(R.drawable.bg_weather_wind);
+			mHolder.ivHighPhe.setImageBitmap(WeatherUtil.getDayBitmapWhite(mContext, dto.highPheCode));
+		} else if (dto.highPhe.contains("雾") || dto.highPhe.contains("霾")) {
+			mHolder.ivHighPhe.setBackgroundResource(R.drawable.bg_weather_fog);
+			mHolder.ivHighPhe.setImageBitmap(WeatherUtil.getDayBitmapWhite(mContext, dto.highPheCode));
+		} else if (dto.highPhe.contains("沙") || dto.highPhe.contains("尘")) {
+			mHolder.ivHighPhe.setBackgroundResource(R.drawable.bg_weather_storm);
+			mHolder.ivHighPhe.setImageBitmap(WeatherUtil.getDayBitmapWhite(mContext, dto.highPheCode));
+		} else if (position > 0){
+			WeatherDto before = mArrayList.get(position-1);
+			if ((before.highTemp-dto.highTemp) >= 6) {
 				mHolder.ivHighPhe.setBackgroundResource(R.drawable.bg_weather_wind);
 				mHolder.ivHighPhe.setImageBitmap(WeatherUtil.getDayBitmapWhite(mContext, dto.highPheCode));
-			}else if (dto.highPhe.contains("雾") || dto.highPhe.contains("霾")) {
-				mHolder.ivHighPhe.setBackgroundResource(R.drawable.bg_weather_fog);
-				mHolder.ivHighPhe.setImageBitmap(WeatherUtil.getDayBitmapWhite(mContext, dto.highPheCode));
-			}else if (dto.highPhe.contains("沙") || dto.highPhe.contains("尘")) {
-				mHolder.ivHighPhe.setBackgroundResource(R.drawable.bg_weather_storm);
-				mHolder.ivHighPhe.setImageBitmap(WeatherUtil.getDayBitmapWhite(mContext, dto.highPheCode));
-			}else {
+			} else {
 				mHolder.ivHighPhe.setBackgroundResource(R.drawable.bg_weather_default);
 				mHolder.ivHighPhe.setImageBitmap(WeatherUtil.getDayBitmap(mContext, dto.highPheCode));
 			}
+		} else {
+			mHolder.ivHighPhe.setBackgroundResource(R.drawable.bg_weather_default);
+			mHolder.ivHighPhe.setImageBitmap(WeatherUtil.getDayBitmap(mContext, dto.highPheCode));
 		}
 		mHolder.tvHighPhe.setText(dto.highPhe);
 		mHolder.tvHighTemp.setText(dto.highTemp+"℃");
 		mHolder.tvHighWind.setText(mContext.getString(WeatherUtil.getWindDirection(dto.highWindDir))
 		+WeatherUtil.getDayWindForce(dto.highWindForce));
-		if (dto.highWindForce >= 4) {
+		if (dto.highWindForce >= 1) {
 			mHolder.ivHighWind.setBackgroundResource(R.drawable.bg_weather_wind);
 			mHolder.ivHighWind.setImageBitmap(WeatherUtil.getWindBitmapWhite(mContext, dto.highWindForce));
 		}else {
@@ -135,26 +144,24 @@ public class WeeklyForecastAdapter extends BaseAdapter{
 		if (dto.lowTemp >= 35) {
 			mHolder.ivLowPhe.setBackgroundResource(R.drawable.bg_weather_temp);
 			mHolder.ivLowPhe.setImageBitmap(WeatherUtil.getNightBitmapWhite(mContext, dto.lowPheCode));
-		}else {
-			if (dto.lowPhe.contains("雨") || dto.lowPhe.contains("雪")) {
-				mHolder.ivLowPhe.setBackgroundResource(R.drawable.bg_weather_wind);
-				mHolder.ivLowPhe.setImageBitmap(WeatherUtil.getNightBitmapWhite(mContext, dto.lowPheCode));
-			}else if (dto.lowPhe.contains("雾") || dto.lowPhe.contains("霾")) {
-				mHolder.ivLowPhe.setBackgroundResource(R.drawable.bg_weather_fog);
-				mHolder.ivLowPhe.setImageBitmap(WeatherUtil.getNightBitmapWhite(mContext, dto.lowPheCode));
-			}else if (dto.lowPhe.contains("沙") || dto.lowPhe.contains("尘")) {
-				mHolder.ivLowPhe.setBackgroundResource(R.drawable.bg_weather_storm);
-				mHolder.ivLowPhe.setImageBitmap(WeatherUtil.getNightBitmapWhite(mContext, dto.lowPheCode));
-			}else {
-				mHolder.ivLowPhe.setBackgroundResource(R.drawable.bg_weather_default);
-				mHolder.ivLowPhe.setImageBitmap(WeatherUtil.getNightBitmap(mContext, dto.lowPheCode));
-			}
+		} else if (dto.lowPhe.contains("雨") || dto.lowPhe.contains("雪")) {
+			mHolder.ivLowPhe.setBackgroundResource(R.drawable.bg_weather_wind);
+			mHolder.ivLowPhe.setImageBitmap(WeatherUtil.getNightBitmapWhite(mContext, dto.lowPheCode));
+		} else if (dto.lowPhe.contains("雾") || dto.lowPhe.contains("霾")) {
+			mHolder.ivLowPhe.setBackgroundResource(R.drawable.bg_weather_fog);
+			mHolder.ivLowPhe.setImageBitmap(WeatherUtil.getNightBitmapWhite(mContext, dto.lowPheCode));
+		} else if (dto.lowPhe.contains("沙") || dto.lowPhe.contains("尘")) {
+			mHolder.ivLowPhe.setBackgroundResource(R.drawable.bg_weather_storm);
+			mHolder.ivLowPhe.setImageBitmap(WeatherUtil.getNightBitmapWhite(mContext, dto.lowPheCode));
+		} else {
+			mHolder.ivLowPhe.setBackgroundResource(R.drawable.bg_weather_default);
+			mHolder.ivLowPhe.setImageBitmap(WeatherUtil.getNightBitmap(mContext, dto.lowPheCode));
 		}
 		mHolder.tvLowPhe.setText(dto.lowPhe);
 		mHolder.tvLowTemp.setText(dto.lowTemp+"℃");
 		mHolder.tvLowWind.setText(mContext.getString(WeatherUtil.getWindDirection(dto.lowWindDir))
 		+WeatherUtil.getDayWindForce(dto.lowWindForce));
-		if (dto.lowWindForce >= 4) {
+		if (dto.lowWindForce >= 1) {
 			mHolder.ivLowWind.setBackgroundResource(R.drawable.bg_weather_wind);
 			mHolder.ivLowWind.setImageBitmap(WeatherUtil.getWindBitmapWhite(mContext, dto.lowWindForce));
 		}else {

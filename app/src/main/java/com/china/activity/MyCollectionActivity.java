@@ -7,6 +7,7 @@ package com.china.activity;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
+import android.text.TextUtils;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.AdapterView;
@@ -29,15 +30,15 @@ public class MyCollectionActivity extends BaseActivity implements OnClickListene
 	
 	private Context mContext = null;
 	private LinearLayout llBack = null;
-	private TextView tvTitle = null;
+	private TextView tvTitle, tvPrompt;
 	private ListView mListView = null;
 	private NewsAdapter mAdapter = null;
-	private List<NewsDto> collectList = new ArrayList<NewsDto>();//存放收藏数据的list
+	private List<NewsDto> dataList = new ArrayList<>();//存放收藏数据的list
 	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		setContentView(R.layout.my_collection);
+		setContentView(R.layout.activity_selection);
 		mContext = this;
 		initWidget();
 		initListView();
@@ -47,21 +48,28 @@ public class MyCollectionActivity extends BaseActivity implements OnClickListene
 		llBack = (LinearLayout) findViewById(R.id.llBack);
 		llBack.setOnClickListener(this);
 		tvTitle = (TextView) findViewById(R.id.tvTitle);
+		tvPrompt = (TextView) findViewById(R.id.tvPrompt);
+
 		String title = getIntent().getStringExtra(CONST.ACTIVITY_NAME);
-		tvTitle.setText(title);
-		
+		if (!TextUtils.isEmpty(title)) {
+			tvTitle.setText(title);
+		}
+
 		String columnId = getIntent().getStringExtra(CONST.COLUMN_ID);
 		CommonUtil.submitClickCount(columnId, title);
 	}
 	
 	private void getCollectData() {
 		//判断是否是已收藏
-		collectList.clear();
-		int size = MyCollectManager.readCollect(MyCollectionActivity.this, collectList);
-		if (size != 0) {
+		dataList.clear();
+		int size = MyCollectManager.readCollect(MyCollectionActivity.this, dataList);
+		if (size > 0) {
 			if (mAdapter != null) {
 				mAdapter.notifyDataSetChanged();
 			}
+			tvPrompt.setVisibility(View.GONE);
+		}else {
+			tvPrompt.setVisibility(View.VISIBLE);
 		}
 	}
 	
@@ -71,13 +79,13 @@ public class MyCollectionActivity extends BaseActivity implements OnClickListene
 	private void initListView() {
 		getCollectData();
 		mListView = (ListView) findViewById(R.id.listView);
-		mAdapter = new NewsAdapter(mContext, collectList);
+		mAdapter = new NewsAdapter(mContext, dataList);
 		mListView.setAdapter(mAdapter);
 		mListView.setOnItemClickListener(new OnItemClickListener() {
 			@Override
 			public void onItemClick(AdapterView<?> arg0, View arg1, int arg2, long arg3) {
-				NewsDto dto = collectList.get(arg2);
-				Intent intent = new Intent(mContext, UrlActivity.class);
+				NewsDto dto = dataList.get(arg2);
+				Intent intent = new Intent(mContext, WeatherInfoDetailActivity.class);
 				intent.putExtra("data", dto);
 				intent.putExtra(CONST.WEB_URL, dto.detailUrl);
 				startActivityForResult(intent, 0);
@@ -89,16 +97,20 @@ public class MyCollectionActivity extends BaseActivity implements OnClickListene
 	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
 		super.onActivityResult(requestCode, resultCode, data);
 		if (resultCode == RESULT_OK) {
-			if (requestCode == 0) {
-				getCollectData();
+			switch (requestCode) {
+				case 0:
+					getCollectData();
+					break;
 			}
 		}
 	}
 
 	@Override
 	public void onClick(View v) {
-		if (v.getId() == R.id.llBack) {
-			finish();
+		switch (v.getId()) {
+			case R.id.llBack:
+				finish();
+				break;
 		}
 	}
 	

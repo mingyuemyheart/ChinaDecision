@@ -26,8 +26,6 @@ import java.util.Map;
 
 /**
  * 应用推荐
- * @author shawn_sun
- *
  */
 
 @SuppressLint("SimpleDateFormat")

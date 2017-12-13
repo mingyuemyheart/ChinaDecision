@@ -1,5 +1,9 @@
 package com.china.adapter;
 
+/**
+ * 新闻、图文类
+ */
+
 import android.content.Context;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
@@ -22,7 +26,7 @@ public class NewsAdapter extends BaseAdapter{
 	
 	private Context mContext = null;
 	private LayoutInflater mInflater = null;
-	private List<NewsDto> mArrayList = new ArrayList<NewsDto>();
+	private List<NewsDto> mArrayList = new ArrayList<>();
 	
 	private final class ViewHolder{
 		ImageView imageView;
@@ -56,7 +60,7 @@ public class NewsAdapter extends BaseAdapter{
 	@Override
 	public View getView(int position, View convertView, ViewGroup parent) {
 		if (convertView == null) {
-			convertView = mInflater.inflate(R.layout.news_cell, null);
+			convertView = mInflater.inflate(R.layout.adapter_news, null);
 			mHolder = new ViewHolder();
 			mHolder.imageView = (ImageView) convertView.findViewById(R.id.imageView);
 			mHolder.tvTitle = (TextView) convertView.findViewById(R.id.tvTitle);
@@ -80,9 +84,7 @@ public class NewsAdapter extends BaseAdapter{
 			mHolder.imageView.setImageResource(R.drawable.iv_default_news);
 		}else {
 			FinalBitmap finalBitmap = FinalBitmap.create(mContext);
-			finalBitmap.display(mHolder.imageView, dto.imgUrl, null, (int)(CommonUtil.dip2px(mContext, 5)));
-			int dp = (int) CommonUtil.dip2px(mContext, 1);
-			mHolder.imageView.setPadding(dp, dp, dp, dp);
+			finalBitmap.display(mHolder.imageView, dto.imgUrl, null, 0);
 		}
 		
 		return convertView;

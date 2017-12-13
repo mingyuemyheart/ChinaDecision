@@ -5,66 +5,9 @@
     android:background="@color/white"
     android:orientation="vertical" >
 
-    <RelativeLayout
+    <include
         android:id="@+id/reTitle"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:background="@color/title_bg"
-        android:orientation="vertical"
-        android:paddingBottom="10dp"
-        android:paddingLeft="10dp"
-        android:paddingRight="10dp" >
-
-        <TextView
-            android:id="@+id/tvBlank"
-            android:layout_width="fill_parent"
-            android:layout_height="35dp" />
-
-        <RelativeLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_below="@+id/tvBlank" >
-
-            <LinearLayout
-                android:id="@+id/llBack"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_centerVertical="true"
-                android:gravity="center_vertical" >
-
-                <ImageView
-                    android:layout_width="@dimen/level_3"
-                    android:layout_height="@dimen/level_3"
-                    android:src="@drawable/iv_back" />
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:gravity="center_vertical"
-                    android:text="返回"
-                    android:textColor="@color/black"
-                    android:textSize="@dimen/level_4" />
-            </LinearLayout>
-
-            <TextView
-                android:id="@+id/tvTitle"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_centerInParent="true"
-                android:gravity="center"
-                android:textColor="@color/black"
-                android:textSize="@dimen/level_3" />
-
-            <ImageView
-                android:id="@+id/ivShare"
-                android:layout_width="18dp"
-                android:layout_height="18dp"
-                android:layout_alignParentRight="true"
-                android:layout_centerVertical="true"
-                android:layout_marginRight="5dp"
-                android:src="@drawable/iv_share_black" />
-        </RelativeLayout>
-    </RelativeLayout>
+        layout="@layout/layout_title"/>
 
     <com.amap.api.maps.MapView
         android:id="@+id/mapView"
@@ -120,6 +63,83 @@
             android:layout_marginRight="10dp"
             android:src="@drawable/iv_back_location"
             android:visibility="gone" />
+
+        <LinearLayout
+            android:visibility="gone"
+            android:layout_below="@+id/llPrompt"
+            android:id="@+id/llLayerButton"
+            android:layout_marginLeft="10dp"
+            android:layout_marginTop="10dp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:gravity="center_horizontal">
+
+            <ImageView
+                android:visibility="gone"
+                android:id="@+id/iv1"
+                android:layout_width="35dp"
+                android:layout_height="35dp"
+                android:src="@drawable/warning_fog"
+                android:layout_marginBottom="5dp"/>
+
+            <ImageView
+                android:visibility="gone"
+                android:id="@+id/iv2"
+                android:layout_width="35dp"
+                android:layout_height="35dp"
+                android:src="@drawable/warning_rain"
+                android:layout_marginBottom="5dp" />
+
+            <ImageView
+                android:visibility="gone"
+                android:id="@+id/iv3"
+                android:layout_width="35dp"
+                android:layout_height="35dp"
+                android:src="@drawable/warning_sand"
+                android:layout_marginBottom="5dp" />
+
+            <ImageView
+                android:visibility="gone"
+                android:id="@+id/iv4"
+                android:layout_width="35dp"
+                android:layout_height="35dp"
+                android:src="@drawable/warning_snow"
+                android:layout_marginBottom="5dp" />
+
+            <ImageView
+                android:visibility="gone"
+                android:id="@+id/iv5"
+                android:layout_width="35dp"
+                android:layout_height="35dp"
+                android:src="@drawable/warning_temp"
+                android:layout_marginBottom="5dp" />
+
+            <ImageView
+                android:visibility="gone"
+                android:id="@+id/iv6"
+                android:layout_width="35dp"
+                android:layout_height="35dp"
+                android:src="@drawable/warning_typhoon"
+                android:layout_marginBottom="5dp" />
+
+            <ImageView
+                android:visibility="gone"
+                android:id="@+id/iv7"
+                android:layout_width="35dp"
+                android:layout_height="35dp"
+                android:src="@drawable/warning_wind"
+                android:layout_marginBottom="5dp" />
+
+            <ImageView
+                android:visibility="gone"
+                android:id="@+id/iv8"
+                android:layout_width="35dp"
+                android:layout_height="35dp"
+                android:src="@drawable/warning_qiangduiliu"
+                android:layout_marginBottom="5dp" />
+
+        </LinearLayout>
 
         <com.china.view.ArcMenu
             android:id="@+id/arcMenu"

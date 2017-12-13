@@ -1,6 +1,11 @@
 package com.china.adapter;
 
+/**
+ * 城市选择
+ */
+
 import android.content.Context;
+import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -17,7 +22,7 @@ public class CityFragmentAdapter extends BaseAdapter{
 	
 	private Context mContext = null;
 	private LayoutInflater mInflater = null;
-	private List<CityDto> mArrayList = new ArrayList<CityDto>();
+	private List<CityDto> mArrayList = new ArrayList<>();
 	
 	private final class ViewHolder{
 		TextView tvName;
@@ -49,7 +54,7 @@ public class CityFragmentAdapter extends BaseAdapter{
 	@Override
 	public View getView(int position, View convertView, ViewGroup parent) {
 		if (convertView == null) {
-			convertView = mInflater.inflate(R.layout.city_item, null);
+			convertView = mInflater.inflate(R.layout.adapter_city_gridview, null);
 			mHolder = new ViewHolder();
 			mHolder.tvName = (TextView) convertView.findViewById(R.id.tvName);
 			convertView.setTag(mHolder);
@@ -58,8 +63,10 @@ public class CityFragmentAdapter extends BaseAdapter{
 		}
 		
 		CityDto dto = mArrayList.get(position);
-		mHolder.tvName.setText(dto.areaName);
-		
+		if (!TextUtils.isEmpty(dto.areaName)) {
+			mHolder.tvName.setText(dto.areaName);
+		}
+
 		return convertView;
 	}
 

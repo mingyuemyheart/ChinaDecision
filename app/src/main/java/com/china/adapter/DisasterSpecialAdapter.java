@@ -1,6 +1,11 @@
 package com.china.adapter;
 
+/**
+ * 灾情专报
+ */
+
 import android.content.Context;
+import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -13,11 +18,11 @@ import com.china.dto.DisasterDto;
 import java.util.ArrayList;
 import java.util.List;
 
-public class DisasterAdapter extends BaseAdapter{
+public class DisasterSpecialAdapter extends BaseAdapter{
 	
 	private Context mContext = null;
 	private LayoutInflater mInflater = null;
-	private List<DisasterDto> mArrayList = new ArrayList<DisasterDto>();
+	private List<DisasterDto> mArrayList = new ArrayList<>();
 	
 	private final class ViewHolder{
 		TextView tvTitle;
@@ -26,7 +31,7 @@ public class DisasterAdapter extends BaseAdapter{
 	
 	private ViewHolder mHolder = null;
 	
-	public DisasterAdapter(Context context, List<DisasterDto> mArrayList) {
+	public DisasterSpecialAdapter(Context context, List<DisasterDto> mArrayList) {
 		mContext = context;
 		this.mArrayList = mArrayList;
 		mInflater = (LayoutInflater) mContext.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
@@ -50,7 +55,7 @@ public class DisasterAdapter extends BaseAdapter{
 	@Override
 	public View getView(int position, View convertView, ViewGroup parent) {
 		if (convertView == null) {
-			convertView = mInflater.inflate(R.layout.disaster_cell, null);
+			convertView = mInflater.inflate(R.layout.adapter_disaster_special, null);
 			mHolder = new ViewHolder();
 			mHolder.tvTitle = (TextView) convertView.findViewById(R.id.tvTitle);
 			mHolder.tvTime = (TextView) convertView.findViewById(R.id.tvTime);
@@ -60,9 +65,13 @@ public class DisasterAdapter extends BaseAdapter{
 		}
 		
 		DisasterDto dto = mArrayList.get(position);
-		mHolder.tvTitle.setText(dto.title);
-		mHolder.tvTime.setText(dto.time);
-		
+		if (!TextUtils.isEmpty(dto.title)) {
+			mHolder.tvTitle.setText(dto.title);
+		}
+		if (!TextUtils.isEmpty(dto.time)) {
+			mHolder.tvTime.setText(dto.time);
+		}
+
 		return convertView;
 	}
 

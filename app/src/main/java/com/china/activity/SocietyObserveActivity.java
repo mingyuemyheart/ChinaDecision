@@ -1,13 +1,12 @@
 package com.china.activity;
 
-import android.annotation.SuppressLint;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
+import android.text.TextUtils;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -36,17 +35,22 @@ import com.china.R;
 import com.china.common.CONST;
 import com.china.dto.SocietyDto;
 import com.china.utils.CommonUtil;
-import com.china.utils.CustomHttpClient;
+import com.china.utils.OkHttpUtil;
 
-import org.apache.http.NameValuePair;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+
+import okhttp3.Call;
+import okhttp3.Callback;
+import okhttp3.Request;
+import okhttp3.Response;
 
 /**
  * 社会化观测
@@ -54,8 +58,7 @@ import java.util.List;
  *
  */
 
-@SuppressLint("SimpleDateFormat") 
-public class SocietyObserveActivity extends BaseActivity implements OnClickListener, OnMarkerClickListener, 
+public class SocietyObserveActivity extends BaseActivity implements OnClickListener, OnMarkerClickListener,
 OnMapClickListener, InfoWindowAdapter, OnMapScreenShotListener{
 	
 	private Context mContext = null;
@@ -64,7 +67,7 @@ OnMapClickListener, InfoWindowAdapter, OnMapScreenShotListener{
 	private MapView mapView = null;
 	private AMap aMap = null;
 	private float zoom = 3.7f;
-	private List<SocietyDto> mList = new ArrayList<SocietyDto>();
+	private List<SocietyDto> mList = new ArrayList<>();
 	private Marker clickMarker = null;
 	private RelativeLayout reSeekBar = null;
 	private ImageView ivPlay = null;
@@ -74,7 +77,7 @@ OnMapClickListener, InfoWindowAdapter, OnMapScreenShotListener{
 	private SocietyThread mThread = null;
 	private SimpleDateFormat sdf = new SimpleDateFormat("HH:mm");
 	private static final int HANDLER_SETMARKER_TOTOP = 1;
-	private List<Marker> markerList = new ArrayList<Marker>();
+	private List<Marker> markerList = new ArrayList<>();
 	private ImageView ivShare = null;
 
 	@Override
@@ -149,92 +152,58 @@ OnMapClickListener, InfoWindowAdapter, OnMapScreenShotListener{
 		tvStartTime.setText(sdf.format(new Date(start)));
 		tvEndTime.setText(sdf.format(new Date(end)));
 		String url = "http://dev2.rain.swarma.net/fcgi-bin/v1/user_feedback_admin.py?start="+start+"&end="+end+"&bounds=70,10,140,50&zoom=-999&source=all";
-		asyncQuery(url);
+		OkHttpData(url);
 	}
 	
-	private void asyncQuery(String requestUrl) {
-		HttpAsyncTask task = new HttpAsyncTask();
-		task.setMethod("GET");
-		task.setTimeOut(CustomHttpClient.TIME_OUT);
-		task.execute(requestUrl);
-	}
-
-	/**
-	 * 异步请求方法
-	 * 
-	 * @author dell
-	 * 
-	 */
-	private class HttpAsyncTask extends AsyncTask<String, Void, String> {
-		private String method = "GET";
-		private List<NameValuePair> nvpList = new ArrayList<NameValuePair>();
-
-		public HttpAsyncTask() {
+	private void OkHttpData(String url) {
+		if (TextUtils.isEmpty(url)) {
+			return;
 		}
+		OkHttpUtil.enqueue(new Request.Builder().url(url).build(), new Callback() {
+			@Override
+			public void onFailure(Call call, IOException e) {
 
-		@Override
-		protected String doInBackground(String... url) {
-			String result = null;
-			if (method.equalsIgnoreCase("POST")) {
-				result = CustomHttpClient.post(url[0], nvpList);
-			} else if (method.equalsIgnoreCase("GET")) {
-				result = CustomHttpClient.get(url[0]);
 			}
-			return result;
-		}
 
-		@Override
-		protected void onPostExecute(String requestResult) {
-			super.onPostExecute(requestResult);
-			mList.clear();
-			cancelDialog();
-			if (requestResult != null) {
-				try {
-					JSONObject obj = new JSONObject(requestResult);
-					if (!obj.isNull("data")) {
-						JSONArray array = obj.getJSONArray("data");
-						for (int i = 0; i < array.length(); i++) {
-							SocietyDto dto = new SocietyDto();
-							JSONObject itemObj = array.getJSONObject(i);
-							dto.lat = itemObj.getDouble("lat");
-							dto.lng = itemObj.getDouble("lon");
-							dto.time = itemObj.getLong("time");
-							dto.main = itemObj.getInt("main");
-							JSONObject subinfo = itemObj.getJSONObject("subinfo");
-							dto.type = subinfo.getInt("type");
-							dto.level = subinfo.getInt("level");
-							mList.add(dto);
+			@Override
+			public void onResponse(Call call, Response response) throws IOException {
+				if (!response.isSuccessful()) {
+					return;
+				}
+				String result = response.body().string();
+				if (!TextUtils.isEmpty(result)) {
+					try {
+						JSONObject obj = new JSONObject(result);
+						if (!obj.isNull("data")) {
+							mList.clear();
+							JSONArray array = obj.getJSONArray("data");
+							for (int i = 0; i < array.length(); i++) {
+								SocietyDto dto = new SocietyDto();
+								JSONObject itemObj = array.getJSONObject(i);
+								dto.lat = itemObj.getDouble("lat");
+								dto.lng = itemObj.getDouble("lon");
+								dto.time = itemObj.getLong("time");
+								dto.main = itemObj.getInt("main");
+								JSONObject subinfo = itemObj.getJSONObject("subinfo");
+								dto.type = subinfo.getInt("type");
+								dto.level = subinfo.getInt("level");
+								mList.add(dto);
+							}
 						}
+
+						runOnUiThread(new Runnable() {
+							@Override
+							public void run() {
+								cancelDialog();
+								addMarker();
+							}
+						});
+					} catch (JSONException e) {
+						e.printStackTrace();
 					}
-					
-					addMarker();
-				} catch (JSONException e) {
-					e.printStackTrace();
 				}
 			}
-		}
-
-		@SuppressWarnings("unused")
-		private void setParams(NameValuePair nvp) {
-			nvpList.add(nvp);
-		}
-
-		private void setMethod(String method) {
-			this.method = method;
-		}
-
-		private void setTimeOut(int timeOut) {
-			CustomHttpClient.TIME_OUT = timeOut;
-		}
-
-		/**
-		 * 取消当前task
-		 */
-		@SuppressWarnings("unused")
-		private void cancelTask() {
-			CustomHttpClient.shuttdownRequest();
-			this.cancel(true);
-		}
+		});
 	}
 	
 	private void markerExpandAnimation(Marker marker) {

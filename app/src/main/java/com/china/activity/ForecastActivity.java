@@ -7,7 +7,6 @@ package com.china.activity;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.util.DisplayMetrics;
@@ -25,15 +24,15 @@ import com.china.R;
 import com.china.adapter.WeeklyForecastAdapter;
 import com.china.dto.WeatherDto;
 import com.china.utils.CommonUtil;
-import com.china.utils.CustomHttpClient;
+import com.china.utils.OkHttpUtil;
 import com.china.utils.WeatherUtil;
 import com.china.view.WeeklyView;
 
-import org.apache.http.NameValuePair;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.IOException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -44,6 +43,10 @@ import cn.com.weather.api.WeatherAPI;
 import cn.com.weather.beans.Weather;
 import cn.com.weather.constants.Constants.Language;
 import cn.com.weather.listener.AsyncResponseHandler;
+import okhttp3.Call;
+import okhttp3.Callback;
+import okhttp3.Request;
+import okhttp3.Response;
 
 public class ForecastActivity extends BaseActivity implements OnClickListener{
 	
@@ -193,18 +196,11 @@ public class ForecastActivity extends BaseActivity implements OnClickListener{
 						}
 						if (!object.isNull("l5")) {
 							String weatherCode = WeatherUtil.lastValue(object.getString("l5"));
-							
-							try {
-								long zao8 = sdf2.parse("08").getTime();
-								long wan8 = sdf2.parse("20").getTime();
-								long current = sdf2.parse(sdf2.format(new Date())).getTime();
-								if (current >= zao8 && current < wan8) {
-									ivPhenomenon.setImageBitmap(WeatherUtil.getDayBitmap(mContext, Integer.valueOf(weatherCode)));
-								}else {
-									ivPhenomenon.setImageBitmap(WeatherUtil.getNightBitmap(mContext, Integer.valueOf(weatherCode)));
-								}
-							} catch (ParseException e) {
-								e.printStackTrace();
+							int current = Integer.parseInt(sdf2.format(new Date()));
+							if (current >= 5 && current < 18) {
+								ivPhenomenon.setImageBitmap(WeatherUtil.getDayBitmap(mContext, Integer.valueOf(weatherCode)));
+							}else {
+								ivPhenomenon.setImageBitmap(WeatherUtil.getNightBitmap(mContext, Integer.valueOf(weatherCode)));
 							}
 							tvPhe.setText(getString(WeatherUtil.getWeatherId(Integer.valueOf(weatherCode))));
 						}
@@ -253,17 +249,9 @@ public class ForecastActivity extends BaseActivity implements OnClickListener{
 							TextView tvPhe = (TextView) view.findViewById(R.id.tvPhe);
 							TextView tvTemp = (TextView) view.findViewById(R.id.tvTemp);
 							try {
-								tvHour.setText(sdf2.format(sdf1.parse(hourlyTime))+getString(R.string.hour));
-							} catch (ParseException e) {
-								e.printStackTrace();
-							}
-							tvPhe.setText(getString(WeatherUtil.getWeatherId(hourlyCode)));
-							
-							try {
-								long zao8 = sdf2.parse("08").getTime();
-								long wan8 = sdf2.parse("20").getTime();
-								long current = sdf2.parse(sdf2.format(sdf1.parse(hourlyTime))).getTime();
-								if (current >= zao8 && current < wan8) {
+								int current = Integer.parseInt(sdf2.format(sdf1.parse(hourlyTime)));
+								tvHour.setText(current+getString(R.string.hour));
+								if (current >= 5 && current < 18) {
 									ivPhe.setImageBitmap(WeatherUtil.getDayBitmap(mContext, hourlyCode));
 								}else {
 									ivPhe.setImageBitmap(WeatherUtil.getNightBitmap(mContext, hourlyCode));
@@ -271,6 +259,7 @@ public class ForecastActivity extends BaseActivity implements OnClickListener{
 							} catch (ParseException e) {
 								e.printStackTrace();
 							}
+							tvPhe.setText(getString(WeatherUtil.getWeatherId(hourlyCode)));
 							tvTemp.setText(hourlyTemp+getString(R.string.unit_degree));
 							llContainer1.addView(view);
 						}
@@ -296,7 +285,7 @@ public class ForecastActivity extends BaseActivity implements OnClickListener{
 								JSONObject secondObj = content.getWeatherForecastInfo(2).getJSONObject(0);
 								dto.highPheCode = Integer.valueOf(secondObj.getString("fa"));
 								dto.highPhe = getString(WeatherUtil.getWeatherId(Integer.valueOf(secondObj.getString("fa"))));
-								
+
 								int time1 = Integer.valueOf(secondObj.getString("fc"));
 								int time2 = Integer.valueOf(weeklyObj.getString("fd"));
 								if (time1 <= time2) {
@@ -315,7 +304,7 @@ public class ForecastActivity extends BaseActivity implements OnClickListener{
 								dto.highWindDir = Integer.valueOf(weeklyObj.getString("fe"));
 								dto.highWindForce = Integer.valueOf(weeklyObj.getString("fg"));
 							}
-							
+
 							JSONArray timeArray =  content.getTimeInfo(i);
 							JSONObject timeObj = timeArray.getJSONObject(0);
 							dto.week = timeObj.getString("t4");//星期几
@@ -373,87 +362,51 @@ public class ForecastActivity extends BaseActivity implements OnClickListener{
 	 * @param lng
 	 * @param lat
 	 */
-	private void query(double lng, double lat) {
+	private void OkHttpMinuteFall(double lng, double lat) {
 		String url = "http://api.caiyunapp.com/v2/HyTVV5YAkoxlQ3Zd/"+lng+","+lat+"/forecast";
-		HttpAsyncTask task = new HttpAsyncTask();
-		task.setMethod("GET");
-		task.setTimeOut(CustomHttpClient.TIME_OUT);
-		task.execute(url);
-	}
-	
-	/**
-	 * 异步请求方法
-	 * @author dell
-	 *
-	 */
-	private class HttpAsyncTask extends AsyncTask<String, Void, String> {
-		private String method = "GET";
-		private List<NameValuePair> nvpList = new ArrayList<NameValuePair>();
-		
-		public HttpAsyncTask() {
-		}
+		OkHttpUtil.enqueue(new Request.Builder().url(url).build(), new Callback() {
+			@Override
+			public void onFailure(Call call, IOException e) {
 
-		@Override
-		protected String doInBackground(String... url) {
-			String result = null;
-			if (method.equalsIgnoreCase("POST")) {
-				result = CustomHttpClient.post(url[0], nvpList);
-			} else if (method.equalsIgnoreCase("GET")) {
-				result = CustomHttpClient.get(url[0]);
 			}
-			return result;
-		}
 
-		@Override
-		protected void onPostExecute(String requestResult) {
-			super.onPostExecute(requestResult);
-			if (requestResult != null) {
-				try {
-					JSONObject object = new JSONObject(requestResult);
-					if (object != null) {
-						if (!object.isNull("result")) {
-							JSONObject objResult = object.getJSONObject("result");
-							if (!objResult.isNull("minutely")) {
-								JSONObject objMin = objResult.getJSONObject("minutely");
-								if (!objMin.isNull("description")) {
-									String rain = objMin.getString("description");
-									if (!TextUtils.isEmpty(rain)) {
-										tvRain.setText(rain.replace(getString(R.string.little_caiyun), ""));
-										tvRain.setVisibility(View.VISIBLE);
-									}else {
-										tvRain.setVisibility(View.GONE);
+			@Override
+			public void onResponse(Call call, Response response) throws IOException {
+				if (!response.isSuccessful()) {
+					return;
+				}
+				final String result = response.body().string();
+				runOnUiThread(new Runnable() {
+					@Override
+					public void run() {
+						if (!TextUtils.isEmpty(result)) {
+							try {
+								JSONObject object = new JSONObject(result);
+								if (object != null) {
+									if (!object.isNull("result")) {
+										JSONObject objResult = object.getJSONObject("result");
+										if (!objResult.isNull("minutely")) {
+											JSONObject objMin = objResult.getJSONObject("minutely");
+											if (!objMin.isNull("description")) {
+												String rain = objMin.getString("description");
+												if (!TextUtils.isEmpty(rain)) {
+													tvRain.setText(rain.replace(getString(R.string.little_caiyun), ""));
+													tvRain.setVisibility(View.VISIBLE);
+												}else {
+													tvRain.setVisibility(View.GONE);
+												}
+											}
+										}
 									}
 								}
+							} catch (JSONException e1) {
+								e1.printStackTrace();
 							}
 						}
 					}
-				} catch (JSONException e1) {
-					e1.printStackTrace();
-				}
+				});
 			}
-		}
-
-		@SuppressWarnings("unused")
-		private void setParams(NameValuePair nvp) {
-			nvpList.add(nvp);
-		}
-
-		private void setMethod(String method) {
-			this.method = method;
-		}
-
-		private void setTimeOut(int timeOut) {
-			CustomHttpClient.TIME_OUT = timeOut;
-		}
-
-		/**
-		 * 取消当前task
-		 */
-		@SuppressWarnings("unused")
-		private void cancelTask() {
-			CustomHttpClient.shuttdownRequest();
-			this.cancel(true);
-		}
+		});
 	}
 	
 	@Override
@@ -475,7 +428,7 @@ public class ForecastActivity extends BaseActivity implements OnClickListener{
 			CommonUtil.setListViewHeightBasedOnChildren(mListView);
 			break;
 		case R.id.ivShare:
-			Bitmap bitmap = null;
+			Bitmap bitmap;
 			if (mListView.getVisibility() == View.VISIBLE) {
 				Bitmap bitmap1 = CommonUtil.captureScrollView(scrollView);
 				Bitmap bitmap2 = BitmapFactory.decodeResource(getResources(), R.drawable.iv_share_bottom);

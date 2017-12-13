@@ -27,7 +27,7 @@
                 android:src="@drawable/iv_icon" />
 
             <TextView
-                android:id="@+id/tvContent1"
+                android:id="@+id/tvContent"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_below="@+id/ivIcon"
@@ -36,25 +36,6 @@
                 android:textColor="@color/text_color4"
                 android:textSize="@dimen/level_4" />
             
-            <TextView
-                android:id="@+id/tvContent2"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_below="@+id/tvContent1"
-                android:layout_marginTop="20dp"
-                android:lineSpacingExtra="5dp"
-                android:textColor="@color/text_color4"
-                android:textSize="@dimen/level_4" />
-            
-            <TextView
-                android:id="@+id/tvContent3"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_below="@+id/tvContent2"
-                android:layout_marginTop="20dp"
-                android:lineSpacingExtra="5dp"
-                android:textColor="@color/text_color4"
-                android:textSize="@dimen/level_4" />
         </RelativeLayout>
     </ScrollView>
 

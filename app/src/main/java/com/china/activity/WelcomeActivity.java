@@ -18,19 +18,22 @@ import com.china.utils.CommonUtil;
 
 public class WelcomeActivity extends BaseActivity{
 
+	private Context mContext = null;
+
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_welcome);
+		mContext = this;
 		new Handler().postDelayed(new Runnable() {
 			@Override
 			public void run() {
 				SharedPreferences sharedPreferences = getSharedPreferences(CONST.SHOWGUIDE, Context.MODE_PRIVATE);
 				String version = sharedPreferences.getString(CONST.VERSION, "");
-				if (!TextUtils.equals(version, CommonUtil.getVersion(getApplicationContext()))) {
-					startActivity(new Intent(getApplication(), GuideActivity.class));
+				if (!TextUtils.equals(version, CommonUtil.getVersion(mContext))) {
+					startActivity(new Intent(mContext, GuideActivity.class));
 				}else {
-					startActivity(new Intent(getApplication(), LoginActivity.class));
+					startActivity(new Intent(mContext, LoginActivity.class));
 				}
 				finish();
 			}

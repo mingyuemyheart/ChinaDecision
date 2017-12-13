@@ -330,38 +330,34 @@ public class LoginActivity extends BaseActivity implements OnClickListener, AMap
 										JSONObject obj = new JSONObject(object.getString("info"));
 										if (!obj.isNull("id")) {
 											String uid = obj.getString("id");
-											String userGroup = null;
-											if (!obj.isNull("usergroup")) {
-												userGroup = obj.getString("usergroup");
-											}
-											if (uid != null) {
-												//把用户信息保存在sharedPreferance里
-												SharedPreferences sharedPreferences = getSharedPreferences(CONST.USERINFO, Context.MODE_PRIVATE);
-												Editor editor = sharedPreferences.edit();
-												editor.putString(CONST.UserInfo.uId, uid);
-												editor.putString(CONST.UserInfo.userName, etUserName.getText().toString());
-												editor.putString(CONST.UserInfo.passWord, etPwd.getText().toString());
-												editor.putString(CONST.UserInfo.userGroup, userGroup);
-												editor.commit();
+											String userGroup = obj.getString("usergroup");
 
-												CONST.UID = uid;
-												CONST.USERNAME = etUserName.getText().toString();
-												CONST.PASSWORD = etPwd.getText().toString();
-												CONST.USERGROUP = userGroup;
+											//把用户信息保存在sharedPreferance里
+											SharedPreferences sharedPreferences = getSharedPreferences(CONST.USERINFO, Context.MODE_PRIVATE);
+											Editor editor = sharedPreferences.edit();
+											editor.putString(CONST.UserInfo.uId, uid);
+											editor.putString(CONST.UserInfo.userName, etUserName.getText().toString());
+											editor.putString(CONST.UserInfo.passWord, etPwd.getText().toString());
+											editor.putString(CONST.UserInfo.userGroup, userGroup);
+											editor.commit();
 
-												runOnUiThread(new Runnable() {
-													@Override
-													public void run() {
-														cancelDialog();
-														Intent intent = new Intent(mContext, MainActivity.class);
-														Bundle bundle = new Bundle();
-														bundle.putParcelableArrayList("dataList", (ArrayList<? extends Parcelable>) dataList);
-														intent.putExtras(bundle);
-														startActivity(intent);
-														finish();
-													}
-												});
-											}
+											CONST.UID = uid;
+											CONST.USERNAME = etUserName.getText().toString();
+											CONST.PASSWORD = etPwd.getText().toString();
+											CONST.USERGROUP = userGroup;
+
+											runOnUiThread(new Runnable() {
+												@Override
+												public void run() {
+													cancelDialog();
+													Intent intent = new Intent(mContext, MainActivity.class);
+													Bundle bundle = new Bundle();
+													bundle.putParcelableArrayList("dataList", (ArrayList<? extends Parcelable>) dataList);
+													intent.putExtras(bundle);
+													startActivity(intent);
+													finish();
+												}
+											});
 										}
 									}
 								}else {

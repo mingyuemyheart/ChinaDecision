@@ -8,35 +8,30 @@
     <include
         android:id="@+id/reTitle"
         layout="@layout/layout_title" />
-    
+
     <com.china.view.RefreshLayout
+        android:layout_below="@+id/reTitle"
         android:id="@+id/refreshLayout"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_below="@+id/reTitle"
+        android:padding="10dp"
         android:background="@color/white"
         android:orientation="vertical" >
 
-        <ListView
-            android:id="@+id/listView"
+        <GridView
+            android:id="@+id/gridView"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:cacheColorHint="@color/transparent"
-            android:divider="@color/light_gray"
-            android:dividerHeight="0.5dip"
+            android:fadingEdge="none"
+            android:gravity="center"
+            android:horizontalSpacing="10dip"
             android:listSelector="@color/transparent"
+            android:numColumns="2"
             android:overScrollMode="never"
-            android:paddingLeft="10dp"
-            android:paddingRight="10dp"
-            android:scrollbars="none" />
+            android:scrollbars="none"
+            android:stretchMode="columnWidth"
+            android:verticalSpacing="10dip" />
     </com.china.view.RefreshLayout>
-    
-    <ProgressBar
-        android:id="@+id/progressBar"
-        style="@android:style/Widget.DeviceDefault.ProgressBar"
-        android:layout_width="30dp"
-        android:layout_height="30dp"
-        android:layout_centerInParent="true"
-        android:indeterminateDrawable="@anim/anim_loading_black" />
 
 </RelativeLayout>

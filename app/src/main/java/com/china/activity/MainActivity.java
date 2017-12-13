@@ -719,7 +719,7 @@ public class MainActivity extends BaseActivity implements OnClickListener, AMapL
 			@Override
 			public void onItemClick(AdapterView<?> arg0, View arg1, int arg2, long arg3) {
 				ColumnData dto = channelList.get(arg2);
-				Intent intent = null;
+				Intent intent;
 				if (TextUtils.equals(dto.showType, CONST.PRODUCT)) {
 					if (TextUtils.isEmpty(dto.dataUrl)) {//实况监测、天气预报、专业服务、灾情信息、天气会商
 						intent = new Intent(mContext, ProductActivity.class);
@@ -735,20 +735,22 @@ public class MainActivity extends BaseActivity implements OnClickListener, AMapL
 						startActivity(intent);
 					}
 				}else if (TextUtils.equals(dto.showType, CONST.URL)) {
-					intent = new Intent(mContext, UrlActivity.class);
+					intent = new Intent(mContext, WeatherInfoDetailActivity.class);
 
 					NewsDto data = new NewsDto();
 					data.title = dto.name;
 					data.detailUrl = dto.dataUrl;
 					data.imgUrl = dto.icon;
-					intent.putExtra("data", data);
+					Bundle bundle = new Bundle();
+					bundle.putParcelable("data", data);
+					intent.putExtras(bundle);
 
 					intent.putExtra(CONST.COLUMN_ID, dto.columnId);
 					intent.putExtra(CONST.ACTIVITY_NAME, dto.name);
 					intent.putExtra(CONST.WEB_URL, dto.dataUrl);
 					startActivity(intent);
 				}else if (TextUtils.equals(dto.showType, CONST.NEWS)) {//天气资讯
-					intent = new Intent(mContext, NewsActivity.class);
+					intent = new Intent(mContext, WeatherInfoActivity.class);
 					intent.putExtra(CONST.COLUMN_ID, dto.columnId);
 					intent.putExtra(CONST.ACTIVITY_NAME, dto.name);
 					intent.putExtra(CONST.WEB_URL, dto.dataUrl);
@@ -757,7 +759,7 @@ public class MainActivity extends BaseActivity implements OnClickListener, AMapL
 					if (TextUtils.equals(dto.id, "-1")) {
 						Toast.makeText(mContext, "频道建设中", Toast.LENGTH_SHORT).show();
 					}else if (TextUtils.equals(dto.id, "1")) {//灾情信息
-						intent = new Intent(mContext, DisasterActivity.class);
+						intent = new Intent(mContext, DisasterSpecialActivity.class);
 						intent.putExtra(CONST.COLUMN_ID, dto.columnId);
 						intent.putExtra(CONST.ACTIVITY_NAME, dto.name);
 						intent.putExtra(CONST.WEB_URL, dto.dataUrl);
@@ -779,7 +781,7 @@ public class MainActivity extends BaseActivity implements OnClickListener, AMapL
 						intent.putExtra(CONST.ACTIVITY_NAME, dto.name);
 						startActivity(intent);
 					}else if (TextUtils.equals(dto.id, "102")) {//中国大陆区域彩色云图
-						intent = new Intent(mContext, UrlActivity.class);
+						intent = new Intent(mContext, WeatherInfoDetailActivity.class);
 						intent.putExtra(CONST.COLUMN_ID, dto.columnId);
 						intent.putExtra(CONST.ACTIVITY_NAME, dto.name);
 						intent.putExtra(CONST.WEB_URL, com.china.common.CONST.CLOUD_URL);
@@ -1045,7 +1047,7 @@ public class MainActivity extends BaseActivity implements OnClickListener, AMapL
 			logout(getString(R.string.logout), getString(R.string.sure_logout));
 			break;
 		case R.id.llIntro:
-			intent = new Intent(mContext, UrlActivity.class);
+			intent = new Intent(mContext, WeatherInfoDetailActivity.class);
 			intent.putExtra(CONST.ACTIVITY_NAME, "中国气象局简介");
 			intent.putExtra(CONST.WEB_URL, "http://www.cma.gov.cn/2011zwxx/2011zbmgk/201110/t20111026_117793.html");
 			startActivity(intent);

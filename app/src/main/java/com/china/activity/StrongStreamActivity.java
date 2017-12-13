@@ -65,8 +65,7 @@ import okhttp3.Callback;
 import okhttp3.Request;
 import okhttp3.Response;
 
-public class StrongStreamActivity extends BaseActivity implements OnClickListener,
-		StrongStreamManager.StrongStreamListener, OnMapScreenShotListener{
+public class StrongStreamActivity extends BaseActivity implements OnClickListener, StrongStreamManager.StrongStreamListener, OnMapScreenShotListener{
 	
 	private Context mContext = null;
 	private LinearLayout llBack = null;

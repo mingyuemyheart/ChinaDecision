@@ -1,12 +1,11 @@
 package com.china.activity;
 
 /**
- * 农业气象
+ * 农业气象等
  */
 
 import android.content.Context;
 import android.content.Intent;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.view.View;
@@ -15,7 +14,6 @@ import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.GridView;
 import android.widget.LinearLayout;
-import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import com.china.R;
@@ -24,17 +22,22 @@ import com.china.common.CONST;
 import com.china.common.ColumnData;
 import com.china.dto.NewsDto;
 import com.china.utils.CommonUtil;
-import com.china.utils.CustomHttpClient;
+import com.china.utils.OkHttpUtil;
 import com.china.view.RefreshLayout;
 import com.china.view.RefreshLayout.OnRefreshListener;
 
-import org.apache.http.NameValuePair;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+
+import okhttp3.Call;
+import okhttp3.Callback;
+import okhttp3.Request;
+import okhttp3.Response;
 
 public class ProductActivity2 extends BaseActivity implements OnClickListener, OnRefreshListener{
 	
@@ -43,15 +46,13 @@ public class ProductActivity2 extends BaseActivity implements OnClickListener, O
 	private TextView tvTitle = null;
 	private GridView gridView = null;
 	private ProductAdapter mAdapter = null;
-	private List<ColumnData> mList = new ArrayList<ColumnData>();
+	private List<ColumnData> mList = new ArrayList<>();
 	private RefreshLayout refreshLayout = null;//下拉刷新布局
-	private String dataUrl = null;
-	private ProgressBar progressBar = null;
-	
+
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		setContentView(R.layout.product2);
+		setContentView(R.layout.activity_product2);
 		mContext = this;
 		initRefreshLayout();
 		initWidget();
@@ -71,10 +72,19 @@ public class ProductActivity2 extends BaseActivity implements OnClickListener, O
 
 	@Override
 	public void onRefresh() {
+		refresh();
+	}
+
+	private void refresh() {
+		String title = getIntent().getStringExtra(CONST.ACTIVITY_NAME);
+		if (!TextUtils.isEmpty(title)) {
+			tvTitle.setText(title);
+		}
+
 		mList.clear();
-		dataUrl = getIntent().getStringExtra(CONST.WEB_URL);
+		String dataUrl = getIntent().getStringExtra(CONST.WEB_URL);
 		if (!TextUtils.isEmpty(dataUrl)) {
-			asyncQuery(dataUrl);
+			OkHttpList(dataUrl);
 		}else {
 			ColumnData data = getIntent().getExtras().getParcelable("data");
 			if (data != null) {
@@ -83,30 +93,16 @@ public class ProductActivity2 extends BaseActivity implements OnClickListener, O
 				mList.addAll(data.child);
 			}
 		}
+		String columnId = getIntent().getStringExtra(CONST.COLUMN_ID);
+		CommonUtil.submitClickCount(columnId, title);
 	}
 
 	private void initWidget() {
 		llBack = (LinearLayout) findViewById(R.id.llBack);
 		llBack.setOnClickListener(this);
-		progressBar = (ProgressBar) findViewById(R.id.progressBar);
 		tvTitle = (TextView) findViewById(R.id.tvTitle);
-		String title = getIntent().getStringExtra(CONST.ACTIVITY_NAME);
-		tvTitle.setText(title);
 
-		dataUrl = getIntent().getStringExtra(CONST.WEB_URL);
-		if (!TextUtils.isEmpty(dataUrl)) {
-			asyncQuery(dataUrl);
-		}else {
-			ColumnData data = getIntent().getExtras().getParcelable("data");
-			if (data != null) {
-				tvTitle.setText(data.name);
-				mList.clear();
-				mList.addAll(data.child);
-			}
-		}
-		
-		String columnId = getIntent().getStringExtra(CONST.COLUMN_ID);
-		CommonUtil.submitClickCount(columnId, title);
+		refresh();
 	}
 	
 	/**
@@ -121,8 +117,8 @@ public class ProductActivity2 extends BaseActivity implements OnClickListener, O
 			public void onItemClick(AdapterView<?> arg0, View arg1, int arg2, long arg3) {
 				ColumnData dto = mList.get(arg2);
 				Intent intent;
-				if (TextUtils.equals(dto.showType, CONST.NEWS)) {
-					intent = new Intent(mContext, NewsActivity.class);
+				if (TextUtils.equals(dto.showType, CONST.NEWS)) {//天气资讯
+					intent = new Intent(mContext, WeatherInfoActivity.class);
 					intent.putExtra(CONST.COLUMN_ID, dto.columnId);
 					intent.putExtra(CONST.ACTIVITY_NAME, dto.name);
 					intent.putExtra(CONST.WEB_URL, dto.dataUrl);
@@ -135,12 +131,14 @@ public class ProductActivity2 extends BaseActivity implements OnClickListener, O
 							intent.putExtra(CONST.WEB_URL, dto.dataUrl);
 							startActivity(intent);
 						}else {//网页、图片
-							intent = new Intent(mContext, UrlActivity.class);
+							intent = new Intent(mContext, WeatherInfoDetailActivity.class);
 							NewsDto data = new NewsDto();
 							data.title = dto.name;
 							data.detailUrl = dto.dataUrl;
 							data.imgUrl = dto.icon;
-							intent.putExtra("data", data);
+							Bundle bundle = new Bundle();
+							bundle.putParcelable("data", data);
+							intent.putExtras(bundle);
 
 							intent.putExtra(CONST.COLUMN_ID, dto.columnId);
 							intent.putExtra(CONST.ACTIVITY_NAME, dto.name);
@@ -154,91 +152,58 @@ public class ProductActivity2 extends BaseActivity implements OnClickListener, O
 		});
 	}
 	
-	private void asyncQuery(String url) {
-		HttpAsyncTask task = new HttpAsyncTask();
-		task.setMethod("GET");
-		task.setTimeOut(CustomHttpClient.TIME_OUT);
-		task.execute(url);
-	}
-	
-	/**
-	 * 异步请求方法
-	 * @author dell
-	 *
-	 */
-	private class HttpAsyncTask extends AsyncTask<String, Void, String> {
-		private String method = "GET";
-		private List<NameValuePair> nvpList = new ArrayList<NameValuePair>();
-		
-		public HttpAsyncTask() {
-		}
+	private void OkHttpList(String url) {
+		OkHttpUtil.enqueue(new Request.Builder().url(url).build(), new Callback() {
+			@Override
+			public void onFailure(Call call, IOException e) {
 
-		@Override
-		protected String doInBackground(String... url) {
-			String result = null;
-			if (method.equalsIgnoreCase("POST")) {
-				result = CustomHttpClient.post(url[0], nvpList);
-			} else if (method.equalsIgnoreCase("GET")) {
-				result = CustomHttpClient.get(url[0]);
 			}
-			return result;
-		}
 
-		@Override
-		protected void onPostExecute(String requestResult) {
-			super.onPostExecute(requestResult);
-			progressBar.setVisibility(View.GONE);
-			refreshLayout.setRefreshing(false);
-			if (requestResult != null) {
-				try {
-					JSONObject obj = new JSONObject(requestResult);
-					if (!obj.isNull("l")) {
-						JSONArray array = new JSONArray(obj.getString("l"));
-						for (int i = 0; i < array.length(); i++) {
-							JSONObject itemObj = array.getJSONObject(i);
-							ColumnData dto = new ColumnData();
-							dto.name = itemObj.getString("l1");
-							dto.dataUrl = itemObj.getString("l2");
-							dto.icon = itemObj.getString("l4");
-							mList.add(dto);
+			@Override
+			public void onResponse(Call call, Response response) throws IOException {
+				if (!response.isSuccessful()) {
+					return;
+				}
+				String result = response.body().string();
+				if (!TextUtils.isEmpty(result)) {
+					try {
+						JSONObject obj = new JSONObject(result);
+						if (!obj.isNull("l")) {
+							JSONArray array = new JSONArray(obj.getString("l"));
+							for (int i = 0; i < array.length(); i++) {
+								JSONObject itemObj = array.getJSONObject(i);
+								ColumnData dto = new ColumnData();
+								dto.name = itemObj.getString("l1");
+								dto.dataUrl = itemObj.getString("l2");
+								dto.icon = itemObj.getString("l4");
+								mList.add(dto);
+							}
 						}
+
+						runOnUiThread(new Runnable() {
+							@Override
+							public void run() {
+								if (mList.size() > 0 && mAdapter != null) {
+									mAdapter.notifyDataSetChanged();
+								}
+								refreshLayout.setRefreshing(false);
+							}
+						});
+
+					} catch (JSONException e1) {
+						e1.printStackTrace();
 					}
-					if (mAdapter != null) {
-						mAdapter.notifyDataSetChanged();
-					}
-				} catch (JSONException e1) {
-					e1.printStackTrace();
 				}
 			}
-		}
-
-		@SuppressWarnings("unused")
-		private void setParams(NameValuePair nvp) {
-			nvpList.add(nvp);
-		}
-
-		private void setMethod(String method) {
-			this.method = method;
-		}
-
-		private void setTimeOut(int timeOut) {
-			CustomHttpClient.TIME_OUT = timeOut;
-		}
-
-		/**
-		 * 取消当前task
-		 */
-		@SuppressWarnings("unused")
-		private void cancelTask() {
-			CustomHttpClient.shuttdownRequest();
-			this.cancel(true);
-		}
+		});
 	}
 
 	@Override
 	public void onClick(View v) {
-		if (v.getId() == R.id.llBack) {
-			finish();
+		switch (v.getId()) {
+			case R.id.llBack:
+				finish();
+				break;
 		}
 	}
 	

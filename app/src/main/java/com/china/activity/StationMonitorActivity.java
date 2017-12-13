@@ -111,7 +111,7 @@ public class StationMonitorActivity extends BaseActivity implements OnClickListe
     private TextView tvTitle = null;
     private MapView mMapView = null;
     private AMap aMap = null;
-    private List<StationMonitorDto> stationList = new ArrayList<StationMonitorDto>();
+    private List<StationMonitorDto> stationList = new ArrayList<>();
     private TextView tvName = null;
     private TextView tvStationId = null;
     private TextView tvTemp = null;
@@ -140,7 +140,7 @@ public class StationMonitorActivity extends BaseActivity implements OnClickListe
     private TextView tvVisibility2 = null;
     private TextView tvPressure2 = null;
     private TextView tvWindSpeed2 = null;
-    private List<Marker> markerList = new ArrayList<Marker>();//10个站点的marker
+    private List<Marker> markerList = new ArrayList<>();//10个站点的marker
     private ImageView ivMapSearch = null;//省市县筛选站点
     private double locationLat = 0;
     private double locationLng = 0;
@@ -165,8 +165,8 @@ public class StationMonitorActivity extends BaseActivity implements OnClickListe
     private String visibilityJson = null;
     private String windspeedJson = null;
     private String airpressureJson = null;
-    private List<Polygon> polygons = new ArrayList<Polygon>();
-    private List<Text> texts = new ArrayList<Text>();//等值线
+    private List<Polygon> polygons = new ArrayList<>();
+    private List<Text> texts = new ArrayList<>();//等值线
     private ImageView ivLocation = null;//定位按钮
     private TextView tvLayerName = null;//图层名称
     private String layerName = "全国";

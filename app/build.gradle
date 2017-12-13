@@ -11,10 +11,10 @@ android {
 
     defaultConfig {
         applicationId "com.china"
-        minSdkVersion 16
+        minSdkVersion 17
         targetSdkVersion 22
-        versionCode 78
-        versionName "3.0.93"
+        versionCode 79
+        versionName "3.0.94"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
     }
     buildTypes {

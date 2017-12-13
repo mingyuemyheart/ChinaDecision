@@ -1,13 +1,20 @@
 package com.china.activity;
 
+/**
+ * 城市预报
+ */
+
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Point;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Message;
 import android.text.TextUtils;
 import android.util.DisplayMetrics;
+import android.util.Log;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -48,7 +55,10 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 
 import cn.com.weather.api.WeatherAPI;
 import cn.com.weather.beans.Weather;
@@ -68,23 +78,24 @@ public class CityForecastActivity extends BaseActivity implements OnClickListene
     private TextView tvTitle = null;
     private MapView mMapView = null;
     private AMap aMap = null;
-    private List<WeatherStaticsDto> provinceList = new ArrayList<WeatherStaticsDto>();//省级
-    private List<WeatherStaticsDto> cityList = new ArrayList<WeatherStaticsDto>();//市级
-    private List<WeatherStaticsDto> districtList = new ArrayList<WeatherStaticsDto>();//县级
+    private HashMap<String, WeatherStaticsDto> proMap = new HashMap<>();//省级
+    private HashMap<String, WeatherStaticsDto> cityMap = new HashMap<>();//市级
+    private HashMap<String, WeatherStaticsDto> disMap = new HashMap<>();//县级
     public final static String SANX_DATA_99 = "sanx_data_99";//加密秘钥名称
     public final static String APPID = "f63d329270a44900";//机密需要用到的AppId
     private float zoom = 3.7f;
     private boolean isClick = false;//判断是否点击
     private ImageView ivShare = null;
     private ImageView ivMapSearch = null;
-    private List<Marker> markerList = new ArrayList<Marker>();
+    private List<Marker> markerList = new ArrayList<>();
     private LatLng leftlatlng = null;
     private LatLng rightLatlng = null;
     private Marker clickMarker = null;
     private TextView tvTime = null;
     private SimpleDateFormat sdf1 = new SimpleDateFormat("yyyyMMddHHmm");
     private SimpleDateFormat sdf2 = new SimpleDateFormat("yyyy年MM月dd日 HH时");
-    private List<WeatherDto> weatherList = new ArrayList<>();//已请求过得城市信息
+    private HashMap<String, WeatherDto> weatherMap = new HashMap<>();//已请求过得城市信息
+    private boolean isFirstLoading = true;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -92,8 +103,8 @@ public class CityForecastActivity extends BaseActivity implements OnClickListene
         setContentView(R.layout.activity_city_forecast);
         mContext = this;
         showDialog();
-        initWidget();
         initMap(savedInstanceState);
+        initWidget();
     }
 
     /**
@@ -114,13 +125,8 @@ public class CityForecastActivity extends BaseActivity implements OnClickListene
         if (title != null) {
             tvTitle.setText(title);
         }
-        tvTitle.setOnLongClickListener(new View.OnLongClickListener() {
-            @Override
-            public boolean onLongClick(View v) {
-                return false;
-            }
-        });
 
+        OkHttpCityForecast(getSecretUrl());
     }
 
     /**
@@ -141,12 +147,6 @@ public class CityForecastActivity extends BaseActivity implements OnClickListene
         aMap.setOnCameraChangeListener(this);
         aMap.setInfoWindowAdapter(this);
         aMap.setOnInfoWindowClickListener(this);
-        aMap.setOnMapLoadedListener(new AMap.OnMapLoadedListener() {
-            @Override
-            public void onMapLoaded() {
-                queryCityForecast(getSecretUrl());
-            }
-        });
     }
 
     /**
@@ -178,7 +178,7 @@ public class CityForecastActivity extends BaseActivity implements OnClickListene
      * 获取数据
      * @param url
      */
-    private void queryCityForecast(String url) {
+    private void OkHttpCityForecast(String url) {
         OkHttpUtil.enqueue(new Request.Builder().url(url).build(), new Callback() {
             @Override
             public void onFailure(Call call, IOException e) {
@@ -190,30 +190,36 @@ public class CityForecastActivity extends BaseActivity implements OnClickListene
                 if (!response.isSuccessful()) {
                     return;
                 }
-                String result = response.body().string();
-                if (result != null) {
-                    parseStationInfo(result, "level1", provinceList);
-                    parseStationInfo(result, "level2", cityList);
-                    parseStationInfo(result, "level3", districtList);
+                final String result = response.body().string();
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        if (!TextUtils.isEmpty(result)) {
+                            parseStationInfo(result, "level1", proMap);
+                            parseStationInfo(result, "level2", cityMap);
+                            parseStationInfo(result, "level3", disMap);
 
-                    for (int i = 0; i < provinceList.size(); i++) {
-                        WeatherStaticsDto dto = provinceList.get(i);
-                        getWeathersInfo(dto.areaId);
+                            Iterator iterator = proMap.entrySet().iterator();
+                            while (iterator.hasNext()) {
+                                Map.Entry entry = (Map.Entry) iterator.next();
+                                Object key = entry.getKey();
+                                getWeathersInfo(key+"");
+                            }
+                            cancelDialog();
+                        }
                     }
-                    cancelDialog();
-                }
+                });
             }
         });
-
     }
 
     /**
      * 解析数据
      */
-    private void parseStationInfo(String result, String level, List<WeatherStaticsDto> list) {
-        list.clear();
+    private void parseStationInfo(String result, String level, HashMap<String, WeatherStaticsDto> map) {
+        map.clear();
         try {
-            JSONObject obj = new JSONObject(result.toString());
+            JSONObject obj = new JSONObject(result);
             if (!obj.isNull(level)) {
                 JSONArray array = new JSONArray(obj.getString(level));
                 for (int i = 0; i < array.length(); i++) {
@@ -237,7 +243,13 @@ public class CityForecastActivity extends BaseActivity implements OnClickListene
                     if (!itemObj.isNull("lon")) {
                         dto.longitude = itemObj.getString("lon");
                     }
-                    list.add(dto);
+                    if (TextUtils.equals(level, "level3")) {
+                        if (dto.areaId.contains("10101") || dto.areaId.contains("10102") || dto.areaId.contains("10103") || dto.areaId.contains("10104")) {
+                            map.put(dto.areaId, dto);
+                        }
+                    }else {
+                        map.put(dto.areaId, dto);
+                    }
                 }
             }
         } catch (JSONException e) {
@@ -280,7 +292,9 @@ public class CityForecastActivity extends BaseActivity implements OnClickListene
                     dto.publishTime = content.getForecastTime();
                     dto.isLoaded = true;
 
-                    weatherList.add(dto);
+                    if (!weatherMap.containsKey(dto.cityId)) {
+                        weatherMap.put(dto.cityId, dto);
+                    }
 
                     addMarker(dto);
                 }catch (JSONException e) {
@@ -291,22 +305,16 @@ public class CityForecastActivity extends BaseActivity implements OnClickListene
     }
 
     private void addMarker(final WeatherDto dto) {
-        runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                if (TextUtils.isEmpty(tvTime.getText().toString())) {
-                    if (!TextUtils.isEmpty(dto.publishTime)) {
-                        try {
-                            tvTime.setText(sdf2.format(sdf1.parse(dto.publishTime))+"预报");
-                            tvTime.setVisibility(View.VISIBLE);
-                        } catch (ParseException e) {
-                            e.printStackTrace();
-                        }
-                    }
+        if (TextUtils.isEmpty(tvTime.getText().toString())) {
+            if (!TextUtils.isEmpty(dto.publishTime)) {
+                try {
+                    tvTime.setText(sdf2.format(sdf1.parse(dto.publishTime))+"预报");
+                    tvTime.setVisibility(View.VISIBLE);
+                } catch (ParseException e) {
+                    e.printStackTrace();
                 }
             }
-        });
-
+        }
 
         double lat = Double.valueOf(dto.lat);
         double lng = Double.valueOf(dto.lng);
@@ -315,7 +323,7 @@ public class CityForecastActivity extends BaseActivity implements OnClickListene
             options.title(dto.cityId);
             options.snippet(dto.cityName+","+dto.highPheCode+","+dto.highTemp+","+dto.highWindDir+","+dto.highWindForce
             +","+dto.lowPheCode+","+dto.lowTemp+","+dto.lowWindDir+","+dto.lowWindForce);
-            options.anchor(0.5f, 0.5f);
+            options.anchor(0.5f, 1.0f);
             options.position(new LatLng(lat, lng));
             options.icon(BitmapDescriptorFactory.fromView(getTextBitmap(dto.highPheCode)));
             Marker marker = aMap.addMarker(options);
@@ -327,51 +335,16 @@ public class CityForecastActivity extends BaseActivity implements OnClickListene
                 options.title(dto.cityId);
                 options.snippet(dto.cityName+","+dto.highPheCode+","+dto.highTemp+","+dto.highWindDir+","+dto.highWindForce
                         +","+dto.lowPheCode+","+dto.lowTemp+","+dto.lowWindDir+","+dto.lowWindForce);
-                options.anchor(0.5f, 0.5f);
+                options.anchor(0.5f, 1.0f);
                 options.position(new LatLng(lat, lng));
                 options.icon(BitmapDescriptorFactory.fromView(getTextBitmap(dto.highPheCode)));
                 Marker marker = aMap.addMarker(options);
                 markerList.add(marker);
                 markerExpandAnimation(marker);
+                Log.e("name", dto.cityName);
             }
         }
     }
-
-    /**
-     * 添加marker
-     */
-//    private void addMarker(List<WeatherDto> list) {
-//        if (list.isEmpty()) {
-//            return;
-//        }
-//
-//        for (int i = 0; i < list.size(); i++) {
-//            WeatherDto dto = list.get(i);
-//            double lat = Double.valueOf(dto.lat);
-//            double lng = Double.valueOf(dto.lng);
-//            if (leftlatlng == null || rightLatlng == null) {
-//                MarkerOptions options = new MarkerOptions();
-//                options.title(list.get(i).cityId);
-//                options.anchor(0.5f, 0.5f);
-//                options.position(new LatLng(lat, lng));
-//                options.icon(BitmapDescriptorFactory.fromView(getTextBitmap(list.get(i).highPheCode)));
-//                Marker marker = aMap.addMarker(options);
-//                markerList.add(marker);
-//                markerExpandAnimation(marker);
-//            }else {
-//                if (lat > leftlatlng.latitude && lat < rightLatlng.latitude && lng > leftlatlng.longitude && lng < rightLatlng.longitude) {
-//                    MarkerOptions options = new MarkerOptions();
-//                    options.title(list.get(i).cityId);
-//                    options.anchor(0.5f, 0.5f);
-//                    options.position(new LatLng(lat, lng));
-//                    options.icon(BitmapDescriptorFactory.fromView(getTextBitmap(list.get(i).highPheCode)));
-//                    Marker marker = aMap.addMarker(options);
-//                    markerList.add(marker);
-//                    markerExpandAnimation(marker);
-//                }
-//            }
-//        }
-//    }
 
     /**
      * 给marker添加文字
@@ -471,6 +444,11 @@ public class CityForecastActivity extends BaseActivity implements OnClickListene
 
     @Override
     public void onCameraChangeFinish(CameraPosition arg0) {
+        if (isFirstLoading) {
+            isFirstLoading = false;
+            return;
+        }
+
         DisplayMetrics dm = new DisplayMetrics();
         getWindowManager().getDefaultDisplay().getMetrics(dm);
         Point leftPoint = new Point(0, dm.heightPixels);
@@ -486,79 +464,88 @@ public class CityForecastActivity extends BaseActivity implements OnClickListene
         zoom = arg0.zoom;
         removeMarkers();
 
-        if (arg0.zoom <= 6.0f) {
-            for (int i = 0; i < provinceList.size(); i++) {
-                boolean isContain = false;
-                for (int j = 0; j < weatherList.size(); j++) {
-                    if (TextUtils.equals(provinceList.get(i).areaId, weatherList.get(j).cityId)) {
-                        addMarker(weatherList.get(j));
-                        break;
-                    }
-                }
-                if (isContain == false) {
-                    getWeathersInfo(provinceList.get(i).areaId);
+        handler.removeMessages(1001);
+        Message msg = handler.obtainMessage();
+        msg.what = 1001;
+        msg.obj = zoom;
+        handler.sendMessageDelayed(msg, 1001);
+    }
+
+    private Handler handler = new Handler() {
+        @Override
+        public void handleMessage(Message msg) {
+            super.handleMessage(msg);
+            switch (msg.what) {
+                case 1001:
+                    float arg0 = (float)msg.obj;
+                    moveMap(arg0);
+                    break;
+            }
+        }
+    };
+
+    private void moveMap(float arg0) {
+        if (arg0 <= 6.0f) {
+            Iterator iterator = proMap.entrySet().iterator();
+            while (iterator.hasNext()) {
+                Map.Entry entry = (Map.Entry) iterator.next();
+                Object key = entry.getKey();
+                if (weatherMap.containsKey(key)) {
+                    addMarker(weatherMap.get(key));
+                }else {
+                    getWeathersInfo(key+"");
                 }
             }
-        }else if (arg0.zoom > 6.0f && arg0.zoom <= 8.0f) {
-            for (int i = 0; i < provinceList.size(); i++) {
-                boolean isContain = false;
-                for (int j = 0; j < weatherList.size(); j++) {
-                    if (TextUtils.equals(provinceList.get(i).areaId, weatherList.get(j).cityId)) {
-                        addMarker(weatherList.get(j));
-                        break;
-                    }
-                }
-                if (isContain == false) {
-                    getWeathersInfo(provinceList.get(i).areaId);
+        }else if (arg0 > 6.0f && arg0 <= 8.0f) {
+            Iterator iterator = proMap.entrySet().iterator();
+            while (iterator.hasNext()) {
+                Map.Entry entry = (Map.Entry) iterator.next();
+                Object key = entry.getKey();
+                if (weatherMap.containsKey(key)) {
+                    addMarker(weatherMap.get(key));
+                }else {
+                    getWeathersInfo(key+"");
                 }
             }
-            for (int i = 0; i < cityList.size(); i++) {
-                boolean isContain = false;
-                for (int j = 0; j < weatherList.size(); j++) {
-                    if (TextUtils.equals(cityList.get(i).areaId, weatherList.get(j).cityId)) {
-                        addMarker(weatherList.get(j));
-                        break;
-                    }
-                }
-                if (isContain == false) {
-                    getWeathersInfo(cityList.get(i).areaId);
+            Iterator iteratorCity = cityMap.entrySet().iterator();
+            while (iteratorCity.hasNext()) {
+                Map.Entry entry = (Map.Entry) iteratorCity.next();
+                Object key = entry.getKey();
+                if (weatherMap.containsKey(key)) {
+                    addMarker(weatherMap.get(key));
+                }else {
+                    getWeathersInfo(key+"");
                 }
             }
-        }else if (arg0.zoom > 8.0f) {
-            for (int i = 0; i < provinceList.size(); i++) {
-                boolean isContain = false;
-                for (int j = 0; j < weatherList.size(); j++) {
-                    if (TextUtils.equals(provinceList.get(i).areaId, weatherList.get(j).cityId)) {
-                        addMarker(weatherList.get(j));
-                        break;
-                    }
-                }
-                if (isContain == false) {
-                    getWeathersInfo(provinceList.get(i).areaId);
+        } else if (arg0 > 8.0f) {
+            Iterator iterator = proMap.entrySet().iterator();
+            while (iterator.hasNext()) {
+                Map.Entry entry = (Map.Entry) iterator.next();
+                Object key = entry.getKey();
+                if (weatherMap.containsKey(key)) {
+                    addMarker(weatherMap.get(key));
+                }else {
+                    getWeathersInfo(key+"");
                 }
             }
-            for (int i = 0; i < cityList.size(); i++) {
-                boolean isContain = false;
-                for (int j = 0; j < weatherList.size(); j++) {
-                    if (TextUtils.equals(cityList.get(i).areaId, weatherList.get(j).cityId)) {
-                        addMarker(weatherList.get(j));
-                        break;
-                    }
-                }
-                if (isContain == false) {
-                    getWeathersInfo(cityList.get(i).areaId);
+            Iterator iteratorCity = cityMap.entrySet().iterator();
+            while (iteratorCity.hasNext()) {
+                Map.Entry entry = (Map.Entry) iteratorCity.next();
+                Object key = entry.getKey();
+                if (weatherMap.containsKey(key)) {
+                    addMarker(weatherMap.get(key));
+                }else {
+                    getWeathersInfo(key+"");
                 }
             }
-            for (int i = 0; i < districtList.size(); i++) {
-                boolean isContain = false;
-                for (int j = 0; j < weatherList.size(); j++) {
-                    if (TextUtils.equals(districtList.get(i).areaId, weatherList.get(j).cityId)) {
-                        addMarker(weatherList.get(j));
-                        break;
-                    }
-                }
-                if (isContain == false) {
-                    getWeathersInfo(districtList.get(i).areaId);
+            Iterator iteratorDis = disMap.entrySet().iterator();
+            while (iteratorDis.hasNext()) {
+                Map.Entry entry = (Map.Entry) iteratorDis.next();
+                Object key = entry.getKey();
+                if (weatherMap.containsKey(key)) {
+                    addMarker(weatherMap.get(key));
+                }else {
+                    getWeathersInfo(key+"");
                 }
             }
         }

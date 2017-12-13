@@ -1,6 +1,9 @@
 package com.china.activity;
 
-import android.annotation.SuppressLint;
+/**
+ * 实况监测等模块
+ */
+
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
@@ -24,37 +27,34 @@ import com.china.utils.CommonUtil;
 import java.util.ArrayList;
 import java.util.List;
 
-public class ProductActivity extends BaseActivity implements OnClickListener{
+public class ProductActivity extends BaseActivity implements OnClickListener {
 	
 	private Context mContext = null;
 	private LinearLayout llBack = null;
 	private TextView tvTitle = null;
-	private ColumnData data = null;
 	private GridView gridView = null;
 	private ProductAdapter mAdapter = null;
-	private List<ColumnData> mList = new ArrayList<ColumnData>();
+	private List<ColumnData> mList = new ArrayList<>();
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		setContentView(R.layout.product);
+		setContentView(R.layout.activity_product);
 		mContext = this;
 		initWidget();
 		initGridView();
 	}
-	
-	@SuppressLint("SimpleDateFormat") 
+
 	private void initWidget() {
 		llBack = (LinearLayout) findViewById(R.id.llBack);
 		llBack.setOnClickListener(this);
 		tvTitle = (TextView) findViewById(R.id.tvTitle);
-		
-		data = getIntent().getExtras().getParcelable("data");
+
+		ColumnData data = getIntent().getExtras().getParcelable("data");
 		if (data != null) {
 			tvTitle.setText(data.name);
 			mList.clear();
 			mList.addAll(data.child);
-			
 			CommonUtil.submitClickCount(data.columnId, data.name);
 		}
 	}
@@ -68,13 +68,15 @@ public class ProductActivity extends BaseActivity implements OnClickListener{
 			public void onItemClick(AdapterView<?> arg0, View arg1, int arg2, long arg3) {
 				ColumnData dto = mList.get(arg2);
 				Intent intent;
-				if (TextUtils.equals(dto.showType, CONST.URL)) {
-					intent = new Intent(mContext, UrlActivity.class);
+				if (TextUtils.equals(dto.showType, CONST.URL)) {//网页类
+					intent = new Intent(mContext, WeatherInfoDetailActivity.class);
 					NewsDto data = new NewsDto();
 					data.title = dto.name;
 					data.detailUrl = dto.dataUrl;
 					data.imgUrl = dto.icon;
-					intent.putExtra("data", data);
+					Bundle bundle = new Bundle();
+					bundle.putParcelable("data", data);
+					intent.putExtras(bundle);
 
 					intent.putExtra(CONST.COLUMN_ID, dto.columnId);
 					intent.putExtra(CONST.ACTIVITY_NAME, dto.name);
@@ -86,7 +88,7 @@ public class ProductActivity extends BaseActivity implements OnClickListener{
 					intent.putExtra(CONST.WEB_URL, dto.dataUrl);
 					startActivity(intent);
 				}else if (TextUtils.equals(dto.showType, CONST.NEWS)) {
-					intent = new Intent(mContext, NewsActivity.class);
+					intent = new Intent(mContext, WeatherInfoActivity.class);
 					intent.putExtra(CONST.COLUMN_ID, dto.columnId);
 					intent.putExtra(CONST.ACTIVITY_NAME, dto.name);
 					intent.putExtra(CONST.WEB_URL, dto.dataUrl);
@@ -107,10 +109,10 @@ public class ProductActivity extends BaseActivity implements OnClickListener{
 						intent.putExtra(CONST.ACTIVITY_NAME, dto.name);
 						startActivity(intent);
 					}else if (TextUtils.equals(dto.id, "102")) {//中国大陆区域彩色云图
-						intent = new Intent(mContext, UrlActivity.class);
+						intent = new Intent(mContext, WeatherInfoDetailActivity.class);
 						intent.putExtra(CONST.COLUMN_ID, dto.columnId);
 						intent.putExtra(CONST.ACTIVITY_NAME, dto.name);
-						intent.putExtra(CONST.WEB_URL, com.china.common.CONST.CLOUD_URL);
+						intent.putExtra(CONST.WEB_URL, CONST.CLOUD_URL);
 						startActivity(intent);
 					}else if (TextUtils.equals(dto.id, "103")) {//台风路径
 						intent = new Intent(mContext, TyphoonRouteActivity.class);
@@ -146,7 +148,7 @@ public class ProductActivity extends BaseActivity implements OnClickListener{
 						intent = new Intent(mContext, WaitWindActivity.class);
 						intent.putExtra(CONST.COLUMN_ID, dto.columnId);
 						intent.putExtra(CONST.ACTIVITY_NAME, dto.name);
-						intent.putExtra(CONST.WEB_URL, com.china.common.CONST.WAIT_WIND);
+						intent.putExtra(CONST.WEB_URL, CONST.WAIT_WIND);
 						startActivity(intent);
 					}else if (TextUtils.equals(dto.id, "204")) {//分钟降水与强对流
 						intent = new Intent(mContext, StrongStreamActivity.class);
@@ -154,7 +156,7 @@ public class ProductActivity extends BaseActivity implements OnClickListener{
 						intent.putExtra(CONST.ACTIVITY_NAME, dto.name);
 						startActivity(intent);
 					}else if (TextUtils.equals(dto.id, "301")) {//灾情专报
-						intent = new Intent(mContext, DisasterActivity.class);
+						intent = new Intent(mContext, DisasterSpecialActivity.class);
 						intent.putExtra(CONST.COLUMN_ID, dto.columnId);
 						intent.putExtra(CONST.ACTIVITY_NAME, dto.name);
 						intent.putExtra(CONST.WEB_URL, dto.dataUrl);

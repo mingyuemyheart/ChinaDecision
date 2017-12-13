@@ -1,5 +1,9 @@
 package com.china.activity;
 
+/**
+ * PDF列表界面
+ */
+
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -70,7 +74,7 @@ public class PDFActivity extends BaseActivity implements OnPageChangeListener, O
 		tvPercent = (TextView) findViewById(R.id.tvPercent);
 		
 		String title = getIntent().getStringExtra(CONST.ACTIVITY_NAME);
-		if (title != null) {
+		if (!TextUtils.isEmpty(title)) {
 			tvTitle.setText(title);
 		}
 		
@@ -116,14 +120,14 @@ public class PDFActivity extends BaseActivity implements OnPageChangeListener, O
 			pdfUrl = isChinese(pdfUrl);
 		}
 
-		asynLoadPdf(pdfUrl);
+		OkHttpPdf(pdfUrl);
 	}
 	
 	/**
 	 * 异步下载pdf文件
 	 * @param pdfUrl pdf地址
 	 */
-	private void asynLoadPdf(String pdfUrl) {
+	private void OkHttpPdf(String pdfUrl) {
 		AsynLoadTask task = new AsynLoadTask(new AsynLoadCompleteListener() {
 			@Override
 			public void loadComplete(File file) {
@@ -145,7 +149,7 @@ public class PDFActivity extends BaseActivity implements OnPageChangeListener, O
 	}
 	
 	private interface AsynLoadCompleteListener {
-		public void loadComplete(File file);
+		void loadComplete(File file);
 	}
     
 	private class AsynLoadTask extends AsyncTask<Void, File, File> {
@@ -282,7 +286,6 @@ public class PDFActivity extends BaseActivity implements OnPageChangeListener, O
 		case R.id.ivShare:
 			Bitmap bitmap1 = CommonUtil.captureView(pdfView);
 			Bitmap bitmap2 = BitmapFactory.decodeResource(getResources(), R.drawable.iv_share_bottom);
-//			Bitmap bitmap2 = BitmapFactory.decodeStream(getClass().getResourceAsStream("/res/drawable-hdpi/iv_share_bottom.png"));
 			Bitmap bitmap = CommonUtil.mergeBitmap(PDFActivity.this, bitmap1, bitmap2, false);
 			CommonUtil.clearBitmap(bitmap1);
 			CommonUtil.clearBitmap(bitmap2);

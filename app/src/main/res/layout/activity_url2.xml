@@ -5,7 +5,7 @@
 
     <include
         android:id="@+id/reTitle"
-        layout="@layout/layout_title" />
+        layout="@layout/layout_title2" />
 
     <com.china.view.RefreshLayout
         android:id="@+id/refreshLayout"

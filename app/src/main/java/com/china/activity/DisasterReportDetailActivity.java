@@ -55,7 +55,7 @@ public class DisasterReportDetailActivity extends BaseActivity implements OnClic
 		vEndTime = (TextView) findViewById(R.id.vEndTime);
 		dRecordId = (TextView) findViewById(R.id.dRecordId);
 		
-		DisasterReportDto data = (DisasterReportDto) getIntent().getSerializableExtra("data");
+		DisasterReportDto data = getIntent().getExtras().getParcelable("data");
 		if (data != null) {
 			try {
 				vSendername.setText(data.vSendername);

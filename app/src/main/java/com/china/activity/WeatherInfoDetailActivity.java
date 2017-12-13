@@ -34,13 +34,10 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * 普通url，处理网页界面
- * @author shawn_sun
- *
+ * 天气资讯详情
  */
 
-@SuppressLint("SimpleDateFormat")
-public class UrlActivity extends BaseActivity implements OnClickListener{
+public class WeatherInfoDetailActivity extends BaseActivity implements OnClickListener{
 	
 	private LinearLayout llBack = null;
 	private TextView tvTitle = null;
@@ -53,12 +50,12 @@ public class UrlActivity extends BaseActivity implements OnClickListener{
 	private ImageView ivCollect = null;
 	private ImageView ivShareImg = null;
 	private boolean isCollected = false;//是否已收藏
-	private List<NewsDto> collectList = new ArrayList<NewsDto>();//存放收藏数据的list
+	private List<NewsDto> collectList = new ArrayList<>();//存放收藏数据的list
 	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		setContentView(R.layout.url);
+		setContentView(R.layout.activity_weather_info_detail);
 		initRefreshLayout();
 		initWidget();
 		initWebView();
@@ -78,7 +75,7 @@ public class UrlActivity extends BaseActivity implements OnClickListener{
 			public void onRefresh() {
 				if (webView != null && !TextUtils.isEmpty(url)) {
 					//添加请求头
-					Map<String, String> extraHeaders = new HashMap<String, String>();
+					Map<String, String> extraHeaders = new HashMap<>();
 					extraHeaders.put("Referer", CustomHttpClient.getRequestHeader());
 					webView.loadUrl(url, extraHeaders);
 				}
@@ -116,7 +113,7 @@ public class UrlActivity extends BaseActivity implements OnClickListener{
 	 * 判断是否是已收藏
 	 */
 	private void isCollect(String url) {
-		int size = MyCollectManager.readCollect(UrlActivity.this, collectList);
+		int size = MyCollectManager.readCollect(WeatherInfoDetailActivity.this, collectList);
 		if (size != 0) {
 			for (int i = 0; i < collectList.size(); i++) {
 				if (TextUtils.equals(url, collectList.get(i).detailUrl)) {
@@ -157,7 +154,7 @@ public class UrlActivity extends BaseActivity implements OnClickListener{
 //		webView.loadUrl(url);
 		
 		//添加请求头
-		Map<String, String> extraHeaders = new HashMap<String, String>();
+		Map<String, String> extraHeaders = new HashMap<>();
 		extraHeaders.put("Referer", CustomHttpClient.getRequestHeader());
 		webView.loadUrl(url, extraHeaders);
 		
@@ -165,9 +162,9 @@ public class UrlActivity extends BaseActivity implements OnClickListener{
 			@Override
 			public void onReceivedTitle(WebView view, String title) {
 				super.onReceivedTitle(view, title);
-//				if (title != null) {
-//					tvTitle.setText(title);
-//				}
+				if (title != null) {
+					tvTitle.setText(title);
+				}
 			}
 		});
 		
@@ -175,7 +172,7 @@ public class UrlActivity extends BaseActivity implements OnClickListener{
 			@Override
 			public boolean shouldOverrideUrlLoading(WebView view, String itemUrl) {
 				url = itemUrl;
-				Map<String, String> extraHeaders = new HashMap<String, String>();
+				Map<String, String> extraHeaders = new HashMap<>();
 				extraHeaders.put("Referer", CustomHttpClient.getRequestHeader());
 				webView.loadUrl(url, extraHeaders);
 				return true;
@@ -230,11 +227,11 @@ public class UrlActivity extends BaseActivity implements OnClickListener{
 			break;
 		case R.id.ivCollect:
 			if (isCollected == false) {
-				NewsDto dto = (NewsDto) getIntent().getSerializableExtra("data");
+				NewsDto dto = getIntent().getExtras().getParcelable("data");
 				if (dto != null) {
 					collectList.add(0, dto);
 					ivCollect.setImageResource(R.drawable.iv_url_collect_selected);
-					Toast.makeText(UrlActivity.this, getString(R.string.collect_success), Toast.LENGTH_SHORT).show();
+					Toast.makeText(WeatherInfoDetailActivity.this, getString(R.string.collect_success), Toast.LENGTH_SHORT).show();
 					isCollected = true;
 				}
 			}else {
@@ -242,23 +239,23 @@ public class UrlActivity extends BaseActivity implements OnClickListener{
 					if (TextUtils.equals(url, collectList.get(i).detailUrl)) {
 						collectList.remove(i);
 						ivCollect.setImageResource(R.drawable.iv_url_collect);
-						Toast.makeText(UrlActivity.this, getString(R.string.collect_cancel), Toast.LENGTH_SHORT).show();
+						Toast.makeText(WeatherInfoDetailActivity.this, getString(R.string.collect_cancel), Toast.LENGTH_SHORT).show();
 						isCollected = false;
 						break;
 					}
 				}
 			}
-			MyCollectManager.clearCollectData(UrlActivity.this);
-			MyCollectManager.writeCollect(UrlActivity.this, collectList);
+			MyCollectManager.clearCollectData(WeatherInfoDetailActivity.this);
+			MyCollectManager.writeCollect(WeatherInfoDetailActivity.this, collectList);
 			break;
 		case R.id.ivShareImg:
 			Bitmap bitmap1 = CommonUtil.captureWebView(webView);
 			Bitmap bitmap2 = BitmapFactory.decodeResource(getResources(), R.drawable.iv_share_bottom);
 //			Bitmap bitmap2 = BitmapFactory.decodeStream(getClass().getResourceAsStream("/res/drawable-hdpi/iv_share_bottom.png"));
-			Bitmap bitmap = CommonUtil.mergeBitmap(UrlActivity.this, bitmap1, bitmap2, false);
+			Bitmap bitmap = CommonUtil.mergeBitmap(WeatherInfoDetailActivity.this, bitmap1, bitmap2, false);
 			CommonUtil.clearBitmap(bitmap1);
 			CommonUtil.clearBitmap(bitmap2);
-			CommonUtil.share(UrlActivity.this, bitmap);
+			CommonUtil.share(WeatherInfoDetailActivity.this, bitmap);
 	        break;
 
 		default:

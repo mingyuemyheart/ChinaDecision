@@ -5,6 +5,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.text.TextUtils;
+import android.view.KeyEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.AdapterView;
@@ -14,9 +15,9 @@ import android.widget.ListView;
 import android.widget.TextView;
 
 import com.china.R;
-import com.china.adapter.DisasterReportAdapter;
+import com.china.adapter.DisasterSpecialAdapter;
 import com.china.common.CONST;
-import com.china.dto.DisasterReportDto;
+import com.china.dto.DisasterDto;
 import com.china.utils.CommonUtil;
 import com.china.utils.OkHttpUtil;
 import com.china.view.RefreshLayout;
@@ -27,9 +28,9 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.IOException;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
 import java.util.List;
 
 import okhttp3.Call;
@@ -38,27 +39,27 @@ import okhttp3.Request;
 import okhttp3.Response;
 
 /**
- * 灾情直报
+ * 灾情专报
  * @author shawn_sun
  *
  */
-
 @SuppressLint("SimpleDateFormat")
-public class DisasterReportActivity extends BaseActivity implements OnClickListener{
+public class DisasterSpecialActivity extends BaseActivity implements OnClickListener{
 	
 	private Context mContext = null;
 	private LinearLayout llBack = null;
 	private TextView tvTitle = null;
 	private ListView mListView = null;
-	private DisasterReportAdapter mAdapter = null;
-	private List<DisasterReportDto> mList = new ArrayList<>();
+	private DisasterSpecialAdapter mAdapter = null;
+	private List<DisasterDto> mList = new ArrayList<>();
 	private RefreshLayout refreshLayout = null;//下拉刷新布局
-	private String url = "http://decision-admin.tianqi.cn/infomes/data/chinaweather/zqzb.html";
+	private SimpleDateFormat sdf1 = new SimpleDateFormat("yyyyMMdd");
+	private SimpleDateFormat sdf2 = new SimpleDateFormat("yyyy年MM月dd日");
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		setContentView(R.layout.activity_disaster_report);
+		setContentView(R.layout.activity_disaster_special);
 		mContext = this;
 		showDialog();
 		initRefreshLayout();
@@ -81,14 +82,17 @@ public class DisasterReportActivity extends BaseActivity implements OnClickListe
 			}
 		});
 	}
-
+	
 	private void refresh() {
 		String title = getIntent().getStringExtra(CONST.ACTIVITY_NAME);
 		if (title != null) {
 			tvTitle.setText(title);
 		}
 
-		OkHttpDisaster(url);
+		String url = getIntent().getStringExtra(CONST.WEB_URL);
+		if (!TextUtils.isEmpty(url)) {
+			OkHttpList(url);
+		}
 
 		String columnId = getIntent().getStringExtra(CONST.COLUMN_ID);
 		CommonUtil.submitClickCount(columnId, title);
@@ -104,26 +108,21 @@ public class DisasterReportActivity extends BaseActivity implements OnClickListe
 	
 	private void initListView() {
 		mListView = (ListView) findViewById(R.id.listView);
-		mAdapter = new DisasterReportAdapter(mContext, mList);
+		mAdapter = new DisasterSpecialAdapter(mContext, mList);
 		mListView.setAdapter(mAdapter);
 		mListView.setOnItemClickListener(new OnItemClickListener() {
 			@Override
 			public void onItemClick(AdapterView<?> arg0, View arg1, int arg2, long arg3) {
-				DisasterReportDto dto = mList.get(arg2);
-				Intent intent = new Intent(mContext, DisasterReportDetailActivity.class);
-				Bundle bundle = new Bundle();
-				bundle.putParcelable("data", dto);
-				intent.putExtras(bundle);
+				DisasterDto dto = mList.get(arg2);
+				Intent intent = new Intent(mContext, PDFActivity.class);
+				intent.putExtra(CONST.ACTIVITY_NAME, dto.title);
+				intent.putExtra(CONST.WEB_URL, dto.url);
 				startActivity(intent);
 			}
 		});
 	}
-
-	/**
-	 * 获取灾情直报
-	 * @param url
-	 */
-	private void OkHttpDisaster(String url) {
+	
+	private void OkHttpList(String url) {
 		OkHttpUtil.enqueue(new Request.Builder().url(url).build(), new Callback() {
 			@Override
 			public void onFailure(Call call, IOException e) {
@@ -139,63 +138,69 @@ public class DisasterReportActivity extends BaseActivity implements OnClickListe
 				if (!TextUtils.isEmpty(result)) {
 					try {
 						JSONObject obj = new JSONObject(result);
-						if (!obj.isNull("response")) {
+						if (!obj.isNull("info")) {
 							mList.clear();
-							JSONObject object = obj.getJSONObject("response");
-							if (!object.isNull("directList")) {
-								JSONArray array = object.getJSONArray("directList");
-								for (int i = 0; i < array.length(); i++) {
-									JSONObject itemObj = array.getJSONObject(i);
-									DisasterReportDto dto = new DisasterReportDto();
-									dto.vSendername = itemObj.getString("vSendername");
-									dto.vCategory = itemObj.getString("vCategory");
-									dto.vEdittime = itemObj.getString("vEdittime");
-									dto.vGeneralLoss = itemObj.getString("vGeneralLoss");
-									dto.vRzDpop = itemObj.getString("vRzDpop");
-									dto.vEditor = itemObj.getString("vEditor");
-									dto.vTaPhone = itemObj.getString("vTaPhone");
-									dto.vSummary = itemObj.getString("vSummary");
-									dto.vInfluenceDiscri = itemObj.getString("vInfluenceDiscri");
-									dto.vStartTime = itemObj.getString("vStartTime");
-									dto.vEndTime = itemObj.getString("vEndTime");
-									dto.dRecordId = itemObj.getString("dRecordId");
+							JSONArray array = obj.getJSONArray("info");
+							for (int i = 0; i < array.length(); i++) {
+								DisasterDto dto = new DisasterDto();
+								String url = array.getString(i);
+								if (!TextUtils.isEmpty(url)) {
+									dto.url = url;
+									String time = url.substring(url.indexOf("/zq/")+4, url.indexOf("/zq/")+12);
+									if (!TextUtils.isEmpty(time)) {
+										try {
+											dto.time = sdf2.format(sdf1.parse(time));
+										} catch (ParseException e) {
+											e.printStackTrace();
+										}
+									}
+
+									String title = null;
+									if (url.contains(getString(R.string.disaster_news_1))) {
+										title = getString(R.string.disaster_news_1);
+									}else if (url.contains(getString(R.string.disaster_news_2))){
+//									dto.title = getString(R.string.disaster_news_2);
+										title = url.substring(url.indexOf("/zq/")+13, url.length()-4);
+									}
+									dto.title = title+dto.time;
 									mList.add(dto);
 								}
-
-								runOnUiThread(new Runnable() {
-									@Override
-									public void run() {
-										if (mList.size() > 0) {
-											Collections.sort(mList, new Comparator<DisasterReportDto>() {
-												@Override
-												public int compare(DisasterReportDto arg0, DisasterReportDto arg1) {
-													return arg1.vEdittime.compareTo(arg0.vEdittime);
-												}
-											});
-
-											if (mAdapter != null) {
-												mAdapter.notifyDataSetChanged();
-											}
-										}
-										refreshLayout.setRefreshing(false);
-										cancelDialog();
-									}
-								});
-
 							}
+
+							runOnUiThread(new Runnable() {
+								@Override
+								public void run() {
+									if (mList.size() > 0 && mAdapter != null) {
+										mAdapter.notifyDataSetChanged();
+									}
+									refreshLayout.setRefreshing(false);
+									cancelDialog();
+								}
+							});
+
 						}
-					} catch (JSONException e1) {
-						e1.printStackTrace();
+					} catch (JSONException e) {
+						e.printStackTrace();
 					}
 				}
 			}
 		});
 	}
-	
+
+	@Override
+	public boolean onKeyDown(int keyCode, KeyEvent event) {
+		if (keyCode == KeyEvent.KEYCODE_BACK) {
+			setBackEmit();
+			finish();
+		}
+		return super.onKeyDown(keyCode, event);
+	}
+
 	@Override
 	public void onClick(View v) {
 		switch (v.getId()) {
 		case R.id.llBack:
+			setBackEmit();
 			finish();
 			break;
 
@@ -203,5 +208,5 @@ public class DisasterReportActivity extends BaseActivity implements OnClickListe
 			break;
 		}
 	}
-	
+
 }

@@ -94,10 +94,10 @@
 
         <activity
             android:name="com.china.activity.FeedbackActivity"
-            android:screenOrientation="portrait" />
+            android:screenOrientation="portrait"/>
 
         <activity
-            android:name="com.china.activity.UrlActivity"
+            android:name="com.china.activity.WeatherInfoDetailActivity"
             android:screenOrientation="portrait" />
 
         <activity
@@ -113,7 +113,7 @@
             android:screenOrientation="portrait" />
 
         <activity
-            android:name="com.china.activity.NewsActivity"
+            android:name="com.china.activity.WeatherInfoActivity"
             android:screenOrientation="portrait" />
 
         <activity
@@ -163,7 +163,7 @@
             android:screenOrientation="portrait" />
 
         <activity
-            android:name="com.china.activity.DisasterActivity"
+            android:name="com.china.activity.DisasterSpecialActivity"
             android:screenOrientation="portrait" />
 
         <activity

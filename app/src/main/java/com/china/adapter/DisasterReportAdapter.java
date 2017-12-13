@@ -1,6 +1,9 @@
 package com.china.adapter;
 
-import android.annotation.SuppressLint;
+/**
+ * 灾情直报
+ */
+
 import android.content.Context;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
@@ -18,12 +21,11 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.List;
 
-@SuppressLint("SimpleDateFormat")
 public class DisasterReportAdapter extends BaseAdapter{
 	
 	private Context mContext = null;
 	private LayoutInflater mInflater = null;
-	private List<DisasterReportDto> mArrayList = new ArrayList<DisasterReportDto>();
+	private List<DisasterReportDto> mArrayList = new ArrayList<>();
 	private SimpleDateFormat sdf1 = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 	private SimpleDateFormat sdf2 = new SimpleDateFormat("yyyy-MM-dd");
 	
@@ -61,7 +63,7 @@ public class DisasterReportAdapter extends BaseAdapter{
 	@Override
 	public View getView(int position, View convertView, ViewGroup parent) {
 		if (convertView == null) {
-			convertView = mInflater.inflate(R.layout.disaster_report_cell, null);
+			convertView = mInflater.inflate(R.layout.adapter_disaster_report, null);
 			mHolder = new ViewHolder();
 			mHolder.vSendername = (TextView) convertView.findViewById(R.id.vSendername);
 			mHolder.vCategory = (TextView) convertView.findViewById(R.id.vCategory);

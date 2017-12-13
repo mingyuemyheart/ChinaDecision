@@ -1,7 +1,10 @@
 package com.china.activity;
 
+/**
+ * 意见反馈
+ */
+
 import android.content.Context;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.view.View;
@@ -13,15 +16,19 @@ import android.widget.Toast;
 
 import com.china.R;
 import com.china.common.CONST;
-import com.china.utils.CustomHttpClient;
+import com.china.utils.OkHttpUtil;
 
-import org.apache.http.NameValuePair;
-import org.apache.http.message.BasicNameValuePair;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.io.IOException;
+
+import okhttp3.Call;
+import okhttp3.Callback;
+import okhttp3.FormBody;
+import okhttp3.Request;
+import okhttp3.RequestBody;
+import okhttp3.Response;
 
 public class FeedbackActivity extends BaseActivity implements OnClickListener{
 	
@@ -35,7 +42,7 @@ public class FeedbackActivity extends BaseActivity implements OnClickListener{
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		setContentView(R.layout.feedback);
+		setContentView(R.layout.activity_feedback);
 		mContext = this;
 		initWidget();
 	}
@@ -49,123 +56,83 @@ public class FeedbackActivity extends BaseActivity implements OnClickListener{
 		tvControl.setVisibility(View.VISIBLE);
 		tvControl.setOnClickListener(this);
 		etContent = (EditText) findViewById(R.id.etContent);
-		
+
 		String title = getIntent().getStringExtra(CONST.ACTIVITY_NAME);
-		if (title != null) {
+		if (!TextUtils.isEmpty(title)) {
 			tvTitle.setText(title);
 		}
 		appid = getIntent().getStringExtra(CONST.INTENT_APPID);
 	}
 	
 	/**
-	 * 异步请求
+	 * 意见反馈
 	 */
-	private void asyncQuery(String requestUrl) {
-		HttpAsyncTask task = new HttpAsyncTask();
-		task.setMethod("POST");
-		task.setTimeOut(CustomHttpClient.TIME_OUT);
-		task.execute(requestUrl);
-	}
-	
-	/**
-	 * 异步请求方法
-	 * @author dell
-	 *
-	 */
-	private class HttpAsyncTask extends AsyncTask<String, Void, String> {
-		private String method = "POST";
-		private List<NameValuePair> nvpList = new ArrayList<NameValuePair>();
-		
-		public HttpAsyncTask() {
-			transParams();
-		}
-		
-		/**
-		 * 传参数
-		 */
-		private void transParams() {
-			NameValuePair pair1 = new BasicNameValuePair("uid", CONST.UID);
-	        NameValuePair pair2 = new BasicNameValuePair("content", etContent.getText().toString());
-	        NameValuePair pair3 = new BasicNameValuePair("appid", appid);
-			nvpList.add(pair1);
-			nvpList.add(pair2);
-			nvpList.add(pair3);
-		}
+	private void OkHttpFeedback(String url) {
+		FormBody.Builder builder = new FormBody.Builder();
+		builder.add("uid", CONST.UID);
+		builder.add("content", etContent.getText().toString());
+		builder.add("appid", appid);
+		RequestBody body = builder.build();
+		OkHttpUtil.enqueue(new Request.Builder().post(body).url(url).build(), new Callback() {
+			@Override
+			public void onFailure(Call call, IOException e) {
 
-		@Override
-		protected String doInBackground(String... url) {
-			String result = null;
-			if (method.equalsIgnoreCase("POST")) {
-				result = CustomHttpClient.post(url[0], nvpList);
-			} else if (method.equalsIgnoreCase("GET")) {
-				result = CustomHttpClient.get(url[0]);
 			}
-			return result;
-		}
 
-		@Override
-		protected void onPostExecute(String requestResult) {
-			super.onPostExecute(requestResult);
-			cancelDialog();
-			if (requestResult != null) {
-				try {
-					JSONObject object = new JSONObject(requestResult);
-					if (object != null) {
-						if (!object.isNull("status")) {
-							int status  = object.getInt("status");
-							if (status == 1) {//成功
-								Toast.makeText(mContext, getString(R.string.submit_success), Toast.LENGTH_SHORT).show();
-								finish();
-							}else {
-								//失败
-								if (!object.isNull("msg")) {
-									String msg = object.getString("msg");
-									if (msg != null) {
-										Toast.makeText(mContext, msg, Toast.LENGTH_SHORT).show();
+			@Override
+			public void onResponse(Call call, Response response) throws IOException {
+				if (!response.isSuccessful()) {
+					return;
+				}
+				final String result = response.body().string();
+				runOnUiThread(new Runnable() {
+					@Override
+					public void run() {
+						if (!TextUtils.isEmpty(result)) {
+							try {
+								JSONObject object = new JSONObject(result);
+								if (object != null) {
+									if (!object.isNull("status")) {
+										int status  = object.getInt("status");
+										if (status == 1) {//成功
+											Toast.makeText(mContext, getString(R.string.submit_success), Toast.LENGTH_SHORT).show();
+											finish();
+										}else {
+											//失败
+											if (!object.isNull("msg")) {
+												String msg = object.getString("msg");
+												if (msg != null) {
+													Toast.makeText(mContext, msg, Toast.LENGTH_SHORT).show();
+												}
+											}
+										}
 									}
 								}
+								cancelDialog();
+							} catch (JSONException e) {
+								e.printStackTrace();
 							}
 						}
 					}
-				} catch (JSONException e) {
-					e.printStackTrace();
-				}
+				});
 			}
-		}
-
-		@SuppressWarnings("unused")
-		private void setParams(NameValuePair nvp) {
-			nvpList.add(nvp);
-		}
-
-		private void setMethod(String method) {
-			this.method = method;
-		}
-
-		private void setTimeOut(int timeOut) {
-			CustomHttpClient.TIME_OUT = timeOut;
-		}
-
-		/**
-		 * 取消当前task
-		 */
-		@SuppressWarnings("unused")
-		private void cancelTask() {
-			CustomHttpClient.shuttdownRequest();
-			this.cancel(true);
-		}
+		});
 	}
-
+	
 	@Override
 	public void onClick(View v) {
-		if (v.getId() == R.id.llBack) {
-			finish();
-		}else if (v.getId() == R.id.tvControl) {
-			if (TextUtils.isEmpty(etContent.getText().toString())) {
-				return;
-			}
-			showDialog();
-			asyncQuery(CONST.GUIZHOU_FEEDBACK);
+		switch (v.getId()) {
+			case R.id.llBack:
+				finish();
+				break;
+			case R.id.tvControl:
+				if (TextUtils.isEmpty(etContent.getText().toString())) {
+					Toast.makeText(mContext, "请填写意见内容...", Toast.LENGTH_SHORT).show();
+					return;
+				}
+				showDialog();
+				OkHttpFeedback(CONST.GUIZHOU_FEEDBACK);
+				break;
 		}
 	}
 }

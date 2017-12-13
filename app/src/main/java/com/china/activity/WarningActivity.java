@@ -8,6 +8,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Color;
 import android.graphics.Point;
 import android.os.Bundle;
 import android.os.Parcelable;
@@ -49,6 +50,12 @@ import com.amap.api.maps.model.CameraPosition;
 import com.amap.api.maps.model.LatLng;
 import com.amap.api.maps.model.Marker;
 import com.amap.api.maps.model.MarkerOptions;
+import com.amap.api.maps.model.Polygon;
+import com.amap.api.maps.model.PolygonOptions;
+import com.amap.api.maps.model.Polyline;
+import com.amap.api.maps.model.PolylineOptions;
+import com.amap.api.maps.model.Text;
+import com.amap.api.maps.model.TextOptions;
 import com.amap.api.maps.model.animation.Animation;
 import com.amap.api.maps.model.animation.Animation.AnimationListener;
 import com.amap.api.maps.model.animation.ScaleAnimation;
@@ -58,6 +65,7 @@ import com.china.adapter.WarningStatisticAdapter;
 import com.china.common.CONST;
 import com.china.common.MyApplication;
 import com.china.dto.WarningDto;
+import com.china.manager.RainManager;
 import com.china.utils.CommonUtil;
 import com.china.utils.OkHttpUtil;
 import com.china.view.ArcMenu;
@@ -70,7 +78,9 @@ import org.json.JSONObject;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 
 import okhttp3.Call;
@@ -143,7 +153,19 @@ OnMarkerClickListener, InfoWindowAdapter, OnCameraChangeListener, OnMapScreenSho
 	private ListView listView2 = null;
 	private WarningAdapter adapter2 = null;
 	private List<WarningDto> list2 = new ArrayList<>();
-	
+
+	//国家级预警图层
+	private HashMap<String, String> nationMap = new HashMap<>();
+	private LinearLayout llLayerButton;
+	private ImageView iv1, iv2, iv3, iv4, iv5, iv6, iv7;
+	private boolean flag1 = false, flag2 = false, flag3 = false, flag4 = false, flag5 = false, flag6 = false, flag7 = false;
+	private List<Polyline> polyline1 = new ArrayList<>();
+	private List<Text> textList1 = new ArrayList<>();
+	private List<Polyline> polyline2 = new ArrayList<>();
+	private List<Text> textList2 = new ArrayList<>();
+	private List<Polygon> polygons = new ArrayList<>();//图层
+	private List<Text> textList3 = new ArrayList<>();
+
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -154,19 +176,18 @@ OnMarkerClickListener, InfoWindowAdapter, OnCameraChangeListener, OnMapScreenSho
 		initListView1();
 		initListView2();
 	}
-	
+
 	/**
 	 * 初始化控件
 	 */
 	private void initWidget() {
-		columnId = getIntent().getStringExtra(CONST.COLUMN_ID);//栏目id
-
 		llBack = (LinearLayout) findViewById(R.id.llBack);
 		llBack.setOnClickListener(this);
 		tvTitle = (TextView) findViewById(R.id.tvTitle);
 		tvPrompt = (TextView) findViewById(R.id.tvPrompt);
 		ivShare = (ImageView) findViewById(R.id.ivShare);
 		ivShare.setOnClickListener(this);
+		ivShare.setVisibility(View.VISIBLE);
 		reShare = (RelativeLayout) findViewById(R.id.reShare);
 		arcMenu = (ArcMenu) findViewById(R.id.arcMenu);
 		arcMenu.setOnMenuItemClickListener(arcMenuListener);
@@ -186,15 +207,31 @@ OnMarkerClickListener, InfoWindowAdapter, OnCameraChangeListener, OnMapScreenSho
 		tvNation.setOnClickListener(this);
 		ivGuide = (ImageView) findViewById(R.id.ivGuide);
 		ivGuide.setOnClickListener(this);
+		llLayerButton = (LinearLayout) findViewById(R.id.llLayerButton);
+		iv1 = (ImageView) findViewById(R.id.iv1);
+		iv1.setOnClickListener(this);
+		iv2 = (ImageView) findViewById(R.id.iv2);
+		iv2.setOnClickListener(this);
+		iv3 = (ImageView) findViewById(R.id.iv3);
+		iv3.setOnClickListener(this);
+		iv4 = (ImageView) findViewById(R.id.iv4);
+		iv4.setOnClickListener(this);
+		iv5 = (ImageView) findViewById(R.id.iv5);
+		iv5.setOnClickListener(this);
+		iv6 = (ImageView) findViewById(R.id.iv6);
+		iv6.setOnClickListener(this);
+		iv7 = (ImageView) findViewById(R.id.iv7);
+		iv7.setOnClickListener(this);
+
 		CommonUtil.showGuidePage(mContext, this.getClass().getName(), ivGuide);
 		
 		String title = getIntent().getStringExtra(CONST.ACTIVITY_NAME);
 		if (title != null) {
 			tvTitle.setText(title);
 		}
-		
+
 		refresh();
-		String columnId = getIntent().getStringExtra(CONST.COLUMN_ID);
+		columnId = getIntent().getStringExtra(CONST.COLUMN_ID);
 		CommonUtil.submitClickCount(columnId, title);
     }
 	
@@ -304,6 +341,8 @@ OnMarkerClickListener, InfoWindowAdapter, OnCameraChangeListener, OnMapScreenSho
 										if (!dto.name.contains("解除")) {
 											if (TextUtils.equals(item0, "000000")) {
 												nationList.add(dto);
+
+												nationMap.put(dto.type, dto.type);
 											}else if (TextUtils.equals(item0.substring(item0.length()-4, item0.length()), "0000")) {
 												proList.add(dto);
 											}else if (TextUtils.equals(item0.substring(item0.length()-2, item0.length()), "00")) {
@@ -362,6 +401,8 @@ OnMarkerClickListener, InfoWindowAdapter, OnCameraChangeListener, OnMapScreenSho
 											if (nationList.size() > 0) {
 												tvNation.setText("国家级预警"+nationList.size()+"条");
 												tvNation.setVisibility(View.VISIBLE);
+
+												handlerNationWarning();
 											}else {
 												tvNation.setVisibility(View.GONE);
 											}
@@ -478,6 +519,44 @@ OnMarkerClickListener, InfoWindowAdapter, OnCameraChangeListener, OnMapScreenSho
 
 			}
 		});
+	}
+
+	/**
+	 * 处理国家级预警
+	 */
+	private void handlerNationWarning() {
+		if (nationMap.containsKey("11B17")) {//雾
+			llLayerButton.setVisibility(View.VISIBLE);
+			iv1.setVisibility(View.VISIBLE);
+		}
+		if (nationMap.containsKey("11B03")) {//暴雨
+			llLayerButton.setVisibility(View.VISIBLE);
+			iv2.setVisibility(View.VISIBLE);
+		}
+		if (nationMap.containsKey("11B07")) {//沙尘
+			llLayerButton.setVisibility(View.VISIBLE);
+			iv3.setVisibility(View.VISIBLE);
+		}
+		if (nationMap.containsKey("11B04")) {//暴雪
+			llLayerButton.setVisibility(View.VISIBLE);
+			iv4.setVisibility(View.VISIBLE);
+		}
+		if (nationMap.containsKey("11B09")) {//高温
+			llLayerButton.setVisibility(View.VISIBLE);
+			iv5.setVisibility(View.VISIBLE);
+		}
+		if (nationMap.containsKey("11B01")) {//台风
+			llLayerButton.setVisibility(View.VISIBLE);
+			iv6.setVisibility(View.VISIBLE);
+		}
+		if (nationMap.containsKey("11B06")) {//冷空气
+			llLayerButton.setVisibility(View.VISIBLE);
+			iv7.setVisibility(View.VISIBLE);
+		}
+//		if (nationMap.containsKey("11B03")) {//强对流
+//			llLayerButton.setVisibility(View.VISIBLE);
+//			iv8.setVisibility(View.VISIBLE);
+//		}
 	}
 	
 	/**
@@ -1076,10 +1155,300 @@ OnMarkerClickListener, InfoWindowAdapter, OnCameraChangeListener, OnMapScreenSho
 		case R.id.ivShare:
 			aMap.getMapScreenShot(WarningActivity.this);
 			break;
+		case R.id.iv1:
+			if (flag1 == false) {
+				drawWarningLayer(getSecretUrl("fog"));
+				flag1 = true;
+			}else {
+				removeWarningLayer();
+				flag1 = false;
+			}
+			break;
+		case R.id.iv2:
+			if (flag2 == false) {
+				drawWarningLayer(getSecretUrl("baoyu"));
+				flag2 = true;
+			}else {
+				removeWarningLayer();
+				flag2 = false;
+			}
+			break;
+		case R.id.iv3:
+			if (flag3 == false) {
+				drawWarningLayer(getSecretUrl("shachen"));
+				flag3 = true;
+			}else {
+				removeWarningLayer();
+				flag3 = false;
+			}
+			break;
+		case R.id.iv4:
+			if (flag4 == false) {
+				drawWarningLayer(getSecretUrl("daxue"));
+				flag4 = true;
+			}else {
+				removeWarningLayer();
+				flag4 = false;
+			}
+			break;
+		case R.id.iv5:
+			if (flag5 == false) {
+				drawWarningLayer(getSecretUrl("gaowen"));
+				flag5 = true;
+			}else {
+				removeWarningLayer();
+				flag5 = false;
+			}
+			break;
+		case R.id.iv6:
+			if (flag6 == false) {
+				drawWarningLayer(getSecretUrl("typhoon"));
+				flag6 = true;
+			}else {
+				removeWarningLayer();
+				flag6 = false;
+			}
+			break;
+		case R.id.iv7:
+			if (flag7 == false) {
+				drawWarningLayer(getSecretUrl("lengkongqi"));
+				flag7 = true;
+			}else {
+				removeWarningLayer();
+				flag7 = false;
+			}
+			break;
 
 		default:
 			break;
 		}
+	}
+
+	/**
+	 * 清除预警图层
+	 */
+	private void removeWarningLayer() {
+		for (int i = 0; i < polyline1.size(); i++) {
+			polyline1.get(i).remove();
+		}
+		polyline1.clear();
+
+		for (int i = 0; i < polyline2.size(); i++) {
+			polyline2.get(i).remove();
+		}
+		polyline2.clear();
+
+		for (int i = 0; i < textList1.size(); i++) {
+			textList1.get(i).remove();
+		}
+		textList1.clear();
+
+		for (int i = 0; i < textList2.size(); i++) {
+			textList2.get(i).remove();
+		}
+		textList2.clear();
+
+		for (int i = 0; i < polygons.size(); i++) {
+			polygons.get(i).remove();
+		}
+		polygons.clear();
+
+		for (int i = 0; i < textList3.size(); i++) {
+			textList3.get(i).remove();
+		}
+		textList3.clear();
+	}
+
+	public final static String SANX_DATA_99 = "sanx_data_99";//加密秘钥名称
+	public final static String APPID = "f63d329270a44900";//机密需要用到的AppId
+	private String getSecretUrl(String type) {
+		String URL = "https://scapi.tianqi.cn/weather/yjtc";
+		String sysdate = RainManager.getDate(Calendar.getInstance(), "yyyyMMddHHmm");//系统时间
+		StringBuffer buffer = new StringBuffer();
+		buffer.append(URL);
+		buffer.append("?");
+		buffer.append("date=").append(sysdate);
+		buffer.append("&");
+		buffer.append("mold=").append("zaihaiyj");
+		buffer.append("&");
+		buffer.append("type=").append(type);
+		buffer.append("&");
+		buffer.append("map=").append("china");
+		buffer.append("&");
+		buffer.append("appid=").append(APPID);
+
+		String key = RainManager.getKey(SANX_DATA_99, buffer.toString());
+		buffer.delete(buffer.lastIndexOf("&"), buffer.length());
+
+		buffer.append("&");
+		buffer.append("appid=").append(APPID.substring(0, 6));
+		buffer.append("&");
+		buffer.append("key=").append(key.substring(0, key.length() - 3));
+		String result = buffer.toString();
+		return result;
+	}
+
+	/**
+	 * 绘制预警图层
+	 * @param url
+	 */
+	private void drawWarningLayer(String url) {
+		OkHttpUtil.enqueue(new Request.Builder().url(url).build(), new Callback() {
+			@Override
+			public void onFailure(Call call, IOException e) {
+
+			}
+
+			@Override
+			public void onResponse(Call call, Response response) throws IOException {
+				if (!response.isSuccessful()) {
+					return;
+				}
+				final String result = response.body().string();
+				runOnUiThread(new Runnable() {
+					@Override
+					public void run() {
+						if (!TextUtils.isEmpty(result)) {
+							try {
+								JSONObject obj = new JSONObject(result);
+								if (!obj.isNull("lines")) {
+									JSONArray lines = obj.getJSONArray("lines");
+									for (int i = 0; i < lines.length(); i++) {
+										JSONObject itemObj = lines.getJSONObject(i);
+										if (!itemObj.isNull("point")) {
+											JSONArray points = itemObj.getJSONArray("point");
+											PolylineOptions polylineOption = new PolylineOptions();
+											polylineOption.width(6).color(0xff406bbf);
+											for (int j = 0; j < points.length(); j++) {
+												JSONObject point = points.getJSONObject(j);
+												double lat = point.getDouble("y");
+												double lng = point.getDouble("x");
+												polylineOption.add(new LatLng(lat, lng));
+											}
+											Polyline p = aMap.addPolyline(polylineOption);
+											polyline1.add(p);
+										}
+										if (!itemObj.isNull("flags")) {
+											JSONObject flags = itemObj.getJSONObject("flags");
+											String text = "";
+											if (!flags.isNull("text")) {
+												text = flags.getString("text");
+											}
+											if (!flags.isNull("items")) {
+												JSONArray items = flags.getJSONArray("items");
+												JSONObject item = items.getJSONObject(0);
+												double lat = item.getDouble("y");
+												double lng = item.getDouble("x");
+												TextOptions to = new TextOptions();
+												to.position(new LatLng(lat, lng));
+												to.text(text);
+												to.fontColor(Color.BLACK);
+												to.fontSize(30);
+												to.backgroundColor(Color.TRANSPARENT);
+												Text t = aMap.addText(to);
+												textList1.add(t);
+											}
+										}
+									}
+								}
+								if (!obj.isNull("line_symbols")) {
+									JSONArray line_symbols = obj.getJSONArray("line_symbols");
+									for (int i = 0; i < line_symbols.length(); i++) {
+										JSONObject itemObj = line_symbols.getJSONObject(i);
+										if (!itemObj.isNull("items")) {
+											JSONArray items = itemObj.getJSONArray("items");
+											PolylineOptions polylineOption = new PolylineOptions();
+											polylineOption.width(6).color(0xff406bbf);
+											for (int j = 0; j < items.length(); j++) {
+												JSONObject item = items.getJSONObject(j);
+												double lat = item.getDouble("y");
+												double lng = item.getDouble("x");
+												polylineOption.add(new LatLng(lat, lng));
+											}
+											Polyline p = aMap.addPolyline(polylineOption);
+											polyline2.add(p);
+										}
+									}
+								}
+								if (!obj.isNull("symbols")) {
+									JSONArray symbols = obj.getJSONArray("symbols");
+									for (int i = 0; i < symbols.length(); i++) {
+										JSONObject itemObj = symbols.getJSONObject(i);
+										String text = "";
+										int color = Color.BLACK;
+										if (!itemObj.isNull("type")) {
+											String type = itemObj.getString("type");
+											if (TextUtils.equals(type, "60")) {
+												text = "H";
+												color = Color.RED;
+											}else if (TextUtils.equals(type, "61")) {
+												text = "L";
+												color = Color.BLUE;
+											}else if (TextUtils.equals(type, "37")) {
+												text = "台";
+												color = Color.GREEN;
+											}
+										}
+										double lat = itemObj.getDouble("y");
+										double lng = itemObj.getDouble("x");
+										TextOptions to = new TextOptions();
+										to.position(new LatLng(lat, lng));
+										to.text(text);
+										to.fontColor(color);
+										to.fontSize(60);
+										to.backgroundColor(Color.TRANSPARENT);
+										Text t = aMap.addText(to);
+										textList2.add(t);
+									}
+								}
+								if (!obj.isNull("areas")) {
+									JSONArray array = obj.getJSONArray("areas");
+									for (int i = 0; i < array.length(); i++) {
+										JSONObject itemObj = array.getJSONObject(i);
+										String c = itemObj.getString("c");
+										c = c.replace("#", "0xff");
+										int color = Integer.parseInt(c);
+										if (!itemObj.isNull("items")) {
+											JSONArray items = itemObj.getJSONArray("items");
+											PolygonOptions polygonOption = new PolygonOptions();
+											polygonOption.strokeColor(color).fillColor(color);
+											for (int j = 0; j < items.length(); j++) {
+												JSONObject item = items.getJSONObject(j);
+												double lat = item.getDouble("y");
+												double lng = item.getDouble("x");
+												polygonOption.add(new LatLng(lat, lng));
+											}
+											Polygon p = aMap.addPolygon(polygonOption);
+											polygons.add(p);
+										}
+										if (!itemObj.isNull("symbols")) {
+											JSONObject symbols = itemObj.getJSONObject("symbols");
+											String text = symbols.getString("text");
+											JSONArray items = symbols.getJSONArray("items");
+											if (items.length() > 0) {
+												JSONObject o = items.getJSONObject(0);
+												double lat = o.getDouble("y");
+												double lng = o.getDouble("x");
+												TextOptions to = new TextOptions();
+												to.position(new LatLng(lat, lng));
+												to.text(text);
+												to.fontColor(Color.BLACK);
+												to.fontSize(40);
+												to.backgroundColor(Color.TRANSPARENT);
+												Text t = aMap.addText(to);
+												textList3.add(t);
+											}
+										}
+									}
+								}
+							} catch (JSONException e) {
+								e.printStackTrace();
+							}
+						}
+					}
+				});
+			}
+		});
 	}
 	
 	/**
