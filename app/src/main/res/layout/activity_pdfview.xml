@@ -7,31 +7,11 @@
         android:id="@+id/reTitle"
         layout="@layout/layout_title2" />
 
-    <com.joanzapata.pdfview.PDFView
-        android:id="@+id/pdf_view"
+    <com.github.barteksc.pdfviewer.PDFView
+        android:id="@+id/pdfView"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_below="@+id/reTitle"
-        android:visibility="gone" />
-
-    <ImageView
-        android:id="@+id/pdf_pre_btn"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_centerVertical="true"
-        android:layout_marginLeft="10dp"
-        android:src="@drawable/iv_pre_page"
-        android:visibility="invisible" />
-
-    <ImageView
-        android:id="@+id/pdf_next_btn"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignParentRight="true"
-        android:layout_centerVertical="true"
-        android:layout_marginRight="10dp"
-        android:src="@drawable/iv_next_page"
-        android:visibility="invisible" />
+        android:layout_below="@+id/reTitle" />
 
     <TextView
         android:background="@drawable/corner_dialog"

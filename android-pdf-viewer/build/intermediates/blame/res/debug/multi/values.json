@@ -1,0 +1,26 @@
+[
+    {
+        "outputFile": "/Users/shawn/AndroidStudioProjects/ChinaDecision2/android-pdf-viewer/build/intermediates/incremental/mergeDebugResources/merged.dir/values/values.xml",
+        "map": [
+            {
+                "to": {
+                    "startLine": 3,
+                    "startColumn": 4,
+                    "startOffset": 344,
+                    "endColumn": 43,
+                    "endOffset": 383
+                },
+                "from": {
+                    "file": "/Users/shawn/.android/build-cache/46b4de79f6e7163a8160c17a53f73b75bd06a093/output/res/values/values.xml",
+                    "position": {
+                        "startLine": 2,
+                        "startColumn": 4,
+                        "startOffset": 55,
+                        "endColumn": 43,
+                        "endOffset": 94
+                    }
+                }
+            }
+        ]
+    }
+]

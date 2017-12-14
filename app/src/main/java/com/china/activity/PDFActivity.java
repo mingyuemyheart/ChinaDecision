@@ -22,10 +22,8 @@ import android.widget.TextView;
 import com.china.R;
 import com.china.common.CONST;
 import com.china.utils.CommonUtil;
-import com.joanzapata.pdfview.PDFView;
-import com.joanzapata.pdfview.PDFView.Configurator;
-import com.joanzapata.pdfview.listener.OnLoadCompleteListener;
-import com.joanzapata.pdfview.listener.OnPageChangeListener;
+import com.github.barteksc.pdfviewer.PDFView;
+import com.github.barteksc.pdfviewer.scroll.DefaultScrollHandle;
 
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
@@ -38,16 +36,12 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLEncoder;
 
-public class PDFActivity extends BaseActivity implements OnPageChangeListener, OnLoadCompleteListener, OnClickListener {
+public class PDFActivity extends BaseActivity implements OnClickListener {
 	
 	private Context mContext = null;
 	private LinearLayout llBack = null;
 	private TextView tvTitle = null;
 	private PDFView pdfView;
-	private ImageView preBtn;
-	private ImageView nextBtn;
-	private int curPage;
-	private int totalPage;
 	private String pdfUrl;
 	private ImageView ivShare = null;
 	private TextView tvPercent = null;
@@ -65,10 +59,6 @@ public class PDFActivity extends BaseActivity implements OnPageChangeListener, O
 		llBack = (LinearLayout) findViewById(R.id.llBack);
 		llBack.setOnClickListener(this);
 		tvTitle = (TextView) findViewById(R.id.tvTitle);
-		preBtn = (ImageView) findViewById(R.id.pdf_pre_btn);
-		preBtn.setOnClickListener(this);
-		nextBtn = (ImageView) findViewById(R.id.pdf_next_btn);
-		nextBtn.setOnClickListener(this);
 		ivShare = (ImageView) findViewById(R.id.ivShare);
 		ivShare.setOnClickListener(this);
 		tvPercent = (TextView) findViewById(R.id.tvPercent);
@@ -110,10 +100,8 @@ public class PDFActivity extends BaseActivity implements OnPageChangeListener, O
     }
 	
 	private void initPDFView() {
-		pdfView = (PDFView) findViewById(R.id.pdf_view);
-		pdfView.enableDoubletap(true);
-		pdfView.enableSwipe(true);
-		
+		pdfView = (PDFView) findViewById(R.id.pdfView);
+
 		if (TextUtils.isEmpty(pdfUrl)) {
 			return;
 		}else {
@@ -132,28 +120,23 @@ public class PDFActivity extends BaseActivity implements OnPageChangeListener, O
 			@Override
 			public void loadComplete(File file) {
 				if (file != null) {
-					Configurator conf = pdfView.fromFile(file);
-					conf.onPageChange(PDFActivity.this);
-					conf.onLoad(new OnLoadCompleteListener() {
-						@Override
-						public void loadComplete(int arg0) {
-							pdfView.setVisibility(View.VISIBLE);
-							tvPercent.setVisibility(View.GONE);
-						}
-					});
-					conf.load();
+					tvPercent.setVisibility(View.GONE);
+					pdfView.fromFile(file)
+							.defaultPage(0)
+							.scrollHandle(new DefaultScrollHandle(PDFActivity.this))
+							.load();
 				}
 			}
 		}, pdfUrl);
         task.execute();
 	}
-	
+
 	private interface AsynLoadCompleteListener {
 		void loadComplete(File file);
 	}
-    
+
 	private class AsynLoadTask extends AsyncTask<Void, File, File> {
-		
+
 		private String url;
 		private AsynLoadCompleteListener completeListener;
 
@@ -165,7 +148,7 @@ public class PDFActivity extends BaseActivity implements OnPageChangeListener, O
 		@Override
 		protected void onPreExecute() {
 		}
-		
+
 		@Override
 		protected void onProgressUpdate(File... values) {
 		}
@@ -182,7 +165,7 @@ public class PDFActivity extends BaseActivity implements OnPageChangeListener, O
             }
 		}
 	}
-	
+
 	/**
 	 * 下载pdf文件
 	 * @param pdfUrl
@@ -225,63 +208,20 @@ public class PDFActivity extends BaseActivity implements OnPageChangeListener, O
 		}
 		return null;
 	}
-	
+
 	private Handler handler = new Handler() {
 		public void handleMessage(Message msg) {
 			if (msg.what == 0) {
-				tvPercent.setText(msg.obj+getString(R.string.unit_percent));
+				tvPercent.setText(msg.obj + getString(R.string.unit_percent));
 			}
-		};
+		}
 	};
-	
-	private void refreshPreAndNextBtn() {
-		curPage = pdfView.getCurrentPage();
-		totalPage = pdfView.getPageCount();
-//		if (totalPage <= 1) {
-//			preBtn.setVisibility(View.INVISIBLE);
-//			nextBtn.setVisibility(View.INVISIBLE);
-//		} else if (curPage == 0) {
-//			preBtn.setVisibility(View.INVISIBLE);
-//			nextBtn.setVisibility(View.VISIBLE);
-//		} else if (curPage == totalPage - 1) {
-//			preBtn.setVisibility(View.VISIBLE);
-//			nextBtn.setVisibility(View.INVISIBLE);
-//		} else {
-//			preBtn.setVisibility(View.VISIBLE);
-//			nextBtn.setVisibility(View.VISIBLE);
-//		}
-	}
-	
-	@Override
-	public void loadComplete(int nbPages) {
-		refreshPreAndNextBtn();
-	}
-
-	@Override
-	public void onPageChanged(int page, int pageCount) {
-		curPage = pdfView.getCurrentPage();
-		refreshPreAndNextBtn();
-	}
 
 	@Override
 	public void onClick(View v) {
-		curPage = pdfView.getCurrentPage();
-		totalPage = pdfView.getPageCount();
 		switch (v.getId()) {
 		case R.id.llBack:
 			finish();
-			break;
-		case R.id.pdf_pre_btn:
-			if (curPage > 0) {
-				pdfView.jumpTo(curPage);
-			}
-			refreshPreAndNextBtn();
-			break;
-		case R.id.pdf_next_btn:
-			if (curPage < totalPage) {
-				pdfView.jumpTo(curPage + 2);
-			}
-			refreshPreAndNextBtn();
 			break;
 		case R.id.ivShare:
 			Bitmap bitmap1 = CommonUtil.captureView(pdfView);

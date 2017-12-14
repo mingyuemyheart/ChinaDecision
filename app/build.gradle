@@ -2,7 +2,7 @@ apply plugin: 'com.android.application'
 
 android {
     compileSdkVersion 25
-    buildToolsVersion "25.0.2"
+    buildToolsVersion '26.0.2'
     //png图片命名带有数字则编译不通过使用一下声明
     aaptOptions.cruncherEnabled = false
     aaptOptions.useNewCruncher = false
@@ -14,8 +14,12 @@ android {
         minSdkVersion 17
         targetSdkVersion 22
         versionCode 79
-        versionName "3.0.94"
+        versionName "3.0.9.5"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
+
+        ndk {
+            abiFilters 'armeabi-v7a', 'armeabi', 'x86'
+        }
     }
     buildTypes {
         release {
@@ -58,4 +62,5 @@ dependencies {
     compile 'com.squareup.okio:okio:1.13.0'
     compile files('libs/zxing.jar')
     compile 'com.github.nkzawa:socket.io-client:0.6.0'
+    compile project(':android-pdf-viewer')
 }
