@@ -247,9 +247,6 @@ public class WarningStatisticActivity extends BaseActivity implements View.OnCli
             switch (requestCode) {
                 case 1000:
                     areaId = data.getExtras().getString("areaId");
-                    if (TextUtils.isEmpty(areaId)) {
-                        return;
-                    }
                     areaName = data.getExtras().getString("areaName");
                     startTime = data.getExtras().getString("startTime");
                     endTime = data.getExtras().getString("endTime");
@@ -259,7 +256,13 @@ public class WarningStatisticActivity extends BaseActivity implements View.OnCli
                     } catch (ParseException e) {
                         e.printStackTrace();
                     }
-                    String url = baseUrl+"&areaid="+areaId+"&starttime="+startTime+"&endtime="+endTime;
+                    String url = baseUrl;
+                    if (!TextUtils.isEmpty(areaId)) {
+                        url = baseUrl+"&areaid="+areaId+"&starttime="+startTime+"&endtime="+endTime;
+                    }else {
+                        url = baseUrl+"&starttime="+startTime+"&endtime="+endTime;
+                    }
+                    showDialog();
                     OkHttpStatistic(url, false);
                     break;
             }

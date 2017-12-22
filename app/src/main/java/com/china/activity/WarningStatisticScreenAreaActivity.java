@@ -96,6 +96,7 @@ public class WarningStatisticScreenAreaActivity extends BaseActivity implements 
         @Override
         public void afterTextChanged(Editable arg0) {
             cityList.clear();
+            cityAdapter.notifyDataSetChanged();
             if (arg0.toString() == null) {
                 return;
             }

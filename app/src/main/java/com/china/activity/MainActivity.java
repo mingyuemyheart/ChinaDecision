@@ -756,9 +756,7 @@ public class MainActivity extends BaseActivity implements OnClickListener, AMapL
 					intent.putExtra(CONST.WEB_URL, dto.dataUrl);
 					startActivity(intent);
 				}else if (TextUtils.equals(dto.showType, CONST.LOCAL)) {
-					if (TextUtils.equals(dto.id, "-1")) {
-						Toast.makeText(mContext, "频道建设中", Toast.LENGTH_SHORT).show();
-					}else if (TextUtils.equals(dto.id, "1")) {//灾情信息
+					if (TextUtils.equals(dto.id, "1")) {//灾情信息
 						intent = new Intent(mContext, DisasterSpecialActivity.class);
 						intent.putExtra(CONST.COLUMN_ID, dto.columnId);
 						intent.putExtra(CONST.ACTIVITY_NAME, dto.name);
@@ -826,6 +824,28 @@ public class MainActivity extends BaseActivity implements OnClickListener, AMapL
 						intent.putExtra(CONST.ACTIVITY_NAME, dto.name);
 						intent.putExtra(CONST.WEB_URL, com.china.common.CONST.WAIT_WIND);
 						startActivity(intent);
+					}else if (TextUtils.equals(dto.id, "204")) {//分钟降水与强对流
+						intent = new Intent(mContext, StrongStreamActivity.class);
+						intent.putExtra(CONST.COLUMN_ID, dto.columnId);
+						intent.putExtra(CONST.ACTIVITY_NAME, dto.name);
+						startActivity(intent);
+					}else if (TextUtils.equals(dto.id, "301")) {//灾情专报
+						intent = new Intent(mContext, DisasterSpecialActivity.class);
+						intent.putExtra(CONST.COLUMN_ID, dto.columnId);
+						intent.putExtra(CONST.ACTIVITY_NAME, dto.name);
+						intent.putExtra(CONST.WEB_URL, dto.dataUrl);
+						startActivity(intent);
+					}else if (TextUtils.equals(dto.id, "302")) {//灾情直报
+						intent = new Intent(mContext, DisasterReportActivity.class);
+						intent.putExtra(CONST.COLUMN_ID, dto.columnId);
+						intent.putExtra(CONST.ACTIVITY_NAME, dto.name);
+						startActivity(intent);
+					}else if (TextUtils.equals(dto.id, "601")) {//视频直播
+						intent = new Intent(mContext, WeatherMeetingActivity.class);
+						intent.putExtra(CONST.ACTIVITY_NAME, dto.name);
+						startActivity(intent);
+					}else if (TextUtils.equals(dto.id, "-1")) {
+						Toast.makeText(mContext, "频道建设中", Toast.LENGTH_SHORT).show();
 					}
 				}
 			}

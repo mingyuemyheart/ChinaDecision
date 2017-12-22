@@ -3,11 +3,7 @@ package com.china.dto;
 import android.os.Parcel;
 import android.os.Parcelable;
 
-import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.List;
-
-public class WarningDto implements Serializable, Parcelable{
+public class WarningDto implements Parcelable{
 
 	public String name;// 预警全名
 	public String html;// 详情需要用到的html
