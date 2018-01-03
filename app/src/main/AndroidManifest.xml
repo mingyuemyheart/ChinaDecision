@@ -48,7 +48,7 @@
         <receiver android:name="com.china.utils.AutoUpdateBroadcastReceiver" >
             <intent-filter>
                 <action android:name="android.intent.action.DOWNLOAD_COMPLETE" />
-                <!-- <action android:name="android.intent.action.PACKAGE_INSTALL" /> -->
+                 <action android:name="android.intent.action.PACKAGE_INSTALL" />
             </intent-filter>
         </receiver>
 

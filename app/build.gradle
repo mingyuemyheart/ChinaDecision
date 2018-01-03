@@ -13,8 +13,8 @@ android {
         applicationId "com.china"
         minSdkVersion 17
         targetSdkVersion 22
-        versionCode 79
-        versionName "3.0.9.5"
+        versionCode 80
+        versionName "3.0.9.6"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
 
         ndk {
@@ -27,7 +27,13 @@ android {
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
     }
-    productFlavors {
+
+    //打包，自动追加版本号、名称
+    android.applicationVariants.all {
+        variant ->
+            variant.outputs.each {
+                output -> output.outputFile = new File(output.outputFile.parent, "ChinaDecision" + "_" + defaultConfig.versionCode + "_V" + defaultConfig.versionName + "_" + buildType.name + ".apk");
+            }
     }
 
 }
@@ -57,7 +63,6 @@ dependencies {
     compile files('libs/umeng_social_net.jar')
     compile files('libs/umeng_social_shareboard.jar')
     compile files('libs/umeng_social_tool.jar')
-    compile files('libs/vudroid-pdfview-1.0.jar')
     provided 'com.squareup.okhttp3:okhttp:3.8.1'
     compile 'com.squareup.okio:okio:1.13.0'
     compile files('libs/zxing.jar')
