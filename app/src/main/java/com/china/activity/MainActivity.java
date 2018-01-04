@@ -808,6 +808,10 @@ public class MainActivity extends BaseActivity implements OnClickListener, AMapL
 						intent = new Intent(mContext, WeatherMeetingActivity.class);
 						intent.putExtra(CONST.ACTIVITY_NAME, dto.name);
 						startActivity(intent);
+					}else if (TextUtils.equals(dto.id, "109")) {//天气图分析
+						intent = new Intent(mContext, WeatherChartAnalysisActivity.class);
+						intent.putExtra(CONST.ACTIVITY_NAME, dto.name);
+						startActivity(intent);
 					}else if (TextUtils.equals(dto.id, "201")) {//城市天气预报
 						intent = new Intent(mContext, CityForecastActivity.class);
 						intent.putExtra(CONST.COLUMN_ID, dto.columnId);
