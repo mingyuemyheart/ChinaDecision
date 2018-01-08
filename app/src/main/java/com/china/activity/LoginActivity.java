@@ -30,6 +30,7 @@ import com.amap.api.location.AMapLocationListener;
 import com.china.R;
 import com.china.common.CONST;
 import com.china.common.ColumnData;
+import com.china.dto.NewsDto;
 import com.china.utils.CommonUtil;
 import com.china.utils.OkHttpUtil;
 
@@ -62,6 +63,7 @@ public class LoginActivity extends BaseActivity implements OnClickListener, AMap
 	private List<ColumnData> dataList = new ArrayList<>();
 	private TextView tvCommonLogin = null;//公众登录
 	private boolean isFirstCommonLogin = false;//是否为公众用户第一次登录
+	private List<NewsDto> pdfList = new ArrayList<>();//pdf文档类
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -324,6 +326,27 @@ public class LoginActivity extends BaseActivity implements OnClickListener, AMap
 										if (!obj.isNull("recommendurl")) {
 											CONST.RECOMMENDURL = obj.getString("recommendurl");
 										}
+										if (!obj.isNull("news")) {
+											pdfList.clear();
+											JSONArray newsArray = obj.getJSONArray("news");
+											for (int i = 0; i < newsArray.length(); i++) {
+												JSONObject itemObj = newsArray.getJSONObject(i);
+												NewsDto dto = new NewsDto();
+												if (!itemObj.isNull("name")) {
+													dto.title = itemObj.getString("name");
+												}
+												if (!itemObj.isNull("url")) {
+													dto.detailUrl = itemObj.getString("url");
+												}
+												if (!itemObj.isNull("time")) {
+													dto.time = itemObj.getString("time");
+												}
+												if (!itemObj.isNull("img")) {
+													dto.imgUrl = itemObj.getString("img");
+												}
+												pdfList.add(dto);
+											}
+										}
 									}
 
 									if (!object.isNull("info")) {
@@ -353,6 +376,7 @@ public class LoginActivity extends BaseActivity implements OnClickListener, AMap
 													Intent intent = new Intent(mContext, MainActivity.class);
 													Bundle bundle = new Bundle();
 													bundle.putParcelableArrayList("dataList", (ArrayList<? extends Parcelable>) dataList);
+													bundle.putParcelableArrayList("pdfList", (ArrayList<? extends Parcelable>) pdfList);
 													intent.putExtras(bundle);
 													startActivity(intent);
 													finish();

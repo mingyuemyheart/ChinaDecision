@@ -244,6 +244,17 @@
                         android:indeterminateDrawable="@anim/anim_loading_white" />
                 </RelativeLayout>
 
+                <com.china.view.MainViewPager
+                    android:id="@+id/viewPager"
+                    android:layout_width="match_parent"
+                    android:layout_height="30dp"
+                    android:layout_gravity="center" />
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="0.5dp"
+                    android:background="@color/light_gray"/>
+
                 <GridView
                     android:id="@+id/gridView"
                     android:layout_width="match_parent"

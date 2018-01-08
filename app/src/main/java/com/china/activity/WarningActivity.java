@@ -161,8 +161,8 @@ OnMarkerClickListener, InfoWindowAdapter, OnCameraChangeListener, OnMapScreenSho
 	//国家级预警图层
 	private HashMap<String, String> nationMap = new HashMap<>();
 	private LinearLayout llLayerButton;
-	private ImageView iv1, iv2, iv3, iv4, iv5, iv6, iv7;
-	private boolean flag1 = false, flag2 = false, flag3 = false, flag4 = false, flag5 = false, flag6 = false, flag7 = false;
+	private ImageView iv1, iv2, iv3, iv4, iv5, iv6, iv7, iv8;
+	private boolean flag1 = false, flag2 = false, flag3 = false, flag4 = false, flag5 = false, flag6 = false, flag7 = false, flag8 = false;
 	private List<Polyline> polyline1 = new ArrayList<>();
 	private List<Text> textList1 = new ArrayList<>();
 	private List<Polyline> polyline2 = new ArrayList<>();
@@ -226,6 +226,8 @@ OnMarkerClickListener, InfoWindowAdapter, OnCameraChangeListener, OnMapScreenSho
 		iv6.setOnClickListener(this);
 		iv7 = (ImageView) findViewById(R.id.iv7);
 		iv7.setOnClickListener(this);
+		iv8 = (ImageView) findViewById(R.id.iv8);
+		iv8.setOnClickListener(this);
 
 		CommonUtil.showGuidePage(mContext, this.getClass().getName(), ivGuide);
 		
@@ -557,10 +559,10 @@ OnMarkerClickListener, InfoWindowAdapter, OnCameraChangeListener, OnMapScreenSho
 			llLayerButton.setVisibility(View.VISIBLE);
 			iv7.setVisibility(View.VISIBLE);
 		}
-//		if (nationMap.containsKey("11B03")) {//强对流
-//			llLayerButton.setVisibility(View.VISIBLE);
-//			iv8.setVisibility(View.VISIBLE);
-//		}
+		if (nationMap.containsKey("11B05")) {//寒潮
+			llLayerButton.setVisibility(View.VISIBLE);
+			iv8.setVisibility(View.VISIBLE);
+		}
 	}
 	
 	/**
@@ -1222,6 +1224,15 @@ OnMarkerClickListener, InfoWindowAdapter, OnCameraChangeListener, OnMapScreenSho
 				flag7 = false;
 			}
 			break;
+		case R.id.iv8:
+			if (flag8 == false) {
+				drawWarningLayer(getSecretUrl("lengkongqi"), "lengkongqi");
+				flag8 = true;
+			}else {
+				removeWarningLayer();
+				flag8 = false;
+			}
+			break;
 
 		default:
 			break;
@@ -1323,8 +1334,6 @@ OnMarkerClickListener, InfoWindowAdapter, OnCameraChangeListener, OnMapScreenSho
 			}
 		});
 
-//		asyncGetMapData3H("https://scapi.tianqi.cn/weatherchannel/zaihaiyj/daxue/18010308.024.china");
-//		parseLayerData("https://scapi.tianqi.cn/weatherchannel/zaihaiyj/daxue/18010308.024.china");
 	}
 
 	private void asyncGetMapData3H(String url) {
@@ -1457,16 +1466,17 @@ OnMarkerClickListener, InfoWindowAdapter, OnCameraChangeListener, OnMapScreenSho
 						JSONArray array = obj.getJSONArray("areas");
 						for (int i = 0; i < array.length(); i++) {
 							JSONObject itemObj = array.getJSONObject(i);
-							String color = itemObj.getString("c2");
-							String[] cs = color.split(",");
-							int a = Integer.parseInt(cs[0]);
-							int r = Integer.parseInt(cs[1]);
-							int g = Integer.parseInt(cs[2]);
-							int b = Integer.parseInt(cs[3]);
+							String color = itemObj.getString("c");
+							if (color.contains("#")) {
+								color = color.replace("#", "");
+							}
+							int r = Integer.parseInt(color.substring(0,2), 16);
+							int g = Integer.parseInt(color.substring(2,4), 16);
+							int b = Integer.parseInt(color.substring(4,6), 16);
 							if (!itemObj.isNull("items")) {
 								JSONArray items = itemObj.getJSONArray("items");
 								PolygonOptions polygonOption = new PolygonOptions();
-								polygonOption.strokeColor(Color.argb(a, r, g, b)).fillColor(Color.argb(a, r, g, b));
+								polygonOption.strokeColor(Color.rgb(r, g, b)).fillColor(Color.rgb(r, g, b));
 								for (int j = 0; j < items.length(); j++) {
 									JSONObject item = items.getJSONObject(j);
 									double lat = item.getDouble("y");

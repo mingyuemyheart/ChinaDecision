@@ -7,6 +7,8 @@ package com.china.activity;
 import android.animation.IntEvaluator;
 import android.animation.ValueAnimator;
 import android.content.Context;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.text.TextUtils;
@@ -14,6 +16,7 @@ import android.view.View;
 import android.view.animation.LinearInterpolator;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.amap.api.maps.AMap;
@@ -26,6 +29,7 @@ import com.amap.api.maps.model.Text;
 import com.amap.api.maps.model.TextOptions;
 import com.china.R;
 import com.china.common.CONST;
+import com.china.utils.CommonUtil;
 import com.china.utils.OkHttpUtil;
 
 import org.json.JSONArray;
@@ -43,11 +47,12 @@ import okhttp3.Callback;
 import okhttp3.Request;
 import okhttp3.Response;
 
-public class WeatherChartAnalysisActivity extends BaseActivity implements View.OnClickListener {
+public class WeatherChartAnalysisActivity extends BaseActivity implements View.OnClickListener, AMap.OnMapScreenShotListener {
 
     private Context mContext = null;
     private LinearLayout llBack = null;
     private TextView tvTitle = null;
+    private ImageView ivShare = null;
     private MapView mMapView = null;
     private AMap aMap = null;
     private float zoom = 3.7f;
@@ -66,6 +71,7 @@ public class WeatherChartAnalysisActivity extends BaseActivity implements View.O
     private ImageView ivChart, ivLegend;
     private TextView tvTime = null;
     private SimpleDateFormat sdf1 = new SimpleDateFormat("yyyy年MM月dd日 HH:mm");
+    private RelativeLayout reShare;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -109,6 +115,8 @@ public class WeatherChartAnalysisActivity extends BaseActivity implements View.O
         llBack = (LinearLayout) findViewById(R.id.llBack);
         llBack.setOnClickListener(this);
         tvTitle = (TextView) findViewById(R.id.tvTitle);
+        ivShare = (ImageView) findViewById(R.id.ivShare);
+        ivShare.setOnClickListener(this);
         ivChart = (ImageView) findViewById(R.id.ivChart);
         ivChart.setOnClickListener(this);
         ivLegend = (ImageView) findViewById(R.id.ivLegend);
@@ -122,6 +130,7 @@ public class WeatherChartAnalysisActivity extends BaseActivity implements View.O
         tv3 = (TextView) findViewById(R.id.tv3);
         tv3.setOnClickListener(this);
         tvTime = (TextView) findViewById(R.id.tvTime);
+        reShare = (RelativeLayout) findViewById(R.id.reShare);
 
         int w = View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED);
         int h = View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED);
@@ -282,6 +291,9 @@ public class WeatherChartAnalysisActivity extends BaseActivity implements View.O
                                                     textList2.add(t);
                                                 }
                                             }
+
+                                            ivShare.setVisibility(View.VISIBLE);
+                                            reShare.setVisibility(View.VISIBLE);
                                         } catch (JSONException e) {
                                             e.printStackTrace();
                                         }
@@ -327,10 +339,32 @@ public class WeatherChartAnalysisActivity extends BaseActivity implements View.O
     }
 
     @Override
+    public void onMapScreenShot(final Bitmap bitmap1) {//bitmap1为地图截屏
+        //bitmap2为覆盖再地图上的view
+        Bitmap bitmap2 = CommonUtil.captureView(reShare);
+        //bitmap3为bitmap1+bitmap2覆盖叠加在一起的view
+        Bitmap bitmap3 = CommonUtil.mergeBitmap(WeatherChartAnalysisActivity.this, bitmap1, bitmap2, true);
+        CommonUtil.clearBitmap(bitmap1);
+        CommonUtil.clearBitmap(bitmap2);
+        Bitmap bitmap4 = BitmapFactory.decodeResource(getResources(), R.drawable.iv_share_bottom);
+        Bitmap bitmap = CommonUtil.mergeBitmap(mContext, bitmap3, bitmap4, false);
+        CommonUtil.clearBitmap(bitmap3);
+        CommonUtil.clearBitmap(bitmap4);
+        CommonUtil.share(WeatherChartAnalysisActivity.this, bitmap);
+    }
+
+    @Override
+    public void onMapScreenShot(Bitmap arg0, int arg1) {
+    }
+
+    @Override
     public void onClick(View v) {
         switch (v.getId()) {
             case R.id.llBack:
                 finish();
+                break;
+            case R.id.ivShare:
+                aMap.getMapScreenShot(WeatherChartAnalysisActivity.this);
                 break;
             case R.id.ivSwitch:
                 if (isShowSwitch) {

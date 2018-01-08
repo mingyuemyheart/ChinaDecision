@@ -5,6 +5,8 @@ package com.china.activity;
  */
 
 import android.app.Dialog;
+import android.app.Fragment;
+import android.app.FragmentTransaction;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -18,6 +20,8 @@ import android.os.Handler;
 import android.os.Message;
 import android.os.Parcelable;
 import android.provider.Settings;
+import android.support.v4.view.PagerAdapter;
+import android.support.v4.view.ViewPager;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v4.widget.SwipeRefreshLayout.OnRefreshListener;
 import android.text.TextUtils;
@@ -50,6 +54,7 @@ import com.china.common.ColumnData;
 import com.china.dto.NewsDto;
 import com.china.dto.WarningDto;
 import com.china.dto.WeatherDto;
+import com.china.fragment.PdfFragment;
 import com.china.manager.DBManager;
 import com.china.manager.DataCleanManager;
 import com.china.utils.AutoUpdateUtil;
@@ -58,6 +63,7 @@ import com.china.utils.CustomHttpClient;
 import com.china.utils.WeatherUtil;
 import com.china.view.HourItemView;
 import com.china.view.HourView;
+import com.china.view.MainViewPager;
 import com.china.view.MyHorizontalScrollView;
 import com.china.view.MyHorizontalScrollView.ScrollListener;
 import com.china.view.VerticalSwipeRefreshLayout;
@@ -117,6 +123,11 @@ public class MainActivity extends BaseActivity implements OnClickListener, AMapL
 	private int min = 0;
 	private int index = 0;
 	private VerticalSwipeRefreshLayout refreshLayout = null;//下拉刷新布局
+
+	//首页pdf文档
+	private List<NewsDto> pdfList = new ArrayList<>();
+	private MainViewPager viewPager = null;
+	private List<Fragment> fragments = new ArrayList<>();
 	
 	//侧拉页面
 //	private RightSlidingMenu rightSlidemenu = null;
@@ -147,6 +158,7 @@ public class MainActivity extends BaseActivity implements OnClickListener, AMapL
 		if (CommonUtil.isLocationOpen(mContext)) {
 			initRefreshLayout();
 			initWidget();
+			initViewPager();
 			initGridView();
 		}else {
 			locationDialog(mContext);
@@ -318,6 +330,114 @@ public class MainActivity extends BaseActivity implements OnClickListener, AMapL
 			warningId = cursor.getString(cursor.getColumnIndex("wid"));
 		}
 		return warningId;
+	}
+
+	/**
+	 * 初始化viewPager
+	 */
+	private void initViewPager() {
+		pdfList.clear();
+		pdfList.addAll(getIntent().getExtras().<NewsDto>getParcelableArrayList("pdfList"));
+		for (int i = 0; i < pdfList.size(); i++) {
+			Fragment fragment = new PdfFragment();
+			Bundle bundle = new Bundle();
+			bundle.putParcelable("data", pdfList.get(i));
+			fragment.setArguments(bundle);
+			fragments.add(fragment);
+		}
+
+		viewPager = (MainViewPager) findViewById(R.id.viewPager);
+		if (pdfList.size() == 0) {
+			viewPager.setVisibility(View.GONE);
+		}
+		viewPager.setSlipping(true);//设置ViewPager是否可以滑动
+		viewPager.setOffscreenPageLimit(fragments.size());
+		viewPager.setOnPageChangeListener(new MyOnPageChangeListener());
+		viewPager.setAdapter(new MyPagerAdapter());
+
+		if (fragments.size() > 1) {
+			mHandler.sendEmptyMessageDelayed(AUTO_PLUS, PHOTO_CHANGE_TIME);
+		}
+	}
+
+	private final int AUTO_PLUS = 1001;
+	private static final int PHOTO_CHANGE_TIME = 2000;//定时变量
+	private int index_plus = 0;
+	private Handler mHandler = new Handler() {
+		public void handleMessage(Message msg) {
+			switch (msg.what) {
+				case AUTO_PLUS:
+					viewPager.setCurrentItem(index_plus++);//收到消息后设置当前要显示的图片
+					mHandler.sendEmptyMessageDelayed(AUTO_PLUS, PHOTO_CHANGE_TIME);
+					if (index_plus >= fragments.size()) {
+						index_plus = 0;
+					}
+					break;
+				default:
+					break;
+			}
+		};
+	};
+
+	public class MyOnPageChangeListener implements ViewPager.OnPageChangeListener {
+		@Override
+		public void onPageSelected(int arg0) {
+			index_plus = arg0;
+		}
+
+		@Override
+		public void onPageScrolled(int arg0, float arg1, int arg2) {
+		}
+
+		@Override
+		public void onPageScrollStateChanged(int arg0) {
+		}
+	}
+
+	/**
+	 * @ClassName: MyPagerAdapter
+	 * @Description: TODO填充ViewPager的数据适配器
+	 * @author Panyy
+	 * @date 2013 2013年11月6日 下午2:37:47
+	 *
+	 */
+	private class MyPagerAdapter extends PagerAdapter {
+		@Override
+		public boolean isViewFromObject(View arg0, Object arg1) {
+			return arg0 == arg1;
+		}
+
+		@Override
+		public int getCount() {
+			return fragments.size();
+		}
+
+		@Override
+		public void destroyItem(View container, int position, Object object) {
+			((ViewPager) container).removeView(fragments.get(position).getView());
+		}
+
+		@Override
+		public Object instantiateItem(ViewGroup container, int position) {
+			Fragment fragment = fragments.get(position);
+			if (!fragment.isAdded()) { // 如果fragment还没有added
+				FragmentTransaction ft = getFragmentManager().beginTransaction();
+				ft.add(fragment, fragment.getClass().getSimpleName());
+				ft.commit();
+				/**
+				 * 在用FragmentTransaction.commit()方法提交FragmentTransaction对象后
+				 * 会在进程的主线程中,用异步的方式来执行。
+				 * 如果想要立即执行这个等待中的操作,就要调用这个方法(只能在主线程中调用)。
+				 * 要注意的是,所有的回调和相关的行为都会在这个调用中被执行完成,因此要仔细确认这个方法的调用位置。
+				 */
+				getFragmentManager().executePendingTransactions();
+			}
+
+			if (fragment.getView().getParent() == null) {
+				container.addView(fragment.getView()); // 为viewpager增加布局
+			}
+			return fragment.getView();
+		}
 	}
 	
 	public Handler handler = new Handler() {
@@ -706,14 +826,19 @@ public class MainActivity extends BaseActivity implements OnClickListener, AMapL
 		int height1 = reTitle.getMeasuredHeight();
 		llFact.measure(0, 0);
 		int height2 = llFact.getMeasuredHeight();
+		int height3 = 0;
+		if (viewPager != null && pdfList.size() > 0) {
+			viewPager.measure(0, 0);
+			height3 = (int)(30*density);
+		}
 
 		channelList.clear();
 		channelList.addAll(getIntent().getExtras().<ColumnData>getParcelableArrayList("dataList"));
 		gridView = (GridView) findViewById(R.id.gridView);
-		mAdapter = new MainAdapter(mContext, channelList, height-height1-height2);
+		mAdapter = new MainAdapter(mContext, channelList, height-height1-height2-height3);
 		gridView.setAdapter(mAdapter);
 		ViewGroup.LayoutParams params = gridView.getLayoutParams();
-		params.height = (int) ((height-height1-height2)/3*Math.ceil((double)(channelList.size()/3.0f)));
+		params.height = (int) ((height-height1-height2-height3)/3*Math.ceil((double)(channelList.size()/3.0f)));
 		gridView.setLayoutParams(params);
 		gridView.setOnItemClickListener(new OnItemClickListener() {
 			@Override
