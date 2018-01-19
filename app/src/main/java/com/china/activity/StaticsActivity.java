@@ -4,16 +4,22 @@ package com.china.activity;
  * 天气统计
  */
 
+import android.Manifest;
 import android.animation.Animator;
 import android.animation.Animator.AnimatorListener;
 import android.animation.ObjectAnimator;
 import android.animation.ValueAnimator;
 import android.animation.ValueAnimator.AnimatorUpdateListener;
 import android.content.Context;
+import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Point;
+import android.os.Build;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
+import android.support.v4.app.ActivityCompat;
+import android.support.v4.content.ContextCompat;
 import android.text.Spannable;
 import android.text.SpannableStringBuilder;
 import android.text.TextUtils;
@@ -48,6 +54,7 @@ import com.china.R;
 import com.china.common.CONST;
 import com.china.dto.WeatherStaticsDto;
 import com.china.manager.RainManager;
+import com.china.utils.AuthorityUtil;
 import com.china.utils.CommonUtil;
 import com.china.utils.OkHttpUtil;
 import com.china.view.CircularProgressBar;
@@ -102,15 +109,80 @@ public class StaticsActivity extends BaseActivity implements OnClickListener, On
 	private List<Marker> markerList = new ArrayList<>();
 	private LatLng leftlatlng = null;
 	private LatLng rightLatlng = null;
+	private Bundle bundle = null;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_statics);
+		bundle = savedInstanceState;
 		mContext = this;
+		checkAuthority();
+	}
+
+	private void init() {
 		showDialog();
 		initWidget();
-		initMap(savedInstanceState);
+		initMap(bundle);
+	}
+
+	//需要申请的所有权限
+	public static String[] allPermissions = new String[] {
+			Manifest.permission.WRITE_EXTERNAL_STORAGE
+	};
+
+	//拒绝的权限集合
+	public static List<String> deniedList = new ArrayList<>();
+	/**
+	 * 申请定位权限
+	 */
+	private void checkAuthority() {
+		if (Build.VERSION.SDK_INT < 23) {
+			init();
+		}else {
+			deniedList.clear();
+			for (int i = 0; i < allPermissions.length; i++) {
+				if (ContextCompat.checkSelfPermission(mContext, allPermissions[i]) != PackageManager.PERMISSION_GRANTED) {
+					deniedList.add(allPermissions[i]);
+				}
+			}
+			if (deniedList.isEmpty()) {//所有权限都授予
+				init();
+			}else {
+				String[] permissions = deniedList.toArray(new String[deniedList.size()]);//将list转成数组
+				ActivityCompat.requestPermissions(StaticsActivity.this, permissions, AuthorityUtil.AUTHOR_STORAGE);
+			}
+		}
+	}
+
+	@Override
+	public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+		super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+		switch (requestCode) {
+			case AuthorityUtil.AUTHOR_STORAGE:
+				if (grantResults.length > 0) {
+					boolean isAllGranted = true;//是否全部授权
+					for (int i = 0; i < grantResults.length; i++) {
+						if (grantResults[i] != PackageManager.PERMISSION_GRANTED) {
+							isAllGranted = false;
+							break;
+						}
+					}
+					if (isAllGranted) {//所有权限都授予
+						init();
+					}else {//只要有一个没有授权，就提示进入设置界面设置
+						AuthorityUtil.intentAuthorSetting(mContext, "\""+getString(R.string.app_name)+"\""+"需要使用存储权限，是否前往设置？");
+					}
+				}else {
+					for (int i = 0; i < permissions.length; i++) {
+						if (!ActivityCompat.shouldShowRequestPermissionRationale(StaticsActivity.this, permissions[i])) {
+							AuthorityUtil.intentAuthorSetting(mContext, "\""+getString(R.string.app_name)+"\""+"需要使用存储权限，是否前往设置？");
+							break;
+						}
+					}
+				}
+				break;
+		}
 	}
 	
 	/**

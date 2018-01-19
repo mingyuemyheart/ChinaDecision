@@ -128,7 +128,6 @@ public class WeatherInfoDetailActivity extends BaseActivity implements OnClickLi
 	/**
 	 * 初始化webview
 	 */
-	@SuppressLint("SetJavaScriptEnabled") 
 	private void initWebView() {
 		url = getIntent().getStringExtra(CONST.WEB_URL);
 		if (url == null) {
@@ -162,9 +161,9 @@ public class WeatherInfoDetailActivity extends BaseActivity implements OnClickLi
 			@Override
 			public void onReceivedTitle(WebView view, String title) {
 				super.onReceivedTitle(view, title);
-				if (title != null) {
-					tvTitle.setText(title);
-				}
+//				if (title != null) {
+//					tvTitle.setText(title);
+//				}
 			}
 		});
 		
@@ -209,7 +208,6 @@ public class WeatherInfoDetailActivity extends BaseActivity implements OnClickLi
 		return super.onKeyDown(keyCode, event);
 	}
 
-	@SuppressWarnings("deprecation")
 	@Override
 	public void onClick(View v) {
 		switch (v.getId()) {

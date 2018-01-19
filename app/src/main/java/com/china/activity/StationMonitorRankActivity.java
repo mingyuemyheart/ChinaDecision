@@ -42,7 +42,6 @@ import java.util.List;
  *
  */
 
-@SuppressLint("SimpleDateFormat")
 public class StationMonitorRankActivity extends BaseActivity implements OnClickListener{
 	
 	private Context mContext = null;
@@ -84,14 +83,14 @@ public class StationMonitorRankActivity extends BaseActivity implements OnClickL
 	
 	private ListView mListView = null;
 	private StationMonitorRankAdapter mAdapter = null;
-	private List<StationMonitorDto> mList = new ArrayList<StationMonitorDto>();
-	private List<StationMonitorDto> ttList = new ArrayList<StationMonitorDto>();//高温温度
-	private List<StationMonitorDto> ltList = new ArrayList<StationMonitorDto>();//低温温度
-	private List<StationMonitorDto> hMaxList = new ArrayList<StationMonitorDto>();//湿度
-	private List<StationMonitorDto> pMaxList = new ArrayList<StationMonitorDto>();//气压
-	private List<StationMonitorDto> vMaxList = new ArrayList<StationMonitorDto>();//能见度
-	private List<StationMonitorDto> wList = new ArrayList<StationMonitorDto>();//风速
-	private List<StationMonitorDto> rList = new ArrayList<StationMonitorDto>();//降水
+	private List<StationMonitorDto> mList = new ArrayList<>();
+	private List<StationMonitorDto> ttList = new ArrayList<>();//高温温度
+	private List<StationMonitorDto> ltList = new ArrayList<>();//低温温度
+	private List<StationMonitorDto> hMaxList = new ArrayList<>();//湿度
+	private List<StationMonitorDto> pMaxList = new ArrayList<>();//气压
+	private List<StationMonitorDto> vMaxList = new ArrayList<>();//能见度
+	private List<StationMonitorDto> wList = new ArrayList<>();//风速
+	private List<StationMonitorDto> rList = new ArrayList<>();//降水
 	private SimpleDateFormat sdf1 = new SimpleDateFormat("yyyyMMddHH40");
 	private SimpleDateFormat sdf2 = new SimpleDateFormat("yyyyMMddHHmm");
 	private SimpleDateFormat sdf3 = new SimpleDateFormat("yyyyMMddHH");

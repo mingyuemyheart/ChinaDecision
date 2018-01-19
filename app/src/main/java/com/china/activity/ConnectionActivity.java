@@ -1,13 +1,20 @@
 package com.china.activity;
 
+import android.Manifest;
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
+import android.net.Uri;
 import android.net.wifi.WifiInfo;
 import android.net.wifi.WifiManager;
+import android.os.Build;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
+import android.support.v4.app.ActivityCompat;
+import android.support.v4.content.ContextCompat;
 import android.text.TextUtils;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -16,6 +23,7 @@ import android.widget.TextView;
 
 import com.china.R;
 import com.china.common.MyApplication;
+import com.china.utils.AuthorityUtil;
 import com.github.nkzawa.socketio.client.IO;
 import com.github.nkzawa.socketio.client.Socket;
 
@@ -31,7 +39,6 @@ import java.net.URISyntaxException;
  *
  */
 
-@SuppressLint("SimpleDateFormat")
 public class ConnectionActivity extends BaseActivity implements OnClickListener{
 
 	private Context mContext = null;
@@ -76,6 +83,37 @@ public class ConnectionActivity extends BaseActivity implements OnClickListener{
 			}
 		}
 	}
+
+	/**
+	 * 申请电话权限
+	 */
+	private void checkCameraAuthority() {
+		if (Build.VERSION.SDK_INT < 23) {
+			startActivityForResult(new Intent(mContext, ZXingActivity.class), 1000);
+		}else {
+			if (ContextCompat.checkSelfPermission(mContext, Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) {
+				ActivityCompat.requestPermissions(ConnectionActivity.this, new String[]{Manifest.permission.CAMERA}, AuthorityUtil.AUTHOR_CAMERA);
+			}else {
+				startActivityForResult(new Intent(mContext, ZXingActivity.class), 1000);
+			}
+		}
+	}
+
+	@Override
+	public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+		super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+		switch (requestCode) {
+			case AuthorityUtil.AUTHOR_CAMERA:
+				if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+					startActivityForResult(new Intent(mContext, ZXingActivity.class), 1000);
+				}else {
+					if (!ActivityCompat.shouldShowRequestPermissionRationale(ConnectionActivity.this, Manifest.permission.CAMERA)) {
+						AuthorityUtil.intentAuthorSetting(mContext, "\""+getString(R.string.app_name)+"\""+"需要使用相机权限，是否前往设置？");
+					}
+				}
+				break;
+		}
+	}
 	
 	@Override
 	public void onClick(View v) {
@@ -84,7 +122,7 @@ public class ConnectionActivity extends BaseActivity implements OnClickListener{
 			finish();
 			break;
 		case R.id.tvScane:
-			startActivityForResult(new Intent(mContext, ZXingActivity.class), 1000);
+			checkCameraAuthority();
 			break;
 
 		default:

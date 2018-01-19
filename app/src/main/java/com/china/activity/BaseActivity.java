@@ -1,17 +1,12 @@
 package com.china.activity;
 
-import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Context;
 import android.os.Build;
 import android.os.Bundle;
-import android.support.v7.app.AppCompatActivity;
-import android.text.TextUtils;
-import android.view.Window;
-import android.view.WindowManager;
+import android.view.View;
 
 import com.china.common.MyApplication;
-import com.china.manager.SystemStatusManager;
 import com.china.view.MyDialog2;
 import com.github.nkzawa.socketio.client.Socket;
 
@@ -28,24 +23,9 @@ public class BaseActivity extends Activity{
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		mContext = this;
-		setTranslucentStatus();
-	}
-	
-	/**
-	 * 设置状态栏背景状态
-	 */
-	@SuppressLint("InlinedApi") 
-	private void setTranslucentStatus() {
-		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
-			Window win = getWindow();
-			WindowManager.LayoutParams winParams = win.getAttributes();
-			final int bits = WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS;
-			winParams.flags |= bits;
-			win.setAttributes(winParams);
+		if (Build.VERSION.SDK_INT >= 23) {
+			BaseActivity.this.getWindow().getDecorView().setSystemUiVisibility(View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR);
 		}
-		SystemStatusManager tintManager = new SystemStatusManager(this);
-		tintManager.setStatusBarTintEnabled(true);
-		tintManager.setStatusBarTintResource(0);// 状态栏无背景
 	}
 	
 	public void showDialog() {

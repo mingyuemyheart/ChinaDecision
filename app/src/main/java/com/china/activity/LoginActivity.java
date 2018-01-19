@@ -4,15 +4,21 @@ package com.china.activity;
  * 登录界面
  */
 
+import android.Manifest;
 import android.app.Dialog;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
+import android.content.pm.PackageManager;
 import android.graphics.Paint;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Parcelable;
 import android.provider.Settings;
+import android.support.annotation.NonNull;
+import android.support.v4.app.ActivityCompat;
+import android.support.v4.content.ContextCompat;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -31,6 +37,7 @@ import com.china.R;
 import com.china.common.CONST;
 import com.china.common.ColumnData;
 import com.china.dto.NewsDto;
+import com.china.utils.AuthorityUtil;
 import com.china.utils.CommonUtil;
 import com.china.utils.OkHttpUtil;
 
@@ -71,10 +78,11 @@ public class LoginActivity extends BaseActivity implements OnClickListener, AMap
 		setContentView(R.layout.activity_login);
 		mContext = this;
 		initWidget();
-		if (CommonUtil.isLocationOpen(mContext)) {
-			startLocation();
-		}else {
+
+		if (!CommonUtil.isLocationOpen(mContext)) {
 			locationDialog(mContext);
+		}else {
+			checkAuthority();
 		}
 	}
 
@@ -93,6 +101,7 @@ public class LoginActivity extends BaseActivity implements OnClickListener, AMap
 			@Override
 			public void onClick(View arg0) {
 				dialog.dismiss();
+				checkAuthority();
 			}
 		});
 		
@@ -105,7 +114,67 @@ public class LoginActivity extends BaseActivity implements OnClickListener, AMap
 			}
 		});
 	}
-	
+
+	//需要申请的所有权限
+	public static String[] allPermissions = new String[] {
+			Manifest.permission.ACCESS_COARSE_LOCATION,
+			Manifest.permission.CALL_PHONE
+	};
+
+	//拒绝的权限集合
+	public static List<String> deniedList = new ArrayList<>();
+	/**
+	 * 申请定位权限
+	 */
+	private void checkAuthority() {
+		if (Build.VERSION.SDK_INT < 23) {
+			startLocation();
+		}else {
+			deniedList.clear();
+			for (int i = 0; i < allPermissions.length; i++) {
+				if (ContextCompat.checkSelfPermission(mContext, allPermissions[i]) != PackageManager.PERMISSION_GRANTED) {
+					deniedList.add(allPermissions[i]);
+				}
+			}
+			if (deniedList.isEmpty()) {//所有权限都授予
+				startLocation();
+			}else {
+				String[] permissions = deniedList.toArray(new String[deniedList.size()]);//将list转成数组
+				ActivityCompat.requestPermissions(LoginActivity.this, permissions, AuthorityUtil.AUTHOR_LOCATION);
+			}
+		}
+	}
+
+	@Override
+	public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+		super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+		switch (requestCode) {
+			case AuthorityUtil.AUTHOR_LOCATION:
+				if (grantResults.length > 0) {
+					boolean isAllGranted = true;//是否全部授权
+					for (int i = 0; i < grantResults.length; i++) {
+						if (grantResults[i] != PackageManager.PERMISSION_GRANTED) {
+							isAllGranted = false;
+							break;
+						}
+					}
+					if (isAllGranted) {//所有权限都授予
+						startLocation();
+					}else {//只要有一个没有授权，就提示进入设置界面设置
+						AuthorityUtil.intentAuthorSetting(mContext, "\""+getString(R.string.app_name)+"\""+"需要使用您的位置权限、电话权限，是否前往设置？");
+					}
+				}else {
+					for (int i = 0; i < permissions.length; i++) {
+						if (!ActivityCompat.shouldShowRequestPermissionRationale(LoginActivity.this, permissions[i])) {
+							AuthorityUtil.intentAuthorSetting(mContext, "\""+getString(R.string.app_name)+"\""+"需要使用您的位置权限、电话权限，是否前往设置？");
+							break;
+						}
+					}
+				}
+				break;
+		}
+	}
+
 	/**
 	 * 初始化控件
 	 */
@@ -120,26 +189,24 @@ public class LoginActivity extends BaseActivity implements OnClickListener, AMap
 		tvCommonLogin.setOnClickListener(this);
 		tvCommonLogin.getPaint().setFlags(Paint.UNDERLINE_TEXT_FLAG);
 		tvCommonLogin.getPaint().setAntiAlias(true);
-		
+
 		SharedPreferences sharedPreferences = getSharedPreferences(CONST.USERINFO, Context.MODE_PRIVATE);
 		String uid = sharedPreferences.getString(CONST.UserInfo.uId, null);
 		String userName = sharedPreferences.getString(CONST.UserInfo.userName, null);
 		String pwd = sharedPreferences.getString(CONST.UserInfo.passWord, null);
-		
 		CONST.UID = uid;
 		CONST.USERNAME = userName;
 		CONST.PASSWORD = pwd;
-		
 		etUserName.setText(userName);
 		etPwd.setText(pwd);
-		
+
 		if (!TextUtils.isEmpty(etUserName.getText().toString()) && !TextUtils.isEmpty(etPwd.getText().toString())) {
 			etUserName.setSelection(etUserName.getText().toString().length());
 			etPwd.setSelection(etPwd.getText().toString().length());
 			showDialog();
 		}
 	}
-	
+
 	/**
 	 * 开始定位
 	 */
@@ -162,7 +229,7 @@ public class LoginActivity extends BaseActivity implements OnClickListener, AMap
         if (amapLocation != null && amapLocation.getErrorCode() == 0) {
         	lat = String.valueOf(amapLocation.getLatitude());
         	lng = String.valueOf(amapLocation.getLongitude());
-        	
+
         	if (isFirstCommonLogin == false) {
         		if (!TextUtils.isEmpty(etUserName.getText().toString()) && !TextUtils.isEmpty(etPwd.getText().toString())) {
         			doLogin();
@@ -435,11 +502,7 @@ public class LoginActivity extends BaseActivity implements OnClickListener, AMap
 		if (resultCode == 0) {
 			switch (requestCode) {
 			case 1:
-				if (CommonUtil.isLocationOpen(mContext)) {
-					startLocation();
-				}else {
-					locationDialog(mContext);
-				}
+				checkAuthority();
 				break;
 
 			default:

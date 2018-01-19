@@ -101,7 +101,6 @@ import okhttp3.Response;
  * @author shawn_sun
  */
 
-@SuppressLint("SimpleDateFormat")
 public class StationMonitorActivity extends BaseActivity implements OnClickListener, AMapLocationListener, OnMarkerClickListener,
         InfoWindowAdapter, OnMapClickListener, OnGeocodeSearchListener, OnCameraChangeListener, OnMapScreenShotListener,
         AMap.OnMapLoadedListener, DistrictSearch.OnDistrictSearchListener {

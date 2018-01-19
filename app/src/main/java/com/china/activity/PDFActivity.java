@@ -4,14 +4,20 @@ package com.china.activity;
  * PDF列表界面
  */
 
+import android.Manifest;
 import android.content.Context;
+import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.AsyncTask;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
 import android.os.Handler;
 import android.os.Message;
+import android.support.annotation.NonNull;
+import android.support.v4.app.ActivityCompat;
+import android.support.v4.content.ContextCompat;
 import android.text.TextUtils;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -21,6 +27,7 @@ import android.widget.TextView;
 
 import com.china.R;
 import com.china.common.CONST;
+import com.china.utils.AuthorityUtil;
 import com.china.utils.CommonUtil;
 import com.github.barteksc.pdfviewer.PDFView;
 import com.github.barteksc.pdfviewer.scroll.DefaultScrollHandle;
@@ -35,6 +42,8 @@ import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLEncoder;
+import java.util.ArrayList;
+import java.util.List;
 
 public class PDFActivity extends BaseActivity implements OnClickListener {
 	
@@ -51,8 +60,71 @@ public class PDFActivity extends BaseActivity implements OnClickListener {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_pdfview);
 		mContext = this;
+		checkAuthority();
+	}
+
+	private void init() {
 		initWidget();
 		initPDFView();
+	}
+
+	//需要申请的所有权限
+	public static String[] allPermissions = new String[] {
+			Manifest.permission.WRITE_EXTERNAL_STORAGE
+	};
+
+	//拒绝的权限集合
+	public static List<String> deniedList = new ArrayList<>();
+	/**
+	 * 申请定位权限
+	 */
+	private void checkAuthority() {
+		if (Build.VERSION.SDK_INT < 23) {
+			init();
+		}else {
+			deniedList.clear();
+			for (int i = 0; i < allPermissions.length; i++) {
+				if (ContextCompat.checkSelfPermission(mContext, allPermissions[i]) != PackageManager.PERMISSION_GRANTED) {
+					deniedList.add(allPermissions[i]);
+				}
+			}
+			if (deniedList.isEmpty()) {//所有权限都授予
+				init();
+			}else {
+				String[] permissions = deniedList.toArray(new String[deniedList.size()]);//将list转成数组
+				ActivityCompat.requestPermissions(PDFActivity.this, permissions, AuthorityUtil.AUTHOR_LOCATION);
+			}
+		}
+	}
+
+	@Override
+	public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+		super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+		switch (requestCode) {
+			case AuthorityUtil.AUTHOR_LOCATION:
+				if (grantResults.length > 0) {
+					boolean isAllGranted = true;//是否全部授权
+					for (int i = 0; i < grantResults.length; i++) {
+						if (grantResults[i] != PackageManager.PERMISSION_GRANTED) {
+							isAllGranted = false;
+							break;
+						}
+					}
+					if (isAllGranted) {//所有权限都授予
+						init();
+					}else {//只要有一个没有授权，就提示进入设置界面设置
+						AuthorityUtil.intentAuthorSetting(mContext, "\""+getString(R.string.app_name)+"\""+"需要使用存储权限，是否前往设置？");
+					}
+				}else {
+					for (int i = 0; i < permissions.length; i++) {
+						if (!ActivityCompat.shouldShowRequestPermissionRationale(PDFActivity.this, permissions[i])) {
+							AuthorityUtil.intentAuthorSetting(mContext, "\""+getString(R.string.app_name)+"\""+"需要使用存储权限，是否前往设置？");
+							break;
+						}
+					}
+				}
+				break;
+		}
 	}
 
 	private void initWidget() {

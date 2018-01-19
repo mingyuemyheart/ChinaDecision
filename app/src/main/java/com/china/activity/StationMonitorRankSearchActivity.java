@@ -68,7 +68,7 @@ public class StationMonitorRankSearchActivity extends BaseActivity implements On
 	
 	private GridView gridView1 = null;
 	private StationMonitorRankSearchAdapter proAdapter = null;
-	private List<StationMonitorDto> proList = new ArrayList<StationMonitorDto>();
+	private List<StationMonitorDto> proList = new ArrayList<>();
 	private String provinceName = null;
 	private LinearLayout llContainer1 = null;
 	private ImageView ivGuide = null;//引导页

@@ -1,5 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+
+    <color name="colorPrimary">#EFEFEF</color>
+    <color name="colorPrimaryDark">#EFEFEF</color>
+    <color name="colorAccent">#d9d9d9</color>
+
     <color name="text_color1">#CBCBCB</color>
     <color name="text_color2">#A3A7AC</color>
     <color name="text_color3">#333333</color>
@@ -31,9 +36,6 @@
     <color name="typhoon_bg">#f3758c97</color>
     <color name="cell_pressed">#353C48</color>
     <color name="yellow">#fff139</color>
-    <color name="colorPrimary">#607D8B</color>
-    <color name="colorPrimaryDark">#455A64</color>
-    <color name="colorAccent">#FF9800</color>
 
     <color name="result_view">#b0000000</color>
     <color name="viewfinder_mask">#60000000</color>

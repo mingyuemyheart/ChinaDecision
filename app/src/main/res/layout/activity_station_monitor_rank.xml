@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/white"
@@ -13,25 +12,20 @@
         android:background="@color/title_bg"
         android:orientation="vertical" >
 
-        <TextView
-            android:id="@+id/tvBlank"
-            android:layout_width="fill_parent"
-            android:layout_height="35dp" />
-
         <RelativeLayout
             android:id="@+id/re"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_below="@+id/tvBlank"
-            android:paddingRight="10dp" >
+            android:layout_height="wrap_content" >
 
             <LinearLayout
                 android:id="@+id/llBack"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_centerVertical="true"
+                android:paddingBottom="7dp"
                 android:paddingLeft="10dp"
-                android:paddingRight="10dp" >
+                android:paddingRight="10dp"
+                android:paddingTop="7dp" >
 
                 <ImageView
                     android:layout_width="25dp"
@@ -45,25 +39,27 @@
                 android:layout_height="wrap_content"
                 android:layout_centerInParent="true"
                 android:gravity="center"
+                android:padding="10dp"
                 android:textColor="@color/black"
                 android:textSize="@dimen/level_3" />
 
             <ImageView
                 android:id="@+id/ivSearch"
-                android:layout_width="25dp"
-                android:layout_height="25dp"
+                android:layout_width="43dp"
+                android:layout_height="43dp"
                 android:layout_centerVertical="true"
-                android:layout_marginRight="15dp"
+                android:padding="10dp"
                 android:layout_toLeftOf="@+id/ivShare"
                 android:src="@drawable/iv_search" />
 
             <ImageView
                 android:id="@+id/ivShare"
-                android:layout_width="18dp"
-                android:layout_height="18dp"
+                android:layout_width="38dp"
+                android:layout_height="38dp"
                 android:layout_alignParentRight="true"
                 android:layout_centerVertical="true"
                 android:layout_marginRight="5dp"
+                android:padding="10dp"
                 android:src="@drawable/iv_share_black" />
         </RelativeLayout>
 
@@ -72,7 +68,6 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_below="@+id/re"
-            android:layout_marginTop="5dp"
             android:overScrollMode="never"
             android:scrollbarStyle="outsideOverlay"
             android:scrollbarThumbHorizontal="@drawable/scrollbar_horizontal_line" >

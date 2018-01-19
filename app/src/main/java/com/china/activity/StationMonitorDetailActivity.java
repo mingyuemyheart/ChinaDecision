@@ -63,7 +63,7 @@ public class StationMonitorDetailActivity extends BaseActivity implements OnClic
 	private LinearLayout llBack = null;
 	private TextView tvTitle = null;
 	private MainViewPager viewPager;
-	private List<Fragment> fragments = new ArrayList<Fragment>();
+	private List<Fragment> fragments = new ArrayList<>();
 	public final static String SANX_DATA_99 = "sanx_data_99";//加密秘钥名称
 	public final static String APPID = "f63d329270a44900";//机密需要用到的AppId
 	private LinearLayout ll1, ll2, ll3, ll4, ll5, ll6;
@@ -71,7 +71,7 @@ public class StationMonitorDetailActivity extends BaseActivity implements OnClic
 	private TextView tv1, tv2, tv3, tv4, tv5, tv6;
 	private LinearLayout llMain = null;
 	private String warningUrl = "http://decision-admin.tianqi.cn/Home/extra/getwarns?order=0&areaid=";//预警地址
-	private List<WarningDto> warningList = new ArrayList<WarningDto>();//该站点对应的预警信息
+	private List<WarningDto> warningList = new ArrayList<>();//该站点对应的预警信息
 	private ImageView ivShare = null;
 	private RelativeLayout reTitle = null;
 	

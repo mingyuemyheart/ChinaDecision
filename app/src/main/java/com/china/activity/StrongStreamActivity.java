@@ -183,6 +183,7 @@ public class StrongStreamActivity extends BaseActivity implements OnClickListene
 		}
 		aMap.moveCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(35.926628, 105.178100), zoom));
 		aMap.getUiSettings().setZoomControlsEnabled(false);
+		aMap.getUiSettings().setRotateGesturesEnabled(false);
 	}
 	
 	/**

@@ -4,6 +4,7 @@ package com.china.activity;
  * 主界面
  */
 
+import android.Manifest;
 import android.app.Dialog;
 import android.app.Fragment;
 import android.app.FragmentTransaction;
@@ -11,15 +12,20 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
+import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.net.Uri;
 import android.os.AsyncTask;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.os.Parcelable;
 import android.provider.Settings;
+import android.support.annotation.NonNull;
+import android.support.v4.app.ActivityCompat;
+import android.support.v4.content.ContextCompat;
 import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.support.v4.widget.DrawerLayout;
@@ -57,6 +63,7 @@ import com.china.dto.WeatherDto;
 import com.china.fragment.PdfFragment;
 import com.china.manager.DBManager;
 import com.china.manager.DataCleanManager;
+import com.china.utils.AuthorityUtil;
 import com.china.utils.AutoUpdateUtil;
 import com.china.utils.CommonUtil;
 import com.china.utils.CustomHttpClient;
@@ -111,8 +118,6 @@ public class MainActivity extends BaseActivity implements OnClickListener, AMapL
 	private List<WarningDto> warningList = new ArrayList<>();//预警列表
 	private String cityName = null;
 	private String cityId = null;
-	private double lng = 0;
-	private double lat = 0;
 	private int width = 0;
 	private int height = 0;
 	private float density = 0;
@@ -149,50 +154,19 @@ public class MainActivity extends BaseActivity implements OnClickListener, AMapL
 	private TextView statisticDivider = null;
 	private LinearLayout llRecommend = null;
 	private LinearLayout llScreen = null;
+	private String dialNumber = "";
 	
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         mContext = this;
-		if (CommonUtil.isLocationOpen(mContext)) {
-			initRefreshLayout();
-			initWidget();
-			initViewPager();
-			initGridView();
-		}else {
-			locationDialog(mContext);
-		}
+		initRefreshLayout();
+		initWidget();
+		initViewPager();
+		initGridView();
     }
 
-    private void locationDialog(Context context) {
-		LayoutInflater inflater = (LayoutInflater) getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-		View view = inflater.inflate(R.layout.dialog_location, null);
-		LinearLayout llNegative = (LinearLayout) view.findViewById(R.id.llNegative);
-		LinearLayout llPositive = (LinearLayout) view.findViewById(R.id.llPositive);
-		
-		final Dialog dialog = new Dialog(context, R.style.CustomProgressDialog);
-		dialog.setContentView(view);
-		dialog.setCancelable(false);
-		dialog.show();
-		
-		llNegative.setOnClickListener(new OnClickListener() {
-			@Override
-			public void onClick(View arg0) {
-				dialog.dismiss();
-			}
-		});
-		
-		llPositive.setOnClickListener(new OnClickListener() {
-			@Override
-			public void onClick(View arg0) {
-				dialog.dismiss();
-				Intent intent = new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS);
-				startActivityForResult(intent, 1);
-			}
-		});
-	}
-    
     /**
 	 * 初始化下拉刷新布局
 	 */
@@ -311,25 +285,99 @@ public class MainActivity extends BaseActivity implements OnClickListener, AMapL
 		} 
 		
 		llWarning.setVisibility(View.INVISIBLE);
-		startLocation();
+		checkAuthority();
 	}
-	
+
+	//需要申请的所有权限
+	public static String[] allPermissions = new String[] {
+			Manifest.permission.ACCESS_COARSE_LOCATION,
+			Manifest.permission.CALL_PHONE
+	};
+
+	//拒绝的权限集合
+	public static List<String> deniedList = new ArrayList<>();
 	/**
-	 * 获取预警id
+	 * 申请定位权限
 	 */
-	private String queryWarningIdByCityId(String cityId) {
-		DBManager dbManager = new DBManager(mContext);
-		dbManager.openDateBase();
-		dbManager.closeDatabase();
-		SQLiteDatabase database = SQLiteDatabase.openOrCreateDatabase(DBManager.DB_PATH + "/" + DBManager.DB_NAME, null);
-		Cursor cursor = null;
-		cursor = database.rawQuery("select * from " + DBManager.TABLE_NAME3 + " where cid = " + "\"" + cityId + "\"",null);
-		String warningId = null;
-		for (int i = 0; i < cursor.getCount(); i++) {
-			cursor.moveToPosition(i);
-			warningId = cursor.getString(cursor.getColumnIndex("wid"));
+	private void checkAuthority() {
+		if (Build.VERSION.SDK_INT < 23) {
+			startLocation();
+		}else {
+			deniedList.clear();
+			for (int i = 0; i < allPermissions.length; i++) {
+				if (ContextCompat.checkSelfPermission(mContext, allPermissions[i]) != PackageManager.PERMISSION_GRANTED) {
+					deniedList.add(allPermissions[i]);
+				}
+			}
+			if (deniedList.isEmpty()) {//所有权限都授予
+				startLocation();
+			}else {
+				String[] permissions = deniedList.toArray(new String[deniedList.size()]);//将list转成数组
+				ActivityCompat.requestPermissions(MainActivity.this, permissions, AuthorityUtil.AUTHOR_LOCATION);
+			}
 		}
-		return warningId;
+	}
+
+	/**
+	 * 申请电话权限
+	 */
+	private void checkPhoneAuthority(String dialNumber) {
+		if (Build.VERSION.SDK_INT < 23) {
+			try {
+				startActivity(new Intent(Intent.ACTION_CALL, Uri.parse("tel:"+dialNumber)));
+			} catch (SecurityException e) {
+				e.printStackTrace();
+			}
+		}else {
+			if (ContextCompat.checkSelfPermission(mContext, Manifest.permission.CALL_PHONE) != PackageManager.PERMISSION_GRANTED) {
+				ActivityCompat.requestPermissions(MainActivity.this, new String[]{Manifest.permission.CALL_PHONE}, AuthorityUtil.AUTHOR_PHONE);
+			}else {
+				startActivity(new Intent(Intent.ACTION_CALL, Uri.parse("tel:"+dialNumber)));
+			}
+		}
+	}
+
+	@Override
+	public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+		super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+		switch (requestCode) {
+			case AuthorityUtil.AUTHOR_LOCATION:
+				if (grantResults.length > 0) {
+					boolean isAllGranted = true;//是否全部授权
+					for (int i = 0; i < grantResults.length; i++) {
+						if (grantResults[i] != PackageManager.PERMISSION_GRANTED) {
+							isAllGranted = false;
+							break;
+						}
+					}
+					if (isAllGranted) {//所有权限都授予
+						startLocation();
+					}else {//只要有一个没有授权，就提示进入设置界面设置
+						AuthorityUtil.intentAuthorSetting(mContext, "\""+getString(R.string.app_name)+"\""+"需要使用您的位置权限、电话权限，是否前往设置？");
+					}
+				}else {
+					for (int i = 0; i < permissions.length; i++) {
+						if (!ActivityCompat.shouldShowRequestPermissionRationale(MainActivity.this, permissions[i])) {
+							AuthorityUtil.intentAuthorSetting(mContext, "\""+getString(R.string.app_name)+"\""+"需要使用您的位置权限、电话权限，是否前往设置？");
+							break;
+						}
+					}
+				}
+				break;
+			case AuthorityUtil.AUTHOR_PHONE:
+				if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+					try {
+						startActivity(new Intent(Intent.ACTION_CALL, Uri.parse("tel:"+dialNumber)));
+					} catch (SecurityException e) {
+						e.printStackTrace();
+					}
+				}else {
+					if (!ActivityCompat.shouldShowRequestPermissionRationale(MainActivity.this, Manifest.permission.CALL_PHONE)) {
+						AuthorityUtil.intentAuthorSetting(mContext, "\""+getString(R.string.app_name)+"\""+"需要使用电话权限，是否前往设置？");
+					}
+				}
+				break;
+		}
 	}
 
 	/**
@@ -495,26 +543,29 @@ public class MainActivity extends BaseActivity implements OnClickListener, AMapL
         mLocationClient.startLocation();//启动定位
 	}
 
-	@SuppressWarnings("deprecation")
 	@Override
 	public void onLocationChanged(AMapLocation amapLocation) {
 		if (amapLocation != null && amapLocation.getErrorCode() == 0) {
 			String name = amapLocation.getAoiName();
 			if (TextUtils.isEmpty(name)) {
-				name = amapLocation.getRoad();
+				name = amapLocation.getStreet()+amapLocation.getStreetNum();
 			}
-    		tvLocation.setText(name);
-    		cityName = name;
-        	lng = amapLocation.getLongitude();
-        	lat = amapLocation.getLatitude();
-        	getWeatherInfo(amapLocation.getLongitude(), amapLocation.getLatitude());
+			tvLocation.setText(name);
+			cityName = name;
+			getCityId(amapLocation.getLongitude(), amapLocation.getLatitude());
         }
+	}
+
+	private void completeLocation(String name, double lng, double lat) {
+		tvLocation.setText(name);
+		cityName = name;
+		getCityId(lng, lat);
 	}
 
 	/**
 	 * 获取天气数据
 	 */
-	private void getWeatherInfo(double lng, double lat) {
+	private void getCityId(double lng, double lat) {
 		WeatherAPI.getGeo(mContext, String.valueOf(lng), String.valueOf(lat), new AsyncResponseHandler(){
 			@Override
 			public void onComplete(JSONObject content) {
@@ -524,177 +575,7 @@ public class MainActivity extends BaseActivity implements OnClickListener, AMapL
 						JSONObject geoObj = content.getJSONObject("geo");
 						if (!geoObj.isNull("id")) {
 							cityId = geoObj.getString("id");
-							if (!TextUtils.isEmpty(cityId)) {
-								WeatherAPI.getWeather2(mContext, cityId, Language.ZH_CN, new AsyncResponseHandler() {
-									@Override
-									public void onComplete(Weather content) {
-										super.onComplete(content);
-										if (content != null) {
-											try {
-												//实况信息
-												JSONObject object = content.getWeatherFactInfo();
-												if (!object.isNull("l7")) {
-													String time = object.getString("l7");
-													if (time != null) {
-														tvTime.setText(time + getString(R.string.publish));
-													}
-												}
-												if (!object.isNull("l1")) {
-													String factTemp = WeatherUtil.lastValue(object.getString("l1"));
-													tvTemperature.setText(factTemp);
-												}
-												if (!object.isNull("l2")) {
-													String humidity = WeatherUtil.lastValue(object.getString("l2"));
-													if (TextUtils.isEmpty(humidity) || TextUtils.equals(humidity, "null")) {
-														tvHumidity.setText(getString(R.string.humidity) + "--");
-													}else {
-														tvHumidity.setText(getString(R.string.humidity) + humidity + getString(R.string.unit_percent));
-													}
-												}
-												if (!object.isNull("l4")) {
-													String windDir = WeatherUtil.lastValue(object.getString("l4"));
-													if (!object.isNull("l3")) {
-														String windForce = WeatherUtil.lastValue(object.getString("l3"));
-														tvWind.setText(getString(WeatherUtil.getWindDirection(Integer.valueOf(windDir))) +
-																WeatherUtil.getFactWindForce(Integer.valueOf(windForce)));
-													}
-												}
-
-												//预警
-												warningList.clear();
-												JSONArray warningArray = content.getWarningInfo();
-												if (warningArray != null && warningArray.length() > 0) {
-													for (int j = 0; j < warningArray.length(); j++) {
-														JSONObject warningObj = warningArray.getJSONObject(j);
-														if (!warningObj.isNull("w11")) {
-															WarningDto dto = new WarningDto();
-															String html = warningObj.getString("w11");
-															dto.html = html;
-															if (!TextUtils.isEmpty(html) && html.contains("content2")) {
-																dto.html = html.substring(html.indexOf("content2/")+"content2/".length(), html.length());
-																String[] array = dto.html.split("-");
-																String item0 = array[0];
-																String item1 = array[1];
-																String item2 = array[2];
-
-																dto.item0 = item0;
-																dto.provinceId = item0.substring(0, 2);
-																dto.type = item2.substring(0, 5);
-																dto.color = item2.substring(5, 7);
-																dto.time = item1;
-																String w1 = warningObj.getString("w1");
-																String w3 = warningObj.getString("w3");
-																String w5 = warningObj.getString("w5");
-																String w7 = warningObj.getString("w7");
-																dto.name = w1+w3+"发布"+w5+w7+"预警";
-																warningList.add(dto);
-
-																if (j == 0) {
-																	tvWarning.setText(w5+w7+"预警");
-																	llWarning.setVisibility(View.VISIBLE);
-																}
-															}
-														}
-													}
-												}
-
-												//逐小时预报信息
-												JSONArray hourlyArray = content.getHourlyFineForecast2();
-												List<WeatherDto> hourlyList = new ArrayList<WeatherDto>();
-												for (int i = 0; i < hourlyArray.length(); i++) {
-													JSONObject itemObj = hourlyArray.getJSONObject(i);
-													WeatherDto dto = new WeatherDto();
-													dto.hourlyCode = Integer.valueOf(itemObj.getString("ja"));
-													dto.hourlyTemp = Integer.valueOf(itemObj.getString("jb"));
-													dto.hourlyTime = itemObj.getString("jf");
-													hourlyList.add(dto);
-												}
-
-												hourView = new HourView(mContext);
-												hourView.setData(hourlyList, width*2/density, MainActivity.this);
-												llContainer1.removeAllViews();
-												llContainer1.addView(hourView, (int)(CommonUtil.dip2px(mContext, width*2/density)), (int)(CommonUtil.dip2px(mContext, 100)));
-
-												//15天预报信息
-												llContainer2.removeAllViews();
-												for (int i = 1; i <= 15; i++) {
-													JSONArray timeArray = content.getTimeInfo(i);
-													JSONObject timeObj = timeArray.getJSONObject(0);
-													String week = timeObj.getString("t4");//星期几
-													String date = timeObj.getString("t1");//日期
-
-													JSONArray weeklyArray = content.getWeatherForecastInfo(i);
-													JSONObject weeklyObj = weeklyArray.getJSONObject(0);
-													//晚上
-													int lowPheCode = Integer.valueOf(weeklyObj.getString("fb"));
-													String lowPhe  = getString(WeatherUtil.getWeatherId(Integer.valueOf(weeklyObj.getString("fb"))));
-													int lowTemp = Integer.valueOf(weeklyObj.getString("fd"));
-
-													int highPheCode = 0;
-													String highPhe = null;
-													int highTemp = 0;
-
-													//白天数据缺失时，就使用第二天白天数据
-													if (TextUtils.isEmpty(weeklyObj.getString("fa"))) {
-														JSONObject secondObj = content.getWeatherForecastInfo(2).getJSONObject(0);
-														highPheCode = Integer.valueOf(secondObj.getString("fa"));
-														highPhe = getString(WeatherUtil.getWeatherId(Integer.valueOf(secondObj.getString("fa"))));
-
-														int time1 = Integer.valueOf(secondObj.getString("fc"));
-														int time2 = Integer.valueOf(weeklyObj.getString("fd"));
-														if (time1 <= time2) {
-															highTemp = time2 + 2;
-														}else {
-															highTemp = Integer.valueOf(secondObj.getString("fc"));
-														}
-													}else {
-														//白天
-														highPheCode = Integer.valueOf(weeklyObj.getString("fa"));
-														highPhe = getString(WeatherUtil.getWeatherId(Integer.valueOf(weeklyObj.getString("fa"))));
-														highTemp = Integer.valueOf(weeklyObj.getString("fc"));
-													}
-
-													LayoutInflater inflater = (LayoutInflater) getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-													View view = inflater.inflate(R.layout.weekly_layout, null);
-													TextView tvWeek = (TextView) view.findViewById(R.id.tvWeek);
-													ImageView ivPheHigh = (ImageView) view.findViewById(R.id.ivPheHigh);
-													ImageView ivPheLow = (ImageView) view.findViewById(R.id.ivPheLow);
-													TextView tvTemp = (TextView) view.findViewById(R.id.tvTemp);
-													if (i == 1) {
-														tvWeek.setText(getString(R.string.today));
-													}else {
-														String weekStr = mContext.getString(R.string.week)+week.substring(week.length()-1, week.length());
-														tvWeek.setText(weekStr);
-													}
-													ivPheHigh.setImageBitmap(WeatherUtil.getDayBitmap(mContext, highPheCode));
-													ivPheLow.setImageBitmap(WeatherUtil.getNightBitmap(mContext, lowPheCode));
-													tvTemp.setText(highTemp+getString(R.string.unit_degree)+"/"+lowTemp+getString(R.string.unit_degree));
-													llContainer2.addView(view);
-												}
-											} catch (JSONException e) {
-												e.printStackTrace();
-											} catch (NullPointerException e) {
-												e.printStackTrace();
-											}
-
-											refreshLayout.setRefreshing(false);
-											progressBar.setVisibility(View.GONE);
-											llFact.setVisibility(View.VISIBLE);
-										}
-									}
-
-									@Override
-									public void onError(Throwable error, String content) {
-										super.onError(error, content);
-									}
-								});
-
-//								//获取预警信息
-//								String warningId = queryWarningIdByCityId(cityId);
-//								if (!TextUtils.isEmpty(warningId)) {
-//									asyncQueryWarning("http://decision-admin.tianqi.cn/Home/extra/getwarns?order=1&areaid="+warningId);
-//								}
-							}
+							getWeatherInfo();
 						}
 					} catch (JSONException e) {
 						e.printStackTrace();
@@ -707,6 +588,198 @@ public class MainActivity extends BaseActivity implements OnClickListener, AMapL
 				super.onError(error, content);
 			}
 		});
+	}
+
+	private void getWeatherInfo() {
+		if (!TextUtils.isEmpty(cityId)) {
+			WeatherAPI.getWeather2(mContext, cityId, Language.ZH_CN, new AsyncResponseHandler() {
+				@Override
+				public void onComplete(Weather content) {
+					super.onComplete(content);
+					if (content != null) {
+						try {
+							//实况信息
+							JSONObject object = content.getWeatherFactInfo();
+							if (!object.isNull("l7")) {
+								String time = object.getString("l7");
+								if (time != null) {
+									tvTime.setText(time + getString(R.string.publish));
+								}
+							}
+							if (!object.isNull("l1")) {
+								String factTemp = WeatherUtil.lastValue(object.getString("l1"));
+								tvTemperature.setText(factTemp);
+							}
+							if (!object.isNull("l2")) {
+								String humidity = WeatherUtil.lastValue(object.getString("l2"));
+								if (TextUtils.isEmpty(humidity) || TextUtils.equals(humidity, "null")) {
+									tvHumidity.setText(getString(R.string.humidity) + "--");
+								}else {
+									tvHumidity.setText(getString(R.string.humidity) + humidity + getString(R.string.unit_percent));
+								}
+							}
+							if (!object.isNull("l4")) {
+								String windDir = WeatherUtil.lastValue(object.getString("l4"));
+								if (!object.isNull("l3")) {
+									String windForce = WeatherUtil.lastValue(object.getString("l3"));
+									tvWind.setText(getString(WeatherUtil.getWindDirection(Integer.valueOf(windDir))) +
+											WeatherUtil.getFactWindForce(Integer.valueOf(windForce)));
+								}
+							}
+
+							//预警
+							warningList.clear();
+							JSONArray warningArray = content.getWarningInfo();
+							if (warningArray != null && warningArray.length() > 0) {
+								for (int j = 0; j < warningArray.length(); j++) {
+									JSONObject warningObj = warningArray.getJSONObject(j);
+									if (!warningObj.isNull("w11")) {
+										WarningDto dto = new WarningDto();
+										String html = warningObj.getString("w11");
+										dto.html = html;
+										if (!TextUtils.isEmpty(html) && html.contains("content2")) {
+											dto.html = html.substring(html.indexOf("content2/")+"content2/".length(), html.length());
+											String[] array = dto.html.split("-");
+											String item0 = array[0];
+											String item1 = array[1];
+											String item2 = array[2];
+
+											dto.item0 = item0;
+											dto.provinceId = item0.substring(0, 2);
+											dto.type = item2.substring(0, 5);
+											dto.color = item2.substring(5, 7);
+											dto.time = item1;
+											String w1 = warningObj.getString("w1");
+											String w3 = warningObj.getString("w3");
+											String w5 = warningObj.getString("w5");
+											String w7 = warningObj.getString("w7");
+											dto.name = w1+w3+"发布"+w5+w7+"预警";
+											warningList.add(dto);
+
+											if (j == 0) {
+												tvWarning.setText(w5+w7+"预警");
+												llWarning.setVisibility(View.VISIBLE);
+											}
+										}
+									}
+								}
+							}
+
+							//逐小时预报信息
+							JSONArray hourlyArray = content.getHourlyFineForecast2();
+							List<WeatherDto> hourlyList = new ArrayList<>();
+							for (int i = 0; i < hourlyArray.length(); i++) {
+								JSONObject itemObj = hourlyArray.getJSONObject(i);
+								WeatherDto dto = new WeatherDto();
+								dto.hourlyCode = Integer.valueOf(itemObj.getString("ja"));
+								dto.hourlyTemp = Integer.valueOf(itemObj.getString("jb"));
+								dto.hourlyTime = itemObj.getString("jf");
+								hourlyList.add(dto);
+							}
+
+							hourView = new HourView(mContext);
+							hourView.setData(hourlyList, width*2/density, MainActivity.this);
+							llContainer1.removeAllViews();
+							llContainer1.addView(hourView, (int)(CommonUtil.dip2px(mContext, width*2/density)), (int)(CommonUtil.dip2px(mContext, 100)));
+
+							//15天预报信息
+							llContainer2.removeAllViews();
+							for (int i = 1; i <= 15; i++) {
+								JSONArray timeArray = content.getTimeInfo(i);
+								JSONObject timeObj = timeArray.getJSONObject(0);
+								String week = timeObj.getString("t4");//星期几
+								String date = timeObj.getString("t1");//日期
+
+								JSONArray weeklyArray = content.getWeatherForecastInfo(i);
+								JSONObject weeklyObj = weeklyArray.getJSONObject(0);
+								//晚上
+								int lowPheCode = Integer.valueOf(weeklyObj.getString("fb"));
+								String lowPhe  = getString(WeatherUtil.getWeatherId(Integer.valueOf(weeklyObj.getString("fb"))));
+								int lowTemp = Integer.valueOf(weeklyObj.getString("fd"));
+
+								int highPheCode = 0;
+								String highPhe = null;
+								int highTemp = 0;
+
+								//白天数据缺失时，就使用第二天白天数据
+								if (TextUtils.isEmpty(weeklyObj.getString("fa"))) {
+									JSONObject secondObj = content.getWeatherForecastInfo(2).getJSONObject(0);
+									highPheCode = Integer.valueOf(secondObj.getString("fa"));
+									highPhe = getString(WeatherUtil.getWeatherId(Integer.valueOf(secondObj.getString("fa"))));
+
+									int time1 = Integer.valueOf(secondObj.getString("fc"));
+									int time2 = Integer.valueOf(weeklyObj.getString("fd"));
+									if (time1 <= time2) {
+										highTemp = time2 + 2;
+									}else {
+										highTemp = Integer.valueOf(secondObj.getString("fc"));
+									}
+								}else {
+									//白天
+									highPheCode = Integer.valueOf(weeklyObj.getString("fa"));
+									highPhe = getString(WeatherUtil.getWeatherId(Integer.valueOf(weeklyObj.getString("fa"))));
+									highTemp = Integer.valueOf(weeklyObj.getString("fc"));
+								}
+
+								LayoutInflater inflater = (LayoutInflater) getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+								View view = inflater.inflate(R.layout.weekly_layout, null);
+								TextView tvWeek = (TextView) view.findViewById(R.id.tvWeek);
+								ImageView ivPheHigh = (ImageView) view.findViewById(R.id.ivPheHigh);
+								ImageView ivPheLow = (ImageView) view.findViewById(R.id.ivPheLow);
+								TextView tvTemp = (TextView) view.findViewById(R.id.tvTemp);
+								if (i == 1) {
+									tvWeek.setText(getString(R.string.today));
+								}else {
+									String weekStr = mContext.getString(R.string.week)+week.substring(week.length()-1, week.length());
+									tvWeek.setText(weekStr);
+								}
+								ivPheHigh.setImageBitmap(WeatherUtil.getDayBitmap(mContext, highPheCode));
+								ivPheLow.setImageBitmap(WeatherUtil.getNightBitmap(mContext, lowPheCode));
+								tvTemp.setText(highTemp+getString(R.string.unit_degree)+"/"+lowTemp+getString(R.string.unit_degree));
+								llContainer2.addView(view);
+							}
+						} catch (JSONException e) {
+							e.printStackTrace();
+						} catch (NullPointerException e) {
+							e.printStackTrace();
+						}
+
+						refreshLayout.setRefreshing(false);
+						progressBar.setVisibility(View.GONE);
+						llFact.setVisibility(View.VISIBLE);
+					}
+				}
+
+				@Override
+				public void onError(Throwable error, String content) {
+					super.onError(error, content);
+				}
+			});
+
+//								//获取预警信息
+//								String warningId = queryWarningIdByCityId(cityId);
+//								if (!TextUtils.isEmpty(warningId)) {
+//									asyncQueryWarning("http://decision-admin.tianqi.cn/Home/extra/getwarns?order=1&areaid="+warningId);
+//								}
+		}
+	}
+
+	/**
+	 * 获取预警id
+	 */
+	private String queryWarningIdByCityId(String cityId) {
+		DBManager dbManager = new DBManager(mContext);
+		dbManager.openDateBase();
+		dbManager.closeDatabase();
+		SQLiteDatabase database = SQLiteDatabase.openOrCreateDatabase(DBManager.DB_PATH + "/" + DBManager.DB_NAME, null);
+		Cursor cursor = null;
+		cursor = database.rawQuery("select * from " + DBManager.TABLE_NAME3 + " where cid = " + "\"" + cityId + "\"",null);
+		String warningId = null;
+		for (int i = 0; i < cursor.getCount(); i++) {
+			cursor.moveToPosition(i);
+			warningId = cursor.getString(cursor.getColumnIndex("wid"));
+		}
+		return warningId;
 	}
 
 	/**
@@ -822,6 +895,13 @@ public class MainActivity extends BaseActivity implements OnClickListener, AMapL
 
 	@SuppressWarnings("unchecked")
 	private void initGridView() {
+		int statusBarHeight = -1;//状态栏高度
+		//获取status_bar_height资源的ID
+		int resourceId = getResources().getIdentifier("status_bar_height", "dimen", "android");
+		if (resourceId > 0) {
+			//根据资源ID获取响应的尺寸值
+			statusBarHeight = getResources().getDimensionPixelSize(resourceId);
+		}
 		reTitle.measure(0, 0);
 		int height1 = reTitle.getMeasuredHeight();
 		llFact.measure(0, 0);
@@ -835,10 +915,10 @@ public class MainActivity extends BaseActivity implements OnClickListener, AMapL
 		channelList.clear();
 		channelList.addAll(getIntent().getExtras().<ColumnData>getParcelableArrayList("dataList"));
 		gridView = (GridView) findViewById(R.id.gridView);
-		mAdapter = new MainAdapter(mContext, channelList, height-height1-height2-height3);
+		mAdapter = new MainAdapter(mContext, channelList, height-statusBarHeight-height1-height2-height3);
 		gridView.setAdapter(mAdapter);
 		ViewGroup.LayoutParams params = gridView.getLayoutParams();
-		params.height = (int) ((height-height1-height2-height3)/3*Math.ceil((double)(channelList.size()/3.0f)));
+		params.height = (int) ((height-statusBarHeight-height1-height2-height3)/3*Math.ceil((double)(channelList.size()/3.0f)));
 		gridView.setLayoutParams(params);
 		gridView.setOnItemClickListener(new OnItemClickListener() {
 			@Override
@@ -1081,6 +1161,7 @@ public class MainActivity extends BaseActivity implements OnClickListener, AMapL
 	}
 
 	private void dialPhone(String message, final String content, String positive) {
+		dialNumber = content;
 		LayoutInflater inflater = (LayoutInflater) getSystemService(Context.LAYOUT_INFLATER_SERVICE);
 		View view = inflater.inflate(R.layout.delete_dialog, null);
 		TextView tvMessage = (TextView) view.findViewById(R.id.tvMessage);
@@ -1108,7 +1189,7 @@ public class MainActivity extends BaseActivity implements OnClickListener, AMapL
 			@Override
 			public void onClick(View arg0) {
 				dialog.dismiss();
-				startActivity(new Intent(Intent.ACTION_CALL, Uri.parse("tel:"+content)));
+				checkPhoneAuthority(dialNumber);
 			}
 		});
 	}
@@ -1164,8 +1245,6 @@ public class MainActivity extends BaseActivity implements OnClickListener, AMapL
 			Intent intentLo = new Intent(mContext, ForecastActivity.class);
 			intentLo.putExtra("cityName", cityName);
 			intentLo.putExtra("cityId", cityId);
-			intentLo.putExtra("lng", lng);
-			intentLo.putExtra("lat", lat);
 			startActivity(intentLo);
 			break;
 		case R.id.ivWeather:
@@ -1235,25 +1314,4 @@ public class MainActivity extends BaseActivity implements OnClickListener, AMapL
 		}
 	}
 	
-	@Override
-	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-		super.onActivityResult(requestCode, resultCode, data);
-		if (resultCode == 0) {
-			switch (requestCode) {
-			case 1:
-				if (CommonUtil.isLocationOpen(mContext)) {
-					initRefreshLayout();
-					initWidget();
-					initGridView();
-				}else {
-					locationDialog(mContext);
-				}
-				break;
-
-			default:
-				break;
-			}
-		}
-	}
-
 }

@@ -29,7 +29,7 @@ import com.mining.app.zxing.camera.CameraManager;
 import com.mining.app.zxing.decoding.CaptureActivityHandler;
 import com.mining.app.zxing.decoding.InactivityTimer;
 import com.mining.app.zxing.view.ViewfinderView;
-public class ZXingActivity extends Activity implements Callback {
+public class ZXingActivity extends BaseActivity implements Callback {
 
 	private CaptureActivityHandler handler;
 	private ViewfinderView viewfinderView;

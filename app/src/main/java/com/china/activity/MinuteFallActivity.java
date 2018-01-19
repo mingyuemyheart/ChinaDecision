@@ -4,15 +4,21 @@ package com.china.activity;
  * 分钟级降水
  */
 
+import android.Manifest;
 import android.annotation.SuppressLint;
 import android.content.Context;
+import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.media.ThumbnailUtils;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
+import android.support.annotation.NonNull;
+import android.support.v4.app.ActivityCompat;
+import android.support.v4.content.ContextCompat;
 import android.text.TextUtils;
 import android.view.KeyEvent;
 import android.view.View;
@@ -54,6 +60,7 @@ import com.china.common.CONST;
 import com.china.dto.MinuteFallDto;
 import com.china.manager.CaiyunManager;
 import com.china.manager.CaiyunManager.RadarListener;
+import com.china.utils.AuthorityUtil;
 import com.china.utils.CommonUtil;
 import com.china.utils.OkHttpUtil;
 
@@ -105,15 +112,82 @@ OnMapClickListener, OnGeocodeSearchListener, OnMapScreenShotListener{
 	private ImageView ivRank = null;
 	private ImageView ivLegend = null;
 	private ImageView ivSwitch = null;
+	private Bundle bundle = null;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_minute_fall);
+		bundle = savedInstanceState;
 		mContext = this;
+		checkAuthority();
+	}
+
+	private void init() {
 		showDialog();
-		initMap(savedInstanceState);
+		initMap(bundle);
 		initWidget();
+	}
+
+	//需要申请的所有权限
+	public static String[] allPermissions = new String[] {
+			Manifest.permission.ACCESS_COARSE_LOCATION,
+			Manifest.permission.CALL_PHONE,
+			Manifest.permission.WRITE_EXTERNAL_STORAGE,
+	};
+
+	//拒绝的权限集合
+	public static List<String> deniedList = new ArrayList<>();
+	/**
+	 * 申请定位权限
+	 */
+	private void checkAuthority() {
+		if (Build.VERSION.SDK_INT < 23) {
+			init();
+		}else {
+			deniedList.clear();
+			for (int i = 0; i < allPermissions.length; i++) {
+				if (ContextCompat.checkSelfPermission(mContext, allPermissions[i]) != PackageManager.PERMISSION_GRANTED) {
+					deniedList.add(allPermissions[i]);
+				}
+			}
+			if (deniedList.isEmpty()) {//所有权限都授予
+				init();
+			}else {
+				String[] permissions = deniedList.toArray(new String[deniedList.size()]);//将list转成数组
+				ActivityCompat.requestPermissions(MinuteFallActivity.this, permissions, AuthorityUtil.AUTHOR_LOCATION);
+			}
+		}
+	}
+
+	@Override
+	public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+		super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+		switch (requestCode) {
+			case AuthorityUtil.AUTHOR_LOCATION:
+				if (grantResults.length > 0) {
+					boolean isAllGranted = true;//是否全部授权
+					for (int i = 0; i < grantResults.length; i++) {
+						if (grantResults[i] != PackageManager.PERMISSION_GRANTED) {
+							isAllGranted = false;
+							break;
+						}
+					}
+					if (isAllGranted) {//所有权限都授予
+						init();
+					}else {//只要有一个没有授权，就提示进入设置界面设置
+						AuthorityUtil.intentAuthorSetting(mContext, "\""+getString(R.string.app_name)+"\""+"需要使用您的位置权限、电话权限、存储权限，是否前往设置？");
+					}
+				}else {
+					for (int i = 0; i < permissions.length; i++) {
+						if (!ActivityCompat.shouldShowRequestPermissionRationale(MinuteFallActivity.this, permissions[i])) {
+							AuthorityUtil.intentAuthorSetting(mContext, "\""+getString(R.string.app_name)+"\""+"需要使用您的位置权限、电话权限、存储权限，是否前往设置？");
+							break;
+						}
+					}
+				}
+				break;
+		}
 	}
 	
 	private void initWidget() {
@@ -208,6 +282,7 @@ OnMapClickListener, OnGeocodeSearchListener, OnMapScreenShotListener{
 		aMap.moveCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(35.926628, 105.178100), zoom));
 		aMap.getUiSettings().setZoomControlsEnabled(false);
 		aMap.setOnMapClickListener(this);
+		aMap.getUiSettings().setRotateGesturesEnabled(false);
 
 		geocoderSearch = new GeocodeSearch(mContext);
 		geocoderSearch.setOnGeocodeSearchListener(this);

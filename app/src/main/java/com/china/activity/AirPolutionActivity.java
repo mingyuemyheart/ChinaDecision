@@ -1,14 +1,19 @@
 package com.china.activity;
 
-import android.annotation.SuppressLint;
+import android.Manifest;
 import android.content.Context;
 import android.content.pm.ActivityInfo;
+import android.content.pm.PackageManager;
 import android.content.res.Configuration;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Point;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
+import android.support.annotation.NonNull;
+import android.support.v4.app.ActivityCompat;
+import android.support.v4.content.ContextCompat;
 import android.text.TextUtils;
 import android.util.DisplayMetrics;
 import android.view.KeyEvent;
@@ -42,6 +47,7 @@ import com.china.dto.AirPolutionDto;
 import com.china.dto.AqiDto;
 import com.china.manager.RainManager;
 import com.china.manager.XiangJiManager;
+import com.china.utils.AuthorityUtil;
 import com.china.utils.CommonUtil;
 import com.china.utils.OkHttpUtil;
 import com.china.view.AqiQualityView;
@@ -73,8 +79,7 @@ import okhttp3.Response;
  *
  */
 
-@SuppressLint("SimpleDateFormat")
-public class AirPolutionActivity extends BaseActivity implements OnClickListener, OnMarkerClickListener,  
+public class AirPolutionActivity extends BaseActivity implements OnClickListener, OnMarkerClickListener,
 OnMapClickListener, OnCameraChangeListener, OnMapScreenShotListener{
 	
 	private Context mContext = null;
@@ -121,6 +126,7 @@ OnMapClickListener, OnCameraChangeListener, OnMapScreenShotListener{
 	private List<Marker> markerList = new ArrayList<>();
 	private LatLng leftlatlng = null;
 	private LatLng rightLatlng = null;
+	private Marker clickMarker = null;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -608,26 +614,91 @@ OnMapClickListener, OnCameraChangeListener, OnMapScreenShotListener{
 	
 	@Override
 	public boolean onMarkerClick(Marker marker) {
+		clickMarker = marker;
+		if (clickMarker != null) {
+			checkAuthority();
+		}
+		return true;
+	}
+
+	private void clickMarker() {
 		showAnimation(reContent);
 		isClick = true;
-		
+
 		if (zoom <= 6.0f) {
-			setValue(marker.getTitle(), provinceList);
+			setValue(clickMarker.getTitle(), provinceList);
 		}else if (zoom > 6.0f && zoom <= 8.0f) {
-			setValue(marker.getTitle(), provinceList);
-			setValue(marker.getTitle(), cityList);
+			setValue(clickMarker.getTitle(), provinceList);
+			setValue(clickMarker.getTitle(), cityList);
 		}else if (zoom > 8.0f) {
-			setValue(marker.getTitle(), provinceList);
-			setValue(marker.getTitle(), cityList);
-			setValue(marker.getTitle(), districtList);
+			setValue(clickMarker.getTitle(), provinceList);
+			setValue(clickMarker.getTitle(), cityList);
+			setValue(clickMarker.getTitle(), districtList);
 		}
-		
+
 		llContainer.removeAllViews();
-		String lat = String.valueOf(marker.getPosition().latitude);
-		String lng = String.valueOf(marker.getPosition().longitude);
-		getWeatherInfo(marker.getTitle(), lat, lng);
-		
-		return true;
+		String lat = String.valueOf(clickMarker.getPosition().latitude);
+		String lng = String.valueOf(clickMarker.getPosition().longitude);
+		getWeatherInfo(clickMarker.getTitle(), lat, lng);
+	}
+
+	//需要申请的所有权限
+	public static String[] allPermissions = new String[] {
+			Manifest.permission.CALL_PHONE,
+	};
+
+	//拒绝的权限集合
+	public static List<String> deniedList = new ArrayList<>();
+	/**
+	 * 申请定位权限
+	 */
+	private void checkAuthority() {
+		if (Build.VERSION.SDK_INT < 23) {
+			clickMarker();
+		}else {
+			deniedList.clear();
+			for (int i = 0; i < allPermissions.length; i++) {
+				if (ContextCompat.checkSelfPermission(mContext, allPermissions[i]) != PackageManager.PERMISSION_GRANTED) {
+					deniedList.add(allPermissions[i]);
+				}
+			}
+			if (deniedList.isEmpty()) {//所有权限都授予
+				clickMarker();
+			}else {
+				String[] permissions = deniedList.toArray(new String[deniedList.size()]);//将list转成数组
+				ActivityCompat.requestPermissions(AirPolutionActivity.this, permissions, AuthorityUtil.AUTHOR_PHONE);
+			}
+		}
+	}
+
+	@Override
+	public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+		super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+		switch (requestCode) {
+			case AuthorityUtil.AUTHOR_PHONE:
+				if (grantResults.length > 0) {
+					boolean isAllGranted = true;//是否全部授权
+					for (int i = 0; i < grantResults.length; i++) {
+						if (grantResults[i] != PackageManager.PERMISSION_GRANTED) {
+							isAllGranted = false;
+							break;
+						}
+					}
+					if (isAllGranted) {//所有权限都授予
+						clickMarker();
+					}else {//只要有一个没有授权，就提示进入设置界面设置
+						AuthorityUtil.intentAuthorSetting(mContext, "\""+getString(R.string.app_name)+"\""+"需要使用相机权限，是否前往设置？");
+					}
+				}else {
+					for (int i = 0; i < permissions.length; i++) {
+						if (!ActivityCompat.shouldShowRequestPermissionRationale(AirPolutionActivity.this, permissions[i])) {
+							AuthorityUtil.intentAuthorSetting(mContext, "\""+getString(R.string.app_name)+"\""+"需要使用相机权限，是否前往设置？");
+							break;
+						}
+					}
+				}
+				break;
+		}
 	}
 	
 	/**

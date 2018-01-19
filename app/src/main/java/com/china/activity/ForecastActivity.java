@@ -139,43 +139,8 @@ public class ForecastActivity extends BaseActivity implements OnClickListener{
 		if (!TextUtils.isEmpty(cityId)) {
 			getWeatherInfo(cityId);
 		}
-//		else {
-//			double lng = getIntent().getDoubleExtra("lng", 0);
-//			double lat = getIntent().getDoubleExtra("lat", 0);
-//			getCityId(lng, lat);
-//		}
 	}
 
-	/**
-	 * 获取天气数据
-	 */
-	private void getCityId(double lng, double lat) {
-		WeatherAPI.getGeo(mContext, String.valueOf(lng), String.valueOf(lat), new AsyncResponseHandler(){
-			@Override
-			public void onComplete(JSONObject content) {
-				super.onComplete(content);
-				if (!content.isNull("geo")) {
-					try {
-						JSONObject geoObj = content.getJSONObject("geo");
-						if (!geoObj.isNull("id")) {
-							String cityId = geoObj.getString("id");
-							if (!TextUtils.isEmpty(cityId)) {
-								getWeatherInfo(cityId);
-							}
-						}
-					} catch (JSONException e) {
-						e.printStackTrace();
-					}
-				}
-			}
-
-			@Override
-			public void onError(Throwable error, String content) {
-				super.onError(error, content);
-			}
-		});
-	}
-	
 	/**
 	 * 获取天气数据
 	 */

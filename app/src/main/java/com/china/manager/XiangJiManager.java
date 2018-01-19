@@ -26,7 +26,6 @@ public class XiangJiManager {
 	
 	/**
 	 * 加密请求字符串
-	 * @param url 基本串
 	 * @param lng 经度
 	 * @param lat 维度
 	 * @return
@@ -54,7 +53,6 @@ public class XiangJiManager {
 	
 	/**
 	 * 加密请求字符串
-	 * @param url 基本串
 	 * @param lng 经度
 	 * @param lat 维度
 	 * @return

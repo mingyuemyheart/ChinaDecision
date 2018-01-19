@@ -688,9 +688,9 @@ OnMarkerClickListener, InfoWindowAdapter, OnCameraChangeListener, OnMapScreenSho
 	public View getInfoContents(final Marker marker) {
 		LayoutInflater inflater = (LayoutInflater) mContext.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
 		View mView = inflater.inflate(R.layout.warning_marker_info, null);
-		ListView mListView = null;
-		WarningAdapter mAdapter = null;
-		final List<WarningDto> infoList = new ArrayList<WarningDto>();
+		ListView mListView;
+		WarningAdapter mAdapter;
+		final List<WarningDto> infoList = new ArrayList<>();
 		
 		infoList.clear();
 		if (zoom <= 6.0f) {
@@ -1258,35 +1258,35 @@ OnMarkerClickListener, InfoWindowAdapter, OnCameraChangeListener, OnMapScreenSho
 	 * 清除预警图层
 	 */
 	private void removeWarningLayer() {
-//		for (int i = 0; i < polyline1.size(); i++) {
-//			polyline1.get(i).remove();
-//		}
-//		polyline1.clear();
-//
-//		for (int i = 0; i < polyline2.size(); i++) {
-//			polyline2.get(i).remove();
-//		}
-//		polyline2.clear();
-//
-//		for (int i = 0; i < textList1.size(); i++) {
-//			textList1.get(i).remove();
-//		}
-//		textList1.clear();
-//
-//		for (int i = 0; i < textList2.size(); i++) {
-//			textList2.get(i).remove();
-//		}
-//		textList2.clear();
-//
-//		for (int i = 0; i < polygons.size(); i++) {
-//			polygons.get(i).remove();
-//		}
-//		polygons.clear();
-//
-//		for (int i = 0; i < textList3.size(); i++) {
-//			textList3.get(i).remove();
-//		}
-//		textList3.clear();
+		for (int i = 0; i < polyline1.size(); i++) {
+			polyline1.get(i).remove();
+		}
+		polyline1.clear();
+
+		for (int i = 0; i < polyline2.size(); i++) {
+			polyline2.get(i).remove();
+		}
+		polyline2.clear();
+
+		for (int i = 0; i < textList1.size(); i++) {
+			textList1.get(i).remove();
+		}
+		textList1.clear();
+
+		for (int i = 0; i < textList2.size(); i++) {
+			textList2.get(i).remove();
+		}
+		textList2.clear();
+
+		for (int i = 0; i < polygons.size(); i++) {
+			polygons.get(i).remove();
+		}
+		polygons.clear();
+
+		for (int i = 0; i < textList3.size(); i++) {
+			textList3.get(i).remove();
+		}
+		textList3.clear();
 	}
 
 	public final static String SANX_DATA_99 = "sanx_data_99";//加密秘钥名称
@@ -1404,27 +1404,27 @@ OnMarkerClickListener, InfoWindowAdapter, OnCameraChangeListener, OnMapScreenSho
 								Polyline p = aMap.addPolyline(polylineOption);
 								polyline1.add(p);
 							}
-							if (!itemObj.isNull("flags")) {
-								JSONObject flags = itemObj.getJSONObject("flags");
-								String text = "";
-								if (!flags.isNull("text")) {
-									text = flags.getString("text");
-								}
-								if (!flags.isNull("items")) {
-									JSONArray items = flags.getJSONArray("items");
-									JSONObject item = items.getJSONObject(0);
-									double lat = item.getDouble("y");
-									double lng = item.getDouble("x");
-									TextOptions to = new TextOptions();
-									to.position(new LatLng(lat, lng));
-									to.text(text);
-									to.fontColor(Color.BLACK);
-									to.fontSize(30);
-									to.backgroundColor(Color.TRANSPARENT);
-									Text t = aMap.addText(to);
-									textList1.add(t);
-								}
-							}
+//							if (!itemObj.isNull("flags")) {
+//								JSONObject flags = itemObj.getJSONObject("flags");
+//								String text = "";
+//								if (!flags.isNull("text")) {
+//									text = flags.getString("text");
+//								}
+//								if (!flags.isNull("items")) {
+//									JSONArray items = flags.getJSONArray("items");
+//									JSONObject item = items.getJSONObject(0);
+//									double lat = item.getDouble("y");
+//									double lng = item.getDouble("x");
+//									TextOptions to = new TextOptions();
+//									to.position(new LatLng(lat, lng));
+//									to.text(text);
+//									to.fontColor(Color.BLACK);
+//									to.fontSize(30);
+//									to.backgroundColor(Color.TRANSPARENT);
+//									Text t = aMap.addText(to);
+//									textList1.add(t);
+//								}
+//							}
 						}
 					}
 					if (!obj.isNull("line_symbols")) {
@@ -1501,24 +1501,24 @@ OnMarkerClickListener, InfoWindowAdapter, OnCameraChangeListener, OnMapScreenSho
 								Polygon p = aMap.addPolygon(polygonOption);
 								polygons.add(p);
 							}
-							if (!itemObj.isNull("symbols")) {
-								JSONObject symbols = itemObj.getJSONObject("symbols");
-								String text = symbols.getString("text");
-								JSONArray items = symbols.getJSONArray("items");
-								if (items.length() > 0) {
-									JSONObject o = items.getJSONObject(0);
-									double lat = o.getDouble("y");
-									double lng = o.getDouble("x");
-									TextOptions to = new TextOptions();
-									to.position(new LatLng(lat, lng));
-									to.text(text);
-									to.fontColor(Color.BLACK);
-									to.fontSize(40);
-									to.backgroundColor(Color.TRANSPARENT);
-									Text t = aMap.addText(to);
-									textList3.add(t);
-								}
-							}
+//							if (!itemObj.isNull("symbols")) {
+//								JSONObject symbols = itemObj.getJSONObject("symbols");
+//								String text = symbols.getString("text");
+//								JSONArray items = symbols.getJSONArray("items");
+//								if (items.length() > 0) {
+//									JSONObject o = items.getJSONObject(0);
+//									double lat = o.getDouble("y");
+//									double lng = o.getDouble("x");
+//									TextOptions to = new TextOptions();
+//									to.position(new LatLng(lat, lng));
+//									to.text(text);
+//									to.fontColor(Color.BLACK);
+//									to.fontSize(30);
+//									to.backgroundColor(Color.TRANSPARENT);
+//									Text t = aMap.addText(to);
+//									textList3.add(t);
+//								}
+//							}
 						}
 					}
 				} catch (JSONException e) {
