@@ -16,7 +16,6 @@ import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.net.Uri;
-import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
@@ -65,7 +64,7 @@ import com.china.manager.DataCleanManager;
 import com.china.utils.AuthorityUtil;
 import com.china.utils.AutoUpdateUtil;
 import com.china.utils.CommonUtil;
-import com.china.utils.CustomHttpClient;
+import com.china.utils.OkHttpUtil;
 import com.china.utils.WeatherUtil;
 import com.china.view.HourItemView;
 import com.china.view.HourView;
@@ -74,11 +73,11 @@ import com.china.view.MyHorizontalScrollView;
 import com.china.view.MyHorizontalScrollView.ScrollListener;
 import com.china.view.VerticalSwipeRefreshLayout;
 
-import org.apache.http.NameValuePair;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -87,6 +86,10 @@ import cn.com.weather.api.WeatherAPI;
 import cn.com.weather.beans.Weather;
 import cn.com.weather.constants.Constants.Language;
 import cn.com.weather.listener.AsyncResponseHandler;
+import okhttp3.Call;
+import okhttp3.Callback;
+import okhttp3.Request;
+import okhttp3.Response;
 
 public class MainActivity extends BaseActivity implements OnClickListener, AMapLocationListener{
 	
@@ -773,7 +776,7 @@ public class MainActivity extends BaseActivity implements OnClickListener, AMapL
 //								//获取预警信息
 //								String warningId = queryWarningIdByCityId(cityId);
 //								if (!TextUtils.isEmpty(warningId)) {
-//									asyncQueryWarning("http://decision-admin.tianqi.cn/Home/extra/getwarns?order=1&areaid="+warningId);
+//									OkHttpWarning("http://decision-admin.tianqi.cn/Home/extra/getwarns?order=1&areaid="+warningId);
 //								}
 		}
 	}
@@ -797,117 +800,81 @@ public class MainActivity extends BaseActivity implements OnClickListener, AMapL
 	}
 
 	/**
-	 * 异步请求
+	 * 获取预警信息
 	 */
-	private void asyncQueryWarning(String requestUrl) {
-		HttpAsyncTaskWarning task = new HttpAsyncTaskWarning();
-		task.setMethod("GET");
-		task.setTimeOut(CustomHttpClient.TIME_OUT);
-		task.execute(requestUrl);
-	}
+	private void OkHttpWarning(String url) {
+		OkHttpUtil.enqueue(new Request.Builder().url(url).build(), new Callback() {
+			@Override
+			public void onFailure(Call call, IOException e) {
 
-	/**
-	 * 异步请求方法
-	 * @author dell
-	 *
-	 */
-	private class HttpAsyncTaskWarning extends AsyncTask<String, Void, String> {
-		private String method = "GET";
-		private List<NameValuePair> nvpList = new ArrayList<NameValuePair>();
-
-		public HttpAsyncTaskWarning() {
-		}
-
-		@Override
-		protected String doInBackground(String... url) {
-			String result = null;
-			if (method.equalsIgnoreCase("POST")) {
-				result = CustomHttpClient.post(url[0], nvpList);
-			} else if (method.equalsIgnoreCase("GET")) {
-				result = CustomHttpClient.get(url[0]);
 			}
-			return result;
-		}
 
-		@Override
-		protected void onPostExecute(String requestResult) {
-			super.onPostExecute(requestResult);
-			if (requestResult != null) {
-				try {
-					JSONObject object = new JSONObject(requestResult);
-					if (object != null) {
-						if (!object.isNull("data")) {
-							warningList.clear();
-							JSONArray jsonArray = object.getJSONArray("data");
-							for (int i = jsonArray.length()-1; i >= 0; i--) {
-								JSONArray tempArray = jsonArray.getJSONArray(i);
-								WarningDto dto = new WarningDto();
-								dto.html = tempArray.optString(1);
-								String[] array = dto.html.split("-");
-								String item0 = array[0];
-								String item1 = array[1];
-								String item2 = array[2];
+			@Override
+			public void onResponse(Call call, Response response) throws IOException {
 
-								dto.provinceId = item0.substring(0, 2);
-								dto.type = item2.substring(0, 5);
-								dto.color = item2.substring(5, 7);
-								dto.time = item1;
-								dto.lng = tempArray.optString(2);
-								dto.lat = tempArray.optString(3);
-								dto.name = tempArray.optString(0);
+				if (!response.isSuccessful()) {
+					return;
+				}
+				final String result = response.body().string();
+				runOnUiThread(new Runnable() {
+					@Override
+					public void run() {
+						if (!TextUtils.isEmpty(result)) {
+							try {
+								JSONObject object = new JSONObject(result);
+								if (object != null) {
+									if (!object.isNull("data")) {
+										warningList.clear();
+										JSONArray jsonArray = object.getJSONArray("data");
+										for (int i = jsonArray.length()-1; i >= 0; i--) {
+											JSONArray tempArray = jsonArray.getJSONArray(i);
+											WarningDto dto = new WarningDto();
+											dto.html = tempArray.optString(1);
+											String[] array = dto.html.split("-");
+											String item0 = array[0];
+											String item1 = array[1];
+											String item2 = array[2];
 
-								warningList.add(dto);
+											dto.provinceId = item0.substring(0, 2);
+											dto.type = item2.substring(0, 5);
+											dto.color = item2.substring(5, 7);
+											dto.time = item1;
+											dto.lng = tempArray.optString(2);
+											dto.lat = tempArray.optString(3);
+											dto.name = tempArray.optString(0);
 
-								try {
-									if (i == 0 && !TextUtils.isEmpty(dto.name)) {
-										if (dto.name.contains("发布")) {
-											String[] nameArray = dto.name.split("发布");
-											if (!TextUtils.isEmpty(nameArray[1])) {
-												if (nameArray[1].contains("[") && nameArray[1].contains("]")) {
-													tvWarning.setText(nameArray[1].substring(0, nameArray[1].indexOf("[")));
-												}else {
-													tvWarning.setText(nameArray[1]);
+											warningList.add(dto);
+
+											try {
+												if (i == 0 && !TextUtils.isEmpty(dto.name)) {
+													if (dto.name.contains("发布")) {
+														String[] nameArray = dto.name.split("发布");
+														if (!TextUtils.isEmpty(nameArray[1])) {
+															if (nameArray[1].contains("[") && nameArray[1].contains("]")) {
+																tvWarning.setText(nameArray[1].substring(0, nameArray[1].indexOf("[")));
+															}else {
+																tvWarning.setText(nameArray[1]);
+															}
+															llWarning.setVisibility(View.VISIBLE);
+														}
+													}
 												}
-												llWarning.setVisibility(View.VISIBLE);
+											} catch (IndexOutOfBoundsException e) {
+												e.printStackTrace();
 											}
 										}
 									}
-								} catch (IndexOutOfBoundsException e) {
-									e.printStackTrace();
 								}
+							} catch (JSONException e) {
+								e.printStackTrace();
 							}
 						}
 					}
-				} catch (JSONException e) {
-					e.printStackTrace();
-				}
+				});
 			}
-		}
-
-		@SuppressWarnings("unused")
-		private void setParams(NameValuePair nvp) {
-			nvpList.add(nvp);
-		}
-
-		private void setMethod(String method) {
-			this.method = method;
-		}
-
-		private void setTimeOut(int timeOut) {
-			CustomHttpClient.TIME_OUT = timeOut;
-		}
-
-		/**
-		 * 取消当前task
-		 */
-		@SuppressWarnings("unused")
-		private void cancelTask() {
-			CustomHttpClient.shuttdownRequest();
-			this.cancel(true);
-		}
+		});
 	}
 
-	@SuppressWarnings("unchecked")
 	private void initGridView() {
 		int statusBarHeight = -1;//状态栏高度
 		//获取status_bar_height资源的ID

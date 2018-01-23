@@ -4,7 +4,6 @@ import android.app.Fragment;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.graphics.Bitmap;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
@@ -18,16 +17,23 @@ import com.china.common.CONST;
 import com.china.dto.WarningDto;
 import com.china.manager.DBManager;
 import com.china.utils.CommonUtil;
-import com.china.utils.CustomHttpClient;
+import com.china.utils.OkHttpUtil;
 import com.china.view.RefreshLayout;
 import com.china.view.RefreshLayout.OnRefreshListener;
 
-import org.apache.http.NameValuePair;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.io.IOException;
+
+import okhttp3.Call;
+import okhttp3.Callback;
+import okhttp3.Request;
+import okhttp3.Response;
+
+/**
+ * 预警详情
+ */
 
 public class WarningDetailFragment extends Fragment{
 	
@@ -73,7 +79,7 @@ public class WarningDetailFragment extends Fragment{
 	private void refresh() {
 		data = getArguments().getParcelable("data");
 		try {
-			asyncQuery(url+data.html);
+			OkHttpWarningDetail(url+data.html);
 		} catch (NullPointerException e) {
 			e.printStackTrace();
 		}
@@ -116,114 +122,79 @@ public class WarningDetailFragment extends Fragment{
 	}
 	
 	/**
-	 * 异步请求
+	 * 获取预警详情
 	 */
-	private void asyncQuery(String requestUrl) {
-		HttpAsyncTask task = new HttpAsyncTask();
-		task.setMethod("GET");
-		task.setTimeOut(CustomHttpClient.TIME_OUT);
-		task.execute(requestUrl);
-	}
-	
-	/**
-	 * 异步请求方法
-	 * @author dell
-	 *
-	 */
-	private class HttpAsyncTask extends AsyncTask<String, Void, String> {
-		private String method = "GET";
-		private List<NameValuePair> nvpList = new ArrayList<NameValuePair>();
-		
-		public HttpAsyncTask() {
-		}
+	private void OkHttpWarningDetail(String url) {
+		OkHttpUtil.enqueue(new Request.Builder().url(url).build(), new Callback() {
+			@Override
+			public void onFailure(Call call, IOException e) {
 
-		@Override
-		protected String doInBackground(String... url) {
-			String result = null;
-			if (method.equalsIgnoreCase("POST")) {
-				result = CustomHttpClient.post(url[0], nvpList);
-			} else if (method.equalsIgnoreCase("GET")) {
-				result = CustomHttpClient.get(url[0]);
 			}
-			return result;
-		}
 
-		@Override
-		protected void onPostExecute(String requestResult) {
-			super.onPostExecute(requestResult);
-			if (isAdded()) {//判断fragment是否已经添加
-				if (requestResult != null) {
-					try {
-						JSONObject object = new JSONObject(requestResult);
-						if (object != null) {
-							if (!object.isNull("sendTime")) {
-								tvTime.setText(getString(R.string.publish_time)+object.getString("sendTime"));
-							}
-							
-							if (!object.isNull("description")) {
-								tvIntro.setText(object.getString("description"));
-							}
-							
-							String name = object.getString("headline");
-							if (!TextUtils.isEmpty(name)) {
-								tvName.setText(name.replace(getString(R.string.publish), getString(R.string.publish)+"\n"));
-							}
-							
-							Bitmap bitmap = null;
-							if (object.getString("severityCode").equals(CONST.blue[0])) {
-								bitmap = CommonUtil.getImageFromAssetsFile(getActivity(),"warning/"+object.getString("eventType")+CONST.blue[1]+CONST.imageSuffix);
-								if (bitmap == null) {
-									bitmap = CommonUtil.getImageFromAssetsFile(getActivity(),"warning/"+"default"+CONST.blue[1]+CONST.imageSuffix);
-								}
-							}else if (object.getString("severityCode").equals(CONST.yellow[0])) {
-								bitmap = CommonUtil.getImageFromAssetsFile(getActivity(),"warning/"+object.getString("eventType")+CONST.yellow[1]+CONST.imageSuffix);
-								if (bitmap == null) {
-									bitmap = CommonUtil.getImageFromAssetsFile(getActivity(),"warning/"+"default"+CONST.yellow[1]+CONST.imageSuffix);
-								}
-							}else if (object.getString("severityCode").equals(CONST.orange[0])) {
-								bitmap = CommonUtil.getImageFromAssetsFile(getActivity(),"warning/"+object.getString("eventType")+CONST.orange[1]+CONST.imageSuffix);
-								if (bitmap == null) {
-									bitmap = CommonUtil.getImageFromAssetsFile(getActivity(),"warning/"+"default"+CONST.orange[1]+CONST.imageSuffix);
-								}
-							}else if (object.getString("severityCode").equals(CONST.red[0])) {
-								bitmap = CommonUtil.getImageFromAssetsFile(getActivity(),"warning/"+object.getString("eventType")+CONST.red[1]+CONST.imageSuffix);
-								if (bitmap == null) {
-									bitmap = CommonUtil.getImageFromAssetsFile(getActivity(),"warning/"+"default"+CONST.red[1]+CONST.imageSuffix);
-								}
-							}
-							imageView.setImageBitmap(bitmap);
-							
-							initDBManager();
-							refreshLayout.setRefreshing(false);
-						}
-					} catch (JSONException e) {
-						e.printStackTrace();
-					}
+			@Override
+			public void onResponse(Call call, Response response) throws IOException {
+
+				if (!response.isSuccessful()) {
+					return;
 				}
+				final String result = response.body().string();
+				getActivity().runOnUiThread(new Runnable() {
+					@Override
+					public void run() {
+						if (isAdded()) {//判断fragment是否已经添加
+							if (!TextUtils.isEmpty(result)) {
+								try {
+									JSONObject object = new JSONObject(result);
+									if (object != null) {
+										if (!object.isNull("sendTime")) {
+											tvTime.setText(getString(R.string.publish_time)+object.getString("sendTime"));
+										}
+
+										if (!object.isNull("description")) {
+											tvIntro.setText(object.getString("description"));
+										}
+
+										String name = object.getString("headline");
+										if (!TextUtils.isEmpty(name)) {
+											tvName.setText(name.replace(getString(R.string.publish), getString(R.string.publish)+"\n"));
+										}
+
+										Bitmap bitmap = null;
+										if (object.getString("severityCode").equals(CONST.blue[0])) {
+											bitmap = CommonUtil.getImageFromAssetsFile(getActivity(),"warning/"+object.getString("eventType")+CONST.blue[1]+CONST.imageSuffix);
+											if (bitmap == null) {
+												bitmap = CommonUtil.getImageFromAssetsFile(getActivity(),"warning/"+"default"+CONST.blue[1]+CONST.imageSuffix);
+											}
+										}else if (object.getString("severityCode").equals(CONST.yellow[0])) {
+											bitmap = CommonUtil.getImageFromAssetsFile(getActivity(),"warning/"+object.getString("eventType")+CONST.yellow[1]+CONST.imageSuffix);
+											if (bitmap == null) {
+												bitmap = CommonUtil.getImageFromAssetsFile(getActivity(),"warning/"+"default"+CONST.yellow[1]+CONST.imageSuffix);
+											}
+										}else if (object.getString("severityCode").equals(CONST.orange[0])) {
+											bitmap = CommonUtil.getImageFromAssetsFile(getActivity(),"warning/"+object.getString("eventType")+CONST.orange[1]+CONST.imageSuffix);
+											if (bitmap == null) {
+												bitmap = CommonUtil.getImageFromAssetsFile(getActivity(),"warning/"+"default"+CONST.orange[1]+CONST.imageSuffix);
+											}
+										}else if (object.getString("severityCode").equals(CONST.red[0])) {
+											bitmap = CommonUtil.getImageFromAssetsFile(getActivity(),"warning/"+object.getString("eventType")+CONST.red[1]+CONST.imageSuffix);
+											if (bitmap == null) {
+												bitmap = CommonUtil.getImageFromAssetsFile(getActivity(),"warning/"+"default"+CONST.red[1]+CONST.imageSuffix);
+											}
+										}
+										imageView.setImageBitmap(bitmap);
+
+										initDBManager();
+										refreshLayout.setRefreshing(false);
+									}
+								} catch (JSONException e) {
+									e.printStackTrace();
+								}
+							}
+						}
+					}
+				});
 			}
-		}
-
-		@SuppressWarnings("unused")
-		private void setParams(NameValuePair nvp) {
-			nvpList.add(nvp);
-		}
-
-		private void setMethod(String method) {
-			this.method = method;
-		}
-
-		private void setTimeOut(int timeOut) {
-			CustomHttpClient.TIME_OUT = timeOut;
-		}
-
-		/**
-		 * 取消当前task
-		 */
-		@SuppressWarnings("unused")
-		private void cancelTask() {
-			CustomHttpClient.shuttdownRequest();
-			this.cancel(true);
-		}
+		});
 	}
 
 }

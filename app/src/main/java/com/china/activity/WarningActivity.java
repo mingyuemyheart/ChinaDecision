@@ -3,14 +3,12 @@ package com.china.activity;
 import android.animation.IntEvaluator;
 import android.animation.ValueAnimator;
 import android.animation.ValueAnimator.AnimatorUpdateListener;
-import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.graphics.Point;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Parcelable;
 import android.text.Spannable;
@@ -67,14 +65,11 @@ import com.china.common.CONST;
 import com.china.common.MyApplication;
 import com.china.dto.WarningDto;
 import com.china.manager.RainManager;
-import com.china.manager.StationManager;
 import com.china.utils.CommonUtil;
-import com.china.utils.CustomHttpClient;
 import com.china.utils.OkHttpUtil;
 import com.china.view.ArcMenu;
 import com.china.view.ArcMenu.OnMenuItemClickListener;
 
-import org.apache.http.NameValuePair;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -1340,7 +1335,7 @@ OnMarkerClickListener, InfoWindowAdapter, OnCameraChangeListener, OnMapScreenSho
 						JSONObject obj = new JSONObject(result);
 						if (!obj.isNull("micaps14_"+type)) {
 							String dataUrl = obj.getString("micaps14_"+type);
-							asyncGetMapData(dataUrl);
+							OkHttpSpecialLayer(dataUrl);
 						}
 					} catch (JSONException e) {
 						e.printStackTrace();
@@ -1351,59 +1346,42 @@ OnMarkerClickListener, InfoWindowAdapter, OnCameraChangeListener, OnMapScreenSho
 
 	}
 
-	private void asyncGetMapData(String url) {
-		HttpAsyncTaskMap task = new HttpAsyncTaskMap();
-		task.setMethod("GET");
-		task.setTimeOut(CustomHttpClient.TIME_OUT);
-		task.execute(url);
-	}
+	private void OkHttpSpecialLayer(String url) {
+		OkHttpUtil.enqueue(new Request.Builder().url(url).build(), new Callback() {
+			@Override
+			public void onFailure(Call call, IOException e) {
 
-	/**
-	 * 异步请求方法
-	 * @author dell
-	 *
-	 */
-	private class HttpAsyncTaskMap extends AsyncTask<String, Void, String> {
-		private String method = "GET";
-		private List<NameValuePair> nvpList = new ArrayList<>();
-
-		public HttpAsyncTaskMap() {
-		}
-
-		@Override
-		protected String doInBackground(String... url) {
-			String result = null;
-			if (method.equalsIgnoreCase("POST")) {
-				result = CustomHttpClient.post(url[0], nvpList);
-			} else if (method.equalsIgnoreCase("GET")) {
-				result = CustomHttpClient.get(url[0]);
 			}
-			return result;
-		}
 
-		@Override
-		protected void onPostExecute(String result) {
-			super.onPostExecute(result);
-			if (!TextUtils.isEmpty(result)) {
-				try {
-					JSONObject obj = new JSONObject(result);
-					if (!obj.isNull("lines")) {
-						JSONArray lines = obj.getJSONArray("lines");
-						for (int i = 0; i < lines.length(); i++) {
-							JSONObject itemObj = lines.getJSONObject(i);
-							if (!itemObj.isNull("point")) {
-								JSONArray points = itemObj.getJSONArray("point");
-								PolylineOptions polylineOption = new PolylineOptions();
-								polylineOption.width(6).color(0xff406bbf);
-								for (int j = 0; j < points.length(); j++) {
-									JSONObject point = points.getJSONObject(j);
-									double lat = point.getDouble("y");
-									double lng = point.getDouble("x");
-									polylineOption.add(new LatLng(lat, lng));
-								}
-								Polyline p = aMap.addPolyline(polylineOption);
-								polyline1.add(p);
-							}
+			@Override
+			public void onResponse(Call call, Response response) throws IOException {
+				if (!response.isSuccessful()) {
+					return;
+				}
+				final String result = response.body().string();
+				runOnUiThread(new Runnable() {
+					@Override
+					public void run() {
+						if (!TextUtils.isEmpty(result)) {
+							try {
+								JSONObject obj = new JSONObject(result);
+								if (!obj.isNull("lines")) {
+									JSONArray lines = obj.getJSONArray("lines");
+									for (int i = 0; i < lines.length(); i++) {
+										JSONObject itemObj = lines.getJSONObject(i);
+										if (!itemObj.isNull("point")) {
+											JSONArray points = itemObj.getJSONArray("point");
+											PolylineOptions polylineOption = new PolylineOptions();
+											polylineOption.width(6).color(0xff406bbf);
+											for (int j = 0; j < points.length(); j++) {
+												JSONObject point = points.getJSONObject(j);
+												double lat = point.getDouble("y");
+												double lng = point.getDouble("x");
+												polylineOption.add(new LatLng(lat, lng));
+											}
+											Polyline p = aMap.addPolyline(polylineOption);
+											polyline1.add(p);
+										}
 //							if (!itemObj.isNull("flags")) {
 //								JSONObject flags = itemObj.getJSONObject("flags");
 //								String text = "";
@@ -1425,82 +1403,82 @@ OnMarkerClickListener, InfoWindowAdapter, OnCameraChangeListener, OnMapScreenSho
 //									textList1.add(t);
 //								}
 //							}
-						}
-					}
-					if (!obj.isNull("line_symbols")) {
-						JSONArray line_symbols = obj.getJSONArray("line_symbols");
-						for (int i = 0; i < line_symbols.length(); i++) {
-							JSONObject itemObj = line_symbols.getJSONObject(i);
-							if (!itemObj.isNull("items")) {
-								JSONArray items = itemObj.getJSONArray("items");
-								PolylineOptions polylineOption = new PolylineOptions();
-								polylineOption.width(6).color(0xff406bbf);
-								for (int j = 0; j < items.length(); j++) {
-									JSONObject item = items.getJSONObject(j);
-									double lat = item.getDouble("y");
-									double lng = item.getDouble("x");
-									polylineOption.add(new LatLng(lat, lng));
+									}
 								}
-								Polyline p = aMap.addPolyline(polylineOption);
-								polyline2.add(p);
-							}
-						}
-					}
-					if (!obj.isNull("symbols")) {
-						JSONArray symbols = obj.getJSONArray("symbols");
-						for (int i = 0; i < symbols.length(); i++) {
-							JSONObject itemObj = symbols.getJSONObject(i);
-							String text = "";
-							int color = Color.BLACK;
-							if (!itemObj.isNull("type")) {
-								String type = itemObj.getString("type");
-								if (TextUtils.equals(type, "60")) {
-									text = "H";
-									color = Color.RED;
-								}else if (TextUtils.equals(type, "61")) {
-									text = "L";
-									color = Color.BLUE;
-								}else if (TextUtils.equals(type, "37")) {
-									text = "台";
-									color = Color.GREEN;
+								if (!obj.isNull("line_symbols")) {
+									JSONArray line_symbols = obj.getJSONArray("line_symbols");
+									for (int i = 0; i < line_symbols.length(); i++) {
+										JSONObject itemObj = line_symbols.getJSONObject(i);
+										if (!itemObj.isNull("items")) {
+											JSONArray items = itemObj.getJSONArray("items");
+											PolylineOptions polylineOption = new PolylineOptions();
+											polylineOption.width(6).color(0xff406bbf);
+											for (int j = 0; j < items.length(); j++) {
+												JSONObject item = items.getJSONObject(j);
+												double lat = item.getDouble("y");
+												double lng = item.getDouble("x");
+												polylineOption.add(new LatLng(lat, lng));
+											}
+											Polyline p = aMap.addPolyline(polylineOption);
+											polyline2.add(p);
+										}
+									}
 								}
-							}
-							double lat = itemObj.getDouble("y");
-							double lng = itemObj.getDouble("x");
-							TextOptions to = new TextOptions();
-							to.position(new LatLng(lat, lng));
-							to.text(text);
-							to.fontColor(color);
-							to.fontSize(60);
-							to.backgroundColor(Color.TRANSPARENT);
-							Text t = aMap.addText(to);
-							textList2.add(t);
-						}
-					}
-					if (!obj.isNull("areas")) {
-						JSONArray array = obj.getJSONArray("areas");
-						for (int i = 0; i < array.length(); i++) {
-							JSONObject itemObj = array.getJSONObject(i);
-							String color = itemObj.getString("c");
-							if (color.contains("#")) {
-								color = color.replace("#", "");
-							}
-							int r = Integer.parseInt(color.substring(0,2), 16);
-							int g = Integer.parseInt(color.substring(2,4), 16);
-							int b = Integer.parseInt(color.substring(4,6), 16);
-							if (!itemObj.isNull("items")) {
-								JSONArray items = itemObj.getJSONArray("items");
-								PolygonOptions polygonOption = new PolygonOptions();
-								polygonOption.strokeColor(Color.rgb(r, g, b)).fillColor(Color.rgb(r, g, b));
-								for (int j = 0; j < items.length(); j++) {
-									JSONObject item = items.getJSONObject(j);
-									double lat = item.getDouble("y");
-									double lng = item.getDouble("x");
-									polygonOption.add(new LatLng(lat, lng));
+								if (!obj.isNull("symbols")) {
+									JSONArray symbols = obj.getJSONArray("symbols");
+									for (int i = 0; i < symbols.length(); i++) {
+										JSONObject itemObj = symbols.getJSONObject(i);
+										String text = "";
+										int color = Color.BLACK;
+										if (!itemObj.isNull("type")) {
+											String type = itemObj.getString("type");
+											if (TextUtils.equals(type, "60")) {
+												text = "H";
+												color = Color.RED;
+											}else if (TextUtils.equals(type, "61")) {
+												text = "L";
+												color = Color.BLUE;
+											}else if (TextUtils.equals(type, "37")) {
+												text = "台";
+												color = Color.GREEN;
+											}
+										}
+										double lat = itemObj.getDouble("y");
+										double lng = itemObj.getDouble("x");
+										TextOptions to = new TextOptions();
+										to.position(new LatLng(lat, lng));
+										to.text(text);
+										to.fontColor(color);
+										to.fontSize(60);
+										to.backgroundColor(Color.TRANSPARENT);
+										Text t = aMap.addText(to);
+										textList2.add(t);
+									}
 								}
-								Polygon p = aMap.addPolygon(polygonOption);
-								polygons.add(p);
-							}
+								if (!obj.isNull("areas")) {
+									JSONArray array = obj.getJSONArray("areas");
+									for (int i = 0; i < array.length(); i++) {
+										JSONObject itemObj = array.getJSONObject(i);
+										String color = itemObj.getString("c");
+										if (color.contains("#")) {
+											color = color.replace("#", "");
+										}
+										int r = Integer.parseInt(color.substring(0,2), 16);
+										int g = Integer.parseInt(color.substring(2,4), 16);
+										int b = Integer.parseInt(color.substring(4,6), 16);
+										if (!itemObj.isNull("items")) {
+											JSONArray items = itemObj.getJSONArray("items");
+											PolygonOptions polygonOption = new PolygonOptions();
+											polygonOption.strokeColor(Color.rgb(r, g, b)).fillColor(Color.rgb(r, g, b));
+											for (int j = 0; j < items.length(); j++) {
+												JSONObject item = items.getJSONObject(j);
+												double lat = item.getDouble("y");
+												double lng = item.getDouble("x");
+												polygonOption.add(new LatLng(lat, lng));
+											}
+											Polygon p = aMap.addPolygon(polygonOption);
+											polygons.add(p);
+										}
 //							if (!itemObj.isNull("symbols")) {
 //								JSONObject symbols = itemObj.getJSONObject("symbols");
 //								String text = symbols.getString("text");
@@ -1519,35 +1497,16 @@ OnMarkerClickListener, InfoWindowAdapter, OnCameraChangeListener, OnMapScreenSho
 //									textList3.add(t);
 //								}
 //							}
+									}
+								}
+							} catch (JSONException e) {
+								e.printStackTrace();
+							}
 						}
 					}
-				} catch (JSONException e) {
-					e.printStackTrace();
-				}
+				});
 			}
-		}
-
-		@SuppressWarnings("unused")
-		private void setParams(NameValuePair nvp) {
-			nvpList.add(nvp);
-		}
-
-		private void setMethod(String method) {
-			this.method = method;
-		}
-
-		private void setTimeOut(int timeOut) {
-			CustomHttpClient.TIME_OUT = timeOut;
-		}
-
-		/**
-		 * 取消当前task
-		 */
-		@SuppressWarnings("unused")
-		private void cancelTask() {
-			CustomHttpClient.shuttdownRequest();
-			this.cancel(true);
-		}
+		});
 	}
 
 	/**

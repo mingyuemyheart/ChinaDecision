@@ -1,6 +1,5 @@
 package com.china.activity;
 
-import android.annotation.SuppressLint;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.Bundle;
@@ -24,7 +23,6 @@ import com.china.common.CONST;
 import com.china.dto.NewsDto;
 import com.china.manager.MyCollectManager;
 import com.china.utils.CommonUtil;
-import com.china.utils.CustomHttpClient;
 import com.china.view.RefreshLayout;
 import com.china.view.RefreshLayout.OnRefreshListener;
 
@@ -76,7 +74,7 @@ public class WeatherInfoDetailActivity extends BaseActivity implements OnClickLi
 				if (webView != null && !TextUtils.isEmpty(url)) {
 					//添加请求头
 					Map<String, String> extraHeaders = new HashMap<>();
-					extraHeaders.put("Referer", CustomHttpClient.getRequestHeader());
+					extraHeaders.put("Referer", CommonUtil.getRequestHeader());
 					webView.loadUrl(url, extraHeaders);
 				}
 			}
@@ -154,7 +152,7 @@ public class WeatherInfoDetailActivity extends BaseActivity implements OnClickLi
 		
 		//添加请求头
 		Map<String, String> extraHeaders = new HashMap<>();
-		extraHeaders.put("Referer", CustomHttpClient.getRequestHeader());
+		extraHeaders.put("Referer", CommonUtil.getRequestHeader());
 		webView.loadUrl(url, extraHeaders);
 		
 		webView.setWebChromeClient(new WebChromeClient() {
@@ -172,7 +170,7 @@ public class WeatherInfoDetailActivity extends BaseActivity implements OnClickLi
 			public boolean shouldOverrideUrlLoading(WebView view, String itemUrl) {
 				url = itemUrl;
 				Map<String, String> extraHeaders = new HashMap<>();
-				extraHeaders.put("Referer", CustomHttpClient.getRequestHeader());
+				extraHeaders.put("Referer", CommonUtil.getRequestHeader());
 				webView.loadUrl(url, extraHeaders);
 				return true;
 			}

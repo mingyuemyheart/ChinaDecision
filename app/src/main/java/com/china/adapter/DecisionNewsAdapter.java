@@ -14,11 +14,17 @@ import com.china.dto.DisasterDto;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * 决策专报
+ * @author shawn_sun
+ *
+ */
+
 public class DecisionNewsAdapter extends BaseAdapter{
 	
 	private Context mContext = null;
 	private LayoutInflater mInflater = null;
-	private List<DisasterDto> mArrayList = new ArrayList<DisasterDto>();
+	private List<DisasterDto> mArrayList = new ArrayList<>();
 	
 	private final class ViewHolder{
 		TextView tvTitle;
@@ -52,7 +58,7 @@ public class DecisionNewsAdapter extends BaseAdapter{
 	@Override
 	public View getView(int position, View convertView, ViewGroup parent) {
 		if (convertView == null) {
-			convertView = mInflater.inflate(R.layout.decision_news_cell, null);
+			convertView = mInflater.inflate(R.layout.adapter_decision_news, null);
 			mHolder = new ViewHolder();
 			mHolder.tvTitle = (TextView) convertView.findViewById(R.id.tvTitle);
 			mHolder.imageView = (ImageView) convertView.findViewById(R.id.imageView);

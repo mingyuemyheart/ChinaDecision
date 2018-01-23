@@ -8,7 +8,6 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Parcelable;
 import android.support.v4.view.PagerAdapter;
@@ -37,11 +36,9 @@ import com.china.fragment.StationDetailWindFragment;
 import com.china.manager.DBManager;
 import com.china.manager.RainManager;
 import com.china.utils.CommonUtil;
-import com.china.utils.CustomHttpClient;
 import com.china.utils.OkHttpUtil;
 import com.china.view.MainViewPager;
 
-import org.apache.http.NameValuePair;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -56,6 +53,10 @@ import okhttp3.Call;
 import okhttp3.Callback;
 import okhttp3.Request;
 import okhttp3.Response;
+
+/**
+ * 实况监测详情
+ */
 
 public class StationMonitorDetailActivity extends BaseActivity implements OnClickListener{
 	
@@ -248,7 +249,6 @@ public class StationMonitorDetailActivity extends BaseActivity implements OnClic
 	/**
 	 * 初始化viewPager
 	 */
-	@SuppressWarnings("unchecked")
 	private void initViewPager(StationMonitorDto data) {
 		Fragment fragment = null;
 		for (int i = 0; i < 6; i++) {
@@ -1128,58 +1128,6 @@ public class StationMonitorDetailActivity extends BaseActivity implements OnClic
 		});
 	}
 	
-	/**
-	 * 异步请求方法
-	 * @author dell
-	 *
-	 */
-	private class HttpAsyncTask2 extends AsyncTask<String, Void, String> {
-		private String method = "GET";
-		private List<NameValuePair> nvpList = new ArrayList<NameValuePair>();
-		
-		public HttpAsyncTask2() {
-		}
-
-		@Override
-		protected String doInBackground(String... url) {
-			String result = null;
-			if (method.equalsIgnoreCase("POST")) {
-				result = CustomHttpClient.post(url[0], nvpList);
-			} else if (method.equalsIgnoreCase("GET")) {
-				result = CustomHttpClient.get(url[0]);
-			}
-			return result;
-		}
-
-		@Override
-		protected void onPostExecute(String result) {
-			super.onPostExecute(result);
-
-		}
-
-		@SuppressWarnings("unused")
-		private void setParams(NameValuePair nvp) {
-			nvpList.add(nvp);
-		}
-
-		private void setMethod(String method) {
-			this.method = method;
-		}
-
-		private void setTimeOut(int timeOut) {
-			CustomHttpClient.TIME_OUT = timeOut;
-		}
-
-		/**
-		 * 取消当前task
-		 */
-		@SuppressWarnings("unused")
-		private void cancelTask() {
-			CustomHttpClient.shuttdownRequest();
-			this.cancel(true);
-		}
-	}
-
 	@Override
 	public void onClick(View v) {
 		switch (v.getId()) {

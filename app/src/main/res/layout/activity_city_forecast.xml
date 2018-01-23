@@ -11,8 +11,6 @@
         android:background="@color/title_bg"
         android:orientation="vertical" >
 
-
-
             <LinearLayout
                 android:id="@+id/llBack"
                 android:layout_width="wrap_content"
@@ -25,8 +23,8 @@
                 android:paddingTop="12dp" >
 
                 <ImageView
-                    android:layout_width="@dimen/level_3"
-                    android:layout_height="@dimen/level_3"
+                    android:layout_width="@dimen/level_2"
+                    android:layout_height="@dimen/level_2"
                     android:src="@drawable/iv_back" />
 
                 <TextView

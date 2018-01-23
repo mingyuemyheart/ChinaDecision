@@ -1,6 +1,5 @@
 package com.china.activity;
 
-import android.annotation.SuppressLint;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.view.View;
@@ -17,7 +16,6 @@ import android.widget.TextView;
 import com.china.R;
 import com.china.common.CONST;
 import com.china.utils.CommonUtil;
-import com.china.utils.CustomHttpClient;
 import com.china.view.RefreshLayout;
 import com.china.view.RefreshLayout.OnRefreshListener;
 
@@ -25,10 +23,9 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * 应用推荐
+ * 应用推荐、周报统计
  */
 
-@SuppressLint("SimpleDateFormat")
 public class Url2Activity extends BaseActivity implements OnClickListener{
 	
 	private LinearLayout llBack = null;
@@ -62,8 +59,8 @@ public class Url2Activity extends BaseActivity implements OnClickListener{
 			public void onRefresh() {
 				if (webView != null && !TextUtils.isEmpty(url)) {
 					//添加请求头
-					Map<String, String> extraHeaders = new HashMap<String, String>();
-					extraHeaders.put("Referer", CustomHttpClient.getRequestHeader());
+					Map<String, String> extraHeaders = new HashMap<>();
+					extraHeaders.put("Referer", CommonUtil.getRequestHeader());
 					webView.loadUrl(url, extraHeaders);
 				}
 			}
@@ -89,7 +86,6 @@ public class Url2Activity extends BaseActivity implements OnClickListener{
 	/**
 	 * 初始化webview
 	 */
-	@SuppressLint("SetJavaScriptEnabled") 
 	private void initWebView() {
 		url = getIntent().getStringExtra(CONST.WEB_URL);
 		if (TextUtils.isEmpty(url)) {
@@ -113,8 +109,8 @@ public class Url2Activity extends BaseActivity implements OnClickListener{
 //		webView.loadUrl(url);
 		
 		//添加请求头
-		Map<String, String> extraHeaders = new HashMap<String, String>();
-		extraHeaders.put("Referer", CustomHttpClient.getRequestHeader());
+		Map<String, String> extraHeaders = new HashMap<>();
+		extraHeaders.put("Referer", CommonUtil.getRequestHeader());
 		webView.loadUrl(url, extraHeaders);
 		
 		webView.setWebChromeClient(new WebChromeClient() {
@@ -131,8 +127,8 @@ public class Url2Activity extends BaseActivity implements OnClickListener{
 			@Override
 			public boolean shouldOverrideUrlLoading(WebView view, String itemUrl) {
 				url = itemUrl;
-				Map<String, String> extraHeaders = new HashMap<String, String>();
-				extraHeaders.put("Referer", CustomHttpClient.getRequestHeader());
+				Map<String, String> extraHeaders = new HashMap<>();
+				extraHeaders.put("Referer", CommonUtil.getRequestHeader());
 				webView.loadUrl(url, extraHeaders);
 				return true;
 			}

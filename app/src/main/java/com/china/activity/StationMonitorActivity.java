@@ -1,6 +1,5 @@
 package com.china.activity;
 
-import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
@@ -527,11 +526,11 @@ public class StationMonitorActivity extends BaseActivity implements OnClickListe
             delayedHandler.sendMessageDelayed(msg, 3000);
         }
 
-        if (tvProName.getVisibility() == View.VISIBLE) {
-            drawProvinceDataToMap(value, LOADTYPE2);
-        } else {
-            drawNationDataToMap(value, LOADTYPE2);
-        }
+        //绘制图层
+        delayedHandler.removeMessages(1001);
+        Message msg = delayedHandler.obtainMessage();
+        msg.what = 1001;
+        delayedHandler.sendMessageDelayed(msg, 1500);
     }
 
     private Handler delayedHandler = new Handler() {
@@ -539,9 +538,16 @@ public class StationMonitorActivity extends BaseActivity implements OnClickListe
         public void handleMessage(Message msg) {
             super.handleMessage(msg);
             switch (msg.what) {
-                case 1000:
+                case 1000://标尺
                     if (llCursor != null) {
                         llCursor.setVisibility(View.GONE);
+                    }
+                    break;
+                case 1001://地图缩放延时时间
+                    if (tvProName.getVisibility() == View.VISIBLE) {
+                        drawProvinceDataToMap(value, LOADTYPE2);
+                    } else {
+                        drawNationDataToMap(value, LOADTYPE2);
                     }
                     break;
             }
@@ -1468,6 +1474,8 @@ public class StationMonitorActivity extends BaseActivity implements OnClickListe
                             }
                         });
                     } catch (JSONException e) {
+                        e.printStackTrace();
+                    } catch (IndexOutOfBoundsException e) {
                         e.printStackTrace();
                     }
                 }

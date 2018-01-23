@@ -1,9 +1,7 @@
 package com.china.activity;
 
-import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.view.KeyEvent;
@@ -21,15 +19,15 @@ import com.china.adapter.DecisionNewsAdapter;
 import com.china.common.CONST;
 import com.china.dto.DisasterDto;
 import com.china.utils.CommonUtil;
-import com.china.utils.CustomHttpClient;
+import com.china.utils.OkHttpUtil;
 import com.china.view.RefreshLayout;
 import com.china.view.RefreshLayout.OnRefreshListener;
 
-import org.apache.http.NameValuePair;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.IOException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -37,12 +35,16 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 
+import okhttp3.Call;
+import okhttp3.Callback;
+import okhttp3.Request;
+import okhttp3.Response;
+
 /**
  * 决策专报
  * @author shawn_sun
  *
  */
-@SuppressLint("SimpleDateFormat")
 public class DecisionNewsActivity extends BaseActivity implements OnClickListener{
 	
 	private Context mContext = null;
@@ -50,7 +52,7 @@ public class DecisionNewsActivity extends BaseActivity implements OnClickListene
 	private TextView tvTitle = null;
 	private ListView mListView = null;
 	private DecisionNewsAdapter mAdapter = null;
-	private List<DisasterDto> mList = new ArrayList<DisasterDto>();
+	private List<DisasterDto> mList = new ArrayList<>();
 	private RefreshLayout refreshLayout = null;//下拉刷新布局
 	private SimpleDateFormat sdf1 = new SimpleDateFormat("yyyyMMddHHmm");
 	private SimpleDateFormat sdf2 = new SimpleDateFormat("yyyy年MM月dd日 HH时");
@@ -60,7 +62,7 @@ public class DecisionNewsActivity extends BaseActivity implements OnClickListene
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		setContentView(R.layout.decision_news);
+		setContentView(R.layout.activity_decision_news);
 		mContext = this;
 		initRefreshLayout();
 		initWidget();
@@ -86,7 +88,7 @@ public class DecisionNewsActivity extends BaseActivity implements OnClickListene
 	private void refresh() {
 		String url = getIntent().getStringExtra(CONST.WEB_URL);
 		if (!TextUtils.isEmpty(url)) {
-			asyncTask(url);
+			OkHttpList(url);
 		}
 	}
 	
@@ -124,133 +126,96 @@ public class DecisionNewsActivity extends BaseActivity implements OnClickListene
 	}
 	
 	/**
-	 * 获取天气网眼数据
+	 * 获取列表数据
 	 */
-	private void asyncTask(String url) {
-		//异步请求数据
-		HttpAsyncTask task = new HttpAsyncTask();
-		task.setMethod("GET");
-		task.setTimeOut(CustomHttpClient.TIME_OUT);
-		task.execute(url);
-	}
-	
-	/**
-	 * 异步请求方法
-	 * @author dell
-	 *
-	 */
-	private class HttpAsyncTask extends AsyncTask<String, Void, String> {
-		private String method = "GET";
-		private List<NameValuePair> nvpList = new ArrayList<NameValuePair>();
-		
-		public HttpAsyncTask() {
-		}
+	private void OkHttpList(String url) {
+		OkHttpUtil.enqueue(new Request.Builder().url(url).build(), new Callback() {
+			@Override
+			public void onFailure(Call call, IOException e) {
 
-		@Override
-		protected String doInBackground(String... url) {
-			String result = null;
-			if (method.equalsIgnoreCase("POST")) {
-				result = CustomHttpClient.post(url[0], nvpList);
-			} else if (method.equalsIgnoreCase("GET")) {
-				result = CustomHttpClient.get(url[0]);
 			}
-			return result;
-		}
 
-		@Override
-		protected void onPostExecute(String result) {
-			super.onPostExecute(result);
-			if (result != null) {
-				try {
-					JSONObject obj = new JSONObject(result);
-					if (!obj.isNull("info")) {
-						mList.clear();
-						JSONArray array = obj.getJSONArray("info");
-						for (int i = 0; i < array.length(); i++) {
-							DisasterDto dto = new DisasterDto();
-							String url = array.getString(i);
-							if (!TextUtils.isEmpty(url)) {
-								dto.url = url;
-								String title = null;
-								String time = null;
-								if (!TextUtils.isEmpty(url)) {
-									time = url.substring(url.length()-21, url.length()-9);
-									if (url.contains("SEVP_CMA_SJCF_SFER_EME_ACHN_LNO_P9")) {
-										title = getString(R.string.decision_news_1);
-										if (!TextUtils.isEmpty(time)) {
-											try {
-												time = sdf2.format(sdf1.parse(time));
-											} catch (ParseException e) {
-												e.printStackTrace();
-											}
-										} 
-									}else if (url.contains("BSEP_NMC_SDMS_SFER_EME_ACHN_LNO_P9")) {
-										title = getString(R.string.decision_news_2);
-										if (!TextUtils.isEmpty(time)) {
-											try {
-												time = sdf2.format(sdf1.parse(time));
-											} catch (ParseException e) {
-												e.printStackTrace();
-											}
-										} 
-									}else if (url.contains("SEVP_CMA_IMIB_SFER_EME_ACHN_LNO_P9")) {
-										title = getString(R.string.decision_news_3);
-										if (!TextUtils.isEmpty(time)) {
-											try {
-												time = sdf3.format(sdf1.parse(time));
-											} catch (ParseException e) {
-												e.printStackTrace();
-											}
-										} 
-									}
-									
-									dto.time = time;
-									dto.title = title+time;
-								}
-								mList.add(dto);
-							}
-						}
-						
-						Collections.sort(mList, new Comparator<DisasterDto>() {
-							@Override
-							public int compare(DisasterDto a, DisasterDto b) {
-								return b.time.compareTo(a.time);
-							}
-						});
-						
-						if (mAdapter != null) {
-							mAdapter.notifyDataSetChanged();
-						}
-						progressBar.setVisibility(View.GONE);
-						refreshLayout.setRefreshing(false);
-					}
-				} catch (JSONException e) {
-					e.printStackTrace();
+			@Override
+			public void onResponse(Call call, Response response) throws IOException {
+				if (!response.isSuccessful()) {
+					return;
 				}
+				final String result = response.body().string();
+				runOnUiThread(new Runnable() {
+					@Override
+					public void run() {
+						if (!TextUtils.isEmpty(result)) {
+							try {
+								JSONObject obj = new JSONObject(result);
+								if (!obj.isNull("info")) {
+									mList.clear();
+									JSONArray array = obj.getJSONArray("info");
+									for (int i = 0; i < array.length(); i++) {
+										DisasterDto dto = new DisasterDto();
+										String url = array.getString(i);
+										if (!TextUtils.isEmpty(url)) {
+											dto.url = url;
+											String title = null;
+											String time;
+											if (!TextUtils.isEmpty(url)) {
+												time = url.substring(url.length()-21, url.length()-9);
+												if (url.contains("SEVP_CMA_SJCF_SFER_EME_ACHN_LNO_P9")) {
+													title = getString(R.string.decision_news_1);
+													if (!TextUtils.isEmpty(time)) {
+														try {
+															time = sdf2.format(sdf1.parse(time));
+														} catch (ParseException e) {
+															e.printStackTrace();
+														}
+													}
+												}else if (url.contains("BSEP_NMC_SDMS_SFER_EME_ACHN_LNO_P9")) {
+													title = getString(R.string.decision_news_2);
+													if (!TextUtils.isEmpty(time)) {
+														try {
+															time = sdf2.format(sdf1.parse(time));
+														} catch (ParseException e) {
+															e.printStackTrace();
+														}
+													}
+												}else if (url.contains("SEVP_CMA_IMIB_SFER_EME_ACHN_LNO_P9")) {
+													title = getString(R.string.decision_news_3);
+													if (!TextUtils.isEmpty(time)) {
+														try {
+															time = sdf3.format(sdf1.parse(time));
+														} catch (ParseException e) {
+															e.printStackTrace();
+														}
+													}
+												}
+
+												dto.time = time;
+												dto.title = title+time;
+											}
+											mList.add(dto);
+										}
+									}
+
+									Collections.sort(mList, new Comparator<DisasterDto>() {
+										@Override
+										public int compare(DisasterDto a, DisasterDto b) {
+											return b.time.compareTo(a.time);
+										}
+									});
+
+									if (mAdapter != null) {
+										mAdapter.notifyDataSetChanged();
+									}
+									progressBar.setVisibility(View.GONE);
+									refreshLayout.setRefreshing(false);
+								}
+							} catch (JSONException e) {
+								e.printStackTrace();
+							}
+						}
+					}
+				});
 			}
-		}
-
-		@SuppressWarnings("unused")
-		private void setParams(NameValuePair nvp) {
-			nvpList.add(nvp);
-		}
-
-		private void setMethod(String method) {
-			this.method = method;
-		}
-
-		private void setTimeOut(int timeOut) {
-			CustomHttpClient.TIME_OUT = timeOut;
-		}
-
-		/**
-		 * 取消当前task
-		 */
-		@SuppressWarnings("unused")
-		private void cancelTask() {
-			CustomHttpClient.shuttdownRequest();
-			this.cancel(true);
-		}
+		});
 	}
 
 	@Override
