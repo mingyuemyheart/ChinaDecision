@@ -125,10 +125,20 @@ public class CityActivity extends BaseActivity implements OnClickListener {
      * 迁移到天气详情界面
      */
     private void intentWeatherDetail(CityDto data) {
-        Intent intent = new Intent(mContext, ForecastActivity.class);
-        intent.putExtra("cityName", data.areaName);
-        intent.putExtra("cityId", data.cityId);
-        startActivity(intent);
+        Bundle bundle = new Bundle();
+        bundle.putParcelable("data", data);
+        Intent intent;
+        if (getIntent().hasExtra("reserveCity")) {
+            intent = new Intent();
+            intent.putExtras(bundle);
+            setResult(RESULT_OK, intent);
+            finish();
+        }else {
+            intent = new Intent(mContext, ForecastActivity.class);
+            intent.putExtra("cityName", data.areaName);
+            intent.putExtra("cityId", data.cityId);
+            startActivity(intent);
+        }
     }
 
     /**
@@ -155,6 +165,8 @@ public class CityActivity extends BaseActivity implements OnClickListener {
         for (int i = 0; i < stations.length; i++) {
             String[] value = stations[i].split(",");
             CityDto dto = new CityDto();
+            dto.lng = Double.valueOf(value[3]);
+            dto.lat = Double.valueOf(value[2]);
             dto.cityId = value[0];
             dto.areaName = value[1];
             nList.add(dto);
@@ -188,6 +200,7 @@ public class CityActivity extends BaseActivity implements OnClickListener {
             dto.cityName = cursor.getString(cursor.getColumnIndex("city"));
             dto.areaName = cursor.getString(cursor.getColumnIndex("dis"));
             dto.cityId = cursor.getString(cursor.getColumnIndex("cid"));
+            dto.warningId = cursor.getString(cursor.getColumnIndex("wid"));
             cityList.add(dto);
         }
         if (cityList.size() > 0 && cityAdapter != null) {

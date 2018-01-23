@@ -11,31 +11,16 @@
         android:background="@color/title_bg"
         android:orientation="vertical">
 
-        <LinearLayout
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_centerVertical="true"
-            android:gravity="bottom"
-            android:paddingBottom="8dp"
-            android:paddingLeft="10dp"
-            android:paddingRight="10dp"
-            android:paddingTop="16dp">
-
-            <ImageView
-                android:layout_width="20dp"
-                android:layout_height="20dp"
-                android:src="@drawable/iv_location"/>
-
-            <TextView
-                android:id="@+id/tvLocation"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:maxLength="7"
-                android:singleLine="true"
-                android:text="@string/is_locating"
-                android:textColor="@color/black"
-                android:textSize="@dimen/level_4"/>
-        </LinearLayout>
+        <ImageView
+            android:id="@+id/ivAdd"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:paddingBottom="6dp"
+            android:paddingLeft="8dp"
+            android:paddingRight="8dp"
+            android:paddingTop="10dp"
+            android:src="@drawable/zjcs_icon_add"
+            android:layout_centerVertical="true"/>
 
         <ImageView
             android:layout_width="wrap_content"
@@ -89,14 +74,35 @@
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             android:layout_marginTop="10dp"
-                            android:paddingLeft="15dp">
+                            android:paddingLeft="10dp">
 
-                            <TextView
-                                android:id="@+id/tvTime"
+                            <LinearLayout
+                                android:id="@+id/llLocation"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
-                                android:layout_centerVertical="true"
-                                android:textColor="@color/white"
+                                android:gravity="center_vertical">
+
+                                <ImageView
+                                    android:layout_width="18dp"
+                                    android:layout_height="18dp"
+                                    android:src="@drawable/iv_location_white"/>
+
+                                <TextView
+                                    android:id="@+id/tvLocation"
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:text="@string/is_locating"
+                                    android:textColor="@color/white"
+                                    android:textSize="@dimen/level_4"/>
+                            </LinearLayout>
+
+                            <TextView
+                                android:layout_below="@+id/llLocation"
+                                android:id="@+id/tvTime"
+                                android:layout_marginLeft="5dp"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:textColor="#60ffffff"
                                 android:textSize="@dimen/level_5"/>
 
                             <LinearLayout
@@ -152,7 +158,7 @@
                         <LinearLayout
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:gravity="center|bottom">
+                            android:gravity="center_vertical|center">
 
                             <TextView
                                 android:id="@+id/tvHumidity"
@@ -165,9 +171,23 @@
                                 android:id="@+id/tvWind"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
-                                android:layout_marginLeft="5dp"
+                                android:layout_marginLeft="10dp"
                                 android:textColor="@color/white"
                                 android:textSize="@dimen/level_4"/>
+
+                            <TextView
+                                android:id="@+id/tvQuality"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_marginLeft="10dp"
+                                android:textColor="@color/white"
+                                android:textSize="@dimen/level_4"/>
+
+                            <ImageView
+                                android:layout_marginLeft="5dp"
+                                android:id="@+id/ivAqi"
+                                android:layout_width="15dp"
+                                android:layout_height="15dp"/>
                         </LinearLayout>
 
                         <ImageView

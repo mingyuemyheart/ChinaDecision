@@ -22,7 +22,6 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.os.Parcelable;
-import android.provider.Settings;
 import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
@@ -92,6 +91,7 @@ import cn.com.weather.listener.AsyncResponseHandler;
 public class MainActivity extends BaseActivity implements OnClickListener, AMapLocationListener{
 	
 	private Context mContext = null;
+	private ImageView ivAdd = null;
 	private TextView tvLocation = null;
 	private ImageView ivSetting = null;//设置按钮
 	private TextView tvTime = null;
@@ -101,6 +101,8 @@ public class MainActivity extends BaseActivity implements OnClickListener, AMapL
 	private TextView tvTemperature = null;
 	private TextView tvHumidity = null;
 	private TextView tvWind = null;
+	private TextView tvQuality = null;
+	private ImageView ivAqi;
 	private ImageView ivWeather = null;
 	private RelativeLayout reScrollView = null;
 	private MyHorizontalScrollView hScrollView1 = null;
@@ -187,6 +189,8 @@ public class MainActivity extends BaseActivity implements OnClickListener, AMapL
 	 */
 	private void initWidget() {
 		reTitle = (RelativeLayout) findViewById(R.id.reTitle);
+		ivAdd = (ImageView) findViewById(R.id.ivAdd);
+		ivAdd.setOnClickListener(this);
 		tvLocation = (TextView) findViewById(R.id.tvLocation);
 		tvLocation.setOnClickListener(this);
 		ivSetting = (ImageView) findViewById(R.id.ivSetting);
@@ -195,12 +199,15 @@ public class MainActivity extends BaseActivity implements OnClickListener, AMapL
 		tvTime.setFocusable(true);
 		tvTime.setFocusableInTouchMode(true);
 		tvTime.requestFocus();
+		tvTime.setOnClickListener(this);
 		tvWarning = (TextView) findViewById(R.id.tvWarning);
 		llWarning = (LinearLayout) findViewById(R.id.llWarning);
 		llWarning.setOnClickListener(this);
 		tvTemperature = (TextView) findViewById(R.id.tvTemperature);
 		tvHumidity = (TextView) findViewById(R.id.tvHumidity);
 		tvWind = (TextView) findViewById(R.id.tvWind);
+		tvQuality = (TextView) findViewById(R.id.tvQuality);
+		ivAqi = (ImageView) findViewById(R.id.ivAqi);
 		ivWeather = (ImageView) findViewById(R.id.ivWeather);
 		ivWeather.setOnClickListener(this);
 		reScrollView = (RelativeLayout) findViewById(R.id.reScrollView);
@@ -556,12 +563,6 @@ public class MainActivity extends BaseActivity implements OnClickListener, AMapL
         }
 	}
 
-	private void completeLocation(String name, double lng, double lat) {
-		tvLocation.setText(name);
-		cityName = name;
-		getCityId(lng, lat);
-	}
-
 	/**
 	 * 获取天气数据
 	 */
@@ -613,9 +614,9 @@ public class MainActivity extends BaseActivity implements OnClickListener, AMapL
 							if (!object.isNull("l2")) {
 								String humidity = WeatherUtil.lastValue(object.getString("l2"));
 								if (TextUtils.isEmpty(humidity) || TextUtils.equals(humidity, "null")) {
-									tvHumidity.setText(getString(R.string.humidity) + "--");
+									tvHumidity.setText("湿度" + "--");
 								}else {
-									tvHumidity.setText(getString(R.string.humidity) + humidity + getString(R.string.unit_percent));
+									tvHumidity.setText("湿度" + humidity + getString(R.string.unit_percent));
 								}
 							}
 							if (!object.isNull("l4")) {
@@ -624,6 +625,19 @@ public class MainActivity extends BaseActivity implements OnClickListener, AMapL
 									String windForce = WeatherUtil.lastValue(object.getString("l3"));
 									tvWind.setText(getString(WeatherUtil.getWindDirection(Integer.valueOf(windDir))) +
 											WeatherUtil.getFactWindForce(Integer.valueOf(windForce)));
+								}
+							}
+
+							//空气质量
+							JSONObject obj = content.getAirQualityInfo();
+							if (obj != null) {
+								if (!obj.isNull("k3")) {
+									String num = WeatherUtil.lastValue(obj.getString("k3"));
+									if (!TextUtils.isEmpty(num)) {
+										tvQuality.setText("AQI" + " " +
+												WeatherUtil.getAqi(mContext, Integer.valueOf(num)) + " " + num);
+										ivAqi.setImageResource(WeatherUtil.getAqiIcon(Integer.valueOf(num)));
+									}
 								}
 							}
 
@@ -1194,7 +1208,7 @@ public class MainActivity extends BaseActivity implements OnClickListener, AMapL
 		});
 	}
 
-    @Override
+	@Override
 	public boolean onKeyDown(int keyCode, KeyEvent event) {
     	if (keyCode == KeyEvent.KEYCODE_BACK) {
 //			if (rightSlidemenu.isOpen == false) {
@@ -1242,10 +1256,14 @@ public class MainActivity extends BaseActivity implements OnClickListener, AMapL
 			startActivity(intent);
 			break;
 		case R.id.tvLocation:
+		case R.id.tvTime:
 			Intent intentLo = new Intent(mContext, ForecastActivity.class);
 			intentLo.putExtra("cityName", cityName);
 			intentLo.putExtra("cityId", cityId);
 			startActivity(intentLo);
+			break;
+		case R.id.ivAdd:
+			startActivity(new Intent(mContext, ReserveCityActivity.class));
 			break;
 		case R.id.ivWeather:
 			if (hScrollView2.getVisibility() == View.VISIBLE) {

@@ -878,6 +878,29 @@ public class WeatherUtil {
 
 		return bitmap;
 	}
+
+	/**
+	 * 获取空气质量
+	 * @param aqi
+	 * @return
+	 */
+	public static int getAqiIcon(int aqi) {
+		int id = R.drawable.aqi_level1;
+		if (aqi <= 50) {
+			id = R.drawable.aqi_level1;
+		} else if (aqi >= 51 && aqi <= 100)  {
+			id = R.drawable.aqi_level2;
+		} else if (aqi >= 101 && aqi <= 150)  {
+			id = R.drawable.aqi_level3;
+		} else if (aqi >= 151 && aqi <= 200)  {
+			id = R.drawable.aqi_level4;
+		} else if (aqi >= 201 && aqi <= 300)  {
+			id = R.drawable.aqi_level5;
+		} else if (aqi >= 301)  {
+			id = R.drawable.aqi_level6;
+		}
+		return id;
+	}
 	
 	/**
 	 * 根据灾情编号获取灾情信息的名称

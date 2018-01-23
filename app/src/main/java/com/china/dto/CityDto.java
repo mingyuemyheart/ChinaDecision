@@ -3,6 +3,9 @@ package com.china.dto;
 import android.os.Parcel;
 import android.os.Parcelable;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class CityDto implements Parcelable{
 
 	public String alpha = null;//首字母
@@ -13,6 +16,13 @@ public class CityDto implements Parcelable{
 	public String areaName = null;
 	public double lng = 0;//经度
 	public double lat = 0;//维度
+	public int lowPheCode;
+	public int highPheCode;
+	public String lowTemp;
+	public String highTemp;
+	public String areaId;//行政区划id
+	public String warningId;//预警id
+	public List<WarningDto> warningList = new ArrayList<>();
 
 	public CityDto() {
 	}
@@ -32,6 +42,13 @@ public class CityDto implements Parcelable{
 		dest.writeString(this.areaName);
 		dest.writeDouble(this.lng);
 		dest.writeDouble(this.lat);
+		dest.writeInt(this.lowPheCode);
+		dest.writeInt(this.highPheCode);
+		dest.writeString(this.lowTemp);
+		dest.writeString(this.highTemp);
+		dest.writeString(this.areaId);
+		dest.writeString(this.warningId);
+		dest.writeTypedList(this.warningList);
 	}
 
 	protected CityDto(Parcel in) {
@@ -43,6 +60,13 @@ public class CityDto implements Parcelable{
 		this.areaName = in.readString();
 		this.lng = in.readDouble();
 		this.lat = in.readDouble();
+		this.lowPheCode = in.readInt();
+		this.highPheCode = in.readInt();
+		this.lowTemp = in.readString();
+		this.highTemp = in.readString();
+		this.areaId = in.readString();
+		this.warningId = in.readString();
+		this.warningList = in.createTypedArrayList(WarningDto.CREATOR);
 	}
 
 	public static final Creator<CityDto> CREATOR = new Creator<CityDto>() {
