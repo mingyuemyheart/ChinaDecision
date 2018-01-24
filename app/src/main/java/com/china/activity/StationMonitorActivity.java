@@ -1120,7 +1120,7 @@ public class StationMonitorActivity extends BaseActivity implements OnClickListe
                 dbManager.closeDatabase();
 
                 if (!TextUtils.isEmpty(ids)) {
-                    asyncTaskContentPost(ids.substring(0, ids.length() - 1), loadType);
+                    OkHttpStationsInfo(ids.substring(0, ids.length() - 1), loadType);
                 }
             }
         } catch (Exception e) {
@@ -1197,7 +1197,7 @@ public class StationMonitorActivity extends BaseActivity implements OnClickListe
                 dbManager.closeDatabase();
 
                 if (!TextUtils.isEmpty(ids)) {
-                    asyncTaskContentPost(ids.substring(0, ids.length() - 1), loadType);
+                    OkHttpStationsInfo(ids.substring(0, ids.length() - 1), loadType);
                 }
             }
         } catch (Exception e) {
@@ -1207,11 +1207,9 @@ public class StationMonitorActivity extends BaseActivity implements OnClickListe
     }
 
     /**
-     * 加密请求字符串
-     *
-     * @return
+     * 加密请求站点接口地址
      */
-    private String getStationContentUrlPost(String stationIds) {
+    private String getStationsUrl(String stationIds) {
         String URL = "http://decision-171.tianqi.cn/weather/rgwst/NewestDataNew";
         String sysdate = RainManager.getDate(Calendar.getInstance(), "yyyyMMddHHmmss");//系统时间
         StringBuffer buffer = new StringBuffer();
@@ -1235,16 +1233,15 @@ public class StationMonitorActivity extends BaseActivity implements OnClickListe
     }
 
     /**
-     * 获取最近10个站点的信息
-     *
+     * 获取站点信息
      * @param stationIds
      */
-    private void asyncTaskContentPost(String stationIds, final String loadType) {
+    private void OkHttpStationsInfo(String stationIds, final String loadType) {
         String[] ids = stationIds.split(",");
         FormBody.Builder formBodyBuilder = new FormBody.Builder();
         formBodyBuilder.add("ids", stationIds);
         RequestBody requestBody = formBodyBuilder.build();
-        OkHttpUtil.enqueue(new Request.Builder().url(getStationContentUrlPost(ids[0])).post(requestBody).build(), new Callback() {
+        OkHttpUtil.enqueue(new Request.Builder().url(getStationsUrl(ids[0])).post(requestBody).build(), new Callback() {
             @Override
             public void onFailure(Call call, IOException e) {
 
@@ -1974,7 +1971,12 @@ public class StationMonitorActivity extends BaseActivity implements OnClickListe
                 if (tvProName.getVisibility() == View.VISIBLE) {
                     drawProvinceDataToMap(value, LOADTYPE3);
                 } else {
-                    drawNationDataToMap(value, LOADTYPE3);
+                    new Handler().postDelayed(new Runnable() {
+                        @Override
+                        public void run() {
+                            drawNationDataToMap(value, LOADTYPE3);
+                        }
+                    }, 100);
                 }
                 break;
             case R.id.tv2:
@@ -2012,7 +2014,12 @@ public class StationMonitorActivity extends BaseActivity implements OnClickListe
                 if (tvProName.getVisibility() == View.VISIBLE) {
                     drawProvinceDataToMap(value, LOADTYPE3);
                 } else {
-                    drawNationDataToMap(value, LOADTYPE3);
+                    new Handler().postDelayed(new Runnable() {
+                        @Override
+                        public void run() {
+                            drawNationDataToMap(value, LOADTYPE3);
+                        }
+                    }, 100);
                 }
                 break;
             case R.id.tv3:
@@ -2050,7 +2057,12 @@ public class StationMonitorActivity extends BaseActivity implements OnClickListe
                 if (tvProName.getVisibility() == View.VISIBLE) {
                     drawProvinceDataToMap(value, LOADTYPE3);
                 } else {
-                    drawNationDataToMap(value, LOADTYPE3);
+                    new Handler().postDelayed(new Runnable() {
+                        @Override
+                        public void run() {
+                            drawNationDataToMap(value, LOADTYPE3);
+                        }
+                    }, 100);
                 }
                 break;
             case R.id.tv4:
@@ -2088,7 +2100,12 @@ public class StationMonitorActivity extends BaseActivity implements OnClickListe
                 if (tvProName.getVisibility() == View.VISIBLE) {
                     drawProvinceDataToMap(value, LOADTYPE3);
                 } else {
-                    drawNationDataToMap(value, LOADTYPE3);
+                    new Handler().postDelayed(new Runnable() {
+                        @Override
+                        public void run() {
+                            drawNationDataToMap(value, LOADTYPE3);
+                        }
+                    }, 100);
                 }
                 break;
             case R.id.tv5:
@@ -2126,7 +2143,12 @@ public class StationMonitorActivity extends BaseActivity implements OnClickListe
                 if (tvProName.getVisibility() == View.VISIBLE) {
                     drawProvinceDataToMap(value, LOADTYPE3);
                 } else {
-                    drawNationDataToMap(value, LOADTYPE3);
+                    new Handler().postDelayed(new Runnable() {
+                        @Override
+                        public void run() {
+                            drawNationDataToMap(value, LOADTYPE3);
+                        }
+                    }, 100);
                 }
                 break;
             case R.id.tvRain2:
@@ -2175,7 +2197,12 @@ public class StationMonitorActivity extends BaseActivity implements OnClickListe
                 if (tvProName.getVisibility() == View.VISIBLE) {
                     drawProvinceDataToMap(value, LOADTYPE3);
                 } else {
-                    drawNationDataToMap(value, LOADTYPE3);
+                    new Handler().postDelayed(new Runnable() {
+                        @Override
+                        public void run() {
+                            drawNationDataToMap(value, LOADTYPE3);
+                        }
+                    }, 100);
                 }
                 break;
             case R.id.tvHumidity2:
@@ -2204,7 +2231,12 @@ public class StationMonitorActivity extends BaseActivity implements OnClickListe
                 if (tvProName.getVisibility() == View.VISIBLE) {
                     drawProvinceDataToMap(value, LOADTYPE3);
                 } else {
-                    drawNationDataToMap(value, LOADTYPE3);
+                    new Handler().postDelayed(new Runnable() {
+                        @Override
+                        public void run() {
+                            drawNationDataToMap(value, LOADTYPE3);
+                        }
+                    }, 100);
                 }
                 break;
             case R.id.tvVisibility2:
@@ -2233,7 +2265,12 @@ public class StationMonitorActivity extends BaseActivity implements OnClickListe
                 if (tvProName.getVisibility() == View.VISIBLE) {
                     drawProvinceDataToMap(value, LOADTYPE3);
                 } else {
-                    drawNationDataToMap(value, LOADTYPE3);
+                    new Handler().postDelayed(new Runnable() {
+                        @Override
+                        public void run() {
+                            drawNationDataToMap(value, LOADTYPE3);
+                        }
+                    }, 100);
                 }
                 break;
             case R.id.tvPressure2:
@@ -2262,7 +2299,12 @@ public class StationMonitorActivity extends BaseActivity implements OnClickListe
                 if (tvProName.getVisibility() == View.VISIBLE) {
                     drawProvinceDataToMap(value, LOADTYPE3);
                 } else {
-                    drawNationDataToMap(value, LOADTYPE3);
+                    new Handler().postDelayed(new Runnable() {
+                        @Override
+                        public void run() {
+                            drawNationDataToMap(value, LOADTYPE3);
+                        }
+                    }, 100);
                 }
                 break;
             case R.id.tvWindSpeed2:
@@ -2291,7 +2333,12 @@ public class StationMonitorActivity extends BaseActivity implements OnClickListe
                 if (tvProName.getVisibility() == View.VISIBLE) {
                     drawProvinceDataToMap(value, LOADTYPE3);
                 } else {
-                    drawNationDataToMap(value, LOADTYPE3);
+                    new Handler().postDelayed(new Runnable() {
+                        @Override
+                        public void run() {
+                            drawNationDataToMap(value, LOADTYPE3);
+                        }
+                    }, 100);
                 }
                 break;
             case R.id.tvCheckStation:

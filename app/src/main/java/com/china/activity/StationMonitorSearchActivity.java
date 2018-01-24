@@ -120,7 +120,7 @@ public class StationMonitorSearchActivity extends BaseActivity implements OnClic
 		try {
 			if (database != null && database.isOpen()) {
 				Cursor cursor = database.rawQuery("select * from " + DBManager.TABLE_NAME1 + " where Pro like " + "\"%"+keywords+"%\""
-						+  " or CITY like " + "\"%"+keywords+"%\"" +  " or DIST like " + "\"%"+keywords+"%\"" +  " or ADDR like " + "\"%"+keywords+"%\"", null);
+						+  " or CITY like " + "\"%"+keywords+"%\"" +  " or DIST like " + "\"%"+keywords+"%\"" +  " or ADDR like " + "\"%"+keywords+"%\"" +  " or SID like " + "\"%"+keywords+"%\"", null);
 				for (int i = 0; i < cursor.getCount(); i++) {
 					cursor.moveToPosition(i);
 					StationMonitorDto data = new StationMonitorDto();
