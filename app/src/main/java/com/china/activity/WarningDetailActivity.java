@@ -35,6 +35,10 @@ import okhttp3.Callback;
 import okhttp3.Request;
 import okhttp3.Response;
 
+/**
+ * 预警详情
+ */
+
 public class WarningDetailActivity extends BaseActivity implements OnClickListener{
 	
 	private Context mContext = null;
@@ -190,6 +194,9 @@ public class WarningDetailActivity extends BaseActivity implements OnClickListen
 										if (bitmap == null) {
 											bitmap = CommonUtil.getImageFromAssetsFile(mContext,"warning/"+"default"+CONST.red[1]+CONST.imageSuffix);
 										}
+									}
+									if (bitmap == null) {
+										bitmap = CommonUtil.getImageFromAssetsFile(mContext,"warning/"+"default"+CONST.imageSuffix);
 									}
 									imageView.setImageBitmap(bitmap);
 

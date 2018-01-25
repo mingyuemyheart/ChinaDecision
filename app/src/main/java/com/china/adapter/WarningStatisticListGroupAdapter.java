@@ -120,6 +120,9 @@ public class WarningStatisticListGroupAdapter extends BaseExpandableListAdapter 
         if (bitmap == null) {
             bitmap = CommonUtil.getImageFromAssetsFile(mContext,"warning/"+"default"+"_"+dto.color.toLowerCase()+CONST.imageSuffix);
         }
+        if (bitmap == null) {
+            bitmap = CommonUtil.getImageFromAssetsFile(mContext,"warning/"+"default"+CONST.imageSuffix);
+        }
         groupHolder.imageView.setImageBitmap(bitmap);
 
         if (!TextUtils.isEmpty(dto.name)) {

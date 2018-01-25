@@ -3,8 +3,10 @@ package com.china.activity;
 import android.animation.IntEvaluator;
 import android.animation.ValueAnimator;
 import android.animation.ValueAnimator.AnimatorUpdateListener;
+import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
@@ -44,6 +46,7 @@ import com.amap.api.maps.AMap.OnMapScreenShotListener;
 import com.amap.api.maps.AMap.OnMarkerClickListener;
 import com.amap.api.maps.CameraUpdateFactory;
 import com.amap.api.maps.MapView;
+import com.amap.api.maps.model.BitmapDescriptor;
 import com.amap.api.maps.model.BitmapDescriptorFactory;
 import com.amap.api.maps.model.CameraPosition;
 import com.amap.api.maps.model.LatLng;
@@ -53,8 +56,6 @@ import com.amap.api.maps.model.Polygon;
 import com.amap.api.maps.model.PolygonOptions;
 import com.amap.api.maps.model.Polyline;
 import com.amap.api.maps.model.PolylineOptions;
-import com.amap.api.maps.model.Text;
-import com.amap.api.maps.model.TextOptions;
 import com.amap.api.maps.model.animation.Animation;
 import com.amap.api.maps.model.animation.Animation.AnimationListener;
 import com.amap.api.maps.model.animation.ScaleAnimation;
@@ -63,6 +64,7 @@ import com.china.adapter.WarningAdapter;
 import com.china.adapter.WarningStatisticAdapter;
 import com.china.common.CONST;
 import com.china.common.MyApplication;
+import com.china.dto.TyphoonDto;
 import com.china.dto.WarningDto;
 import com.china.manager.RainManager;
 import com.china.utils.CommonUtil;
@@ -154,15 +156,37 @@ OnMarkerClickListener, InfoWindowAdapter, OnCameraChangeListener, OnMapScreenSho
 
 	//国家级预警图层
 	private HashMap<String, String> nationMap = new HashMap<>();
-	private LinearLayout llLayerButton;
-	private ImageView iv1, iv2, iv3, iv4, iv5, iv6, iv7, iv8;
+	private LinearLayout llLayerButton, llLegend;
+	private ImageView iv1, iv2, iv3, iv4, iv5, iv6, iv7, iv8, ivLegend1, ivLegend2, ivLegend3, ivLegend4, ivLegend5, ivLegend7, ivLegend8;
 	private boolean flag1 = false, flag2 = false, flag3 = false, flag4 = false, flag5 = false, flag6 = false, flag7 = false, flag8 = false;
-	private List<Polyline> polyline1 = new ArrayList<>();
-	private List<Text> textList1 = new ArrayList<>();
-	private List<Polyline> polyline2 = new ArrayList<>();
-	private List<Text> textList2 = new ArrayList<>();
-	private List<Polygon> polygons = new ArrayList<>();//图层
-	private List<Text> textList3 = new ArrayList<>();
+	private String warningType1 = "fog", warningType2 = "baoyu", warningType3 = "shachen", warningType4 = "daxue", warningType5 = "gaowen", warningType7 = "lengkongqi", warningType8 = "lengkongqi";
+	private List<Polyline> polyline11 = new ArrayList<>();
+	private List<Polyline> polyline12 = new ArrayList<>();
+	private List<Polygon> polygons13 = new ArrayList<>();
+	private List<Polyline> polyline21 = new ArrayList<>();
+	private List<Polyline> polyline22 = new ArrayList<>();
+	private List<Polygon> polygons23 = new ArrayList<>();
+	private List<Polyline> polyline31 = new ArrayList<>();
+	private List<Polyline> polyline32 = new ArrayList<>();
+	private List<Polygon> polygons33 = new ArrayList<>();
+	private List<Polyline> polyline41 = new ArrayList<>();
+	private List<Polyline> polyline42 = new ArrayList<>();
+	private List<Polygon> polygons43 = new ArrayList<>();
+	private List<Polyline> polyline51 = new ArrayList<>();
+	private List<Polyline> polyline52 = new ArrayList<>();
+	private List<Polygon> polygons53 = new ArrayList<>();
+	private List<Polyline> polyline71 = new ArrayList<>();
+	private List<Polyline> polyline72 = new ArrayList<>();
+	private List<Polygon> polygons73 = new ArrayList<>();
+	private List<Polyline> polyline81 = new ArrayList<>();
+	private List<Polyline> polyline82 = new ArrayList<>();
+	private List<Polygon> polygons83 = new ArrayList<>();
+	private SimpleDateFormat sdf1 = new SimpleDateFormat("yyyy");
+	private SimpleDateFormat sdf2 = new SimpleDateFormat("yyyyMMddHH");
+	private List<TyphoonDto> typhoonList = new ArrayList<>();
+	private List<Marker> typhoonMarkers = new ArrayList<>();//台风markers
+	private String markerType1 = "WARNING", markerType2 = "TYPHOON";//marker类型
+	private MyBroadCastReceiver mReceiver = null;
 
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
@@ -206,6 +230,7 @@ OnMarkerClickListener, InfoWindowAdapter, OnCameraChangeListener, OnMapScreenSho
 		ivGuide = (ImageView) findViewById(R.id.ivGuide);
 		ivGuide.setOnClickListener(this);
 		llLayerButton = (LinearLayout) findViewById(R.id.llLayerButton);
+		llLegend = (LinearLayout) findViewById(R.id.llLegend);
 		iv1 = (ImageView) findViewById(R.id.iv1);
 		iv1.setOnClickListener(this);
 		iv2 = (ImageView) findViewById(R.id.iv2);
@@ -222,6 +247,15 @@ OnMarkerClickListener, InfoWindowAdapter, OnCameraChangeListener, OnMapScreenSho
 		iv7.setOnClickListener(this);
 		iv8 = (ImageView) findViewById(R.id.iv8);
 		iv8.setOnClickListener(this);
+		ivLegend1 = (ImageView) findViewById(R.id.ivLegend1);
+		ivLegend2 = (ImageView) findViewById(R.id.ivLegend2);
+		ivLegend3 = (ImageView) findViewById(R.id.ivLegend3);
+		ivLegend4 = (ImageView) findViewById(R.id.ivLegend4);
+		ivLegend5 = (ImageView) findViewById(R.id.ivLegend5);
+		ivLegend7 = (ImageView) findViewById(R.id.ivLegend7);
+		ivLegend8 = (ImageView) findViewById(R.id.ivLegend8);
+
+		initBroadCast();
 
 		CommonUtil.showGuidePage(mContext, this.getClass().getName(), ivGuide);
 		
@@ -241,6 +275,9 @@ OnMarkerClickListener, InfoWindowAdapter, OnCameraChangeListener, OnMapScreenSho
 		showDialog();
 		startLocation();
 		OkHttpWarning(warningUrl);
+
+		int currentYear = Integer.valueOf(sdf1.format(new Date()));
+		OkHttpTyphoonList("http://decision-admin.tianqi.cn/Home/extra/gettyphoon/list/"+currentYear);
 	}
 	
 	/**
@@ -526,35 +563,24 @@ OnMarkerClickListener, InfoWindowAdapter, OnCameraChangeListener, OnMapScreenSho
 	 */
 	private void handlerNationWarning() {
 		if (nationMap.containsKey("11B17")) {//雾
-			llLayerButton.setVisibility(View.VISIBLE);
 			iv1.setVisibility(View.VISIBLE);
 		}
 		if (nationMap.containsKey("11B03")) {//暴雨
-			llLayerButton.setVisibility(View.VISIBLE);
 			iv2.setVisibility(View.VISIBLE);
 		}
 		if (nationMap.containsKey("11B07")) {//沙尘
-			llLayerButton.setVisibility(View.VISIBLE);
 			iv3.setVisibility(View.VISIBLE);
 		}
 		if (nationMap.containsKey("11B04")) {//暴雪
-			llLayerButton.setVisibility(View.VISIBLE);
 			iv4.setVisibility(View.VISIBLE);
 		}
 		if (nationMap.containsKey("11B09")) {//高温
-			llLayerButton.setVisibility(View.VISIBLE);
 			iv5.setVisibility(View.VISIBLE);
 		}
-		if (nationMap.containsKey("11B01")) {//台风
-			llLayerButton.setVisibility(View.VISIBLE);
-			iv6.setVisibility(View.VISIBLE);
-		}
 		if (nationMap.containsKey("11B06")) {//冷空气
-			llLayerButton.setVisibility(View.VISIBLE);
 			iv7.setVisibility(View.VISIBLE);
 		}
 		if (nationMap.containsKey("11B05")) {//寒潮
-			llLayerButton.setVisibility(View.VISIBLE);
 			iv8.setVisibility(View.VISIBLE);
 		}
 	}
@@ -571,6 +597,7 @@ OnMarkerClickListener, InfoWindowAdapter, OnCameraChangeListener, OnMapScreenSho
 				double lng = Double.valueOf(dto.lng);
 				MarkerOptions optionsTemp = new MarkerOptions();
 				optionsTemp.title(dto.lat+","+dto.lng);
+				optionsTemp.snippet(markerType1);
 				optionsTemp.anchor(0.5f, 0.5f);
 				optionsTemp.position(new LatLng(lat, lng));
 				View mView = inflater.inflate(R.layout.warning_marker_view, null);
@@ -682,43 +709,66 @@ OnMarkerClickListener, InfoWindowAdapter, OnCameraChangeListener, OnMapScreenSho
 	@Override
 	public View getInfoContents(final Marker marker) {
 		LayoutInflater inflater = (LayoutInflater) mContext.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-		View mView = inflater.inflate(R.layout.warning_marker_info, null);
-		ListView mListView;
-		WarningAdapter mAdapter;
-		final List<WarningDto> infoList = new ArrayList<>();
-		
-		infoList.clear();
-		if (zoom <= 6.0f) {
-			addInfoList(proList, marker, infoList);
-		}else if (zoom > 6.0f && zoom <= 8.0f) {
-			addInfoList(proList, marker, infoList);
-			addInfoList(cityList, marker, infoList);
-		}else if (zoom > 8.0f) {
-			addInfoList(proList, marker, infoList);
-			addInfoList(cityList, marker, infoList);
-			addInfoList(disList, marker, infoList);
-		}
-		
-		mListView = (ListView) mView.findViewById(R.id.listView);
-		mAdapter = new WarningAdapter(mContext, infoList, true);
-		mListView.setAdapter(mAdapter);
-		LayoutParams params = mListView.getLayoutParams();
-		if (infoList.size() == 1) {
-			params.height = (int) CommonUtil.dip2px(mContext, 50);
-		}else if (infoList.size() == 2) {
-			params.height = (int) CommonUtil.dip2px(mContext, 100);
-		}else if (infoList.size() > 2){
-			params.height = (int) CommonUtil.dip2px(mContext, 150);
-		}
-		mListView.setLayoutParams(params);
-		mListView.setOnItemClickListener(new OnItemClickListener() {
-			@Override
-			public void onItemClick(AdapterView<?> arg0, View arg1, int arg2, long arg3) {
-				intentDetail(infoList.get(arg2));
-			}
-		});
+		View mView = null;
+		if (TextUtils.equals(marker.getSnippet(), markerType1)) {//预警marker
+			mView = inflater.inflate(R.layout.warning_marker_info, null);
+			ListView mListView;
+			WarningAdapter mAdapter;
+			final List<WarningDto> infoList = new ArrayList<>();
 
-		setSelectEmit("11", infoList.get(0));
+			infoList.clear();
+			if (zoom <= 6.0f) {
+				addInfoList(proList, marker, infoList);
+			}else if (zoom > 6.0f && zoom <= 8.0f) {
+				addInfoList(proList, marker, infoList);
+				addInfoList(cityList, marker, infoList);
+			}else if (zoom > 8.0f) {
+				addInfoList(proList, marker, infoList);
+				addInfoList(cityList, marker, infoList);
+				addInfoList(disList, marker, infoList);
+			}
+
+			mListView = (ListView) mView.findViewById(R.id.listView);
+			mAdapter = new WarningAdapter(mContext, infoList, true);
+			mListView.setAdapter(mAdapter);
+			LayoutParams params = mListView.getLayoutParams();
+			if (infoList.size() == 1) {
+				params.height = (int) CommonUtil.dip2px(mContext, 50);
+			}else if (infoList.size() == 2) {
+				params.height = (int) CommonUtil.dip2px(mContext, 100);
+			}else if (infoList.size() > 2){
+				params.height = (int) CommonUtil.dip2px(mContext, 150);
+			}
+			mListView.setLayoutParams(params);
+			mListView.setOnItemClickListener(new OnItemClickListener() {
+				@Override
+				public void onItemClick(AdapterView<?> arg0, View arg1, int arg2, long arg3) {
+					intentDetail(infoList.get(arg2));
+				}
+			});
+
+			setSelectEmit("11", infoList.get(0));
+		}else if (TextUtils.equals(marker.getSnippet(), markerType2)) {
+			mView = inflater.inflate(R.layout.typhoon_marker_view, null);
+			TextView tvName = (TextView) mView.findViewById(R.id.tvName);
+			TextView tvInfo = (TextView) mView.findViewById(R.id.tvInfo);
+			ImageView ivDelete = (ImageView) mView.findViewById(R.id.ivDelete);
+			if (!TextUtils.isEmpty(marker.getTitle())) {
+				String[] str = marker.getTitle().split("\\|");
+				if (!TextUtils.isEmpty(str[0])) {
+					tvName.setText(str[0]);
+				}
+				if (!TextUtils.isEmpty(str[1])) {
+					tvInfo.setText(str[1]);
+				}
+			}
+			ivDelete.setOnClickListener(new OnClickListener() {
+				@Override
+				public void onClick(View v) {
+					marker.hideInfoWindow();
+				}
+			});
+		}
 
 		return mView;
 	}
@@ -1038,7 +1088,7 @@ OnMarkerClickListener, InfoWindowAdapter, OnCameraChangeListener, OnMapScreenSho
      */  
     public void hideOrShowListViewAnimator(final View view, final int startValue,final int endValue){  
         //1.设置属性的初始值和结束值  
-        ValueAnimator mAnimator = ValueAnimator.ofInt(0,100);  
+        ValueAnimator mAnimator = ValueAnimator.ofInt(0,100);
         //2.为目标对象的属性变化设置监听器  
         mAnimator.addUpdateListener(new AnimatorUpdateListener() {  
             @Override  
@@ -1157,90 +1207,108 @@ OnMarkerClickListener, InfoWindowAdapter, OnCameraChangeListener, OnMapScreenSho
 			break;
 		case R.id.iv1:
 			if (flag1 == false) {
-				drawWarningLayer(getSecretUrl("fog"), "fog");
+				drawWarningLayer(getSecretUrl(warningType1), warningType1);
 				flag1 = true;
 				iv1.setImageResource(R.drawable.warning_fog_open);
+				ivLegend1.setVisibility(View.VISIBLE);
 			}else {
-				removeWarningLayer();
+				removeWarningLayer(warningType1);
 				flag1 = false;
 				iv1.setImageResource(R.drawable.warning_fog_close);
+				ivLegend1.setVisibility(View.GONE);
 			}
 			break;
 		case R.id.iv2:
 			if (flag2 == false) {
-				drawWarningLayer(getSecretUrl("baoyu"), "baoyu");
+				drawWarningLayer(getSecretUrl(warningType2), warningType2);
 				flag2 = true;
 				iv2.setImageResource(R.drawable.warning_rain_open);
+				ivLegend2.setVisibility(View.VISIBLE);
 			}else {
-				removeWarningLayer();
+				removeWarningLayer(warningType2);
 				flag2 = false;
 				iv2.setImageResource(R.drawable.warning_rain_close);
+				ivLegend2.setVisibility(View.GONE);
 			}
 			break;
 		case R.id.iv3:
 			if (flag3 == false) {
-				drawWarningLayer(getSecretUrl("shachen"), "shachen");
+				drawWarningLayer(getSecretUrl(warningType3), warningType3);
 				flag3 = true;
 				iv3.setImageResource(R.drawable.warning_sand_open);
+				ivLegend3.setVisibility(View.VISIBLE);
 			}else {
-				removeWarningLayer();
+				removeWarningLayer(warningType3);
 				flag3 = false;
 				iv3.setImageResource(R.drawable.warning_sand_close);
+				ivLegend3.setVisibility(View.GONE);
 			}
 			break;
 		case R.id.iv4:
 			if (flag4 == false) {
-				drawWarningLayer(getSecretUrl("daxue"), "daxue");
+				drawWarningLayer(getSecretUrl(warningType4), warningType4);
 				flag4 = true;
 				iv4.setImageResource(R.drawable.warning_snow_open);
+				ivLegend4.setVisibility(View.VISIBLE);
 			}else {
-				removeWarningLayer();
+				removeWarningLayer(warningType4);
 				flag4 = false;
 				iv4.setImageResource(R.drawable.warning_snow_close);
+				ivLegend4.setVisibility(View.GONE);
 			}
 			break;
 		case R.id.iv5:
 			if (flag5 == false) {
-				drawWarningLayer(getSecretUrl("gaowen"), "gaowen");
+				drawWarningLayer(getSecretUrl(warningType5), warningType5);
 				flag5 = true;
 				iv5.setImageResource(R.drawable.warning_temp_open);
+				ivLegend5.setVisibility(View.VISIBLE);
 			}else {
-				removeWarningLayer();
+				removeWarningLayer(warningType5);
 				flag5 = false;
 				iv5.setImageResource(R.drawable.warning_temp_close);
+				ivLegend5.setVisibility(View.GONE);
 			}
 			break;
 		case R.id.iv6:
 			if (flag6 == false) {
-				drawWarningLayer(getSecretUrl("typhoon"), "typhoon");
+				for (int i = 0; i < typhoonMarkers.size(); i++) {
+					typhoonMarkers.get(i).setVisible(true);
+				}
 				flag6 = true;
 				iv6.setImageResource(R.drawable.warning_typhoon_open);
 			}else {
-				removeWarningLayer();
+				for (int i = 0; i < typhoonMarkers.size(); i++) {
+					typhoonMarkers.get(i).setVisible(false);
+				}
 				flag6 = false;
 				iv6.setImageResource(R.drawable.warning_typhoon_close);
 			}
 			break;
 		case R.id.iv7:
 			if (flag7 == false) {
-				drawWarningLayer(getSecretUrl("lengkongqi"), "lengkongqi");
+				drawWarningLayer(getSecretUrl(warningType7), warningType7);
 				flag7 = true;
 				iv7.setImageResource(R.drawable.warning_wind_open);
+				ivLegend7.setVisibility(View.VISIBLE);
 			}else {
-				removeWarningLayer();
+				removeWarningLayer(warningType7);
 				flag7 = false;
 				iv7.setImageResource(R.drawable.warning_wind_open);
+				ivLegend7.setVisibility(View.GONE);
 			}
 			break;
 		case R.id.iv8:
 			if (flag8 == false) {
-				drawWarningLayer(getSecretUrl("lengkongqi"), "lengkongqi");
+				drawWarningLayer(getSecretUrl(warningType8), warningType8);
 				flag8 = true;
 				iv8.setImageResource(R.drawable.warning_hanchao_open);
+				ivLegend8.setVisibility(View.VISIBLE);
 			}else {
-				removeWarningLayer();
+				removeWarningLayer(warningType8);
 				flag8 = false;
 				iv8.setImageResource(R.drawable.warning_hanchao_close);
+				ivLegend8.setVisibility(View.GONE);
 			}
 			break;
 
@@ -1249,39 +1317,162 @@ OnMarkerClickListener, InfoWindowAdapter, OnCameraChangeListener, OnMapScreenSho
 		}
 	}
 
+	private void initBroadCast() {
+    	mReceiver = new MyBroadCastReceiver();
+		IntentFilter intentFilter = new IntentFilter();
+		intentFilter.addAction(ArcMenu.BROADCASTCLICK);
+		registerReceiver(mReceiver, intentFilter);
+	}
+
+	private class MyBroadCastReceiver extends BroadcastReceiver {
+		@Override
+		public void onReceive(Context context, Intent intent) {
+			if (intent.getAction().equals(ArcMenu.BROADCASTCLICK)) {
+				Bundle bundle = intent.getExtras();
+				boolean status = bundle.getBoolean("STATUS");
+				if (status == false) {
+					narrowAnimation();
+				}else {
+					enlargeAnimation();
+				}
+			}
+		}
+	}
+
+	/**
+	 * 缩小动画
+	 */
+	private void narrowAnimation() {
+		android.view.animation.ScaleAnimation animation = new android.view.animation.ScaleAnimation(
+				1.0f, 0.7f, 1.0f, 0.7f, android.view.animation.Animation.RELATIVE_TO_SELF, 1.0f, android.view.animation.Animation.RELATIVE_TO_SELF, 1.0f
+		);
+		animation.setDuration(200);
+		animation.setFillAfter(true);
+		llLegend.startAnimation(animation);
+	}
+
+	/**
+	 * 放大动画
+	 */
+	private void enlargeAnimation() {
+		android.view.animation.ScaleAnimation animation = new android.view.animation.ScaleAnimation(
+				0.7f, 1.0f, 0.7f, 1.0f, android.view.animation.Animation.RELATIVE_TO_SELF, 1.0f, android.view.animation.Animation.RELATIVE_TO_SELF, 1.0f
+		);
+		animation.setDuration(200);
+		animation.setFillAfter(true);
+		llLegend.startAnimation(animation);
+	}
+
 	/**
 	 * 清除预警图层
 	 */
-	private void removeWarningLayer() {
-		for (int i = 0; i < polyline1.size(); i++) {
-			polyline1.get(i).remove();
-		}
-		polyline1.clear();
+	private void removeWarningLayer(String type) {
+		if (TextUtils.equals(type, warningType1)) {
+			for (int i = 0; i < polyline11.size(); i++) {
+				polyline11.get(i).remove();
+			}
+			polyline11.clear();
 
-		for (int i = 0; i < polyline2.size(); i++) {
-			polyline2.get(i).remove();
-		}
-		polyline2.clear();
+			for (int i = 0; i < polyline12.size(); i++) {
+				polyline12.get(i).remove();
+			}
+			polyline12.clear();
 
-		for (int i = 0; i < textList1.size(); i++) {
-			textList1.get(i).remove();
-		}
-		textList1.clear();
+			for (int i = 0; i < polygons13.size(); i++) {
+				polygons13.get(i).remove();
+			}
+			polygons13.clear();
+		}else if (TextUtils.equals(type, warningType2)) {
+			for (int i = 0; i < polyline21.size(); i++) {
+				polyline21.get(i).remove();
+			}
+			polyline21.clear();
 
-		for (int i = 0; i < textList2.size(); i++) {
-			textList2.get(i).remove();
-		}
-		textList2.clear();
+			for (int i = 0; i < polyline22.size(); i++) {
+				polyline22.get(i).remove();
+			}
+			polyline22.clear();
 
-		for (int i = 0; i < polygons.size(); i++) {
-			polygons.get(i).remove();
-		}
-		polygons.clear();
+			for (int i = 0; i < polygons23.size(); i++) {
+				polygons23.get(i).remove();
+			}
+			polygons23.clear();
+		}else if (TextUtils.equals(type, warningType3)) {
+			for (int i = 0; i < polyline31.size(); i++) {
+				polyline31.get(i).remove();
+			}
+			polyline31.clear();
 
-		for (int i = 0; i < textList3.size(); i++) {
-			textList3.get(i).remove();
+			for (int i = 0; i < polyline32.size(); i++) {
+				polyline32.get(i).remove();
+			}
+			polyline32.clear();
+
+			for (int i = 0; i < polygons33.size(); i++) {
+				polygons33.get(i).remove();
+			}
+			polygons33.clear();
+		}else if (TextUtils.equals(type, warningType4)) {
+			for (int i = 0; i < polyline41.size(); i++) {
+				polyline41.get(i).remove();
+			}
+			polyline41.clear();
+
+			for (int i = 0; i < polyline42.size(); i++) {
+				polyline42.get(i).remove();
+			}
+			polyline42.clear();
+
+			for (int i = 0; i < polygons43.size(); i++) {
+				polygons43.get(i).remove();
+			}
+			polygons43.clear();
+		}else if (TextUtils.equals(type, warningType5)) {
+			for (int i = 0; i < polyline51.size(); i++) {
+				polyline51.get(i).remove();
+			}
+			polyline51.clear();
+
+			for (int i = 0; i < polyline52.size(); i++) {
+				polyline52.get(i).remove();
+			}
+			polyline52.clear();
+
+			for (int i = 0; i < polygons53.size(); i++) {
+				polygons53.get(i).remove();
+			}
+			polygons53.clear();
+		}else if (TextUtils.equals(type, warningType7)) {
+			for (int i = 0; i < polyline71.size(); i++) {
+				polyline71.get(i).remove();
+			}
+			polyline71.clear();
+
+			for (int i = 0; i < polyline72.size(); i++) {
+				polyline72.get(i).remove();
+			}
+			polyline72.clear();
+
+			for (int i = 0; i < polygons73.size(); i++) {
+				polygons73.get(i).remove();
+			}
+			polygons73.clear();
+		}else if (TextUtils.equals(type, warningType8)) {
+			for (int i = 0; i < polyline81.size(); i++) {
+				polyline81.get(i).remove();
+			}
+			polyline81.clear();
+
+			for (int i = 0; i < polyline82.size(); i++) {
+				polyline82.get(i).remove();
+			}
+			polyline82.clear();
+
+			for (int i = 0; i < polygons83.size(); i++) {
+				polygons83.get(i).remove();
+			}
+			polygons83.clear();
 		}
-		textList3.clear();
 	}
 
 	public final static String SANX_DATA_99 = "sanx_data_99";//加密秘钥名称
@@ -1335,7 +1526,7 @@ OnMarkerClickListener, InfoWindowAdapter, OnCameraChangeListener, OnMapScreenSho
 						JSONObject obj = new JSONObject(result);
 						if (!obj.isNull("micaps14_"+type)) {
 							String dataUrl = obj.getString("micaps14_"+type);
-							OkHttpSpecialLayer(dataUrl);
+							OkHttpSpecialLayer(dataUrl, type);
 						}
 					} catch (JSONException e) {
 						e.printStackTrace();
@@ -1346,7 +1537,7 @@ OnMarkerClickListener, InfoWindowAdapter, OnCameraChangeListener, OnMapScreenSho
 
 	}
 
-	private void OkHttpSpecialLayer(String url) {
+	private void OkHttpSpecialLayer(String url, final String type) {
 		OkHttpUtil.enqueue(new Request.Builder().url(url).build(), new Callback() {
 			@Override
 			public void onFailure(Call call, IOException e) {
@@ -1380,7 +1571,21 @@ OnMarkerClickListener, InfoWindowAdapter, OnCameraChangeListener, OnMapScreenSho
 												polylineOption.add(new LatLng(lat, lng));
 											}
 											Polyline p = aMap.addPolyline(polylineOption);
-											polyline1.add(p);
+											if (TextUtils.equals(type, warningType1)) {
+												polyline11.add(p);
+											}else if (TextUtils.equals(type, warningType2)) {
+												polyline21.add(p);
+											}else if (TextUtils.equals(type, warningType3)) {
+												polyline31.add(p);
+											}else if (TextUtils.equals(type, warningType4)) {
+												polyline41.add(p);
+											}else if (TextUtils.equals(type, warningType5)) {
+												polyline51.add(p);
+											}else if (TextUtils.equals(type, warningType7)) {
+												polyline71.add(p);
+											}else if (TextUtils.equals(type, warningType8)) {
+												polyline81.add(p);
+											}
 										}
 //							if (!itemObj.isNull("flags")) {
 //								JSONObject flags = itemObj.getJSONObject("flags");
@@ -1420,41 +1625,55 @@ OnMarkerClickListener, InfoWindowAdapter, OnCameraChangeListener, OnMapScreenSho
 												polylineOption.add(new LatLng(lat, lng));
 											}
 											Polyline p = aMap.addPolyline(polylineOption);
-											polyline2.add(p);
-										}
-									}
-								}
-								if (!obj.isNull("symbols")) {
-									JSONArray symbols = obj.getJSONArray("symbols");
-									for (int i = 0; i < symbols.length(); i++) {
-										JSONObject itemObj = symbols.getJSONObject(i);
-										String text = "";
-										int color = Color.BLACK;
-										if (!itemObj.isNull("type")) {
-											String type = itemObj.getString("type");
-											if (TextUtils.equals(type, "60")) {
-												text = "H";
-												color = Color.RED;
-											}else if (TextUtils.equals(type, "61")) {
-												text = "L";
-												color = Color.BLUE;
-											}else if (TextUtils.equals(type, "37")) {
-												text = "台";
-												color = Color.GREEN;
+											if (TextUtils.equals(type, warningType1)) {
+												polyline12.add(p);
+											}else if (TextUtils.equals(type, warningType2)) {
+												polyline22.add(p);
+											}else if (TextUtils.equals(type, warningType3)) {
+												polyline32.add(p);
+											}else if (TextUtils.equals(type, warningType4)) {
+												polyline42.add(p);
+											}else if (TextUtils.equals(type, warningType5)) {
+												polyline52.add(p);
+											}else if (TextUtils.equals(type, warningType7)) {
+												polyline72.add(p);
+											}else if (TextUtils.equals(type, warningType8)) {
+												polyline82.add(p);
 											}
 										}
-										double lat = itemObj.getDouble("y");
-										double lng = itemObj.getDouble("x");
-										TextOptions to = new TextOptions();
-										to.position(new LatLng(lat, lng));
-										to.text(text);
-										to.fontColor(color);
-										to.fontSize(60);
-										to.backgroundColor(Color.TRANSPARENT);
-										Text t = aMap.addText(to);
-										textList2.add(t);
 									}
 								}
+//								if (!obj.isNull("symbols")) {
+//									JSONArray symbols = obj.getJSONArray("symbols");
+//									for (int i = 0; i < symbols.length(); i++) {
+//										JSONObject itemObj = symbols.getJSONObject(i);
+//										String text = "";
+//										int color = Color.BLACK;
+//										if (!itemObj.isNull("type")) {
+//											String type = itemObj.getString("type");
+//											if (TextUtils.equals(type, "60")) {
+//												text = "H";
+//												color = Color.RED;
+//											}else if (TextUtils.equals(type, "61")) {
+//												text = "L";
+//												color = Color.BLUE;
+//											}else if (TextUtils.equals(type, "37")) {
+//												text = "台";
+//												color = Color.GREEN;
+//											}
+//										}
+//										double lat = itemObj.getDouble("y");
+//										double lng = itemObj.getDouble("x");
+//										TextOptions to = new TextOptions();
+//										to.position(new LatLng(lat, lng));
+//										to.text(text);
+//										to.fontColor(color);
+//										to.fontSize(60);
+//										to.backgroundColor(Color.TRANSPARENT);
+//										Text t = aMap.addText(to);
+//										textList2.add(t);
+//									}
+//								}
 								if (!obj.isNull("areas")) {
 									JSONArray array = obj.getJSONArray("areas");
 									for (int i = 0; i < array.length(); i++) {
@@ -1477,7 +1696,21 @@ OnMarkerClickListener, InfoWindowAdapter, OnCameraChangeListener, OnMapScreenSho
 												polygonOption.add(new LatLng(lat, lng));
 											}
 											Polygon p = aMap.addPolygon(polygonOption);
-											polygons.add(p);
+											if (TextUtils.equals(type, warningType1)) {
+												polygons13.add(p);
+											}else if (TextUtils.equals(type, warningType2)) {
+												polygons23.add(p);
+											}else if (TextUtils.equals(type, warningType3)) {
+												polygons33.add(p);
+											}else if (TextUtils.equals(type, warningType4)) {
+												polygons43.add(p);
+											}else if (TextUtils.equals(type, warningType5)) {
+												polygons53.add(p);
+											}else if (TextUtils.equals(type, warningType7)) {
+												polygons73.add(p);
+											}else if (TextUtils.equals(type, warningType8)) {
+												polygons83.add(p);
+											}
 										}
 //							if (!itemObj.isNull("symbols")) {
 //								JSONObject symbols = itemObj.getJSONObject("symbols");
@@ -1505,6 +1738,236 @@ OnMarkerClickListener, InfoWindowAdapter, OnCameraChangeListener, OnMapScreenSho
 						}
 					}
 				});
+			}
+		});
+	}
+
+	/**
+	 * 获取当年的台风列表信息
+	 */
+	private void OkHttpTyphoonList(String url) {
+		if (TextUtils.isEmpty(url)) {
+			return;
+		}
+		OkHttpUtil.enqueue(new Request.Builder().url(url).build(), new Callback() {
+			@Override
+			public void onFailure(Call call, IOException e) {
+
+			}
+
+			@Override
+			public void onResponse(Call call, Response response) throws IOException {
+				if (!response.isSuccessful()) {
+					return;
+				}
+				String requestResult = response.body().string();
+				if (!TextUtils.isEmpty(requestResult)) {
+					String c = "(";
+					String c2 = "})";
+					String result = requestResult.substring(requestResult.indexOf(c)+c.length(), requestResult.indexOf(c2)+1);
+					if (!TextUtils.isEmpty(result)) {
+						try {
+							JSONObject obj = new JSONObject(result);
+							if (!obj.isNull("typhoonList")) {
+								typhoonList.clear();
+								JSONArray array = obj.getJSONArray("typhoonList");
+								for (int i = 0; i < array.length(); i++) {
+									JSONArray itemArray = array.getJSONArray(i);
+									TyphoonDto dto = new TyphoonDto();
+									dto.id = itemArray.getString(0);
+									dto.enName = itemArray.getString(1);
+									dto.name = itemArray.getString(2);
+									dto.code = itemArray.getString(4);
+									dto.status = itemArray.getString(7);
+									//把活跃台风过滤出来存放
+									if (TextUtils.equals(dto.status, "start")) {
+										typhoonList.add(dto);
+										if (TextUtils.isEmpty(dto.id)) {
+											return;
+										}
+										String name = "";
+										if (TextUtils.equals(dto.enName, "nameless")) {
+											name = dto.code + " " + dto.enName;
+										}else {
+											name = dto.code + " " + dto.name + " " + dto.enName;
+										}
+										OkHttpTyphoonDetail("http://decision-admin.tianqi.cn/Home/extra/gettyphoon/view/"+dto.id, name);
+									}
+
+//									if (i <= 2) {
+//										if (TextUtils.isEmpty(dto.id)) {
+//											return;
+//										}
+//										String name = "";
+//										if (TextUtils.equals(dto.enName, "nameless")) {
+//											name = dto.code + " " + dto.enName;
+//										}else {
+//											name = dto.code + " " + dto.name + " " + dto.enName;
+//										}
+//										OkHttpTyphoonDetail("http://decision-admin.tianqi.cn/Home/extra/gettyphoon/view/"+dto.id, name);
+//									}
+								}
+
+								runOnUiThread(new Runnable() {
+									@Override
+									public void run() {
+										if (typhoonList.size() > 0) {
+											iv6.setVisibility(View.VISIBLE);
+										}
+									}
+								});
+
+							}
+						} catch (JSONException e) {
+							e.printStackTrace();
+						}
+
+					}
+				}
+			}
+		});
+	}
+
+	/**
+	 * 获取台风详情
+	 */
+	private void OkHttpTyphoonDetail(String url, final String name) {
+		if (TextUtils.isEmpty(url)) {
+			return;
+		}
+		OkHttpUtil.enqueue(new Request.Builder().url(url).build(), new Callback() {
+			@Override
+			public void onFailure(Call call, IOException e) {
+
+			}
+
+			@Override
+			public void onResponse(Call call, Response response) throws IOException {
+				if (!response.isSuccessful()) {
+					return;
+				}
+				String requestResult = response.body().string();
+				if (!TextUtils.isEmpty(requestResult)) {
+					String c = "(";
+					String result = requestResult.substring(requestResult.indexOf(c)+c.length(), requestResult.indexOf(")"));
+					if (!TextUtils.isEmpty(result)) {
+						try {
+							JSONObject obj = new JSONObject(result);
+							if (!obj.isNull("typhoon")) {
+								JSONArray array = obj.getJSONArray("typhoon");
+								JSONArray itemArray = array.getJSONArray(8);
+								if (itemArray.length() > 0) {
+									JSONArray itemArray2 = itemArray.getJSONArray(itemArray.length()-1);
+									TyphoonDto dto = new TyphoonDto();
+									if (!TextUtils.isEmpty(name)) {
+										dto.name = name;
+									}
+									long longTime = itemArray2.getLong(2);
+									String time = sdf2.format(new Date(longTime));
+									dto.time = time;
+//									String time = itemArray2.getString(1);
+									String str_year = time.substring(0, 4);
+									if(!TextUtils.isEmpty(str_year)){
+										dto.year = Integer.parseInt(str_year);
+									}
+									String str_month = time.substring(4, 6);
+									if(!TextUtils.isEmpty(str_month)){
+										dto.month = Integer.parseInt(str_month);
+									}
+									String str_day = time.substring(6, 8);
+									if(!TextUtils.isEmpty(str_day)){
+										dto.day = Integer.parseInt(str_day);
+									}
+									String str_hour = time.substring(8, 10);
+									if(!TextUtils.isEmpty(str_hour)){
+										dto.hour = Integer.parseInt(str_hour);
+									}
+
+									dto.lng = itemArray2.getDouble(4);
+									dto.lat = itemArray2.getDouble(5);
+									dto.pressure = itemArray2.getString(6);
+									dto.max_wind_speed = itemArray2.getString(7);
+									dto.move_speed = itemArray2.getString(9);
+									String fx_string = itemArray2.getString(8);
+									if( !TextUtils.isEmpty(fx_string)){
+										String windDir = "";
+										for (int i = 0; i < fx_string.length(); i++) {
+											String item = fx_string.substring(i, i+1);
+											if (TextUtils.equals(item, "N")) {
+												item = "北";
+											}else if (TextUtils.equals(item, "S")) {
+												item = "南";
+											}else if (TextUtils.equals(item, "W")) {
+												item = "西";
+											}else if (TextUtils.equals(item, "E")) {
+												item = "东";
+											}
+											windDir = windDir+item;
+										}
+										dto.wind_dir = windDir;
+									}
+
+									String type = itemArray2.getString(3);
+									if (TextUtils.equals(type, "TD")) {//热带低压
+										type = "1";
+									}else if (TextUtils.equals(type, "TS")) {//热带风暴
+										type = "2";
+									}else if (TextUtils.equals(type, "STS")) {//强热带风暴
+										type = "3";
+									}else if (TextUtils.equals(type, "TY")) {//台风
+										type = "4";
+									}else if (TextUtils.equals(type, "STY")) {//强台风
+										type = "5";
+									}else if (TextUtils.equals(type, "SuperTY")) {//超强台风
+										type = "6";
+									}
+									dto.type = type;
+									dto.isFactPoint = true;
+
+									JSONArray array10 = itemArray2.getJSONArray(10);
+									for (int m = 0; m < array10.length(); m++) {
+										JSONArray itemArray10 = array10.getJSONArray(m);
+										if (m == 0) {
+											dto.radius_7 = itemArray10.getString(1);
+											dto.en_radius_7 = itemArray10.getString(1);
+											dto.es_radius_7 = itemArray10.getString(2);
+											dto.wn_radius_7 = itemArray10.getString(3);
+											dto.ws_radius_7 = itemArray10.getString(4);
+										}else if (m == 1) {
+											dto.radius_10 = itemArray10.getString(1);
+											dto.en_radius_10 = itemArray10.getString(1);
+											dto.es_radius_10 = itemArray10.getString(2);
+											dto.wn_radius_10 = itemArray10.getString(3);
+											dto.ws_radius_10 = itemArray10.getString(4);
+										}
+									}
+//									points.add(dto);
+
+									MarkerOptions tOption = new MarkerOptions();
+									tOption.title(name+"|"+dto.content(mContext));
+									tOption.snippet(markerType2);
+									tOption.position(new LatLng(dto.lat, dto.lng));
+									tOption.anchor(0.5f, 0.5f);
+									ArrayList<BitmapDescriptor> iconList = new ArrayList<>();
+									for (int i = 1; i <= 9; i++) {
+										iconList.add(BitmapDescriptorFactory.fromAsset("typhoon/typhoon_icon"+i+".png"));
+									}
+									tOption.icons(iconList);
+									tOption.period(2);
+									Marker marker = aMap.addMarker(tOption);
+									if (flag6) {
+										marker.setVisible(true);
+									}else {
+										marker.setVisible(false);
+									}
+									typhoonMarkers.add(marker);
+								}
+							}
+						} catch (JSONException e) {
+							e.printStackTrace();
+						}
+					}
+				}
 			}
 		});
 	}

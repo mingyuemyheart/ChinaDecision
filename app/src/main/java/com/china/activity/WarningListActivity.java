@@ -55,22 +55,22 @@ public class WarningListActivity extends BaseActivity implements OnClickListener
 	private EditText etSearch = null;
 	private ListView cityListView = null;
 	private WarningAdapter cityAdapter = null;
-	private List<WarningDto> warningList = new ArrayList<WarningDto>();//上个界面传过来的所有预警数据
-	private List<WarningDto> showList = new ArrayList<WarningDto>();//用于存放listview上展示的数据
-	private List<WarningDto> searchList = new ArrayList<WarningDto>();//用于存放搜索框搜索的数据
-	private List<WarningDto> selecteList = new ArrayList<WarningDto>();//用于存放三个sppiner删选的数据
+	private List<WarningDto> warningList = new ArrayList<>();//上个界面传过来的所有预警数据
+	private List<WarningDto> showList = new ArrayList<>();//用于存放listview上展示的数据
+	private List<WarningDto> searchList = new ArrayList<>();//用于存放搜索框搜索的数据
+	private List<WarningDto> selecteList = new ArrayList<>();//用于存放三个sppiner删选的数据
 	private LinearLayout ll1, ll2, ll3;
 	private TextView tv1, tv2, tv3;
 	private ImageView iv1, iv2, iv3;
 	private GridView gridView1 = null;
 	private WarningListAdapter1 adapter1 = null;
-	private List<WarningDto> list1 = new ArrayList<WarningDto>();
+	private List<WarningDto> list1 = new ArrayList<>();
 	private GridView gridView2 = null;
 	private WarningListAdapter2 adapter2 = null;
-	private List<WarningDto> list2 = new ArrayList<WarningDto>();
+	private List<WarningDto> list2 = new ArrayList<>();
 	private GridView gridView3 = null;
 	private WarningListAdapter3 adapter3 = null;
-	private List<WarningDto> list3 = new ArrayList<WarningDto>();
+	private List<WarningDto> list3 = new ArrayList<>();
 	private LinearLayout llContainer1, llContainer2, llContainer3;
 	private String type = "999999";
 	private String color = "999999";

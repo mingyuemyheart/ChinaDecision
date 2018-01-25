@@ -1,7 +1,9 @@
 package com.china.view;
 
 import android.content.Context;
+import android.content.Intent;
 import android.content.res.TypedArray;
+import android.os.Message;
 import android.text.TextUtils;
 import android.util.AttributeSet;
 import android.util.TypedValue;
@@ -27,6 +29,8 @@ import org.json.JSONObject;
 
 public class ArcMenu extends ViewGroup implements OnClickListener {
 
+	private Context mContext;
+	public static final String BROADCASTCLICK = "broadcastclick";//点击中间按钮发送广播，更新图例动画
 	/**
 	 * 菜单的显示位置
 	 */
@@ -69,11 +73,12 @@ public class ArcMenu extends ViewGroup implements OnClickListener {
 
 	public ArcMenu(Context context) {
 		this(context, null);
+		mContext = context;
 	}
 
 	public ArcMenu(Context context, AttributeSet attrs) {
 		this(context, attrs, 0);
-
+		mContext = context;
 	}
 
 	/**
@@ -85,6 +90,7 @@ public class ArcMenu extends ViewGroup implements OnClickListener {
 	 */
 	public ArcMenu(Context context, AttributeSet attrs, int defStyle) {
 		super(context, attrs, defStyle);
+		mContext = context;
 		// dp convert to px
 		mRadius = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, mRadius, getResources().getDisplayMetrics());
 		TypedArray a = context.getTheme().obtainStyledAttributes(attrs, R.styleable.ArcMenu, defStyle, 0);
@@ -216,11 +222,22 @@ public class ArcMenu extends ViewGroup implements OnClickListener {
 		if (mButton == null) {
 			mButton = getChildAt(0);
 		}
+
+		boolean status = false;
 		if (mCurrentStatus == Status.CLOSE) {
 			rotateView(mButton, 0f, 360f, 300);
+			status = false;
 		}else {
 			rotateView(mButton, 0f, -360f, 300);
+			status = true;
 		}
+
+		//发送广播更新预警地图界面图例动画
+		Intent intent = new Intent();
+		intent.setAction(BROADCASTCLICK);
+		intent.putExtra("STATUS", status);
+		mContext.sendBroadcast(intent);
+
 		toggleMenu(300);
 
 		setNormalEmit("4", "");

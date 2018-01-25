@@ -181,6 +181,9 @@ public class WarningDetailFragment extends Fragment{
 												bitmap = CommonUtil.getImageFromAssetsFile(getActivity(),"warning/"+"default"+CONST.red[1]+CONST.imageSuffix);
 											}
 										}
+										if (bitmap == null) {
+											bitmap = CommonUtil.getImageFromAssetsFile(getActivity(),"warning/"+"default"+CONST.imageSuffix);
+										}
 										imageView.setImageBitmap(bitmap);
 
 										initDBManager();

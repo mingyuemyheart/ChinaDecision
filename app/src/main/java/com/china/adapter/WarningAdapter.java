@@ -1,6 +1,5 @@
 package com.china.adapter;
 
-import android.annotation.SuppressLint;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.text.TextUtils;
@@ -20,7 +19,10 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.List;
 
-@SuppressLint("SimpleDateFormat")
+/**
+ * 预警列表
+ */
+
 public class WarningAdapter extends BaseAdapter{
 	
 	private Context mContext = null;
@@ -100,6 +102,9 @@ public class WarningAdapter extends BaseAdapter{
 			if (bitmap == null) {
 				bitmap = CommonUtil.getImageFromAssetsFile(mContext,"warning/"+"default"+CONST.red[1]+CONST.imageSuffix);
 			}
+		}
+		if (bitmap == null) {
+			bitmap = CommonUtil.getImageFromAssetsFile(mContext,"warning/"+"default"+CONST.imageSuffix);
 		}
 		mHolder.imageView.setImageBitmap(bitmap);
 		
