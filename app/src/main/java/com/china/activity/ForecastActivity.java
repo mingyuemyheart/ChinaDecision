@@ -181,11 +181,13 @@ public class ForecastActivity extends BaseActivity implements OnClickListener{
 							String windDir = WeatherUtil.lastValue(object.getString("l4"));
 							if (!object.isNull("l3")) {
 								String windForce = WeatherUtil.lastValue(object.getString("l3"));
-								tvWind.setText(getString(WeatherUtil.getWindDirection(Integer.valueOf(windDir)))+
-										" " + WeatherUtil.getFactWindForce(Integer.valueOf(windForce)));
+								if (!TextUtils.isEmpty(windDir) && !TextUtils.isEmpty(windForce)) {
+									tvWind.setText(getString(WeatherUtil.getWindDirection(Integer.valueOf(windDir)))+
+											" " + WeatherUtil.getFactWindForce(Integer.valueOf(windForce)));
+								}
 							}
 						}
-						
+
 						//空气质量
 						JSONObject obj = content.getAirQualityInfo();
 						if (obj != null) {
@@ -197,7 +199,7 @@ public class ForecastActivity extends BaseActivity implements OnClickListener{
 								}
 							}
 						}
-						
+
 						//逐小时预报信息
 						JSONArray hourlyArray = content.getHourlyFineForecast2();
 						llContainer1.removeAllViews();
@@ -206,7 +208,7 @@ public class ForecastActivity extends BaseActivity implements OnClickListener{
 							int hourlyCode = Integer.valueOf(itemObj.getString("ja"));
 							int hourlyTemp = Integer.valueOf(itemObj.getString("jb"));
 							String hourlyTime = itemObj.getString("jf");
-							
+
 							LayoutInflater inflater = (LayoutInflater) getSystemService(Context.LAYOUT_INFLATER_SERVICE);
 							View view = inflater.inflate(R.layout.layout_hour_forecast, null);
 							TextView tvHour = (TextView) view.findViewById(R.id.tvHour);
@@ -228,23 +230,23 @@ public class ForecastActivity extends BaseActivity implements OnClickListener{
 							tvTemp.setText(hourlyTemp+getString(R.string.unit_degree));
 							llContainer1.addView(view);
 						}
-						
+
 						//一周预报信息
 						weeklyList.clear();
 						//这里只去一周预报，默认为15天，所以遍历7次
 						for (int i = 1; i <= 15; i++) {
 							WeatherDto dto = new WeatherDto();
-							
+
 							JSONArray weeklyArray = content.getWeatherForecastInfo(i);
 							JSONObject weeklyObj = weeklyArray.getJSONObject(0);
-							
+
 							//晚上
 							dto.lowPheCode = Integer.valueOf(weeklyObj.getString("fb"));
 							dto.lowPhe = getString(WeatherUtil.getWeatherId(Integer.valueOf(weeklyObj.getString("fb"))));
 							dto.lowTemp = Integer.valueOf(weeklyObj.getString("fd"));
 							dto.lowWindDir = Integer.valueOf(weeklyObj.getString("ff"));
 							dto.lowWindForce = Integer.valueOf(weeklyObj.getString("fh"));
-							
+
 							//白天数据缺失时，就使用第二天白天数据
 							if (TextUtils.isEmpty(weeklyObj.getString("fa"))) {
 								JSONObject secondObj = content.getWeatherForecastInfo(2).getJSONObject(0);
@@ -274,20 +276,20 @@ public class ForecastActivity extends BaseActivity implements OnClickListener{
 							JSONObject timeObj = timeArray.getJSONObject(0);
 							dto.week = timeObj.getString("t4");//星期几
 							dto.date = timeObj.getString("t1");//日期
-							
+
 							weeklyList.add(dto);
 
 							if (i == 1) {
 								tvForeTemp.setText(dto.highTemp+"℃"+"/"+dto.lowTemp+"℃");
 							}
 						}
-						
+
 						//一周预报列表
 						if (mAdapter != null) {
 							mAdapter.notifyDataSetChanged();
 							CommonUtil.setListViewHeightBasedOnChildren(mListView);
 						}
-						
+
 						//一周预报曲线
 						WeeklyView weeklyView = new WeeklyView(mContext);
 						weeklyView.setData(weeklyList);

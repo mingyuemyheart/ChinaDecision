@@ -341,37 +341,39 @@ public class CityForecastActivity extends BaseActivity implements OnClickListene
             @Override
             public void onComplete(Weather content) {
                 super.onComplete(content);
-                try {
-                    WeatherDto dto =  new WeatherDto();
-                    JSONObject city = content.getCityInfo();
-                    dto.cityName = city.getString("c3");
-                    dto.lat = city.getString("c14");
-                    dto.lng = city.getString("c13");
-                    dto.cityId = city.getString("c1");
+                if (content != null) {
+                    try {
+                        WeatherDto dto =  new WeatherDto();
+                        JSONObject city = content.getCityInfo();
+                        dto.cityName = city.getString("c3");
+                        dto.lat = city.getString("c14");
+                        dto.lng = city.getString("c13");
+                        dto.cityId = city.getString("c1");
 
-                    JSONArray weekArray = content.getWeatherForecastInfo(2);
-                    JSONObject weekObj = weekArray.getJSONObject(0);
+                        JSONArray weekArray = content.getWeatherForecastInfo(1);
+                        JSONObject weekObj = weekArray.getJSONObject(0);
 
-                    dto.lowPheCode = Integer.valueOf(weekObj.getString("fb"));
-                    dto.lowTemp = Integer.valueOf(weekObj.getString("fd"));
-                    dto.lowWindDir = Integer.valueOf(weekObj.getString("ff"));
-                    dto.lowWindForce = Integer.valueOf(weekObj.getString("fh"));
+                        dto.lowPheCode = Integer.valueOf(weekObj.getString("fb"));
+                        dto.lowTemp = Integer.valueOf(weekObj.getString("fd"));
+                        dto.lowWindDir = Integer.valueOf(weekObj.getString("ff"));
+                        dto.lowWindForce = Integer.valueOf(weekObj.getString("fh"));
 
-                    dto.highPheCode = Integer.valueOf(weekObj.getString("fa"));
-                    dto.highTemp = Integer.valueOf(weekObj.getString("fc"));
-                    dto.highWindDir = Integer.valueOf(weekObj.getString("fe"));
-                    dto.highWindForce = Integer.valueOf(weekObj.getString("fg"));
+                        dto.highPheCode = Integer.valueOf(weekObj.getString("fa"));
+                        dto.highTemp = Integer.valueOf(weekObj.getString("fc"));
+                        dto.highWindDir = Integer.valueOf(weekObj.getString("fe"));
+                        dto.highWindForce = Integer.valueOf(weekObj.getString("fg"));
 
-                    dto.publishTime = content.getForecastTime();
-                    dto.isLoaded = true;
+                        dto.publishTime = content.getForecastTime();
+                        dto.isLoaded = true;
 
-                    if (!weatherMap.containsKey(dto.cityId)) {
-                        weatherMap.put(dto.cityId, dto);
+                        if (!weatherMap.containsKey(dto.cityId)) {
+                            weatherMap.put(dto.cityId, dto);
+                        }
+
+                        addMarker(dto);
+                    }catch (JSONException e) {
+                        e.printStackTrace();
                     }
-
-                    addMarker(dto);
-                }catch (JSONException e) {
-                    e.printStackTrace();
                 }
             }
         });
