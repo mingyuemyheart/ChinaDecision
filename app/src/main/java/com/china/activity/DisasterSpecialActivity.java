@@ -1,6 +1,5 @@
 package com.china.activity;
 
-import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
@@ -43,7 +42,6 @@ import okhttp3.Response;
  * @author shawn_sun
  *
  */
-@SuppressLint("SimpleDateFormat")
 public class DisasterSpecialActivity extends BaseActivity implements OnClickListener{
 	
 	private Context mContext = null;
@@ -90,7 +88,8 @@ public class DisasterSpecialActivity extends BaseActivity implements OnClickList
 		}
 
 		String url = getIntent().getStringExtra(CONST.WEB_URL);
-		if (!TextUtils.isEmpty(url)) {
+		if (!TextUtils.isEmpty(url) && url.contains("newGetDecistionZXZB")) {
+			url = url.replace("newGetDecistionZXZB", "newGetDecistionZXZB/new/1");
 			OkHttpList(url);
 		}
 
@@ -134,55 +133,47 @@ public class DisasterSpecialActivity extends BaseActivity implements OnClickList
 				if (!response.isSuccessful()) {
 					return;
 				}
-				String result = response.body().string();
-				if (!TextUtils.isEmpty(result)) {
-					try {
-						JSONObject obj = new JSONObject(result);
-						if (!obj.isNull("info")) {
-							mList.clear();
-							JSONArray array = obj.getJSONArray("info");
-							for (int i = 0; i < array.length(); i++) {
-								DisasterDto dto = new DisasterDto();
-								String url = array.getString(i);
-								if (!TextUtils.isEmpty(url)) {
-									dto.url = url;
-									String time = url.substring(url.indexOf("/zq/")+4, url.indexOf("/zq/")+12);
-									if (!TextUtils.isEmpty(time)) {
-										try {
-											dto.time = sdf2.format(sdf1.parse(time));
-										} catch (ParseException e) {
-											e.printStackTrace();
+				final String result = response.body().string();
+				runOnUiThread(new Runnable() {
+					@Override
+					public void run() {
+						if (!TextUtils.isEmpty(result)) {
+							try {
+								JSONObject obj = new JSONObject(result);
+								if (!obj.isNull("info")) {
+									mList.clear();
+									JSONArray array = obj.getJSONArray("info");
+									for (int i = 0; i < array.length(); i++) {
+										DisasterDto dto = new DisasterDto();
+										JSONObject itemObj = array.getJSONObject(i);
+										if (!itemObj.isNull("url")) {
+											dto.url = itemObj.getString("url");
 										}
+										if (!itemObj.isNull("time")) {
+											dto.time = itemObj.getString("time");
+										}
+										if (!itemObj.isNull("title")) {
+											dto.title = itemObj.getString("title");
+										}
+										if (!itemObj.isNull("image")) {
+											dto.imgUrl = itemObj.getString("image");
+										}
+										mList.add(dto);
 									}
 
-									String title = null;
-									if (url.contains(getString(R.string.disaster_news_1))) {
-										title = getString(R.string.disaster_news_1);
-									}else if (url.contains(getString(R.string.disaster_news_2))){
-//									dto.title = getString(R.string.disaster_news_2);
-										title = url.substring(url.indexOf("/zq/")+13, url.length()-4);
-									}
-									dto.title = title+dto.time;
-									mList.add(dto);
-								}
-							}
-
-							runOnUiThread(new Runnable() {
-								@Override
-								public void run() {
 									if (mList.size() > 0 && mAdapter != null) {
 										mAdapter.notifyDataSetChanged();
 									}
 									refreshLayout.setRefreshing(false);
 									cancelDialog();
-								}
-							});
 
+								}
+							} catch (JSONException e) {
+								e.printStackTrace();
+							}
 						}
-					} catch (JSONException e) {
-						e.printStackTrace();
 					}
-				}
+				});
 			}
 		});
 	}

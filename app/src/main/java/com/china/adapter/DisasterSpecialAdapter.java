@@ -10,10 +10,13 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.china.R;
 import com.china.dto.DisasterDto;
+
+import net.tsz.afinal.FinalBitmap;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -27,6 +30,7 @@ public class DisasterSpecialAdapter extends BaseAdapter{
 	private final class ViewHolder{
 		TextView tvTitle;
 		TextView tvTime;
+		ImageView imageView;
 	}
 	
 	private ViewHolder mHolder = null;
@@ -59,6 +63,7 @@ public class DisasterSpecialAdapter extends BaseAdapter{
 			mHolder = new ViewHolder();
 			mHolder.tvTitle = (TextView) convertView.findViewById(R.id.tvTitle);
 			mHolder.tvTime = (TextView) convertView.findViewById(R.id.tvTime);
+			mHolder.imageView = (ImageView) convertView.findViewById(R.id.imageView);
 			convertView.setTag(mHolder);
 		}else {
 			mHolder = (ViewHolder) convertView.getTag();
@@ -70,6 +75,12 @@ public class DisasterSpecialAdapter extends BaseAdapter{
 		}
 		if (!TextUtils.isEmpty(dto.time)) {
 			mHolder.tvTime.setText(dto.time);
+		}
+		if (!TextUtils.isEmpty(dto.imgUrl)) {
+			FinalBitmap finalBitmap = FinalBitmap.create(mContext);
+			finalBitmap.display(mHolder.imageView, dto.imgUrl, null, 0);
+		}else {
+			mHolder.imageView.setImageResource(R.drawable.iv_pdf);
 		}
 
 		return convertView;

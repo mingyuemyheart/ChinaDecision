@@ -28,11 +28,8 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.IOException;
-import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
 import java.util.List;
 
 import okhttp3.Call;
@@ -87,7 +84,8 @@ public class DecisionNewsActivity extends BaseActivity implements OnClickListene
 	
 	private void refresh() {
 		String url = getIntent().getStringExtra(CONST.WEB_URL);
-		if (!TextUtils.isEmpty(url)) {
+		if (!TextUtils.isEmpty(url) && url.contains("newGetDecistionJCKB")) {
+			url = url.replace("newGetDecistionJCKB", "newGetDecistionJCKB/new/1");
 			OkHttpList(url);
 		}
 	}
@@ -152,55 +150,21 @@ public class DecisionNewsActivity extends BaseActivity implements OnClickListene
 									JSONArray array = obj.getJSONArray("info");
 									for (int i = 0; i < array.length(); i++) {
 										DisasterDto dto = new DisasterDto();
-										String url = array.getString(i);
-										if (!TextUtils.isEmpty(url)) {
-											dto.url = url;
-											String title = null;
-											String time;
-											if (!TextUtils.isEmpty(url)) {
-												time = url.substring(url.length()-21, url.length()-9);
-												if (url.contains("SEVP_CMA_SJCF_SFER_EME_ACHN_LNO_P9")) {
-													title = getString(R.string.decision_news_1);
-													if (!TextUtils.isEmpty(time)) {
-														try {
-															time = sdf2.format(sdf1.parse(time));
-														} catch (ParseException e) {
-															e.printStackTrace();
-														}
-													}
-												}else if (url.contains("BSEP_NMC_SDMS_SFER_EME_ACHN_LNO_P9")) {
-													title = getString(R.string.decision_news_2);
-													if (!TextUtils.isEmpty(time)) {
-														try {
-															time = sdf2.format(sdf1.parse(time));
-														} catch (ParseException e) {
-															e.printStackTrace();
-														}
-													}
-												}else if (url.contains("SEVP_CMA_IMIB_SFER_EME_ACHN_LNO_P9")) {
-													title = getString(R.string.decision_news_3);
-													if (!TextUtils.isEmpty(time)) {
-														try {
-															time = sdf3.format(sdf1.parse(time));
-														} catch (ParseException e) {
-															e.printStackTrace();
-														}
-													}
-												}
-
-												dto.time = time;
-												dto.title = title+time;
-											}
-											mList.add(dto);
+										JSONObject itemObj = array.getJSONObject(i);
+										if (!itemObj.isNull("url")) {
+											dto.url = itemObj.getString("url");
 										}
+										if (!itemObj.isNull("time")) {
+											dto.time = itemObj.getString("time");
+										}
+										if (!itemObj.isNull("title")) {
+											dto.title = itemObj.getString("title");
+										}
+										if (!itemObj.isNull("image")) {
+											dto.imgUrl = itemObj.getString("image");
+										}
+										mList.add(dto);
 									}
-
-									Collections.sort(mList, new Comparator<DisasterDto>() {
-										@Override
-										public int compare(DisasterDto a, DisasterDto b) {
-											return b.time.compareTo(a.time);
-										}
-									});
 
 									if (mAdapter != null) {
 										mAdapter.notifyDataSetChanged();

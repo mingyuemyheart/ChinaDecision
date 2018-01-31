@@ -22,7 +22,7 @@ public class MainAdapter extends BaseAdapter{
 	
 	private Context mContext = null;
 	private LayoutInflater mInflater = null;
-	private List<ColumnData> mArrayList = new ArrayList<ColumnData>();
+	private List<ColumnData> mArrayList = new ArrayList<>();
 	private int height = 0;
 	
 	private final class ViewHolder{

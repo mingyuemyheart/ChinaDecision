@@ -1,6 +1,7 @@
 package com.china.adapter;
 
 import android.content.Context;
+import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -10,6 +11,8 @@ import android.widget.TextView;
 
 import com.china.R;
 import com.china.dto.DisasterDto;
+
+import net.tsz.afinal.FinalBitmap;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -70,18 +73,17 @@ public class DecisionNewsAdapter extends BaseAdapter{
 		
 		try {
 			DisasterDto dto = mArrayList.get(position);
-			if (dto.title != null) {
+			if (!TextUtils.isEmpty(dto.title)) {
 				mHolder.tvTitle.setText(dto.title);
+			}
+			if (!TextUtils.isEmpty(dto.time)) {
 				mHolder.tvTime.setText(dto.time);
-				if (dto.title.contains(mContext.getString(R.string.decision_news_1))) {
-					mHolder.imageView.setImageResource(R.drawable.iv_decision1);
-				}else if (dto.title.contains(mContext.getString(R.string.decision_news_2))) {
-					mHolder.imageView.setImageResource(R.drawable.iv_decision2);
-				}else if (dto.title.contains(mContext.getString(R.string.decision_news_3))) {
-					mHolder.imageView.setImageResource(R.drawable.iv_decision3);
-				}else {
-					mHolder.imageView.setImageResource(R.drawable.iv_pdf);
-				}
+			}
+			if (!TextUtils.isEmpty(dto.imgUrl)) {
+				FinalBitmap finalBitmap = FinalBitmap.create(mContext);
+				finalBitmap.display(mHolder.imageView, dto.imgUrl, null, 0);
+			}else {
+				mHolder.imageView.setImageResource(R.drawable.iv_pdf);
 			}
 		} catch (IndexOutOfBoundsException e) {
 			e.printStackTrace();
