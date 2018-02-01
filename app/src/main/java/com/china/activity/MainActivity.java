@@ -579,6 +579,9 @@ public class MainActivity extends BaseActivity implements OnClickListener, AMapL
 						JSONObject geoObj = content.getJSONObject("geo");
 						if (!geoObj.isNull("id")) {
 							cityId = geoObj.getString("id");
+							if (cityId.length() >= 9) {
+								cityId = cityId.substring(0, 9);
+							}
 							getWeatherInfo();
 						}
 					} catch (JSONException e) {

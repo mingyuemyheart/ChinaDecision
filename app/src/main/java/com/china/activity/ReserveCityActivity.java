@@ -271,6 +271,9 @@ public class ReserveCityActivity extends BaseActivity implements View.OnClickLis
                         JSONObject geoObj = content.getJSONObject("geo");
                         if (!geoObj.isNull("id")) {
                             String cityId = geoObj.getString("id");
+                            if (cityId.length() >= 9) {
+                                cityId = cityId.substring(0, 9);
+                            }
                             String warningId = queryWarningIdByCityId(cityId);
                             getWeatherInfos(cityId, cityName, warningId);
                         }
