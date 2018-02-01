@@ -148,7 +148,7 @@ OnMapClickListener, InfoWindowAdapter, OnMapScreenShotListener{
 		aMap.setInfoWindowAdapter(this);
 		
 		long end = new Date().getTime();
-		long start = end - 60*60*1000;
+		long start = end - 2*60*60*1000;
 		tvStartTime.setText(sdf.format(new Date(start)));
 		tvEndTime.setText(sdf.format(new Date(end)));
 		String url = "http://dev2.rain.swarma.net/fcgi-bin/v1/user_feedback_admin.py?start="+start+"&end="+end+"&bounds=70,10,140,50&zoom=-999&source=all";

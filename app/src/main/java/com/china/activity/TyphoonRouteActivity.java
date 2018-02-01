@@ -561,11 +561,19 @@ public class TyphoonRouteActivity extends BaseActivity implements OnClickListene
 											}else {
 												tvTyphoonName.setText(selectYear+"年");
 											}
-											ivLocation.setVisibility(View.GONE);
-											ivTyphoonPlay.setVisibility(View.GONE);
-											ivTyphoonWind.setVisibility(View.GONE);
-											ivTyphoonRange.setVisibility(View.GONE);
+//											ivLocation.setVisibility(View.GONE);
+//											ivTyphoonPlay.setVisibility(View.GONE);
+//											ivTyphoonWind.setVisibility(View.GONE);
+//											ivTyphoonRange.setVisibility(View.GONE);
 											cancelDialog();
+
+											ivLocation.setVisibility(View.GONE);
+											ivTyphoonWind.setVisibility(View.VISIBLE);
+											ivTyphoonPlay.setVisibility(View.GONE);
+											ivTyphoonRange.setVisibility(View.GONE);
+											mRadarManager = new CaiyunManager(getApplicationContext());
+											OkHttpMinute("http://api.tianqi.cn:8070/v1/img.py");
+											OkHttpCloudChart("http://decision-admin.tianqi.cn/Home/other/getDecisionCloudImages");
 										} else if (startList.size() == 1) {// 1个生效台风
 											ivLocation.setVisibility(View.VISIBLE);
 											ivTyphoonWind.setVisibility(View.VISIBLE);
