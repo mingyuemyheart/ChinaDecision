@@ -170,7 +170,9 @@ public class MainActivity extends BaseActivity implements OnClickListener, AMapL
 		initWidget();
 		initViewPager();
 		initGridView();
-    }
+	}
+
+
 
     /**
 	 * 初始化下拉刷新布局

@@ -40,6 +40,8 @@ import com.china.dto.NewsDto;
 import com.china.utils.AuthorityUtil;
 import com.china.utils.CommonUtil;
 import com.china.utils.OkHttpUtil;
+import com.tendcloud.tenddata.TCAgent;
+import com.tendcloud.tenddata.TDAccount;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -65,8 +67,7 @@ public class LoginActivity extends BaseActivity implements OnClickListener, AMap
 	private TextView tvForgetPwd = null;//忘记密码
 	private AMapLocationClientOption mLocationOption = null;//声明mLocationOption对象
 	private AMapLocationClient mLocationClient = null;//声明AMapLocationClient类对象
-	private String lat = "0";
-	private String lng = "0";
+	private String lat = "0", lng = "0", addr = "";
 	private List<ColumnData> dataList = new ArrayList<>();
 	private TextView tvCommonLogin = null;//公众登录
 	private boolean isFirstCommonLogin = false;//是否为公众用户第一次登录
@@ -229,6 +230,7 @@ public class LoginActivity extends BaseActivity implements OnClickListener, AMap
         if (amapLocation != null && amapLocation.getErrorCode() == 0) {
         	lat = String.valueOf(amapLocation.getLatitude());
         	lng = String.valueOf(amapLocation.getLongitude());
+        	addr = amapLocation.getAddress();
 
         	if (isFirstCommonLogin == false) {
         		if (!TextUtils.isEmpty(etUserName.getText().toString()) && !TextUtils.isEmpty(etPwd.getText().toString())) {
@@ -268,12 +270,12 @@ public class LoginActivity extends BaseActivity implements OnClickListener, AMap
 		builder.add("username", etUserName.getText().toString());
 		builder.add("password", etPwd.getText().toString());
 		builder.add("appid", CONST.APPID);
-		builder.add("device_id", "");
+		builder.add("device_id", CommonUtil.getUniqueId(mContext));
 		builder.add("platform", "android");
 		builder.add("os_version", android.os.Build.VERSION.RELEASE);
 		builder.add("software_version", CommonUtil.getVersion(mContext));
 		builder.add("mobile_type", android.os.Build.MODEL);
-		builder.add("address", "");
+		builder.add("address", addr);
 		builder.add("lat", lat);
 		builder.add("lng", lng);
 		RequestBody body = builder.build();
@@ -449,6 +451,9 @@ public class LoginActivity extends BaseActivity implements OnClickListener, AMap
 													finish();
 												}
 											});
+
+											//统计登录事件
+											TCAgent.onLogin(CONST.UID, TDAccount.AccountType.REGISTERED, CONST.USERNAME);
 										}
 									}
 								}else {

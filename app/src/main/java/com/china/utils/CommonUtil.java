@@ -23,6 +23,7 @@ import android.graphics.RectF;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.location.LocationManager;
+import android.provider.Settings;
 import android.text.TextUtils;
 import android.util.Base64;
 import android.util.Log;
@@ -62,6 +63,8 @@ import java.io.InputStreamReader;
 import java.lang.reflect.Field;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -745,15 +748,14 @@ public class CommonUtil {
     /**
 	 * 提交点击次数
 	 */
-	@SuppressLint("SimpleDateFormat")
 	public static void submitClickCount(String columnId, String name) {
 		if (TextUtils.isEmpty(columnId) || TextUtils.isEmpty(name)) {
 			return;
 		}
 		SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMddHH");
 		String addtime = sdf.format(new Date());
-		String clickUrl = "http://decision-admin.tianqi.cn/Home/Count/clickCount?addtime="+addtime+"&appid="+com.china.common.CONST.APPID+
-				"&eventid=menuClick_"+columnId+"&eventname="+name+"&userid="+CONST.UID+"&username="+CONST.USERNAME;
+		String clickUrl = String.format("http://decision-admin.tianqi.cn/Home/Count/clickCount?addtime=%s&appid=%s&eventid=menuClick_%s&eventname=%s&userid=%s&username=%s",
+				addtime, CONST.APPID, columnId, name, CONST.UID, CONST.USERNAME);
 		
 		OkHttpUtil.enqueue(new Request.Builder().url(clickUrl).build(), new Callback() {
 			@Override
@@ -764,6 +766,11 @@ public class CommonUtil {
 			@Override
 			public void onResponse(Call call, Response response) throws IOException {
 
+				if (!response.isSuccessful()) {
+					return;
+				}
+				String result = response.body().string();
+				Log.e("click", result);
 			}
 		});
 	}
@@ -957,6 +964,52 @@ public class CommonUtil {
 			Log.e("SceneException", e.getMessage(), e);
 		}
 		return result;
+	}
+
+	/**
+	 * 获取手机唯一标识
+	 * @param context
+	 * @return
+	 */
+	public static String getUniqueId(Context context){
+		String androidId = Settings.Secure.getString(context.getContentResolver(), Settings.Secure.ANDROID_ID);
+		String serialNo = android.os.Build.SERIAL;
+		String id = androidId + serialNo;
+		try {
+			return toMD5(id);
+		} catch (NoSuchAlgorithmException e) {
+			e.printStackTrace();
+			return id;
+		}
+	}
+
+	/**
+	 * 字符串转md5
+	 * @param text
+	 * @return
+	 * @throws NoSuchAlgorithmException
+	 */
+	private static String toMD5(String text) throws NoSuchAlgorithmException {
+		//获取摘要器 MessageDigest
+		MessageDigest messageDigest = MessageDigest.getInstance("MD5");
+		//通过摘要器对字符串的二进制字节数组进行hash计算
+		byte[] digest = messageDigest.digest(text.getBytes());
+
+		StringBuilder sb = new StringBuilder();
+		for (int i = 0; i < digest.length; i++) {
+			//循环每个字符 将计算结果转化为正整数;
+			int digestInt = digest[i] & 0xff;
+			//将10进制转化为较短的16进制
+			String hexString = Integer.toHexString(digestInt);
+			//转化结果如果是个位数会省略0,因此判断并补0
+			if (hexString.length() < 2) {
+				sb.append(0);
+			}
+			//将循环结果添加到缓冲区
+			sb.append(hexString);
+		}
+		//返回整个结果
+		return sb.toString();
 	}
     
 }

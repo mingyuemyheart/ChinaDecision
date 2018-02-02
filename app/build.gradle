@@ -13,8 +13,8 @@ android {
         applicationId "com.china"
         minSdkVersion 17
         targetSdkVersion 26
-        versionCode 94
-        versionName "3.1.3.4"
+        versionCode 95
+        versionName "3.1.4"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
 
         ndk {
@@ -62,10 +62,11 @@ dependencies {
     provided 'com.squareup.okhttp3:okhttp:3.8.1'
     compile 'com.squareup.okio:okio:1.13.0'
     compile files('libs/zxing.jar')
-//    compile 'com.github.nkzawa:socket.io-client:0.6.0'
-    compile ('com.github.nkzawa:socket.io-client:0.6.0') {//解决重复引用json
+    //    compile 'com.github.nkzawa:socket.io-client:0.6.0'
+    compile('com.github.nkzawa:socket.io-client:0.6.0') {//解决重复引用json
         exclude group: 'org.json', module: 'json'
     }
     compile project(':android-pdf-viewer')
     compile files('libs/AMap3DMap_5.7.0_AMapSearch_5.7.0_AMapLocation_3.7.0_20171229.jar')
+    compile files('libs/SaaS_AppAnalytics_Android_SDK_V4.0.15.jar')
 }

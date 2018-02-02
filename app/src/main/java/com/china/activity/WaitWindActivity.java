@@ -40,6 +40,7 @@ import com.china.utils.AuthorityUtil;
 import com.china.utils.CommonUtil;
 import com.china.utils.OkHttpUtil;
 import com.china.view.WaitWindView2;
+import com.tendcloud.tenddata.TCAgent;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -555,6 +556,7 @@ public class WaitWindActivity extends BaseActivity implements OnClickListener, A
     @Override
     protected void onResume() {
         super.onResume();
+        TCAgent.onPageStart(mContext, tvTitle.getText().toString());
         if (mapView != null) {
             mapView.onResume();
         }
@@ -566,6 +568,7 @@ public class WaitWindActivity extends BaseActivity implements OnClickListener, A
     @Override
     protected void onPause() {
         super.onPause();
+        TCAgent.onPageEnd(mContext, tvTitle.getText().toString());
         if (mapView != null) {
             mapView.onPause();
         }

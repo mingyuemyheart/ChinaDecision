@@ -73,6 +73,7 @@ import com.china.manager.StationManager;
 import com.china.utils.CommonUtil;
 import com.china.utils.OkHttpUtil;
 import com.china.view.StationCursorView;
+import com.tendcloud.tenddata.TCAgent;
 
 import net.tsz.afinal.FinalBitmap;
 
@@ -2431,6 +2432,7 @@ public class StationMonitorActivity extends BaseActivity implements OnClickListe
     @Override
     protected void onResume() {
         super.onResume();
+        TCAgent.onPageStart(mContext, tvTitle.getText().toString());
         if (mMapView != null) {
             mMapView.onResume();
         }
@@ -2442,6 +2444,7 @@ public class StationMonitorActivity extends BaseActivity implements OnClickListe
     @Override
     protected void onPause() {
         super.onPause();
+        TCAgent.onPageEnd(mContext, tvTitle.getText().toString());
         if (mMapView != null) {
             mMapView.onPause();
         }

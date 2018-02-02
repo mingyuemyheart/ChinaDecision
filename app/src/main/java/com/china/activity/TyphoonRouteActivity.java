@@ -87,6 +87,7 @@ import com.china.utils.CommonUtil;
 import com.china.utils.OkHttpUtil;
 import com.china.utils.WeatherUtil;
 import com.china.view.WaitWindView;
+import com.tendcloud.tenddata.TCAgent;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -2412,6 +2413,7 @@ public class TyphoonRouteActivity extends BaseActivity implements OnClickListene
 	@Override
 	protected void onResume() {
 		super.onResume();
+		TCAgent.onPageStart(mContext, tvTitle.getText().toString());
 		if (mapView != null) {
 			mapView.onResume();
 		}
@@ -2423,6 +2425,7 @@ public class TyphoonRouteActivity extends BaseActivity implements OnClickListene
 	@Override
 	protected void onPause() {
 		super.onPause();
+		TCAgent.onPageEnd(mContext, tvTitle.getText().toString());
 		if (mapView != null) {
 			mapView.onPause();
 		}

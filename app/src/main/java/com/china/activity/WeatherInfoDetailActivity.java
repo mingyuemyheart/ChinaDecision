@@ -1,5 +1,6 @@
 package com.china.activity;
 
+import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.Bundle;
@@ -25,6 +26,7 @@ import com.china.manager.MyCollectManager;
 import com.china.utils.CommonUtil;
 import com.china.view.RefreshLayout;
 import com.china.view.RefreshLayout.OnRefreshListener;
+import com.tendcloud.tenddata.TCAgent;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -36,7 +38,8 @@ import java.util.Map;
  */
 
 public class WeatherInfoDetailActivity extends BaseActivity implements OnClickListener{
-	
+
+	private Context mContext = null;
 	private LinearLayout llBack = null;
 	private TextView tvTitle = null;
 	private WebView webView = null;
@@ -54,6 +57,7 @@ public class WeatherInfoDetailActivity extends BaseActivity implements OnClickLi
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_weather_info_detail);
+		mContext = this;
 		initRefreshLayout();
 		initWidget();
 		initWebView();
@@ -257,6 +261,18 @@ public class WeatherInfoDetailActivity extends BaseActivity implements OnClickLi
 		default:
 			break;
 		}
+	}
+
+	@Override
+	protected void onResume() {
+		super.onResume();
+		TCAgent.onPageStart(mContext, tvTitle.getText().toString());
+	}
+
+	@Override
+	protected void onPause() {
+		super.onPause();
+		TCAgent.onPageEnd(mContext, tvTitle.getText().toString());
 	}
 	
 }

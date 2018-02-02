@@ -50,6 +50,7 @@ import com.china.manager.StrongStreamManager;
 import com.china.utils.CommonUtil;
 import com.china.utils.OkHttpUtil;
 import com.china.view.MySeekbar;
+import com.tendcloud.tenddata.TCAgent;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -772,6 +773,7 @@ public class StrongStreamActivity extends BaseActivity implements OnClickListene
 	@Override
 	protected void onResume() {
 		super.onResume();
+		TCAgent.onPageStart(mContext, tvTitle.getText().toString());
 		if (mMapView != null) {
 			mMapView.onResume();
 		}
@@ -783,6 +785,7 @@ public class StrongStreamActivity extends BaseActivity implements OnClickListene
 	@Override
 	protected void onPause() {
 		super.onPause();
+		TCAgent.onPageEnd(mContext, tvTitle.getText().toString());
 		if (mMapView != null) {
 			mMapView.onPause();
 		}

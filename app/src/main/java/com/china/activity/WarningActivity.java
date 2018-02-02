@@ -71,6 +71,7 @@ import com.china.utils.CommonUtil;
 import com.china.utils.OkHttpUtil;
 import com.china.view.ArcMenu;
 import com.china.view.ArcMenu.OnMenuItemClickListener;
+import com.tendcloud.tenddata.TCAgent;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -1978,6 +1979,7 @@ OnMarkerClickListener, InfoWindowAdapter, OnCameraChangeListener, OnMapScreenSho
 	@Override
 	protected void onResume() {
 		super.onResume();
+		TCAgent.onPageStart(mContext, tvTitle.getText().toString());
 		if (mapView != null) {
 			mapView.onResume();
 		}
@@ -1989,6 +1991,7 @@ OnMarkerClickListener, InfoWindowAdapter, OnCameraChangeListener, OnMapScreenSho
 	@Override
 	protected void onPause() {
 		super.onPause();
+		TCAgent.onPageEnd(mContext, tvTitle.getText().toString());
 		if (mapView != null) {
 			mapView.onPause();
 		}

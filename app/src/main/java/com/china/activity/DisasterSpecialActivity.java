@@ -21,6 +21,7 @@ import com.china.utils.CommonUtil;
 import com.china.utils.OkHttpUtil;
 import com.china.view.RefreshLayout;
 import com.china.view.RefreshLayout.OnRefreshListener;
+import com.tendcloud.tenddata.TCAgent;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -198,6 +199,18 @@ public class DisasterSpecialActivity extends BaseActivity implements OnClickList
 		default:
 			break;
 		}
+	}
+
+	@Override
+	protected void onResume() {
+		super.onResume();
+		TCAgent.onPageStart(mContext, tvTitle.getText().toString());
+	}
+
+	@Override
+	protected void onPause() {
+		super.onPause();
+		TCAgent.onPageEnd(mContext, tvTitle.getText().toString());
 	}
 
 }

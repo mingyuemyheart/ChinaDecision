@@ -58,6 +58,7 @@ import com.china.utils.AuthorityUtil;
 import com.china.utils.CommonUtil;
 import com.china.utils.OkHttpUtil;
 import com.china.view.CircularProgressBar;
+import com.tendcloud.tenddata.TCAgent;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -875,6 +876,7 @@ public class StaticsActivity extends BaseActivity implements OnClickListener, On
 	@Override
 	protected void onResume() {
 		super.onResume();
+		TCAgent.onPageStart(mContext, tvTitle.getText().toString());
 		if (mMapView != null) {
 			mMapView.onResume();
 		}
@@ -886,6 +888,7 @@ public class StaticsActivity extends BaseActivity implements OnClickListener, On
 	@Override
 	protected void onPause() {
 		super.onPause();
+		TCAgent.onPageEnd(mContext, tvTitle.getText().toString());
 		if (mMapView != null) {
 			mMapView.onPause();
 		}

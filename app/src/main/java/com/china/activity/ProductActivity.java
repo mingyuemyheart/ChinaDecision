@@ -23,6 +23,7 @@ import com.china.common.CONST;
 import com.china.common.ColumnData;
 import com.china.dto.NewsDto;
 import com.china.utils.CommonUtil;
+import com.tendcloud.tenddata.TCAgent;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -196,6 +197,18 @@ public class ProductActivity extends BaseActivity implements OnClickListener {
 		default:
 			break;
 		}
+	}
+
+	@Override
+	protected void onResume() {
+		super.onResume();
+		TCAgent.onPageStart(mContext, tvTitle.getText().toString());
+	}
+
+	@Override
+	protected void onPause() {
+		super.onPause();
+		TCAgent.onPageEnd(mContext, tvTitle.getText().toString());
 	}
 	
 }

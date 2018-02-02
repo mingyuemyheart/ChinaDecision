@@ -28,6 +28,7 @@ import com.china.common.CONST;
 import com.china.dto.CityDto;
 import com.china.manager.DBManager;
 import com.china.utils.CommonUtil;
+import com.tendcloud.tenddata.TCAgent;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -219,4 +220,17 @@ public class CityActivity extends BaseActivity implements OnClickListener {
                 break;
         }
     }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        TCAgent.onPageStart(mContext, tvTitle.getText().toString());
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        TCAgent.onPageEnd(mContext, tvTitle.getText().toString());
+    }
+
 }

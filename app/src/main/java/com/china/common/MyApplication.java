@@ -4,6 +4,7 @@ import android.app.Application;
 
 import com.github.nkzawa.socketio.client.IO;
 import com.github.nkzawa.socketio.client.Socket;
+import com.tendcloud.tenddata.TCAgent;
 import com.umeng.socialize.Config;
 import com.umeng.socialize.PlatformConfig;
 
@@ -24,6 +25,10 @@ public class MyApplication extends Application{
 	@Override
 	public void onCreate() {
 		super.onCreate();
+
+		//TalkingData统计
+		TCAgent.init(this.getApplicationContext(), "80C44BE2E53D4D4DB0814115BBF175F6", "");
+		TCAgent.setReportUncaughtExceptions(true);
 	}
 	{
 		//umeng分享的平台注册
