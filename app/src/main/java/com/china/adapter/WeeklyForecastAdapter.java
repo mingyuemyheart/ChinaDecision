@@ -5,6 +5,7 @@ package com.china.adapter;
  */
 
 import android.content.Context;
+import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -13,6 +14,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.china.R;
+import com.china.dto.TyphoonDto;
 import com.china.dto.WeatherDto;
 import com.china.utils.WeatherUtil;
 
@@ -127,7 +129,18 @@ public class WeeklyForecastAdapter extends BaseAdapter{
 			mHolder.ivHighPhe.setBackgroundResource(R.drawable.bg_weather_default);
 			mHolder.ivHighPhe.setImageBitmap(WeatherUtil.getDayBitmap(mContext, dto.highPheCode));
 		}
+
 		mHolder.tvHighPhe.setText(dto.highPhe);
+		if (dto.highPhe.length() >= 3 && dto.highPhe.length() <= 5) {
+			mHolder.tvHighPhe.setTextSize(TypedValue.COMPLEX_UNIT_DIP, 10);
+			mHolder.tvHighTemp.setTextSize(TypedValue.COMPLEX_UNIT_DIP, 12);
+		}else if (dto.highPhe.length() > 5 && dto.highPhe.length() <= 6) {
+			mHolder.tvHighPhe.setTextSize(TypedValue.COMPLEX_UNIT_DIP, 8);
+			mHolder.tvHighTemp.setTextSize(TypedValue.COMPLEX_UNIT_DIP, 10);
+		}else if (dto.highPhe.length() > 6) {
+			mHolder.tvHighPhe.setTextSize(TypedValue.COMPLEX_UNIT_DIP, 6);
+			mHolder.tvHighTemp.setTextSize(TypedValue.COMPLEX_UNIT_DIP, 8);
+		}
 		mHolder.tvHighTemp.setText(dto.highTemp+"℃");
 		mHolder.tvHighWind.setText(mContext.getString(WeatherUtil.getWindDirection(dto.highWindDir))
 		+WeatherUtil.getDayWindForce(dto.highWindForce));
@@ -157,7 +170,18 @@ public class WeeklyForecastAdapter extends BaseAdapter{
 			mHolder.ivLowPhe.setBackgroundResource(R.drawable.bg_weather_default);
 			mHolder.ivLowPhe.setImageBitmap(WeatherUtil.getNightBitmap(mContext, dto.lowPheCode));
 		}
+
 		mHolder.tvLowPhe.setText(dto.lowPhe);
+		if (dto.lowPhe.length() >= 3 && dto.lowPhe.length() <= 5) {
+			mHolder.tvLowPhe.setTextSize(TypedValue.COMPLEX_UNIT_DIP, 10);
+			mHolder.tvLowTemp.setTextSize(TypedValue.COMPLEX_UNIT_DIP, 12);
+		}else if (dto.lowPhe.length() > 5 && dto.lowPhe.length() <= 6) {
+			mHolder.tvLowPhe.setTextSize(TypedValue.COMPLEX_UNIT_DIP, 8);
+			mHolder.tvLowTemp.setTextSize(TypedValue.COMPLEX_UNIT_DIP, 10);
+		}else if (dto.lowPhe.length() > 6) {
+			mHolder.tvLowPhe.setTextSize(TypedValue.COMPLEX_UNIT_DIP, 6);
+			mHolder.tvLowTemp.setTextSize(TypedValue.COMPLEX_UNIT_DIP, 8);
+		}
 		mHolder.tvLowTemp.setText(dto.lowTemp+"℃");
 		mHolder.tvLowWind.setText(mContext.getString(WeatherUtil.getWindDirection(dto.lowWindDir))
 		+WeatherUtil.getDayWindForce(dto.lowWindForce));

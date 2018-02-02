@@ -62,7 +62,7 @@
             android:id="@+id/tvHighTemp"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginLeft="5dp"
+            android:layout_marginLeft="3dp"
             android:textColor="@color/text_color4"
             android:textSize="@dimen/level_4"/>
     </LinearLayout>
@@ -128,7 +128,7 @@
             android:id="@+id/tvLowTemp"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginLeft="5dp"
+            android:layout_marginLeft="3dp"
             android:textColor="@color/text_color4"
             android:textSize="@dimen/level_4"/>
     </LinearLayout>
