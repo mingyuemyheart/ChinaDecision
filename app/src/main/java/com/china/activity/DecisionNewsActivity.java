@@ -208,13 +208,17 @@ public class DecisionNewsActivity extends BaseActivity implements OnClickListene
 	@Override
 	protected void onResume() {
 		super.onResume();
-		TCAgent.onPageStart(mContext, tvTitle.getText().toString());
+		if (tvTitle != null) {
+			TCAgent.onPageStart(mContext, tvTitle.getText().toString());
+		}
 	}
 
 	@Override
 	protected void onPause() {
 		super.onPause();
-		TCAgent.onPageEnd(mContext, tvTitle.getText().toString());
+		if (tvTitle != null) {
+			TCAgent.onPageEnd(mContext, tvTitle.getText().toString());
+		}
 	}
 
 }

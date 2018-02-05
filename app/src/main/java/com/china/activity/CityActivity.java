@@ -204,9 +204,16 @@ public class CityActivity extends BaseActivity implements OnClickListener {
             dto.warningId = cursor.getString(cursor.getColumnIndex("wid"));
             cityList.add(dto);
         }
-        if (cityList.size() > 0 && cityAdapter != null) {
-            cityAdapter.notifyDataSetChanged();
-        }
+
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                if (cityList.size() > 0 && cityAdapter != null) {
+                    cityAdapter.notifyDataSetChanged();
+                }
+            }
+        });
+
     }
 
     @Override
@@ -224,13 +231,17 @@ public class CityActivity extends BaseActivity implements OnClickListener {
     @Override
     protected void onResume() {
         super.onResume();
-        TCAgent.onPageStart(mContext, tvTitle.getText().toString());
+        if (tvTitle != null) {
+            TCAgent.onPageStart(mContext, tvTitle.getText().toString());
+        }
     }
 
     @Override
     protected void onPause() {
         super.onPause();
-        TCAgent.onPageEnd(mContext, tvTitle.getText().toString());
+        if (tvTitle != null) {
+            TCAgent.onPageEnd(mContext, tvTitle.getText().toString());
+        }
     }
 
 }

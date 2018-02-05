@@ -2432,7 +2432,9 @@ public class StationMonitorActivity extends BaseActivity implements OnClickListe
     @Override
     protected void onResume() {
         super.onResume();
-        TCAgent.onPageStart(mContext, tvTitle.getText().toString());
+        if (tvTitle != null) {
+            TCAgent.onPageStart(mContext, tvTitle.getText().toString());
+        }
         if (mMapView != null) {
             mMapView.onResume();
         }
@@ -2444,7 +2446,9 @@ public class StationMonitorActivity extends BaseActivity implements OnClickListe
     @Override
     protected void onPause() {
         super.onPause();
-        TCAgent.onPageEnd(mContext, tvTitle.getText().toString());
+        if (tvTitle != null) {
+            TCAgent.onPageEnd(mContext, tvTitle.getText().toString());
+        }
         if (mMapView != null) {
             mMapView.onPause();
         }
