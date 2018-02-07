@@ -42,6 +42,12 @@ public class BaseActivity extends Activity{
 		}
 	}
 
+	@Override
+	protected void onDestroy() {
+		super.onDestroy();
+		cancelDialog();//解决activity已经销毁，而还在调用dialog
+	}
+
 	public Socket socket = null;
 
 	/**

@@ -65,24 +65,30 @@ public class MainAdapter extends BaseAdapter{
 		}else {
 			mHolder = (ViewHolder) convertView.getTag();
 		}
-		
-		ColumnData dto = mArrayList.get(position);
-		
-		if (!TextUtils.isEmpty(dto.name)) {
-			mHolder.tvName.setText(dto.name);
+
+		try {
+			ColumnData dto = mArrayList.get(position);
+
+			if (!TextUtils.isEmpty(dto.name)) {
+				mHolder.tvName.setText(dto.name);
+			}
+
+			if (!TextUtils.isEmpty(dto.icon)) {
+				FinalBitmap finalBitmap = FinalBitmap.create(mContext);
+				finalBitmap.display(mHolder.icon, dto.icon, null, 0);
+			}else {
+				mHolder.icon.setImageResource(R.drawable.iv_default_news);
+			}
+
+			LayoutParams params = new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT);
+			params.height = height/3;
+			convertView.setLayoutParams(params);
+		} catch (NullPointerException e) {
+			e.printStackTrace();
+		} catch (Exception e) {
+			e.printStackTrace();
 		}
-		
-		if (!TextUtils.isEmpty(dto.icon)) {
-			FinalBitmap finalBitmap = FinalBitmap.create(mContext);
-			finalBitmap.display(mHolder.icon, dto.icon, null, 0);
-		}else {
-			mHolder.icon.setImageResource(R.drawable.iv_default_news);
-		}
-		
-		LayoutParams params = new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT);
-		params.height = height/3;
-		convertView.setLayoutParams(params);
-		
+
 		return convertView;
 	}
 

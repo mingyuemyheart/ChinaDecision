@@ -269,88 +269,99 @@ public class WaitWindView2 extends View {
 		}
 	}
 
-	@SuppressLint("DrawAllocation")
 	@Override
 	protected void onDraw(Canvas canvas) {
 		super.onDraw(canvas);
-		bitmap = Bitmap.createBitmap(canvas.getWidth(), canvas.getHeight(), Bitmap.Config.ARGB_8888);
-		if (tempCanvas != null) {
-			tempCanvas = null;
-		}
-		tempCanvas = new Canvas(bitmap);
+		try {
+			bitmap = Bitmap.createBitmap(canvas.getWidth(), canvas.getHeight(), Bitmap.Config.ARGB_8888);
+			if (tempCanvas != null) {
+				tempCanvas = null;
+			}
+			tempCanvas = new Canvas(bitmap);
 
-		ImageView image = new ImageView(getContext());
-		image.setLayoutParams(new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT));
-		image.setImageBitmap(bitmap);
-		activity.container2.addView(image);
+			ImageView image = new ImageView(getContext());
+			image.setLayoutParams(new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT));
+			image.setImageBitmap(bitmap);
+			activity.container2.addView(image);
 //		activity.container2.draw(tempCanvas);
-		images.add(0, image);
+			images.add(0, image);
 
-		int imageSize = images.size();
-		for (int i = imageSize-1; i >= 0; i--) {
-			ImageView iv = images.get(i);
-			iv.setAlpha(Math.max(iv.getAlpha()-1.0f/frameCount, 0));
+			int imageSize = images.size();
+			for (int i = imageSize-1; i >= 0; i--) {
+				ImageView iv = images.get(i);
+				iv.setAlpha(Math.max(iv.getAlpha()-1.0f/frameCount, 0));
+			}
+			if (imageSize == frameCount) {
+				ImageView imageView = images.get(imageSize-1);
+				images.remove(imageView);
+				activity.container2.removeView(imageView);
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		} catch (OutOfMemoryError e) {
+			e.printStackTrace();
 		}
-		if (imageSize == frameCount) {
-			ImageView imageView = images.get(imageSize-1);
-			images.remove(imageView);
-			activity.container2.removeView(imageView);
-		}
-
 	}
 
 	private void calculatePoints(){
-    	for (int i = 0; i < particles.size(); i++) {
-			WindDto dto = particles.get(i);
-			float x, y;
-			if (dto.life <= 0) {
-				x = (float)(Math.random()*width);
-				y = (float)(Math.random()*height);
-			}else {
-				x = dto.x + dto.vx;
-				y = dto.y - dto.vy;
-			}
-
-			double longDetla = windData.latLngEnd.longitude - windData.latLngStart.longitude;
-			if (Math.abs(longDetla) > 180) {
-				longDetla = longDetla + 360;
-			}
-			double lng = (longDetla)*x/width+windData.latLngStart.longitude;
-			if (lng > windData.x1) {
-				lng = lng - 360;
-			}
-			if (lng <= windData.x0) {
-				lng = windData.x1 - windData.x0 + lng;
-			}
-			double lat = (windData.latLngEnd.latitude-windData.latLngStart.latitude)*y/height+windData.latLngStart.latitude;
-			LatLng latLng = new LatLng(lat, lng);
-			float[] p = getVector(latLng);
-			int life = (int)(Math.random()*maxLife);
-
-			double m = Math.sqrt(p[0]*p[0] + p[1]*p[1]);
-			if (m < 1) {
-				dto.life = 0;
-			}else {
+		try {
+			for (int i = 0; i < particles.size(); i++) {
+				WindDto dto = particles.get(i);
+				float x, y;
 				if (dto.life <= 0) {
-					dto.oldX = -1;
-					dto.oldY = -1;
-					dto.life = life;
+					x = (float)(Math.random()*width);
+					y = (float)(Math.random()*height);
 				}else {
-					dto.oldX = dto.x;
-					dto.oldY = dto.y;
-					dto.life = dto.life-1;
+					x = dto.x + dto.vx;
+					y = dto.y - dto.vy;
 				}
-				dto.x = x;
-				dto.y = y;
-				dto.vx = p[0];
-				dto.vy = p[1];
-				dto.latLng = latLng;
-			}
 
-			Message msg = new Message();
-			msg.obj = dto;
-			handler.sendMessage(msg);
+				double longDetla = windData.latLngEnd.longitude - windData.latLngStart.longitude;
+				if (Math.abs(longDetla) > 180) {
+					longDetla = longDetla + 360;
+				}
+				double lng = (longDetla)*x/width+windData.latLngStart.longitude;
+				if (lng > windData.x1) {
+					lng = lng - 360;
+				}
+				if (lng <= windData.x0) {
+					lng = windData.x1 - windData.x0 + lng;
+				}
+				double lat = (windData.latLngEnd.latitude-windData.latLngStart.latitude)*y/height+windData.latLngStart.latitude;
+				LatLng latLng = new LatLng(lat, lng);
+				float[] p = getVector(latLng);
+				int life = (int)(Math.random()*maxLife);
+
+				double m = Math.sqrt(p[0]*p[0] + p[1]*p[1]);
+				if (m < 1) {
+					dto.life = 0;
+				}else {
+					if (dto.life <= 0) {
+						dto.oldX = -1;
+						dto.oldY = -1;
+						dto.life = life;
+					}else {
+						dto.oldX = dto.x;
+						dto.oldY = dto.y;
+						dto.life = dto.life-1;
+					}
+					dto.x = x;
+					dto.y = y;
+					dto.vx = p[0];
+					dto.vy = p[1];
+					dto.latLng = latLng;
+				}
+
+				Message msg = new Message();
+				msg.obj = dto;
+				handler.sendMessage(msg);
+			}
+		} catch (ArrayIndexOutOfBoundsException e) {
+			e.printStackTrace();
+		} catch (IndexOutOfBoundsException e) {
+			e.printStackTrace();
 		}
+
     }
 
 	/**
@@ -393,13 +404,16 @@ public class WaitWindView2 extends View {
 		return array;
 	}
 
+	@SuppressLint("HandlerLeak")
 	private Handler handler = new Handler() {
 		public void handleMessage(Message msg) {
 			WindDto dto = (WindDto) msg.obj;
-			if (dto.oldX != -1 || dto.oldY != -1) {
-				tempCanvas.drawLine(dto.oldX, dto.oldY, dto.x, dto.y, paint);
+			if (dto != null) {
+				if (dto.oldX != -1 || dto.oldY != -1) {
+					tempCanvas.drawLine(dto.oldX, dto.oldY, dto.x, dto.y, paint);
+				}
 			}
-		};
+		}
 	};
 	
 }

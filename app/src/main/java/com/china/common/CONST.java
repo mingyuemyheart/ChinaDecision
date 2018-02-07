@@ -1,16 +1,11 @@
 package com.china.common;
 
-import android.os.Environment;
-
-import java.io.File;
-
 public class CONST {
 
 	public static String APPID = "19";//贵州客户端对应服务器的appid
 	public static String noValue = "--";
 	public static int MSG_100 = 100;
 	public static int MSG_101 = 101;
-	public static String filePath = Environment.getExternalStorageDirectory() + File.separator + "screenshot.png";
 	public static final String imageSuffix = ".png";//图标后缀名
 	public static String SHOWGUIDE = "show_guide";
 	public static String VERSION = "version";
@@ -62,7 +57,6 @@ public class CONST {
 	public static String[] red = {"04", "_red"};
 	
 	//贵州接口
-	public static String GUIZHOU_BASE = "http://decision-admin.tianqi.cn/home";
-	public static String GUIZHOU_LOGIN = GUIZHOU_BASE+"/Work/login";//登录
-	public static String GUIZHOU_FEEDBACK = GUIZHOU_BASE+"/Work/request";//意见反馈
+	public static String INTERFACE_LOGIN = "http://decision-admin.tianqi.cn/home/Work/login";//登录
+	public static String INTERFACE_FEEDBACK = "http://decision-admin.tianqi.cn/home/Work/request";//意见反馈
 }

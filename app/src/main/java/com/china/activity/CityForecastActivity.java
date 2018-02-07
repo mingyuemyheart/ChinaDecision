@@ -337,46 +337,53 @@ public class CityForecastActivity extends BaseActivity implements OnClickListene
         if (TextUtils.isEmpty(cityId)) {
             return;
         }
-        WeatherAPI.getWeather2(mContext, cityId, Constants.Language.ZH_CN, new AsyncResponseHandler() {
-            @Override
-            public void onComplete(Weather content) {
-                super.onComplete(content);
-                if (content != null) {
-                    try {
-                        WeatherDto dto =  new WeatherDto();
-                        JSONObject city = content.getCityInfo();
-                        dto.cityName = city.getString("c3");
-                        dto.lat = city.getString("c14");
-                        dto.lng = city.getString("c13");
-                        dto.cityId = city.getString("c1");
 
-                        JSONArray weekArray = content.getWeatherForecastInfo(1);
-                        JSONObject weekObj = weekArray.getJSONObject(0);
+        try {
+            WeatherAPI.getWeather2(mContext, cityId, Constants.Language.ZH_CN, new AsyncResponseHandler() {
+                @Override
+                public void onComplete(Weather content) {
+                    super.onComplete(content);
+                    if (content != null) {
+                        try {
+                            WeatherDto dto =  new WeatherDto();
+                            JSONObject city = content.getCityInfo();
+                            dto.cityName = city.getString("c3");
+                            dto.lat = city.getString("c14");
+                            dto.lng = city.getString("c13");
+                            dto.cityId = city.getString("c1");
 
-                        dto.lowPheCode = Integer.valueOf(weekObj.getString("fb"));
-                        dto.lowTemp = Integer.valueOf(weekObj.getString("fd"));
-                        dto.lowWindDir = Integer.valueOf(weekObj.getString("ff"));
-                        dto.lowWindForce = Integer.valueOf(weekObj.getString("fh"));
+                            JSONArray weekArray = content.getWeatherForecastInfo(1);
+                            JSONObject weekObj = weekArray.getJSONObject(0);
 
-                        dto.highPheCode = Integer.valueOf(weekObj.getString("fa"));
-                        dto.highTemp = Integer.valueOf(weekObj.getString("fc"));
-                        dto.highWindDir = Integer.valueOf(weekObj.getString("fe"));
-                        dto.highWindForce = Integer.valueOf(weekObj.getString("fg"));
+                            dto.lowPheCode = Integer.valueOf(weekObj.getString("fb"));
+                            dto.lowTemp = Integer.valueOf(weekObj.getString("fd"));
+                            dto.lowWindDir = Integer.valueOf(weekObj.getString("ff"));
+                            dto.lowWindForce = Integer.valueOf(weekObj.getString("fh"));
 
-                        dto.publishTime = content.getForecastTime();
-                        dto.isLoaded = true;
+                            dto.highPheCode = Integer.valueOf(weekObj.getString("fa"));
+                            dto.highTemp = Integer.valueOf(weekObj.getString("fc"));
+                            dto.highWindDir = Integer.valueOf(weekObj.getString("fe"));
+                            dto.highWindForce = Integer.valueOf(weekObj.getString("fg"));
 
-                        if (!weatherMap.containsKey(dto.cityId)) {
-                            weatherMap.put(dto.cityId, dto);
+                            dto.publishTime = content.getForecastTime();
+                            dto.isLoaded = true;
+
+                            if (!weatherMap.containsKey(dto.cityId)) {
+                                weatherMap.put(dto.cityId, dto);
+                            }
+
+                            addMarker(dto);
+                        }catch (JSONException e) {
+                            e.printStackTrace();
                         }
-
-                        addMarker(dto);
-                    }catch (JSONException e) {
-                        e.printStackTrace();
                     }
                 }
-            }
-        });
+            });
+        } catch (Exception e) {
+            e.printStackTrace();
+        } catch (OutOfMemoryError e) {
+            e.printStackTrace();
+        }
     }
 
     private void addMarker(final WeatherDto dto) {

@@ -133,11 +133,13 @@ public class WarningDetailFragment extends Fragment{
 
 			@Override
 			public void onResponse(Call call, Response response) throws IOException {
-
 				if (!response.isSuccessful()) {
 					return;
 				}
 				final String result = response.body().string();
+				if (getActivity() == null) {
+					return;
+				}
 				getActivity().runOnUiThread(new Runnable() {
 					@Override
 					public void run() {

@@ -4,21 +4,25 @@ package com.china.activity;
  * 城市预定
  */
 
+import android.Manifest;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
+import android.os.Build;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.v4.app.ActivityCompat;
+import android.support.v4.content.ContextCompat;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
-import android.view.animation.Animation;
-import android.view.animation.RotateAnimation;
 import android.widget.AdapterView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
@@ -28,7 +32,6 @@ import com.amap.api.location.AMapLocation;
 import com.amap.api.location.AMapLocationClient;
 import com.amap.api.location.AMapLocationClientOption;
 import com.amap.api.location.AMapLocationListener;
-import com.amap.api.maps.offlinemap.City;
 import com.china.R;
 import com.china.adapter.ReserveCityAdapter;
 import com.china.dto.CityDto;
@@ -38,8 +41,10 @@ import com.china.swipemenulistview.SwipeMenu;
 import com.china.swipemenulistview.SwipeMenuCreator;
 import com.china.swipemenulistview.SwipeMenuItem;
 import com.china.swipemenulistview.SwipeMenuListView;
+import com.china.utils.AuthorityUtil;
 import com.china.utils.CommonUtil;
 import com.china.utils.OkHttpUtil;
+import com.china.utils.SecretUrlUtil;
 import com.china.utils.WeatherUtil;
 
 import org.json.JSONArray;
@@ -79,6 +84,71 @@ public class ReserveCityActivity extends BaseActivity implements View.OnClickLis
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_reserve_city);
         mContext = this;
+        checkAuthority();
+    }
+
+    //需要申请的所有权限
+    public static String[] allPermissions = new String[] {
+            Manifest.permission.ACCESS_FINE_LOCATION,
+            Manifest.permission.READ_PHONE_STATE,
+            Manifest.permission.WRITE_EXTERNAL_STORAGE
+    };
+
+    //拒绝的权限集合
+    public static List<String> deniedList = new ArrayList<>();
+    /**
+     * 申请定位权限
+     */
+    private void checkAuthority() {
+        if (Build.VERSION.SDK_INT < 23) {
+            init();
+        }else {
+            deniedList.clear();
+            for (int i = 0; i < allPermissions.length; i++) {
+                if (ContextCompat.checkSelfPermission(mContext, allPermissions[i]) != PackageManager.PERMISSION_GRANTED) {
+                    deniedList.add(allPermissions[i]);
+                }
+            }
+            if (deniedList.isEmpty()) {//所有权限都授予
+                init();
+            }else {
+                String[] permissions = deniedList.toArray(new String[deniedList.size()]);//将list转成数组
+                ActivityCompat.requestPermissions(ReserveCityActivity.this, permissions, AuthorityUtil.AUTHOR_LOCATION);
+            }
+        }
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        switch (requestCode) {
+            case AuthorityUtil.AUTHOR_LOCATION:
+                if (grantResults.length > 0) {
+                    boolean isAllGranted = true;//是否全部授权
+                    for (int i = 0; i < grantResults.length; i++) {
+                        if (grantResults[i] != PackageManager.PERMISSION_GRANTED) {
+                            isAllGranted = false;
+                            break;
+                        }
+                    }
+                    if (isAllGranted) {//所有权限都授予
+                        init();
+                    }else {//只要有一个没有授权，就提示进入设置界面设置
+                        AuthorityUtil.intentAuthorSetting(mContext, "\""+getString(R.string.app_name)+"\""+"需要使用您的位置权限、存储权限，是否前往设置？");
+                    }
+                }else {
+                    for (int i = 0; i < permissions.length; i++) {
+                        if (!ActivityCompat.shouldShowRequestPermissionRationale(ReserveCityActivity.this, permissions[i])) {
+                            AuthorityUtil.intentAuthorSetting(mContext, "\""+getString(R.string.app_name)+"\""+"需要使用您的位置权限、存储权限，是否前往设置？");
+                            break;
+                        }
+                    }
+                }
+                break;
+        }
+    }
+
+    private void init() {
         showDialog();
         initWidget();
         initListView();
@@ -195,7 +265,7 @@ public class ReserveCityActivity extends BaseActivity implements View.OnClickLis
     public void onLocationChanged(AMapLocation amapLocation) {
         if (amapLocation != null && amapLocation.getErrorCode() == 0) {
             String cityName = amapLocation.getDistrict()+" "+"("+amapLocation.getCity()+")";
-            getGeo(amapLocation.getLongitude(), amapLocation.getLatitude(), cityName);
+            OkHttpGeo(amapLocation.getLongitude(), amapLocation.getLatitude(), cityName);
         }
     }
 
@@ -261,31 +331,40 @@ public class ReserveCityActivity extends BaseActivity implements View.OnClickLis
         });
     }
 
-    private void getGeo(double lng, double lat, final String cityName) {
-        WeatherAPI.getGeo(mContext,String.valueOf(lng), String.valueOf(lat), new AsyncResponseHandler(){
+    private void OkHttpGeo(double lng, double lat, final String cityName) {
+        OkHttpUtil.enqueue(new Request.Builder().url(SecretUrlUtil.geo(lng, lat)).build(), new Callback() {
             @Override
-            public void onComplete(JSONObject content) {
-                super.onComplete(content);
-                if (!content.isNull("geo")) {
+            public void onFailure(Call call, IOException e) {
+
+            }
+
+            @Override
+            public void onResponse(Call call, Response response) throws IOException {
+                if (!response.isSuccessful()) {
+                    return;
+                }
+                String result = response.body().string();
+                if (!TextUtils.isEmpty(result)) {
                     try {
-                        JSONObject geoObj = content.getJSONObject("geo");
-                        if (!geoObj.isNull("id")) {
-                            String cityId = geoObj.getString("id");
-                            if (cityId.length() >= 9) {
-                                cityId = cityId.substring(0, 9);
+                        JSONObject obj = new JSONObject(result);
+                        if (!obj.isNull("geo")) {
+                            JSONObject geoObj = obj.getJSONObject("geo");
+                            if (!geoObj.isNull("id")) {
+                                final String cityId = geoObj.getString("id");
+                                final String warningId = queryWarningIdByCityId(cityId);
+                                runOnUiThread(new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        getWeatherInfos(cityId, cityName, warningId);
+                                    }
+                                });
+
                             }
-                            String warningId = queryWarningIdByCityId(cityId);
-                            getWeatherInfos(cityId, cityName, warningId);
                         }
                     } catch (JSONException e) {
                         e.printStackTrace();
                     }
                 }
-            }
-
-            @Override
-            public void onError(Throwable error, String content) {
-                super.onError(error, content);
             }
         });
     }

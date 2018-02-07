@@ -71,6 +71,8 @@ public class CityAdapter extends BaseAdapter{
 			}
 		} catch (ArrayIndexOutOfBoundsException e) {
 			e.printStackTrace();
+		} catch (IndexOutOfBoundsException e) {
+			e.printStackTrace();
 		}
 		
 		return convertView;

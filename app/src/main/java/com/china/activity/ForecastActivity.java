@@ -73,6 +73,7 @@ public class ForecastActivity extends BaseActivity implements OnClickListener{
 	private List<WeatherDto> weeklyList = new ArrayList<>();
 	private SimpleDateFormat sdf1 = new SimpleDateFormat("yyyyMMddHHmm");
 	private SimpleDateFormat sdf2 = new SimpleDateFormat("HH");
+	private SimpleDateFormat sdf3 = new SimpleDateFormat("yyyyMMdd");
 	private ImageView ivShare = null;
 	private RelativeLayout reLocation = null;
 	private LinearLayout llThree = null;
@@ -232,6 +233,16 @@ public class ForecastActivity extends BaseActivity implements OnClickListener{
 						}
 
 						//一周预报信息
+						long foreDate = 0;
+						long currentDate = 0;
+						try {
+							String f0 = sdf3.format(sdf1.parse(content.getForecastTime()));
+							foreDate = sdf3.parse(f0).getTime();
+							currentDate = sdf3.parse(sdf3.format(new Date())).getTime();
+						} catch (ParseException e) {
+							e.printStackTrace();
+						}
+
 						weeklyList.clear();
 						//这里只去一周预报，默认为15天，所以遍历7次
 						for (int i = 1; i <= 15; i++) {
@@ -279,20 +290,28 @@ public class ForecastActivity extends BaseActivity implements OnClickListener{
 
 							weeklyList.add(dto);
 
-							if (i == 1) {
-								tvForeTemp.setText(dto.highTemp+"℃"+"/"+dto.lowTemp+"℃");
+							if (currentDate > foreDate) {
+								if (i == 2) {
+									tvForeTemp.setText(dto.highTemp+"℃"+"/"+dto.lowTemp+"℃");
+								}
+							}else {
+								if (i == 1) {
+									tvForeTemp.setText(dto.highTemp+"℃"+"/"+dto.lowTemp+"℃");
+								}
 							}
 						}
 
 						//一周预报列表
 						if (mAdapter != null) {
+							mAdapter.foreDate = foreDate;
+							mAdapter.currentDate = currentDate;
 							mAdapter.notifyDataSetChanged();
 							CommonUtil.setListViewHeightBasedOnChildren(mListView);
 						}
 
 						//一周预报曲线
 						WeeklyView weeklyView = new WeeklyView(mContext);
-						weeklyView.setData(weeklyList);
+						weeklyView.setData(weeklyList, foreDate, currentDate);
 						llContainer2.removeAllViews();
 						llContainer2.addView(weeklyView, width*2, (int)(CommonUtil.dip2px(mContext, 400)));
 					} catch (JSONException e) {

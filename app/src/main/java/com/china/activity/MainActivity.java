@@ -65,6 +65,7 @@ import com.china.utils.AuthorityUtil;
 import com.china.utils.AutoUpdateUtil;
 import com.china.utils.CommonUtil;
 import com.china.utils.OkHttpUtil;
+import com.china.utils.SecretUrlUtil;
 import com.china.utils.WeatherUtil;
 import com.china.view.HourItemView;
 import com.china.view.HourView;
@@ -171,8 +172,6 @@ public class MainActivity extends BaseActivity implements OnClickListener, AMapL
 		initViewPager();
 		initGridView();
 	}
-
-
 
     /**
 	 * 初始化下拉刷新布局
@@ -564,37 +563,46 @@ public class MainActivity extends BaseActivity implements OnClickListener, AMapL
 			}
 			tvLocation.setText(name);
 			cityName = name;
-			getCityId(amapLocation.getLongitude(), amapLocation.getLatitude());
+			OkHttpGeo(amapLocation.getLongitude(), amapLocation.getLatitude());
         }
 	}
 
 	/**
 	 * 获取天气数据
 	 */
-	private void getCityId(double lng, double lat) {
-		WeatherAPI.getGeo(mContext, String.valueOf(lng), String.valueOf(lat), new AsyncResponseHandler(){
+	private void OkHttpGeo(double lng, double lat) {
+		OkHttpUtil.enqueue(new Request.Builder().url(SecretUrlUtil.geo(lng, lat)).build(), new Callback() {
 			@Override
-			public void onComplete(JSONObject content) {
-				super.onComplete(content);
-				if (!content.isNull("geo")) {
+			public void onFailure(Call call, IOException e) {
+
+			}
+
+			@Override
+			public void onResponse(Call call, Response response) throws IOException {
+				if (!response.isSuccessful()) {
+					return;
+				}
+				String result = response.body().string();
+				if (!TextUtils.isEmpty(result)) {
 					try {
-						JSONObject geoObj = content.getJSONObject("geo");
-						if (!geoObj.isNull("id")) {
-							cityId = geoObj.getString("id");
-							if (cityId.length() >= 9) {
-								cityId = cityId.substring(0, 9);
+						JSONObject obj = new JSONObject(result);
+						if (!obj.isNull("geo")) {
+							JSONObject geoObj = obj.getJSONObject("geo");
+							if (!geoObj.isNull("id")) {
+								cityId = geoObj.getString("id");
+								runOnUiThread(new Runnable() {
+									@Override
+									public void run() {
+										getWeatherInfo();
+									}
+								});
+
 							}
-							getWeatherInfo();
 						}
 					} catch (JSONException e) {
 						e.printStackTrace();
 					}
 				}
-			}
-
-			@Override
-			public void onError(Throwable error, String content) {
-				super.onError(error, content);
 			}
 		});
 	}
@@ -899,7 +907,14 @@ public class MainActivity extends BaseActivity implements OnClickListener, AMapL
 		}
 
 		channelList.clear();
-		channelList.addAll(getIntent().getExtras().<ColumnData>getParcelableArrayList("dataList"));
+		if (!getIntent().hasExtra("dataList")) {
+			return;
+		}
+		List<ColumnData> dataList = getIntent().getExtras().<ColumnData>getParcelableArrayList("dataList");
+		if (dataList.isEmpty()) {
+			return;
+		}
+		channelList.addAll(dataList);
 		gridView = (GridView) findViewById(R.id.gridView);
 		mAdapter = new MainAdapter(mContext, channelList, height-statusBarHeight-height1-height2-height3);
 		gridView.setAdapter(mAdapter);

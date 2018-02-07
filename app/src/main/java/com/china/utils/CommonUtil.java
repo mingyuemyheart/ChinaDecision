@@ -1,6 +1,5 @@
 package com.china.utils;
 
-import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Context;
 import android.content.SharedPreferences;
@@ -598,6 +597,11 @@ public class CommonUtil {
 		if (view == null) {
 			return null;
 		}
+		int width = view.getWidth();
+		int height = view.getHeight();
+		if (width <= 0 || height <= 0) {
+			return null;
+		}
 		Bitmap bitmap = Bitmap.createBitmap(view.getWidth(), view.getHeight(), Config.ARGB_8888);
 		Canvas canvas = new Canvas(bitmap);
 		view.draw(canvas);
@@ -614,6 +618,11 @@ public class CommonUtil {
      */
 	public static Bitmap captureView(View view) {
 		if (view == null) {
+			return null;
+		}
+		int width = view.getWidth();
+		int height = view.getHeight();
+		if (width <= 0 || height <= 0) {
 			return null;
 		}
 		Bitmap bitmap = Bitmap.createBitmap(view.getWidth(), view.getHeight(), Config.ARGB_8888);

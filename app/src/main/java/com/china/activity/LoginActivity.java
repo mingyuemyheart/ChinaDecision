@@ -243,7 +243,7 @@ public class LoginActivity extends BaseActivity implements OnClickListener, AMap
 	private void doLogin() {
 		if (checkInfo()) {
 			showDialog();
-			OkHttpLogin(CONST.GUIZHOU_LOGIN);
+			OkHttpLogin(CONST.INTERFACE_LOGIN);
 		}
 	}
 	

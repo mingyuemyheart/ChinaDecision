@@ -1,5 +1,6 @@
 package com.china.utils;
 
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.Dialog;
 import android.app.DownloadManager;
@@ -136,7 +137,8 @@ public class AutoUpdateUtil {
 		public String dl_url = "";
 		public int versionCode = 0;
 	}
-	
+
+	@SuppressLint("HandlerLeak")
 	private static Handler handler = new Handler() {
 		public void handleMessage(Message msg) {
 			switch (msg.what) {

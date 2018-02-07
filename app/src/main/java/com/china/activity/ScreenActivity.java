@@ -56,7 +56,7 @@ public class ScreenActivity extends BaseActivity implements OnClickListener{
 		showDialog();
 		initWidget();
 		initGridView();
-		login(CONST.GUIZHOU_LOGIN);
+		login(CONST.INTERFACE_LOGIN);
 	}
 
 	private void initWidget() {

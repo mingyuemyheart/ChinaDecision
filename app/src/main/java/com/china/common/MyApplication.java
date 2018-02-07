@@ -9,6 +9,7 @@ import com.umeng.socialize.Config;
 import com.umeng.socialize.PlatformConfig;
 
 import java.net.URISyntaxException;
+import java.util.Random;
 
 public class MyApplication extends Application{
 
@@ -27,7 +28,9 @@ public class MyApplication extends Application{
 		super.onCreate();
 
 		//TalkingData统计
-		TCAgent.init(this.getApplicationContext(), "80C44BE2E53D4D4DB0814115BBF175F6", "");
+		String[] platforms = {"HuaWei Store", "XiaoMi Store", "XiaoMi Store", "Tencent Store", "OPPO Store", "VIVO Store", "LeShi Store", "Default"};
+		int i = new Random().nextInt(platforms.length);
+		TCAgent.init(this.getApplicationContext(), "80C44BE2E53D4D4DB0814115BBF175F6", platforms[i]);
 		TCAgent.setReportUncaughtExceptions(true);
 	}
 	{

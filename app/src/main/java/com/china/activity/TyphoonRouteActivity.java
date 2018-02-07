@@ -5,6 +5,7 @@ package com.china.activity;
  */
 
 import android.Manifest;
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
@@ -1765,6 +1766,7 @@ public class TyphoonRouteActivity extends BaseActivity implements OnClickListene
 		}
 	}
 
+	@SuppressLint("HandlerLeak")
 	private Handler mHandler = new Handler(){
 		public void handleMessage(android.os.Message msg) {
 			int what = msg.what;
@@ -1772,10 +1774,16 @@ public class TyphoonRouteActivity extends BaseActivity implements OnClickListene
 				case HANDLER_SHOW_RADAR:
 					if (msg.obj != null) {
 						MinuteFallDto dto = (MinuteFallDto) msg.obj;
-						if (dto.getPath() != null) {
-							Bitmap bitmap = BitmapFactory.decodeFile(dto.getPath());
-							if (bitmap != null) {
-								showRadar(bitmap, dto.getP1(), dto.getP2(), dto.getP3(), dto.getP4());
+						if (!TextUtils.isEmpty(dto.path)) {
+							try {
+								Bitmap bitmap = BitmapFactory.decodeFile(dto.path);
+								if (bitmap != null) {
+									showRadar(bitmap, dto.getP1(), dto.getP2(), dto.getP3(), dto.getP4());
+								}
+							} catch (Exception e) {
+								e.printStackTrace();
+							} catch (OutOfMemoryError e) {
+								e.printStackTrace();
 							}
 						}
 					}

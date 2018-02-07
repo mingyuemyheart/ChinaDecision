@@ -68,6 +68,9 @@ public class FeedbackActivity extends BaseActivity implements OnClickListener{
 	 * 意见反馈
 	 */
 	private void OkHttpFeedback(String url) {
+		if (TextUtils.isEmpty(url) || TextUtils.isEmpty(CONST.UID)) {
+			return;
+		}
 		FormBody.Builder builder = new FormBody.Builder();
 		builder.add("uid", CONST.UID);
 		builder.add("content", etContent.getText().toString());
@@ -131,7 +134,7 @@ public class FeedbackActivity extends BaseActivity implements OnClickListener{
 					return;
 				}
 				showDialog();
-				OkHttpFeedback(CONST.GUIZHOU_FEEDBACK);
+				OkHttpFeedback(CONST.INTERFACE_FEEDBACK);
 				break;
 		}
 	}

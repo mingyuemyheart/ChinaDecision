@@ -270,30 +270,35 @@ public class WaitWindView extends View {
 	@Override
 	protected void onDraw(Canvas canvas) {
 		super.onDraw(canvas);
-		bitmap = Bitmap.createBitmap(canvas.getWidth(), canvas.getHeight(), Bitmap.Config.ARGB_8888);
-		if (tempCanvas != null) {
-			tempCanvas = null;
-		}
-		tempCanvas = new Canvas(bitmap);
-		
-		ImageView image = new ImageView(getContext());
-		image.setLayoutParams(new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT));
-		image.setImageBitmap(bitmap);
-		activity.container2.addView(image);
+		try {
+			bitmap = Bitmap.createBitmap(canvas.getWidth(), canvas.getHeight(), Bitmap.Config.ARGB_8888);
+			if (tempCanvas != null) {
+				tempCanvas = null;
+			}
+			tempCanvas = new Canvas(bitmap);
+
+			ImageView image = new ImageView(getContext());
+			image.setLayoutParams(new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT));
+			image.setImageBitmap(bitmap);
+			activity.container2.addView(image);
 //		activity.container2.draw(tempCanvas);
-		images.add(0, image);
-		
-		int imageSize = images.size();
-		for (int i = imageSize-1; i >= 0; i--) {
-			ImageView iv = images.get(i);
-			iv.setAlpha(Math.max(iv.getAlpha()-1.0f/frameCount, 0));
+			images.add(0, image);
+
+			int imageSize = images.size();
+			for (int i = imageSize-1; i >= 0; i--) {
+				ImageView iv = images.get(i);
+				iv.setAlpha(Math.max(iv.getAlpha()-1.0f/frameCount, 0));
+			}
+			if (imageSize == frameCount) {
+				ImageView imageView = images.get(imageSize-1);
+				images.remove(imageView);
+				activity.container2.removeView(imageView);
+			}
+		} catch (OutOfMemoryError e) {
+			e.printStackTrace();
+		} catch (Exception e) {
+			e.printStackTrace();
 		}
-		if (imageSize == frameCount) {
-			ImageView imageView = images.get(imageSize-1);
-			images.remove(imageView);
-			activity.container2.removeView(imageView);
-		}
-		
 	}
 	
 	private void calculatePoints(){
@@ -408,12 +413,15 @@ public class WaitWindView extends View {
 		}
 		return array;
 	}
-	
+
+	@SuppressLint("HandlerLeak")
 	private Handler handler = new Handler() {
 		public void handleMessage(Message msg) {
 			WindDto dto = (WindDto) msg.obj;
-			if (dto.oldX != -1 || dto.oldY != -1) {
-				tempCanvas.drawLine(dto.oldX, dto.oldY, dto.x, dto.y, paint);  
+			if (dto != null) {
+				if (dto.oldX != -1 || dto.oldY != -1) {
+					tempCanvas.drawLine(dto.oldX, dto.oldY, dto.x, dto.y, paint);
+				}
 			}
 		};
 	};
