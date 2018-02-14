@@ -60,6 +60,17 @@
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
+
+            <!-- js拉起应用，分享识别二维码用到 -->
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+                <data
+                    android:scheme="scheme"
+                    android:host="host">
+                </data>
+            </intent-filter>
         </activity>
 
         <activity

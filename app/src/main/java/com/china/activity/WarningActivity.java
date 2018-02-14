@@ -66,9 +66,9 @@ import com.china.common.CONST;
 import com.china.common.MyApplication;
 import com.china.dto.TyphoonDto;
 import com.china.dto.WarningDto;
-import com.china.manager.RainManager;
 import com.china.utils.CommonUtil;
 import com.china.utils.OkHttpUtil;
+import com.china.utils.SecretUrlUtil;
 import com.china.view.ArcMenu;
 import com.china.view.ArcMenu.OnMenuItemClickListener;
 import com.tendcloud.tenddata.TCAgent;
@@ -80,7 +80,6 @@ import org.json.JSONObject;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -342,15 +341,15 @@ OnMarkerClickListener, InfoWindowAdapter, OnCameraChangeListener, OnMapScreenSho
 					return;
 				}
 				String result = response.body().string();
-				warningList.clear();
-				nationList.clear();
-				proList.clear();
-				cityList.clear();
-				disList.clear();
-				if (result != null) {
+				if (!TextUtils.isEmpty(result)) {
 					try {
 						final JSONObject object = new JSONObject(result);
 						if (object != null) {
+							warningList.clear();
+							nationList.clear();
+							proList.clear();
+							cityList.clear();
+							disList.clear();
 							if (!object.isNull("data")) {
 								JSONArray jsonArray = object.getJSONArray("data");
 								for (int i = jsonArray.length()-1; i >= 0; i--) {
@@ -1208,7 +1207,7 @@ OnMarkerClickListener, InfoWindowAdapter, OnCameraChangeListener, OnMapScreenSho
 			break;
 		case R.id.iv1:
 			if (flag1 == false) {
-				drawWarningLayer(getSecretUrl(warningType1), warningType1);
+				drawWarningLayer(SecretUrlUtil.warningLayer(warningType1), warningType1);
 				flag1 = true;
 				iv1.setImageResource(R.drawable.warning_fog_open);
 				ivLegend1.setVisibility(View.VISIBLE);
@@ -1221,7 +1220,7 @@ OnMarkerClickListener, InfoWindowAdapter, OnCameraChangeListener, OnMapScreenSho
 			break;
 		case R.id.iv2:
 			if (flag2 == false) {
-				drawWarningLayer(getSecretUrl(warningType2), warningType2);
+				drawWarningLayer(SecretUrlUtil.warningLayer(warningType2), warningType2);
 				flag2 = true;
 				iv2.setImageResource(R.drawable.warning_rain_open);
 				ivLegend2.setVisibility(View.VISIBLE);
@@ -1234,7 +1233,7 @@ OnMarkerClickListener, InfoWindowAdapter, OnCameraChangeListener, OnMapScreenSho
 			break;
 		case R.id.iv3:
 			if (flag3 == false) {
-				drawWarningLayer(getSecretUrl(warningType3), warningType3);
+				drawWarningLayer(SecretUrlUtil.warningLayer(warningType3), warningType3);
 				flag3 = true;
 				iv3.setImageResource(R.drawable.warning_sand_open);
 				ivLegend3.setVisibility(View.VISIBLE);
@@ -1247,7 +1246,7 @@ OnMarkerClickListener, InfoWindowAdapter, OnCameraChangeListener, OnMapScreenSho
 			break;
 		case R.id.iv4:
 			if (flag4 == false) {
-				drawWarningLayer(getSecretUrl(warningType4), warningType4);
+				drawWarningLayer(SecretUrlUtil.warningLayer(warningType4), warningType4);
 				flag4 = true;
 				iv4.setImageResource(R.drawable.warning_snow_open);
 				ivLegend4.setVisibility(View.VISIBLE);
@@ -1260,7 +1259,7 @@ OnMarkerClickListener, InfoWindowAdapter, OnCameraChangeListener, OnMapScreenSho
 			break;
 		case R.id.iv5:
 			if (flag5 == false) {
-				drawWarningLayer(getSecretUrl(warningType5), warningType5);
+				drawWarningLayer(SecretUrlUtil.warningLayer(warningType5), warningType5);
 				flag5 = true;
 				iv5.setImageResource(R.drawable.warning_temp_open);
 				ivLegend5.setVisibility(View.VISIBLE);
@@ -1288,7 +1287,7 @@ OnMarkerClickListener, InfoWindowAdapter, OnCameraChangeListener, OnMapScreenSho
 			break;
 		case R.id.iv7:
 			if (flag7 == false) {
-				drawWarningLayer(getSecretUrl(warningType7), warningType7);
+				drawWarningLayer(SecretUrlUtil.warningLayer(warningType7), warningType7);
 				flag7 = true;
 				iv7.setImageResource(R.drawable.warning_wind_open);
 				ivLegend7.setVisibility(View.VISIBLE);
@@ -1301,7 +1300,7 @@ OnMarkerClickListener, InfoWindowAdapter, OnCameraChangeListener, OnMapScreenSho
 			break;
 		case R.id.iv8:
 			if (flag8 == false) {
-				drawWarningLayer(getSecretUrl(warningType8), warningType8);
+				drawWarningLayer(SecretUrlUtil.warningLayer(warningType8), warningType8);
 				flag8 = true;
 				iv8.setImageResource(R.drawable.warning_hanchao_open);
 				ivLegend8.setVisibility(View.VISIBLE);
@@ -1474,35 +1473,6 @@ OnMarkerClickListener, InfoWindowAdapter, OnCameraChangeListener, OnMapScreenSho
 			}
 			polygons83.clear();
 		}
-	}
-
-	public final static String SANX_DATA_99 = "sanx_data_99";//加密秘钥名称
-	public final static String APPID = "f63d329270a44900";//机密需要用到的AppId
-	private String getSecretUrl(String type) {
-		String URL = "https://scapi.tianqi.cn/weather/yjtc";
-		String sysdate = RainManager.getDate(Calendar.getInstance(), "yyyyMMddHHmm");//系统时间
-		StringBuffer buffer = new StringBuffer();
-		buffer.append(URL);
-		buffer.append("?");
-		buffer.append("date=").append(sysdate);
-		buffer.append("&");
-		buffer.append("mold=").append("zaihaiyj");
-		buffer.append("&");
-		buffer.append("type=").append(type);
-		buffer.append("&");
-		buffer.append("map=").append("china");
-		buffer.append("&");
-		buffer.append("appid=").append(APPID);
-
-		String key = RainManager.getKey(SANX_DATA_99, buffer.toString());
-		buffer.delete(buffer.lastIndexOf("&"), buffer.length());
-
-		buffer.append("&");
-		buffer.append("appid=").append(APPID.substring(0, 6));
-		buffer.append("&");
-		buffer.append("key=").append(key.substring(0, key.length() - 3));
-		String result = buffer.toString();
-		return result;
 	}
 
 	/**

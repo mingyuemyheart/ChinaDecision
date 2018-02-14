@@ -10,6 +10,7 @@ import android.animation.Animator.AnimatorListener;
 import android.animation.ObjectAnimator;
 import android.animation.ValueAnimator;
 import android.animation.ValueAnimator.AnimatorUpdateListener;
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
@@ -17,6 +18,8 @@ import android.graphics.BitmapFactory;
 import android.graphics.Point;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Message;
 import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
@@ -53,10 +56,10 @@ import com.amap.api.maps.model.animation.ScaleAnimation;
 import com.china.R;
 import com.china.common.CONST;
 import com.china.dto.WeatherStaticsDto;
-import com.china.manager.RainManager;
 import com.china.utils.AuthorityUtil;
 import com.china.utils.CommonUtil;
 import com.china.utils.OkHttpUtil;
+import com.china.utils.SecretUrlUtil;
 import com.china.view.CircularProgressBar;
 import com.tendcloud.tenddata.TCAgent;
 
@@ -68,7 +71,7 @@ import java.io.IOException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Calendar;
+import java.util.HashMap;
 import java.util.List;
 
 import okhttp3.Call;
@@ -84,9 +87,8 @@ public class StaticsActivity extends BaseActivity implements OnClickListener, On
 	private TextView tvTitle = null;
 	private MapView mMapView = null;
 	private AMap aMap = null;
-	private List<WeatherStaticsDto> provinceList = new ArrayList<>();//省级
-	private List<WeatherStaticsDto> cityList = new ArrayList<>();//市级
-	private List<WeatherStaticsDto> districtList = new ArrayList<>();//县级
+	private HashMap<String, List<WeatherStaticsDto>> levelMap = new HashMap<>();//省市县级别
+	private HashMap<String, WeatherStaticsDto> areaIdMap = new HashMap<>();//按区域id区分
 	private CircularProgressBar mCircularProgressBar1 = null;
 	private CircularProgressBar mCircularProgressBar2 = null;
 	private CircularProgressBar mCircularProgressBar3 = null;
@@ -102,15 +104,15 @@ public class StaticsActivity extends BaseActivity implements OnClickListener, On
 	private RelativeLayout reDetail = null;
 	private RelativeLayout reContent = null;
 	private ProgressBar progressBar = null;
-	public final static String SANX_DATA_99 = "sanx_data_99";//加密秘钥名称
-	public final static String APPID = "f63d329270a44900";//机密需要用到的AppId
 	private float zoom = 3.7f;
-	private boolean isClick = false;//判断是否点击
 	private ImageView ivShare = null;
 	private List<Marker> markerList = new ArrayList<>();
 	private LatLng leftlatlng = null;
 	private LatLng rightLatlng = null;
 	private Bundle bundle = null;
+	private boolean isFirstLoad = true;//是否为默认第一次加载数据
+	private final int MSG_CLICKMARKER = 1001;//点击marker
+	private final String level1 = "level1", level2 = "level2", level3 = "level3";
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -123,8 +125,8 @@ public class StaticsActivity extends BaseActivity implements OnClickListener, On
 
 	private void init() {
 		showDialog();
-		initWidget();
 		initMap(bundle);
+		initWidget();
 	}
 
 	//需要申请的所有权限
@@ -216,6 +218,8 @@ public class StaticsActivity extends BaseActivity implements OnClickListener, On
 		if (title != null) {
 			tvTitle.setText(title);
 		}
+
+		OkHttpList();
 		
 		String columnId = getIntent().getStringExtra(CONST.COLUMN_ID);
 		CommonUtil.submitClickCount(columnId, title);
@@ -237,8 +241,6 @@ public class StaticsActivity extends BaseActivity implements OnClickListener, On
 		aMap.setOnMarkerClickListener(this);
 		aMap.setOnMapClickListener(this);
 		aMap.setOnCameraChangeListener(this);
-
-		OkHttpList();
 	}
 	
 	@Override
@@ -247,62 +249,40 @@ public class StaticsActivity extends BaseActivity implements OnClickListener, On
 
 	@Override
 	public void onCameraChangeFinish(CameraPosition arg0) {
+		if (reDetail.getVisibility() == View.VISIBLE) {
+			hideAnimation(reDetail);
+		}
+
 		DisplayMetrics dm = new DisplayMetrics();
 		getWindowManager().getDefaultDisplay().getMetrics(dm);
 		Point leftPoint = new Point(0, dm.heightPixels);
 		Point rightPoint = new Point(dm.widthPixels, 0);
 		leftlatlng = aMap.getProjection().fromScreenLocation(leftPoint);
 		rightLatlng = aMap.getProjection().fromScreenLocation(rightPoint);
-		
-		if (zoom == arg0.zoom && isClick == true) {//如果是地图缩放级别不变，并且点击就不错处理
-			isClick = false;
-			return;
-		}
-		
+
 		zoom = arg0.zoom;
-		removeMarkers();
-		if (arg0.zoom <= 6.0f) {
-			addMarker(provinceList);
-		}else if (arg0.zoom > 6.0f && arg0.zoom <= 8.0f) {
-			addMarker(provinceList);
-			addMarker(cityList);
-		}else if (arg0.zoom > 8.0f) {
-			addMarker(provinceList);
-			addMarker(cityList);
-			addMarker(districtList);
+		if (isFirstLoad) {
+			isFirstLoad = false;
+		}else {
+			removeMarkers();
+			if (arg0.zoom <= 6.0f) {
+				addMarker(level1);
+			}else if (arg0.zoom > 6.0f && arg0.zoom <= 8.0f) {
+				addMarker(level1);
+				addMarker(level2);
+			}else if (arg0.zoom > 8.0f) {
+				addMarker(level1);
+				addMarker(level2);
+				addMarker(level3);
+			}
 		}
-	}
-	
-	/**
-	 * 加密请求字符串
-	 * @return
-	 */
-	private String getSecretUrl() {
-		String URL = "http://scapi.weather.com.cn/weather/stationinfo";//天气统计地址
-		String sysdate = RainManager.getDate(Calendar.getInstance(), "yyyyMMddHHmm");//系统时间
-		StringBuffer buffer = new StringBuffer();
-		buffer.append(URL);
-		buffer.append("?");
-		buffer.append("date=").append(sysdate);
-		buffer.append("&");
-		buffer.append("appid=").append(APPID);
-		
-		String key = RainManager.getKey(SANX_DATA_99, buffer.toString());
-		buffer.delete(buffer.lastIndexOf("&"), buffer.length());
-		
-		buffer.append("&");
-		buffer.append("appid=").append(APPID.substring(0, 6));
-		buffer.append("&");
-		buffer.append("key=").append(key.substring(0, key.length() - 3));
-		String result = buffer.toString();
-		return result;
 	}
 	
 	/**
 	 * 获取天气统计数据
 	 */
 	private void OkHttpList() {
-		OkHttpUtil.enqueue(new Request.Builder().url(getSecretUrl()).build(), new Callback() {
+		OkHttpUtil.enqueue(new Request.Builder().url(SecretUrlUtil.statistic()).build(), new Callback() {
 			@Override
 			public void onFailure(Call call, IOException e) {
 
@@ -315,14 +295,15 @@ public class StaticsActivity extends BaseActivity implements OnClickListener, On
 				}
 				String result = response.body().string();
 				if (!TextUtils.isEmpty(result)) {
-					parseStationInfo(result, "level1", provinceList);
-					parseStationInfo(result, "level2", cityList);
-					parseStationInfo(result, "level3", districtList);
+					parseStationInfo(result, level1);
+					parseStationInfo(result, level2);
+					parseStationInfo(result, level3);
+
 					runOnUiThread(new Runnable() {
 						@Override
 						public void run() {
-							addMarker(provinceList);
 							cancelDialog();
+							addMarker(level1);
 						}
 					});
 				}
@@ -333,12 +314,12 @@ public class StaticsActivity extends BaseActivity implements OnClickListener, On
 	/**
 	 * 解析数据
 	 */
-	private void parseStationInfo(String result, String level, List<WeatherStaticsDto> list) {
-		list.clear();
+	private void parseStationInfo(String result, String level) {
 		try {
 			JSONObject obj = new JSONObject(result);
 			if (!obj.isNull(level)) {
 				JSONArray array = new JSONArray(obj.getString(level));
+				List<WeatherStaticsDto> list = new ArrayList<>();
 				for (int i = 0; i < array.length(); i++) {
 					WeatherStaticsDto dto = new WeatherStaticsDto();
 					JSONObject itemObj = array.getJSONObject(i);
@@ -361,7 +342,11 @@ public class StaticsActivity extends BaseActivity implements OnClickListener, On
 						dto.longitude = itemObj.getString("lon");
 					}
 					list.add(dto);
+
+					areaIdMap.put(dto.areaId, dto);
 				}
+
+				levelMap.put(level, list);
 			}
 		} catch (JSONException e) {
 			e.printStackTrace();
@@ -415,37 +400,44 @@ public class StaticsActivity extends BaseActivity implements OnClickListener, On
 	/**
 	 * 添加marker
 	 */
-	private void addMarker(List<WeatherStaticsDto> list) {
+	private void addMarker(String level) {
+		final List<WeatherStaticsDto> list = new ArrayList<>();
+		if (levelMap.containsKey(level)) {
+			list.addAll(levelMap.get(level));
+		}
 		if (list.isEmpty()) {
 			return;
 		}
-		
-		for (int i = 0; i < list.size(); i++) {
-			WeatherStaticsDto dto = list.get(i);
-			double lat = Double.valueOf(dto.latitude);
-			double lng = Double.valueOf(dto.longitude);
-			if (leftlatlng == null || rightLatlng == null) {
-				MarkerOptions options = new MarkerOptions();
-				options.title(list.get(i).areaId);
-				options.anchor(0.5f, 0.5f);
-				options.position(new LatLng(lat, lng));
-				options.icon(BitmapDescriptorFactory.fromView(getTextBitmap(list.get(i).name)));
-				Marker marker = aMap.addMarker(options);
-				markerList.add(marker);
-				markerExpandAnimation(marker);
-			}else {
-				if (lat > leftlatlng.latitude && lat < rightLatlng.latitude && lng > leftlatlng.longitude && lng < rightLatlng.longitude) {
-					MarkerOptions options = new MarkerOptions();
-					options.title(list.get(i).areaId);
-					options.anchor(0.5f, 0.5f);
-					options.position(new LatLng(lat, lng));
-					options.icon(BitmapDescriptorFactory.fromView(getTextBitmap(list.get(i).name)));
-					Marker marker = aMap.addMarker(options);
-					markerList.add(marker);
-					markerExpandAnimation(marker);
+		new Thread(new Runnable() {
+			@Override
+			public void run() {
+				for (WeatherStaticsDto dto : list) {
+					double lat = Double.valueOf(dto.latitude);
+					double lng = Double.valueOf(dto.longitude);
+					if (leftlatlng == null || rightLatlng == null) {
+						MarkerOptions options = new MarkerOptions();
+						options.title(dto.areaId);
+						options.anchor(0.5f, 0.5f);
+						options.position(new LatLng(lat, lng));
+						options.icon(BitmapDescriptorFactory.fromView(getTextBitmap(dto.name)));
+						Marker marker = aMap.addMarker(options);
+						markerList.add(marker);
+						markerExpandAnimation(marker);
+					}else {
+						if (lat > leftlatlng.latitude && lat < rightLatlng.latitude && lng > leftlatlng.longitude && lng < rightLatlng.longitude) {
+							MarkerOptions options = new MarkerOptions();
+							options.title(dto.areaId);
+							options.anchor(0.5f, 0.5f);
+							options.position(new LatLng(lat, lng));
+							options.icon(BitmapDescriptorFactory.fromView(getTextBitmap(dto.name)));
+							Marker marker = aMap.addMarker(options);
+							markerList.add(marker);
+							markerExpandAnimation(marker);
+						}
+					}
 				}
 			}
-		}
+		}).start();
 	}
 	
 	@Override
@@ -460,6 +452,9 @@ public class StaticsActivity extends BaseActivity implements OnClickListener, On
 	 * @param layout
 	 */
 	private void showAnimation(final View layout) {
+		if (layout.getVisibility() == View.VISIBLE) {
+			return;
+		}
 		TranslateAnimation animation = new TranslateAnimation(
 				TranslateAnimation.RELATIVE_TO_SELF, 0, 
 				TranslateAnimation.RELATIVE_TO_SELF, 0, 
@@ -475,6 +470,9 @@ public class StaticsActivity extends BaseActivity implements OnClickListener, On
 	 * @param layout
 	 */
 	private void hideAnimation(final View layout) {
+		if (layout.getVisibility() == View.GONE) {
+			return;
+		}
 		TranslateAnimation animation = new TranslateAnimation(
 				TranslateAnimation.RELATIVE_TO_SELF, 0, 
 				TranslateAnimation.RELATIVE_TO_SELF, 0, 
@@ -486,103 +484,47 @@ public class StaticsActivity extends BaseActivity implements OnClickListener, On
 	}
 	
 	@Override
-	public boolean onMarkerClick(Marker marker) {
+	public boolean onMarkerClick(final Marker marker) {
 		showAnimation(reDetail);
-		isClick = true;
-		String name = null;
-		String areaId = null;
-		String stationId = null;
-		
-		if (zoom <= 6.0f) {
-			for (int i = 0; i < provinceList.size(); i++) {
-				if (TextUtils.equals(marker.getTitle(), provinceList.get(i).areaId)) {
-					areaId = provinceList.get(i).areaId;
-					stationId = provinceList.get(i).stationId;
-					name = provinceList.get(i).name;
-					break;
+		if (marker != null) {
+			new Thread(new Runnable() {
+				@Override
+				public void run() {
+					if (areaIdMap.containsKey(marker.getTitle())) {
+						WeatherStaticsDto dto = areaIdMap.get(marker.getTitle());
+						if (dto != null) {
+							handler.removeMessages(MSG_CLICKMARKER);
+							Message msg = handler.obtainMessage(MSG_CLICKMARKER);
+							msg.obj = dto.name+","+dto.areaId+","+dto.stationId;
+							handler.sendMessage(msg);
+						}
+					}
 				}
-			}
-		}else if (zoom > 6.0f && zoom <= 8.0f) {
-			for (int i = 0; i < provinceList.size(); i++) {
-				if (TextUtils.equals(marker.getTitle(), provinceList.get(i).areaId)) {
-					areaId = provinceList.get(i).areaId;
-					stationId = provinceList.get(i).stationId;
-					name = provinceList.get(i).name;
-					break;
-				}
-			}
-			for (int i = 0; i < cityList.size(); i++) {
-				if (TextUtils.equals(marker.getTitle(), cityList.get(i).areaId)) {
-					areaId = cityList.get(i).areaId;
-					stationId = cityList.get(i).stationId;
-					name = cityList.get(i).name;
-					break;
-				}
-			}
-		}else if (zoom > 8.0f) {
-			for (int i = 0; i < provinceList.size(); i++) {
-				if (TextUtils.equals(marker.getTitle(), provinceList.get(i).areaId)) {
-					areaId = provinceList.get(i).areaId;
-					stationId = provinceList.get(i).stationId;
-					name = provinceList.get(i).name;
-					break;
-				}
-			}
-			for (int i = 0; i < cityList.size(); i++) {
-				if (TextUtils.equals(marker.getTitle(), cityList.get(i).areaId)) {
-					areaId = cityList.get(i).areaId;
-					stationId = cityList.get(i).stationId;
-					name = cityList.get(i).name;
-					break;
-				}
-			}
-			for (int i = 0; i < districtList.size(); i++) {
-				if (TextUtils.equals(marker.getTitle(), districtList.get(i).areaId)) {
-					areaId = districtList.get(i).areaId;
-					stationId = districtList.get(i).stationId;
-					name = districtList.get(i).name;
-					break;
-				}
-			}
+			}).start();
 		}
-		
-		tvName.setText(name + " " + stationId);
-		tvDetail.setText("");
-		progressBar.setVisibility(View.VISIBLE);
-		reContent.setVisibility(View.INVISIBLE);
-		
-		OkHttpDetail(getSecretUrl2(stationId, areaId));
 		return true;
 	}
 
-	/**
-	 * 加密请求字符串
-	 * @return
-	 */
-	private String getSecretUrl2(String stationid, String areaid) {
-		String URL = "http://scapi.weather.com.cn/weather/historycount";
-		String sysdate = RainManager.getDate(Calendar.getInstance(), "yyyyMMddHHmm");//系统时间
-		StringBuffer buffer = new StringBuffer();
-		buffer.append(URL);
-		buffer.append("?");
-		buffer.append("stationid=").append(stationid);
-		buffer.append("&");
-		buffer.append("areaid=").append(areaid);
-		buffer.append("&");
-		buffer.append("date=").append(sysdate);
-		buffer.append("&");
-		buffer.append("appid=").append(APPID);
+	@SuppressLint("HandlerLeak")
+	private Handler handler = new Handler() {
+		@Override
+		public void handleMessage(Message msg) {
+			super.handleMessage(msg);
+			switch (msg.what) {
+				case MSG_CLICKMARKER:
+					String[] result = ((String)msg.obj).split(",");
+					if (result != null && result.length == 3) {
+						tvName.setText(result[0] + " " + result[2]);
+						tvDetail.setText("");
+						progressBar.setVisibility(View.VISIBLE);
+						reContent.setVisibility(View.INVISIBLE);
 
-		String key = RainManager.getKey(SANX_DATA_99, buffer.toString());
-		buffer.delete(buffer.lastIndexOf("&"), buffer.length());
-
-		buffer.append("&");
-		buffer.append("appid=").append(APPID.substring(0, 6));
-		buffer.append("&");
-		buffer.append("key=").append(key.substring(0, key.length() - 3));
-		String result = buffer.toString();
-		return result;
-	}
+						OkHttpDetail(SecretUrlUtil.statisticDetail(result[2], result[1]));
+					}
+					break;
+			}
+		}
+	};
 
 	private void OkHttpDetail(String url) {
 		OkHttpUtil.enqueue(new Request.Builder().url(url).build(), new Callback() {
@@ -833,7 +775,6 @@ public class StaticsActivity extends BaseActivity implements OnClickListener, On
 
 	@Override
 	public void onMapScreenShot(Bitmap arg0, int arg1) {
-		// TODO Auto-generated method stub
 	}
 	
 	@Override

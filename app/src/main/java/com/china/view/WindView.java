@@ -34,7 +34,7 @@ import java.util.List;
 public class WindView extends View{
 	
 	private Context mContext = null;
-	private List<StationMonitorDto> tempList = new ArrayList<StationMonitorDto>();
+	private List<StationMonitorDto> tempList = new ArrayList<>();
 	private float maxValue = 0;
 	private float minValue = 0;
 	private Paint lineP = null;//画线画笔
@@ -46,7 +46,7 @@ public class WindView extends View{
 	private SimpleDateFormat sdf5 = new SimpleDateFormat("HH:mm");
 	private Bitmap bitmap = null;
 	private Bitmap point = null;
-	private List<WarningDto> warningList = new ArrayList<WarningDto>();
+	private List<WarningDto> warningList = new ArrayList<>();
 	
 	public WindView(Context context) {
 		super(context);

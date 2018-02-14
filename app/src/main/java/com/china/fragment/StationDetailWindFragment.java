@@ -30,7 +30,7 @@ public class StationDetailWindFragment extends Fragment{
 	private LinearLayout llContainer1 = null;
 	private LinearLayout llContent = null;
 	private StationMonitorDto data = null;
-	private List<WarningDto> warningList = new ArrayList<WarningDto>();
+	private List<WarningDto> warningList = new ArrayList<>();
 	private int viewWidth = 0;
 	private int width = 0;
 	private int height = 0;

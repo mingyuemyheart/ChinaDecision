@@ -1,5 +1,6 @@
 package com.china.activity;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -149,7 +150,7 @@ OnMapClickListener, InfoWindowAdapter, OnMapScreenShotListener{
 		aMap.setInfoWindowAdapter(this);
 		
 		long end = new Date().getTime();
-		long start = end - 2*60*60*1000;
+		long start = end - 4*60*60*1000;
 		tvStartTime.setText(sdf.format(new Date(start)));
 		tvEndTime.setText(sdf.format(new Date(end)));
 		String url = "http://dev2.rain.swarma.net/fcgi-bin/v1/user_feedback_admin.py?start="+start+"&end="+end+"&bounds=70,10,140,50&zoom=-999&source=all";
@@ -196,6 +197,9 @@ OnMapClickListener, InfoWindowAdapter, OnMapScreenShotListener{
 							@Override
 							public void run() {
 								cancelDialog();
+								if (mList.size() > 0) {
+									reSeekBar.setVisibility(View.VISIBLE);
+								}
 								addMarker();
 							}
 						});
@@ -224,114 +228,117 @@ OnMapClickListener, InfoWindowAdapter, OnMapScreenShotListener{
 	}
 	
 	private void addMarker() {
-		LayoutInflater inflater = (LayoutInflater) getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-		int size = mList.size();
-		if (size >= 500) {
-			size = 500;
-		}
-		for (int i = 0; i < size; i++) {
-			SocietyDto dto = mList.get(i);
-			MarkerOptions options = new MarkerOptions();
-			options.anchor(0.5f, 0.5f);
-			options.position(new LatLng(dto.lat, dto.lng));
-			View view = inflater.inflate(R.layout.society_marker, null);
-			ImageView ivMarker = (ImageView) view.findViewById(R.id.ivMarker);
-			if (dto.main == 0) {
-				options.title(getString(R.string.main0));
-				ivMarker.setImageResource(R.drawable.iv_society0);
-			}else if (dto.main == 1) {
-				options.title(getString(R.string.main1));
-				ivMarker.setImageResource(R.drawable.iv_society1);
-			}else if (dto.main == 2) {
-				options.title(getString(R.string.main2));
-				ivMarker.setImageResource(R.drawable.iv_society2);
-			}else if (dto.main == 3) {
-				options.title(getString(R.string.main3));
-				ivMarker.setImageResource(R.drawable.iv_society3);
-			}else if (dto.main == 4) {
-				options.title(getString(R.string.main4));
-				ivMarker.setImageResource(R.drawable.iv_society4);
-			}else if (dto.main == 5) {
-				options.title(getString(R.string.main5));
-				ivMarker.setImageResource(R.drawable.iv_society5);
+		final LayoutInflater inflater = (LayoutInflater) getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+		new Thread(new Runnable() {
+			@Override
+			public void run() {
+				int size = mList.size();
+				if (size > 1000) {
+					size = 1000;
+				}
+				for (int i = 0; i < size; i++) {
+					SocietyDto dto = mList.get(i);
+					MarkerOptions options = new MarkerOptions();
+					options.anchor(0.5f, 0.5f);
+					options.position(new LatLng(dto.lat, dto.lng));
+					View view = inflater.inflate(R.layout.society_marker, null);
+					ImageView ivMarker = (ImageView) view.findViewById(R.id.ivMarker);
+					if (dto.main == 0) {
+						options.title(getString(R.string.main0));
+						ivMarker.setImageResource(R.drawable.iv_society0);
+					}else if (dto.main == 1) {
+						options.title(getString(R.string.main1));
+						ivMarker.setImageResource(R.drawable.iv_society1);
+					}else if (dto.main == 2) {
+						options.title(getString(R.string.main2));
+						ivMarker.setImageResource(R.drawable.iv_society2);
+					}else if (dto.main == 3) {
+						options.title(getString(R.string.main3));
+						ivMarker.setImageResource(R.drawable.iv_society3);
+					}else if (dto.main == 4) {
+						options.title(getString(R.string.main4));
+						ivMarker.setImageResource(R.drawable.iv_society4);
+					}else if (dto.main == 5) {
+						options.title(getString(R.string.main5));
+						ivMarker.setImageResource(R.drawable.iv_society5);
+					}
+
+					if (dto.type == 0) {
+						String level = null;
+						if (dto.level == 0) {
+							level = getString(R.string.type0level0);
+						}else if (dto.level == 1) {
+							level = getString(R.string.type0level1);
+						}else if (dto.level == 2) {
+							level = getString(R.string.type0level2);
+						}else if (dto.level == 3) {
+							level = getString(R.string.type0level3);
+						}else if (dto.level == 4) {
+							level = getString(R.string.type0level4);
+						}
+						options.snippet(getString(R.string.type0)+": "+level);
+					}else if (dto.type == 1) {
+						String level = null;
+						if (dto.level == 0) {
+							level = getString(R.string.type1level0);
+						}else if (dto.level == 1) {
+							level = getString(R.string.type1level1);
+						}else if (dto.level == 3) {
+							level = getString(R.string.type1level3);
+						}else if (dto.level == 5) {
+							level = getString(R.string.type1level5);
+						}
+						options.snippet(getString(R.string.type1)+": "+level);
+					}else if (dto.type == 2) {
+						String level = null;
+						if (dto.level == 0) {
+							level = getString(R.string.type2level0);
+						}else if (dto.level == 1) {
+							level = getString(R.string.type2level1);
+						}else if (dto.level == 2) {
+							level = getString(R.string.type2level2);
+						}else if (dto.level == 3) {
+							level = getString(R.string.type2level3);
+						}else if (dto.level == 4) {
+							level = getString(R.string.type2level4);
+						}
+						options.snippet(getString(R.string.type2)+": "+level);
+					}else if (dto.type == 3) {
+						String level = null;
+						if (dto.level == 1) {
+							level = getString(R.string.type3level1);
+						}else if (dto.level == 3) {
+							level = getString(R.string.type3level3);
+						}
+						options.snippet(getString(R.string.type3)+": "+level);
+					}else if (dto.type == 4) {
+						String level = null;
+						if (dto.level == 5) {
+							level = getString(R.string.type4level5);
+						}
+						options.snippet(getString(R.string.type4)+": "+level);
+					}else if (dto.type == 5) {
+						String level = null;
+						if (dto.level == 5) {
+							level = getString(R.string.type5level5);
+						}
+						options.snippet(getString(R.string.type5)+": "+level);
+					}else if (dto.type == 6) {
+						String level = null;
+						if (dto.level == 1) {
+							level = getString(R.string.type6level1);
+						}else if (dto.level == 3) {
+							level = getString(R.string.type6level3);
+						}
+						options.snippet(getString(R.string.type6)+": "+level);
+					}
+					options.icon(BitmapDescriptorFactory.fromView(view));
+					Marker m = aMap.addMarker(options);
+					markerExpandAnimation(m);
+					markerList.add(m);
+				}
 			}
-			
-			if (dto.type == 0) {
-				String level = null;
-				if (dto.level == 0) {
-					level = getString(R.string.type0level0);
-				}else if (dto.level == 1) {
-					level = getString(R.string.type0level1);
-				}else if (dto.level == 2) {
-					level = getString(R.string.type0level2);
-				}else if (dto.level == 3) {
-					level = getString(R.string.type0level3);
-				}else if (dto.level == 4) {
-					level = getString(R.string.type0level4);
-				}
-				options.snippet(getString(R.string.type0)+": "+level);
-			}else if (dto.type == 1) {
-				String level = null;
-				if (dto.level == 0) {
-					level = getString(R.string.type1level0);
-				}else if (dto.level == 1) {
-					level = getString(R.string.type1level1);
-				}else if (dto.level == 3) {
-					level = getString(R.string.type1level3);
-				}else if (dto.level == 5) {
-					level = getString(R.string.type1level5);
-				}
-				options.snippet(getString(R.string.type1)+": "+level);
-			}else if (dto.type == 2) {
-				String level = null;
-				if (dto.level == 0) {
-					level = getString(R.string.type2level0);
-				}else if (dto.level == 1) {
-					level = getString(R.string.type2level1);
-				}else if (dto.level == 2) {
-					level = getString(R.string.type2level2);
-				}else if (dto.level == 3) {
-					level = getString(R.string.type2level3);
-				}else if (dto.level == 4) {
-					level = getString(R.string.type2level4);
-				}
-				options.snippet(getString(R.string.type2)+": "+level);
-			}else if (dto.type == 3) {
-				String level = null;
-				if (dto.level == 1) {
-					level = getString(R.string.type3level1);
-				}else if (dto.level == 3) {
-					level = getString(R.string.type3level3);
-				}
-				options.snippet(getString(R.string.type3)+": "+level);
-			}else if (dto.type == 4) {
-				String level = null;
-				if (dto.level == 5) {
-					level = getString(R.string.type4level5);
-				}
-				options.snippet(getString(R.string.type4)+": "+level);
-			}else if (dto.type == 5) {
-				String level = null;
-				if (dto.level == 5) {
-					level = getString(R.string.type5level5);
-				}
-				options.snippet(getString(R.string.type5)+": "+level);
-			}else if (dto.type == 6) {
-				String level = null;
-				if (dto.level == 1) {
-					level = getString(R.string.type6level1);
-				}else if (dto.level == 3) {
-					level = getString(R.string.type6level3);
-				}
-				options.snippet(getString(R.string.type6)+": "+level);
-			}
-			options.icon(BitmapDescriptorFactory.fromView(view));
-			Marker m = aMap.addMarker(options);
-			markerExpandAnimation(m);
-			markerList.add(m);
-		}
-		
-		reSeekBar.setVisibility(View.VISIBLE);
+		}).start();
 	}
 	
 	@Override
@@ -367,7 +374,8 @@ OnMapClickListener, InfoWindowAdapter, OnMapScreenShotListener{
 		// TODO Auto-generated method stub
 		return null;
 	}
-	
+
+	@SuppressLint("HandlerLeak")
 	private Handler mHandler = new Handler(){
 		public void handleMessage(Message msg) {
 			int what = msg.what;

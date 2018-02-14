@@ -45,11 +45,10 @@ import com.china.R;
 import com.china.common.CONST;
 import com.china.dto.AirPolutionDto;
 import com.china.dto.AqiDto;
-import com.china.manager.RainManager;
-import com.china.manager.XiangJiManager;
 import com.china.utils.AuthorityUtil;
 import com.china.utils.CommonUtil;
 import com.china.utils.OkHttpUtil;
+import com.china.utils.SecretUrlUtil;
 import com.china.view.AqiQualityView;
 import com.tendcloud.tenddata.TCAgent;
 
@@ -61,8 +60,7 @@ import java.io.IOException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 
 import cn.com.weather.api.WeatherAPI;
@@ -89,9 +87,8 @@ OnMapClickListener, OnCameraChangeListener, OnMapScreenShotListener{
 	private ImageView ivShare = null;
 	private MapView mMapView = null;
 	private AMap aMap = null;
-	private List<AirPolutionDto> provinceList = new ArrayList<>();//省级
-	private List<AirPolutionDto> cityList = new ArrayList<>();//市级
-	private List<AirPolutionDto> districtList = new ArrayList<>();//县级
+    private HashMap<String, List<AirPolutionDto>> levelMap = new HashMap<>();//省市县级别
+	private HashMap<String, AirPolutionDto> areaIdMap = new HashMap<>();//按区域id区分
 	private TextView tvName = null;
 	private TextView tvTime = null;
 	private TextView tvAqiCount = null;
@@ -108,13 +105,9 @@ OnMapClickListener, OnCameraChangeListener, OnMapScreenShotListener{
 	private LinearLayout llTop = null;
 	private LinearLayout llCity = null;
 	private TextView tvCity = null;
-	public final static String SANX_DATA_99 = "sanx_data_99";//加密秘钥名称
-	public final static String APPID = "f63d329270a44900";//机密需要用到的AppId
 	private float zoom = 3.7f;
-	private boolean isClick = false;//判断是否点击
 	private SimpleDateFormat sdf1 = new SimpleDateFormat("yyyyMMddHHmm");
 	private SimpleDateFormat sdf2 = new SimpleDateFormat("HH:mm");
-	private SimpleDateFormat sdf3 = new SimpleDateFormat("yyyyMMddHH");
 	private HorizontalScrollView hScrollView = null;
 	private LinearLayout llContainer = null;
 	private List<AqiDto> aqiList = new ArrayList<>();
@@ -128,6 +121,8 @@ OnMapClickListener, OnCameraChangeListener, OnMapScreenShotListener{
 	private LatLng leftlatlng = null;
 	private LatLng rightLatlng = null;
 	private Marker clickMarker = null;
+	private boolean isFirstLoad = true;//是否为默认第一次加载数据
+	private final String level1 = "level1", level2 = "level2", level3 = "level3";
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -204,6 +199,8 @@ OnMapClickListener, OnCameraChangeListener, OnMapScreenShotListener{
 
 	@Override
 	public void onCameraChangeFinish(CameraPosition arg0) {
+		hideAnimation(reContent);
+
 		DisplayMetrics dm = new DisplayMetrics();
 		getWindowManager().getDefaultDisplay().getMetrics(dm);
 		Point leftPoint = new Point(0, dm.heightPixels);
@@ -211,55 +208,30 @@ OnMapClickListener, OnCameraChangeListener, OnMapScreenShotListener{
 		leftlatlng = aMap.getProjection().fromScreenLocation(leftPoint);
 		rightLatlng = aMap.getProjection().fromScreenLocation(rightPoint);
 		
-		if (zoom == arg0.zoom && isClick == true) {//如果是地图缩放级别不变，并且点击就不做处理
-			isClick = false;
-			return;
-		}
-		
 		zoom = arg0.zoom;
-		removeMarkers();
-		if (arg0.zoom <= 6.0f) {
-			addMarker(provinceList);
-		}else if (arg0.zoom > 6.0f && arg0.zoom <= 8.0f) {
-			addMarker(provinceList);
-			addMarker(cityList);
-		}else if (arg0.zoom > 8.0f) {
-			addMarker(provinceList);
-			addMarker(cityList);
-			addMarker(districtList);
+		if (isFirstLoad) {
+			isFirstLoad = false;
+		}else {
+			removeMarkers();
+			if (zoom <= 6.0f) {
+				addMarker(level1);
+			}else if (zoom > 6.0f && zoom <= 8.0f) {
+				addMarker(level1);
+				addMarker(level2);
+			}else if (zoom > 8.0f) {
+				addMarker(level1);
+				addMarker(level2);
+				addMarker(level3);
+			}
 		}
+
 	}
-	
-	/**
-	 * 加密请求字符串
-	 * @return
-	 */
-	private String getSecretUrl() {
-		String URL = "http://scapi.weather.com.cn/weather/getaqiobserve";//空气污染
-		String sysdate = RainManager.getDate(Calendar.getInstance(), "yyyyMMddHHmm");//系统时间
-		StringBuffer buffer = new StringBuffer();
-		buffer.append(URL);
-		buffer.append("?");
-		buffer.append("date=").append(sysdate);
-		buffer.append("&");
-		buffer.append("appid=").append(APPID);
-		
-		String key = RainManager.getKey(SANX_DATA_99, buffer.toString());
-		buffer.delete(buffer.lastIndexOf("&"), buffer.length());
-		
-		buffer.append("&");
-		buffer.append("appid=").append(APPID.substring(0, 6));
-		buffer.append("&");
-		buffer.append("key=").append(key.substring(0, key.length() - 3));
-		String result = buffer.toString();
-		return result;
-	}
-	
+
 	/**
 	 * 获取空气质量排行
 	 */
 	private void OkHttpRank() {
-		OkHttpUtil.enqueue(new Request.Builder().url(getSecretUrl()).build(), new Callback() {
+		OkHttpUtil.enqueue(new Request.Builder().url(SecretUrlUtil.airpollution()).build(), new Callback() {
 			@Override
 			public void onFailure(Call call, IOException e) {
 
@@ -272,15 +244,15 @@ OnMapClickListener, OnCameraChangeListener, OnMapScreenShotListener{
 				}
 				String result = response.body().string();
 				if (result != null) {
-					parseStationInfo(result, "level1", provinceList);
-					parseStationInfo(result, "level2", cityList);
-					parseStationInfo(result, "level3", districtList);
+					parseStationInfo(result, level1);
+					parseStationInfo(result, level2);
+					parseStationInfo(result, level3);
 
 					runOnUiThread(new Runnable() {
 						@Override
 						public void run() {
-							addMarker(provinceList);
 							cancelDialog();
+							addMarker(level1);
 						}
 					});
 				}
@@ -291,8 +263,7 @@ OnMapClickListener, OnCameraChangeListener, OnMapScreenShotListener{
 	/**
 	 * 解析数据
 	 */
-	private void parseStationInfo(String result, String level, List<AirPolutionDto> list) {
-		list.clear();
+	private void parseStationInfo(String result, String level) {
 		try {
 			JSONObject obj = new JSONObject(result.toString());
 			if (!obj.isNull("data")) {
@@ -300,6 +271,7 @@ OnMapClickListener, OnCameraChangeListener, OnMapScreenShotListener{
 				JSONObject dataObj = obj.getJSONObject("data");
 				if (!dataObj.isNull(level)) {
 					JSONArray array = new JSONArray(dataObj.getString(level));
+					List<AirPolutionDto> list = new ArrayList<>();
 					for (int i = 0; i < array.length(); i++) {
 						AirPolutionDto dto = new AirPolutionDto();
 						JSONObject itemObj = array.getJSONObject(i);
@@ -331,9 +303,12 @@ OnMapClickListener, OnCameraChangeListener, OnMapScreenShotListener{
 							dto.rank = itemObj.getInt("rank");
 						}
 						dto.time = time;
-						
 						list.add(dto);
+
+						areaIdMap.put(dto.areaId, dto);
 					}
+
+					levelMap.put(level, list);
 				}
 			}
 		} catch (JSONException e) {
@@ -372,13 +347,13 @@ OnMapClickListener, OnCameraChangeListener, OnMapScreenShotListener{
 		int drawable = -1;
 		if (value >= 0 && value <= 50) {
 			drawable = R.drawable.iv_air1;
-		}else if (value >= 51 && value < 100) {
+		}else if (value >= 51 && value <= 100) {
 			drawable = R.drawable.iv_air2;
-		}else if (value >= 101 && value < 150) {
+		}else if (value >= 101 && value <= 150) {
 			drawable = R.drawable.iv_air3;
-		}else if (value >= 151 && value < 200) {
+		}else if (value >= 151 && value <= 200) {
 			drawable = R.drawable.iv_air4;
-		}else if (value >= 201 && value < 300) {
+		}else if (value >= 201 && value <= 300) {
 			drawable = R.drawable.iv_air5;
 		}else if (value >= 301) {
 			drawable = R.drawable.iv_air6;
@@ -403,8 +378,7 @@ OnMapClickListener, OnCameraChangeListener, OnMapScreenShotListener{
 	}
 	
 	private void removeMarkers() {
-		for (int i = 0; i < markerList.size(); i++) {
-			Marker marker = markerList.get(i);
+		for (Marker marker : markerList) {
 			markerColloseAnimation(marker);
 			marker.remove();
 		}
@@ -414,37 +388,51 @@ OnMapClickListener, OnCameraChangeListener, OnMapScreenShotListener{
 	/**
 	 * 添加marker
 	 */
-	private void addMarker(List<AirPolutionDto> list) {
+	private void addMarker(String level) {
+		final List<AirPolutionDto> list = new ArrayList<>();
+		if (levelMap.containsKey(level)) {
+			list.addAll(levelMap.get(level));
+		}
 		if (list.isEmpty()) {
 			return;
 		}
-		
-		for (int i = 0; i < list.size(); i++) {
-			AirPolutionDto dto = list.get(i);
-			double lat = Double.valueOf(dto.latitude);
-			double lng = Double.valueOf(dto.longitude);
-			if (leftlatlng == null || rightLatlng == null) {
-				MarkerOptions options = new MarkerOptions();
-				options.title(list.get(i).areaId);
-				options.anchor(0.5f, 0.5f);
-				options.position(new LatLng(lat, lng));
-				options.icon(BitmapDescriptorFactory.fromView(getTextBitmap(dto.name, dto.aqi)));
-				Marker marker = aMap.addMarker(options);
-				markerList.add(marker);
-				markerExpandAnimation(marker);
-			}else {
-				if (lat > leftlatlng.latitude && lat < rightLatlng.latitude && lng > leftlatlng.longitude && lng < rightLatlng.longitude) {
-					MarkerOptions options = new MarkerOptions();
-					options.title(list.get(i).areaId);
-					options.anchor(0.5f, 0.5f);
-					options.position(new LatLng(lat, lng));
-					options.icon(BitmapDescriptorFactory.fromView(getTextBitmap(dto.name, dto.aqi)));
-					Marker marker = aMap.addMarker(options);
-					markerList.add(marker);
-					markerExpandAnimation(marker);
+		new Thread(new Runnable() {
+			@Override
+			public void run() {
+				try {
+					for (AirPolutionDto dto : list) {
+						double lat = Double.valueOf(dto.latitude);
+						double lng = Double.valueOf(dto.longitude);
+						if (leftlatlng == null || rightLatlng == null) {
+							MarkerOptions options = new MarkerOptions();
+							options.title(dto.areaId);
+							options.anchor(0.5f, 1.0f);
+							options.position(new LatLng(lat, lng));
+							options.icon(BitmapDescriptorFactory.fromView(getTextBitmap(dto.name, dto.aqi)));
+							Marker marker = aMap.addMarker(options);
+							markerList.add(marker);
+							markerExpandAnimation(marker);
+						}else {
+							if (lat > leftlatlng.latitude && lat < rightLatlng.latitude && lng > leftlatlng.longitude && lng < rightLatlng.longitude) {
+								MarkerOptions options = new MarkerOptions();
+								options.title(dto.areaId);
+								options.anchor(0.5f, 1.0f);
+								options.position(new LatLng(lat, lng));
+								options.icon(BitmapDescriptorFactory.fromView(getTextBitmap(dto.name, dto.aqi)));
+								Marker marker = aMap.addMarker(options);
+								markerList.add(marker);
+								markerExpandAnimation(marker);
+							}
+						}
+					}
+				} catch (ArrayIndexOutOfBoundsException e) {
+					e.printStackTrace();
+				} catch (IndexOutOfBoundsException e) {
+					e.printStackTrace();
 				}
 			}
-		}
+		}).start();
+
 	}
 	
 	@Override
@@ -544,39 +532,6 @@ OnMapClickListener, OnCameraChangeListener, OnMapScreenShotListener{
 		return drawable;
 	}
 	
-	private void setValue(String areaId, List<AirPolutionDto> list) {
-		for (int i = 0; i < list.size(); i++) {
-			if (TextUtils.equals(areaId, list.get(i).areaId)) {
-				tvName.setText(list.get(i).name);
-				tvCity.setText(list.get(i).name+"空气质量指数（AQI）");
-				tvAqiCount.setText(list.get(i).aqi);
-				int value = Integer.valueOf(list.get(i).aqi);
-				tvAqi.setText(getAqiDes(value));
-				tvAqi.setBackgroundResource(getCornerBackground(value));
-				if (value > 150) {
-					tvAqi.setTextColor(getResources().getColor(R.color.white));
-				}else {
-					tvAqi.setTextColor(getResources().getColor(R.color.black));
-				}
-				tvPrompt.setText(getString(R.string.likely_prompt)+getPrompt(value));
-				reRank.setBackgroundResource(getCicleBackground(value));
-				tvRank.setText(list.get(i).rank+"");
-				rePm2_5.setBackgroundResource(getCicleBackground(value));
-				tvPm2_5.setText(list.get(i).pm2_5);
-				rePm10.setBackgroundResource(getCicleBackground(value));
-				tvPm10.setText(list.get(i).pm10);
-				if (!TextUtils.isEmpty(list.get(i).time)) {
-					try {
-						tvTime.setText(sdf2.format(sdf1.parse(list.get(i).time)) + getString(R.string.update));
-					} catch (ParseException e) {
-						e.printStackTrace();
-					}
-				}
-				break;
-			}
-		}
-	} 
-	
 	/**
 	 * 向上弹出动画
 	 * @param layout
@@ -624,22 +579,43 @@ OnMapClickListener, OnCameraChangeListener, OnMapScreenShotListener{
 
 	private void clickMarker() {
 		showAnimation(reContent);
-		isClick = true;
-
-		if (zoom <= 6.0f) {
-			setValue(clickMarker.getTitle(), provinceList);
-		}else if (zoom > 6.0f && zoom <= 8.0f) {
-			setValue(clickMarker.getTitle(), provinceList);
-			setValue(clickMarker.getTitle(), cityList);
-		}else if (zoom > 8.0f) {
-			setValue(clickMarker.getTitle(), provinceList);
-			setValue(clickMarker.getTitle(), cityList);
-			setValue(clickMarker.getTitle(), districtList);
+		if (clickMarker == null) {
+			return;
+		}
+		if (areaIdMap.containsKey(clickMarker.getTitle())) {
+			AirPolutionDto dto = areaIdMap.get(clickMarker.getTitle());
+			if (dto != null) {
+				tvName.setText(dto.name);
+				tvCity.setText(dto.name+"空气质量指数（AQI）");
+				tvAqiCount.setText(dto.aqi);
+				int value = Integer.valueOf(dto.aqi);
+				tvAqi.setText(getAqiDes(value));
+				tvAqi.setBackgroundResource(getCornerBackground(value));
+				if (value > 150) {
+					tvAqi.setTextColor(getResources().getColor(R.color.white));
+				}else {
+					tvAqi.setTextColor(getResources().getColor(R.color.black));
+				}
+				tvPrompt.setText(getString(R.string.likely_prompt)+getPrompt(value));
+				reRank.setBackgroundResource(getCicleBackground(value));
+				tvRank.setText(dto.rank+"");
+				rePm2_5.setBackgroundResource(getCicleBackground(value));
+				tvPm2_5.setText(dto.pm2_5);
+				rePm10.setBackgroundResource(getCicleBackground(value));
+				tvPm10.setText(dto.pm10);
+				if (!TextUtils.isEmpty(dto.time)) {
+					try {
+						tvTime.setText(sdf2.format(sdf1.parse(dto.time)) + getString(R.string.update));
+					} catch (ParseException e) {
+						e.printStackTrace();
+					}
+				}
+			}
 		}
 
 		llContainer.removeAllViews();
-		String lat = String.valueOf(clickMarker.getPosition().latitude);
-		String lng = String.valueOf(clickMarker.getPosition().longitude);
+		double lat = clickMarker.getPosition().latitude;
+		double lng = clickMarker.getPosition().longitude;
 		getWeatherInfo(clickMarker.getTitle(), lat, lng);
 	}
 
@@ -705,7 +681,7 @@ OnMapClickListener, OnCameraChangeListener, OnMapScreenShotListener{
 	/**
 	 * 获取实况信息、预报信息
 	 */
-	private void getWeatherInfo(String cityId, final String lat, final String lng) {
+	private void getWeatherInfo(String cityId, final double lat, final double lng) {
 		if (TextUtils.isEmpty(cityId)) {
 			return;
 		}
@@ -738,9 +714,7 @@ OnMapClickListener, OnCameraChangeListener, OnMapScreenShotListener{
 					}
 				}
 				
-				if (!TextUtils.isEmpty(lat) && !TextUtils.isEmpty(lng)) {
-					OkHttpXiangJiAqi(lat, lng);
-				}
+				OkHttpXiangJiAqi(lng, lat);
 			}
 			
 			@Override
@@ -753,88 +727,84 @@ OnMapClickListener, OnCameraChangeListener, OnMapScreenShotListener{
 	/**
 	 * 请求象辑aqi
 	 */
-	private void OkHttpXiangJiAqi(String lat, String lng) {
-    	long timestamp = new Date().getTime();
-    	String start1 = sdf3.format(timestamp);
-    	String end1 = sdf3.format(timestamp+1000*60*60*24);
-    	if (!TextUtils.isEmpty(lat) && !TextUtils.isEmpty(lng)) {
-			String url = XiangJiManager.getXJSecretUrl(Double.valueOf(lng), Double.valueOf(lat), start1, end1, timestamp);
-			OkHttpUtil.enqueue(new Request.Builder().url(url).build(), new Callback() {
-				@Override
-				public void onFailure(Call call, IOException e) {
+	private void OkHttpXiangJiAqi(double lng, double lat) {
+		OkHttpUtil.enqueue(new Request.Builder().url(SecretUrlUtil.airForecast(lng, lat)).build(), new Callback() {
+			@Override
+			public void onFailure(Call call, IOException e) {
 
+			}
+
+			@Override
+			public void onResponse(Call call, Response response) throws IOException {
+				if (!response.isSuccessful()) {
+					return;
 				}
+				String result = response.body().string();
+				if (result != null) {
+					try {
+						JSONObject obj = new JSONObject(result.toString());
+						if (!obj.isNull("reqTime")) {
+							aqiDate = obj.getString("reqTime");
+						}
 
-				@Override
-				public void onResponse(Call call, Response response) throws IOException {
-					if (!response.isSuccessful()) {
-						return;
-					}
-					String result = response.body().string();
-					if (result != null) {
-						try {
-							JSONObject obj = new JSONObject(result.toString());
-							if (!obj.isNull("reqTime")) {
-								aqiDate = obj.getString("reqTime");
+						if (!obj.isNull("series")) {
+							aqiList.clear();
+							JSONArray array = obj.getJSONArray("series");
+							foreAqiList.clear();
+							for (int i = 0; i < array.length(); i++) {
+								AqiDto data = new AqiDto();
+								data.aqi = String.valueOf(array.get(i));
+								foreAqiList.add(data);
 							}
+							aqiList.addAll(factAqiList);
+							aqiList.addAll(foreAqiList);
+						}
 
-							if (!obj.isNull("series")) {
-								aqiList.clear();
-								JSONArray array = obj.getJSONArray("series");
-								foreAqiList.clear();
-								for (int i = 0; i < array.length(); i++) {
-									AqiDto data = new AqiDto();
-									data.aqi = String.valueOf(array.get(i));
-									foreAqiList.add(data);
-								}
-								aqiList.addAll(factAqiList);
-								aqiList.addAll(foreAqiList);
-							}
-
-							if (aqiList.size() > 0) {
-								try {
-									if (!TextUtils.isEmpty(aqiList.get(0).aqi)) {
-										maxAqi = Integer.valueOf(aqiList.get(0).aqi);
-										minAqi = Integer.valueOf(aqiList.get(0).aqi);
-										for (int i = 0; i < aqiList.size(); i++) {
-											if (!TextUtils.isEmpty(aqiList.get(i).aqi)) {
-												if (maxAqi <= Integer.valueOf(aqiList.get(i).aqi)) {
-													maxAqi = Integer.valueOf(aqiList.get(i).aqi);
-												}
-												if (minAqi >= Integer.valueOf(aqiList.get(i).aqi)) {
-													minAqi = Integer.valueOf(aqiList.get(i).aqi);
-												}
+						if (aqiList.size() > 0) {
+							try {
+								if (!TextUtils.isEmpty(aqiList.get(0).aqi)) {
+									maxAqi = Integer.valueOf(aqiList.get(0).aqi);
+									minAqi = Integer.valueOf(aqiList.get(0).aqi);
+									for (int i = 0; i < aqiList.size(); i++) {
+										if (!TextUtils.isEmpty(aqiList.get(i).aqi)) {
+											if (maxAqi <= Integer.valueOf(aqiList.get(i).aqi)) {
+												maxAqi = Integer.valueOf(aqiList.get(i).aqi);
+											}
+											if (minAqi >= Integer.valueOf(aqiList.get(i).aqi)) {
+												minAqi = Integer.valueOf(aqiList.get(i).aqi);
 											}
 										}
-										maxAqi = maxAqi + (50 - maxAqi%50);
-
-										runOnUiThread(new Runnable() {
-											@Override
-											public void run() {
-												if (configuration.orientation == Configuration.ORIENTATION_PORTRAIT) {
-													setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
-													showPortrait();
-													ivExpand.setImageResource(R.drawable.iv_expand);
-												}else {
-													setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
-													showLandscape();
-													ivExpand.setImageResource(R.drawable.iv_collose);
-												}
-											}
-										});
-
 									}
-								} catch (ArrayIndexOutOfBoundsException e) {
-									e.printStackTrace();
+									maxAqi = maxAqi + (50 - maxAqi%50);
+
+									runOnUiThread(new Runnable() {
+										@Override
+										public void run() {
+											if (configuration.orientation == Configuration.ORIENTATION_PORTRAIT) {
+												setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
+												showPortrait();
+												ivExpand.setImageResource(R.drawable.iv_expand);
+											}else {
+												setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
+												showLandscape();
+												ivExpand.setImageResource(R.drawable.iv_collose);
+											}
+										}
+									});
+
 								}
+							} catch (ArrayIndexOutOfBoundsException e) {
+								e.printStackTrace();
+							} catch (IndexOutOfBoundsException e) {
+								e.printStackTrace();
 							}
-						} catch (JSONException e1) {
-							e1.printStackTrace();
 						}
+					} catch (JSONException e1) {
+						e1.printStackTrace();
 					}
 				}
-			});
-		}
+			}
+		});
 	}
 	
 	private void showPortrait() {
@@ -911,7 +881,6 @@ OnMapClickListener, OnCameraChangeListener, OnMapScreenShotListener{
 
 	@Override
 	public void onMapScreenShot(Bitmap arg0, int arg1) {
-		// TODO Auto-generated method stub
 	}
 	
 	@Override

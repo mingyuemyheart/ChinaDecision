@@ -4,7 +4,6 @@ package com.china.view;
  * 绘制平滑曲线
  */
 
-import android.annotation.SuppressLint;
 import android.content.Context;
 import android.graphics.Canvas;
 import android.graphics.Color;
@@ -25,13 +24,12 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.List;
 
-@SuppressLint({ "DrawAllocation", "SimpleDateFormat" })
 public class AqiQualityView extends View{
 	
 	private Context mContext = null;
 	private SimpleDateFormat sdf1 = new SimpleDateFormat("HH");
 	private SimpleDateFormat sdf2 = new SimpleDateFormat("yyyyMMddHHmmss");
-	private List<AqiDto> tempList = new ArrayList<AqiDto>();
+	private List<AqiDto> tempList = new ArrayList<>();
 	private int maxTemp = 0;//最高温度
 	private int minTemp = 0;//最低温度
 	private Paint lineP = null;//画线画笔
@@ -132,9 +130,7 @@ public class AqiQualityView extends View{
 		float rightMargin = CommonUtil.dip2px(mContext, 70);
 		float topMargin = CommonUtil.dip2px(mContext, 20);
 		float bottomMargin = CommonUtil.dip2px(mContext, 20);
-		float chartMaxH = chartH * maxTemp / (Math.abs(maxTemp)+Math.abs(minTemp));//同时存在正负值时，正值高度
-		float chartMinH = chartH * minTemp / (Math.abs(maxTemp)+Math.abs(minTemp));//同时存在正负值时，负值高度
-		
+
 		//获取曲线上每个温度点的坐标
 		for (int i = 0; i < tempList.size(); i++) {
 			AqiDto dto = tempList.get(i);
@@ -287,7 +283,7 @@ public class AqiQualityView extends View{
 				roundP.setColor(0xff771512);
 			}
 			if (Integer.valueOf(dto.aqi) > 290) {
-				RectF rectF = new RectF(dto.x-CommonUtil.dip2px(mContext, 10f), dto.y+CommonUtil.dip2px(mContext, 10), dto.x+CommonUtil.dip2px(mContext, 10f), dto.y+CommonUtil.dip2px(mContext, 28));
+				RectF rectF = new RectF(dto.x-CommonUtil.dip2px(mContext, 10f), dto.y+CommonUtil.dip2px(mContext, 8), dto.x+CommonUtil.dip2px(mContext, 10f), dto.y+CommonUtil.dip2px(mContext, 23));
 				canvas.drawRoundRect(rectF, CommonUtil.dip2px(mContext, 5), CommonUtil.dip2px(mContext, 5), roundP);
 				if (Integer.valueOf(dto.aqi) > 150) {
 					textP.setColor(getResources().getColor(R.color.white));
@@ -296,9 +292,9 @@ public class AqiQualityView extends View{
 				}
 				textP.setTextSize(CommonUtil.dip2px(mContext, 10));
 				float tempWidth = textP.measureText(dto.aqi);
-				canvas.drawText(dto.aqi, dto.x-tempWidth/2, dto.y+CommonUtil.dip2px(mContext, 23f), textP);
+				canvas.drawText(dto.aqi, dto.x-tempWidth/2, dto.y+CommonUtil.dip2px(mContext, 20f), textP);
 			}else {
-				RectF rectF = new RectF(dto.x-CommonUtil.dip2px(mContext, 10f), dto.y-CommonUtil.dip2px(mContext, 28), dto.x+CommonUtil.dip2px(mContext, 10f), dto.y-CommonUtil.dip2px(mContext, 10));
+				RectF rectF = new RectF(dto.x-CommonUtil.dip2px(mContext, 10f), dto.y-CommonUtil.dip2px(mContext, 23), dto.x+CommonUtil.dip2px(mContext, 10f), dto.y-CommonUtil.dip2px(mContext, 8));
 				canvas.drawRoundRect(rectF, CommonUtil.dip2px(mContext, 5), CommonUtil.dip2px(mContext, 5), roundP);
 				if (Integer.valueOf(dto.aqi) > 150) {
 					textP.setColor(getResources().getColor(R.color.white));
@@ -307,7 +303,7 @@ public class AqiQualityView extends View{
 				}
 				textP.setTextSize(CommonUtil.dip2px(mContext, 10));
 				float tempWidth = textP.measureText(dto.aqi);
-				canvas.drawText(dto.aqi, dto.x-tempWidth/2, dto.y-CommonUtil.dip2px(mContext, 15f), textP);
+				canvas.drawText(dto.aqi, dto.x-tempWidth/2, dto.y-CommonUtil.dip2px(mContext, 12f), textP);
 			}
 			
 			//绘制每个时间点上的时间值

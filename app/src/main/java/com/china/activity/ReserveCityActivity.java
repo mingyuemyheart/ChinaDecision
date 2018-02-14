@@ -166,6 +166,7 @@ public class ReserveCityActivity extends BaseActivity implements View.OnClickLis
 
         //获取预警信息
         OkHttpWarning("http://decision-admin.tianqi.cn/Home/extra/getwarns?order=0");
+        startLocation();
     }
 
     /**
@@ -231,7 +232,6 @@ public class ReserveCityActivity extends BaseActivity implements View.OnClickLis
                                         warningList.add(dto);
                                     }
                                 }
-
                             }
                         }
                     } catch (JSONException e) {
@@ -240,8 +240,6 @@ public class ReserveCityActivity extends BaseActivity implements View.OnClickLis
                 }
             }
         });
-
-        startLocation();
     }
 
     /**
@@ -352,13 +350,7 @@ public class ReserveCityActivity extends BaseActivity implements View.OnClickLis
                             if (!geoObj.isNull("id")) {
                                 final String cityId = geoObj.getString("id");
                                 final String warningId = queryWarningIdByCityId(cityId);
-                                runOnUiThread(new Runnable() {
-                                    @Override
-                                    public void run() {
-                                        getWeatherInfos(cityId, cityName, warningId);
-                                    }
-                                });
-
+                                getWeatherInfos(cityId, cityName, warningId);
                             }
                         }
                     } catch (JSONException e) {
@@ -512,7 +504,6 @@ public class ReserveCityActivity extends BaseActivity implements View.OnClickLis
                         if (mAdapter != null) {
                             mAdapter.notifyDataSetChanged();
                         }
-
                     } catch (JSONException e) {
                         e.printStackTrace();
                     }

@@ -5,6 +5,7 @@ package com.china.activity;
  */
 
 import android.Manifest;
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
@@ -47,10 +48,10 @@ import com.china.R;
 import com.china.common.CONST;
 import com.china.dto.WeatherDto;
 import com.china.dto.WeatherStaticsDto;
-import com.china.manager.RainManager;
 import com.china.utils.AuthorityUtil;
 import com.china.utils.CommonUtil;
 import com.china.utils.OkHttpUtil;
+import com.china.utils.SecretUrlUtil;
 import com.china.utils.WeatherUtil;
 
 import org.json.JSONArray;
@@ -61,7 +62,6 @@ import java.io.IOException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -77,8 +77,7 @@ import okhttp3.Request;
 import okhttp3.Response;
 
 public class CityForecastActivity extends BaseActivity implements OnClickListener, OnMarkerClickListener,
-        OnMapClickListener, OnCameraChangeListener, AMap.InfoWindowAdapter, AMap.OnInfoWindowClickListener,
-        OnMapScreenShotListener{
+        OnMapClickListener, OnCameraChangeListener, AMap.InfoWindowAdapter, AMap.OnInfoWindowClickListener, OnMapScreenShotListener{
 
     private Context mContext = null;
     private LinearLayout llBack = null;
@@ -88,8 +87,6 @@ public class CityForecastActivity extends BaseActivity implements OnClickListene
     private HashMap<String, WeatherStaticsDto> proMap = new HashMap<>();//省级
     private HashMap<String, WeatherStaticsDto> cityMap = new HashMap<>();//市级
     private HashMap<String, WeatherStaticsDto> disMap = new HashMap<>();//县级
-    public final static String SANX_DATA_99 = "sanx_data_99";//加密秘钥名称
-    public final static String APPID = "f63d329270a44900";//机密需要用到的AppId
     private float zoom = 3.7f;
     private boolean isClick = false;//判断是否点击
     private ImageView ivShare = null;
@@ -199,7 +196,7 @@ public class CityForecastActivity extends BaseActivity implements OnClickListene
             tvTitle.setText(title);
         }
 
-        OkHttpCityForecast(getSecretUrl());
+        OkHttpCityForecast(SecretUrlUtil.statistic());
     }
 
     /**
@@ -220,31 +217,6 @@ public class CityForecastActivity extends BaseActivity implements OnClickListene
         aMap.setOnCameraChangeListener(this);
         aMap.setInfoWindowAdapter(this);
         aMap.setOnInfoWindowClickListener(this);
-    }
-
-    /**
-     * 加密请求字符串
-     * @return
-     */
-    private String getSecretUrl() {
-        String URL = "http://scapi.weather.com.cn/weather/stationinfo";//天气统计地址
-        String sysdate = RainManager.getDate(Calendar.getInstance(), "yyyyMMddHHmm");//系统时间
-        StringBuffer buffer = new StringBuffer();
-        buffer.append(URL);
-        buffer.append("?");
-        buffer.append("date=").append(sysdate);
-        buffer.append("&");
-        buffer.append("appid=").append(APPID);
-
-        String key = RainManager.getKey(SANX_DATA_99, buffer.toString());
-        buffer.delete(buffer.lastIndexOf("&"), buffer.length());
-
-        buffer.append("&");
-        buffer.append("appid=").append(APPID.substring(0, 6));
-        buffer.append("&");
-        buffer.append("key=").append(key.substring(0, key.length() - 3));
-        String result = buffer.toString();
-        return result;
     }
 
     /**
@@ -550,9 +522,10 @@ public class CityForecastActivity extends BaseActivity implements OnClickListene
         Message msg = handler.obtainMessage();
         msg.what = 1001;
         msg.obj = zoom;
-        handler.sendMessageDelayed(msg, 1001);
+        handler.sendMessageDelayed(msg, 1000);
     }
 
+    @SuppressLint("HandlerLeak")
     private Handler handler = new Handler() {
         @Override
         public void handleMessage(Message msg) {

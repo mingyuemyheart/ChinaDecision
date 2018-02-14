@@ -350,7 +350,7 @@ OnMapClickListener, OnGeocodeSearchListener, OnMapScreenShotListener{
 	 * @param lat
 	 */
 	private void OkHttpMinuteFall(double lng, double lat) {
-		String url = "http://api.caiyunapp.com/v2/HyTVV5YAkoxlQ3Zd/"+lng+","+lat+"/forecast";
+		String url = String.format("http://api.caiyunapp.com/v2/HyTVV5YAkoxlQ3Zd/%s,%s/forecast", lng, lat);
 		OkHttpUtil.enqueue(new Request.Builder().url(url).build(), new Callback() {
 			@Override
 			public void onFailure(Call call, IOException e) {

@@ -517,7 +517,6 @@ public class CommonUtil {
 	 * @param webView  
 	 * @return  
 	 */  
-	@SuppressWarnings("deprecation")
 	public static Bitmap captureWebView(WebView webView){
 	    Picture snapShot = webView.capturePicture();  
 	    Bitmap bitmap = Bitmap.createBitmap(snapShot.getWidth(),snapShot.getHeight(), Config.ARGB_8888);
@@ -757,31 +756,34 @@ public class CommonUtil {
     /**
 	 * 提交点击次数
 	 */
-	public static void submitClickCount(String columnId, String name) {
+	public static void submitClickCount(final String columnId, final String name) {
 		if (TextUtils.isEmpty(columnId) || TextUtils.isEmpty(name)) {
 			return;
 		}
-		SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMddHH");
-		String addtime = sdf.format(new Date());
-		String clickUrl = String.format("http://decision-admin.tianqi.cn/Home/Count/clickCount?addtime=%s&appid=%s&eventid=menuClick_%s&eventname=%s&userid=%s&username=%s",
-				addtime, CONST.APPID, columnId, name, CONST.UID, CONST.USERNAME);
-		
-		OkHttpUtil.enqueue(new Request.Builder().url(clickUrl).build(), new Callback() {
+		new Thread(new Runnable() {
 			@Override
-			public void onFailure(Call call, IOException e) {
+			public void run() {
+				SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMddHH");
+				String addtime = sdf.format(new Date());
+				String clickUrl = String.format("http://decision-admin.tianqi.cn/Home/Count/clickCount?addtime=%s&appid=%s&eventid=menuClick_%s&eventname=%s&userid=%s&username=%s",
+						addtime, CONST.APPID, columnId, name, CONST.UID, CONST.USERNAME);
 
+				OkHttpUtil.enqueue(new Request.Builder().url(clickUrl).build(), new Callback() {
+					@Override
+					public void onFailure(Call call, IOException e) {
+
+					}
+
+					@Override
+					public void onResponse(Call call, Response response) throws IOException {
+						if (!response.isSuccessful()) {
+							return;
+						}
+						String result = response.body().string();
+					}
+				});
 			}
-
-			@Override
-			public void onResponse(Call call, Response response) throws IOException {
-
-				if (!response.isSuccessful()) {
-					return;
-				}
-				String result = response.body().string();
-				Log.e("click", result);
-			}
-		});
+		}).start();
 	}
 
 	/**

@@ -3,6 +3,7 @@ package com.china.activity;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.os.Build;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.view.KeyEvent;
@@ -56,6 +57,9 @@ public class WeatherInfoDetailActivity extends BaseActivity implements OnClickLi
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
+		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {//解决5.0以上webview截屏长图
+			WebView.enableSlowWholeDocumentDraw();
+		}
 		setContentView(R.layout.activity_weather_info_detail);
 		mContext = this;
 		initRefreshLayout();
@@ -251,7 +255,6 @@ public class WeatherInfoDetailActivity extends BaseActivity implements OnClickLi
 		case R.id.ivShareImg:
 			Bitmap bitmap1 = CommonUtil.captureWebView(webView);
 			Bitmap bitmap2 = BitmapFactory.decodeResource(getResources(), R.drawable.iv_share_bottom);
-//			Bitmap bitmap2 = BitmapFactory.decodeStream(getClass().getResourceAsStream("/res/drawable-hdpi/iv_share_bottom.png"));
 			Bitmap bitmap = CommonUtil.mergeBitmap(WeatherInfoDetailActivity.this, bitmap1, bitmap2, false);
 			CommonUtil.clearBitmap(bitmap1);
 			CommonUtil.clearBitmap(bitmap2);

@@ -1,5 +1,6 @@
 package com.china.activity;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
@@ -68,10 +69,10 @@ import com.china.common.CONST;
 import com.china.common.MyApplication;
 import com.china.dto.StationMonitorDto;
 import com.china.manager.DBManager;
-import com.china.manager.RainManager;
 import com.china.manager.StationManager;
 import com.china.utils.CommonUtil;
 import com.china.utils.OkHttpUtil;
+import com.china.utils.SecretUrlUtil;
 import com.china.view.StationCursorView;
 import com.tendcloud.tenddata.TCAgent;
 
@@ -85,7 +86,6 @@ import java.io.IOException;
 import java.math.BigDecimal;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.List;
 
 import okhttp3.Call;
@@ -126,8 +126,6 @@ public class StationMonitorActivity extends BaseActivity implements OnClickListe
     private long pastTime = 60 * 60 * 1000;
     private RelativeLayout reContent = null;
     private ImageView ivDelete = null;
-    public final static String SANX_DATA_99 = "sanx_data_99";//加密秘钥名称
-    public final static String APPID = "f63d329270a44900";//机密需要用到的AppId
     private float zoom = 3.5f;
     private AMapLocationClientOption mLocationOption = null;//声明mLocationOption对象
     private AMapLocationClient mLocationClient = null;//声明AMapLocationClient类对象
@@ -230,16 +228,14 @@ public class StationMonitorActivity extends BaseActivity implements OnClickListe
 
     @Override
     public void onMapLoaded() {
-        asyncGetMapUrl("http://decision-171.tianqi.cn/weather/rgwst/JsonCatalogue?map=china&type=1");//获取中国地区五中天气现象数据
-        asyncGetMapLegend("http://decision-171.tianqi.cn/weather/rgwst/jsontuli");//获取图例
+        OkHttpMapUrl("http://decision-171.tianqi.cn/weather/rgwst/JsonCatalogue?map=china&type=1");//获取中国地区五中天气现象数据
+        OkHttpLegend("http://decision-171.tianqi.cn/weather/rgwst/jsontuli");//获取图例
     }
 
     /**
      * 获取五种天气要素的json地址
-     *
-     * @param url
      */
-    private void asyncGetMapUrl(final String url) {
+    private void OkHttpMapUrl(final String url) {
         new Thread(new Runnable() {
             @Override
             public void run() {
@@ -335,10 +331,8 @@ public class StationMonitorActivity extends BaseActivity implements OnClickListe
 
     /**
      * 获取图例
-     *
-     * @param url
      */
-    private void asyncGetMapLegend(final String url) {
+    private void OkHttpLegend(final String url) {
         new Thread(new Runnable() {
             @Override
             public void run() {
@@ -478,25 +472,30 @@ public class StationMonitorActivity extends BaseActivity implements OnClickListe
      *
      * @param url
      */
-    private void asyncGetMapData(String url) {
-        OkHttpUtil.enqueue(new Request.Builder().url(url).build(), new Callback() {
+    private void asyncGetMapData(final String url) {
+        new Thread(new Runnable() {
             @Override
-            public void onFailure(Call call, IOException e) {
+            public void run() {
+                OkHttpUtil.enqueue(new Request.Builder().url(url).build(), new Callback() {
+                    @Override
+                    public void onFailure(Call call, IOException e) {
 
-            }
+                    }
 
-            @Override
-            public void onResponse(Call call, Response response) throws IOException {
-                if (!response.isSuccessful()) {
-                    return;
-                }
-                String result = response.body().string();
-                if (result != null) {
-                    StationManager.precipitation1hResult = result;
-                    drawNationDataToMap(value, LOADTYPE1);
-                }
+                    @Override
+                    public void onResponse(Call call, Response response) throws IOException {
+                        if (!response.isSuccessful()) {
+                            return;
+                        }
+                        String result = response.body().string();
+                        if (result != null) {
+                            StationManager.precipitation1hResult = result;
+                            drawNationDataToMap(value, LOADTYPE1);
+                        }
+                    }
+                });
             }
-        });
+        }).start();
     }
 
     @Override
@@ -534,6 +533,7 @@ public class StationMonitorActivity extends BaseActivity implements OnClickListe
         delayedHandler.sendMessageDelayed(msg, 1500);
     }
 
+    @SuppressLint("HandlerLeak")
     private Handler delayedHandler = new Handler() {
         @Override
         public void handleMessage(Message msg) {
@@ -765,46 +765,49 @@ public class StationMonitorActivity extends BaseActivity implements OnClickListe
 
     /**
      * 绘制图层
-     *
-     * @param result
      */
-    private void drawWeatherLayer(String result) {
+    private void drawWeatherLayer(final String result) {
         if (TextUtils.isEmpty(result)) {
             return;
         }
-        try {
-            JSONObject obj = new JSONObject(result);
-            JSONArray array = obj.getJSONArray("l");
-            int length = array.length();
-            for (int i = 0; i < length; i++) {
-                JSONObject itemObj = array.getJSONObject(i);
-                JSONArray c = itemObj.getJSONArray("c");
-                int r = c.getInt(0);
-                int g = c.getInt(1);
-                int b = c.getInt(2);
-                int a = c.getInt(3) * (int)(255 * 0.7f);
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    JSONObject obj = new JSONObject(result);
+                    JSONArray array = obj.getJSONArray("l");
+                    int length = array.length();
+                    for (int i = 0; i < length; i++) {
+                        JSONObject itemObj = array.getJSONObject(i);
+                        JSONArray c = itemObj.getJSONArray("c");
+                        int r = c.getInt(0);
+                        int g = c.getInt(1);
+                        int b = c.getInt(2);
+                        int a = c.getInt(3) * (int)(255 * 0.7f);
 
-                if (!itemObj.isNull("p")) {
-                    String p = itemObj.getString("p");
-                    if (!TextUtils.isEmpty(p)) {
-                        String[] points = p.split(";");
-                        PolygonOptions polylineOption = new PolygonOptions();
-                        polylineOption.fillColor(Color.argb(a, r, g, b));
-                        polylineOption.strokeColor(Color.TRANSPARENT);
-                        for (int j = 0; j < points.length; j++) {
-                            String[] latLng = points[j].split(",");
-                            double lat = Double.valueOf(latLng[1]);
-                            double lng = Double.valueOf(latLng[0]);
-                            polylineOption.add(new LatLng(lat, lng));
+                        if (!itemObj.isNull("p")) {
+                            String p = itemObj.getString("p");
+                            if (!TextUtils.isEmpty(p)) {
+                                String[] points = p.split(";");
+                                PolygonOptions polylineOption = new PolygonOptions();
+                                polylineOption.fillColor(Color.argb(a, r, g, b));
+                                polylineOption.strokeColor(Color.TRANSPARENT);
+                                for (int j = 0; j < points.length; j++) {
+                                    String[] latLng = points[j].split(",");
+                                    double lat = Double.valueOf(latLng[1]);
+                                    double lng = Double.valueOf(latLng[0]);
+                                    polylineOption.add(new LatLng(lat, lng));
+                                }
+                                Polygon polygon = aMap.addPolygon(polylineOption);
+                                polygons.add(polygon);
+                            }
                         }
-                        Polygon polygon = aMap.addPolygon(polylineOption);
-                        polygons.add(polygon);
                     }
+                } catch (JSONException e) {
+                    e.printStackTrace();
                 }
             }
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
+        }).start();
     }
 
     /**
@@ -812,49 +815,54 @@ public class StationMonitorActivity extends BaseActivity implements OnClickListe
      *
      * @param result
      */
-    private void drawValueLine(String result) {
+    private void drawValueLine(final String result) {
         if (TextUtils.isEmpty(result)) {
             return;
         }
-        try {
-            JSONObject obj = new JSONObject(result);
-            JSONArray array = obj.getJSONArray("l");
-            int length = array.length();
-            for (int i = 0; i < length; i++) {
-                JSONObject itemObj = array.getJSONObject(i);
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    JSONObject obj = new JSONObject(result);
+                    JSONArray array = obj.getJSONArray("l");
+                    int length = array.length();
+                    for (int i = 0; i < length; i++) {
+                        JSONObject itemObj = array.getJSONObject(i);
 
-                double centerLat = 0;
-                double centerLng = 0;
-                if (!itemObj.isNull("p")) {
-                    String p = itemObj.getString("p");
-                    if (!TextUtils.isEmpty(p)) {
-                        String[] points = p.split(";");
-                        for (int j = 0; j < points.length; j++) {
-                            String[] latLng = points[j].split(",");
-                            double lat = Double.valueOf(latLng[1]);
-                            double lng = Double.valueOf(latLng[0]);
-                            if (j == points.length / 2) {
-                                centerLat = lat;
-                                centerLng = lng;
+                        double centerLat = 0;
+                        double centerLng = 0;
+                        if (!itemObj.isNull("p")) {
+                            String p = itemObj.getString("p");
+                            if (!TextUtils.isEmpty(p)) {
+                                String[] points = p.split(";");
+                                for (int j = 0; j < points.length; j++) {
+                                    String[] latLng = points[j].split(",");
+                                    double lat = Double.valueOf(latLng[1]);
+                                    double lng = Double.valueOf(latLng[0]);
+                                    if (j == points.length / 2) {
+                                        centerLat = lat;
+                                        centerLng = lng;
+                                    }
+                                }
                             }
                         }
+                        if (!itemObj.isNull("v")) {
+                            double v = itemObj.getDouble("v");
+                            TextOptions options = new TextOptions();
+                            options.position(new LatLng(centerLat, centerLng));
+                            options.fontColor(Color.BLACK);
+                            options.fontSize(20);
+                            options.text(v + "");
+                            options.backgroundColor(Color.TRANSPARENT);
+                            Text text = aMap.addText(options);
+                            texts.add(text);
+                        }
                     }
-                }
-                if (!itemObj.isNull("v")) {
-                    double v = itemObj.getDouble("v");
-                    TextOptions options = new TextOptions();
-                    options.position(new LatLng(centerLat, centerLng));
-                    options.fontColor(Color.BLACK);
-                    options.fontSize(20);
-                    options.text(v + "");
-                    options.backgroundColor(Color.TRANSPARENT);
-                    Text text = aMap.addText(options);
-                    texts.add(text);
+                } catch (JSONException e) {
+                    e.printStackTrace();
                 }
             }
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
+        }).start();
     }
 
     /**
@@ -1053,8 +1061,6 @@ public class StationMonitorActivity extends BaseActivity implements OnClickListe
 
     /**
      * 查询全国符合可视化区域站点信息
-     *
-     * @param list
      */
     private void queryNationViewStationInfo(List<StationMonitorDto> list, String loadType) {
         if (leftlatlng == null || rightLatlng == null) {
@@ -1208,277 +1214,251 @@ public class StationMonitorActivity extends BaseActivity implements OnClickListe
     }
 
     /**
-     * 加密请求站点接口地址
-     */
-    private String getStationsUrl(String stationIds) {
-        String URL = "http://decision-171.tianqi.cn/weather/rgwst/NewestDataNew";
-        String sysdate = RainManager.getDate(Calendar.getInstance(), "yyyyMMddHHmmss");//系统时间
-        StringBuffer buffer = new StringBuffer();
-        buffer.append(URL);
-        buffer.append("?");
-        buffer.append("stationids=").append(stationIds);
-        buffer.append("&");
-        buffer.append("date=").append(sysdate);
-        buffer.append("&");
-        buffer.append("appid=").append(APPID);
-
-        String key = RainManager.getKey(SANX_DATA_99, buffer.toString());
-        buffer.delete(buffer.lastIndexOf("&"), buffer.length());
-
-        buffer.append("&");
-        buffer.append("appid=").append(APPID.substring(0, 6));
-        buffer.append("&");
-        buffer.append("key=").append(key.substring(0, key.length() - 3));
-        String result = buffer.toString();
-        return result;
-    }
-
-    /**
      * 获取站点信息
      * @param stationIds
      */
     private void OkHttpStationsInfo(String stationIds, final String loadType) {
-        String[] ids = stationIds.split(",");
+        final String[] ids = stationIds.split(",");
         FormBody.Builder formBodyBuilder = new FormBody.Builder();
         formBodyBuilder.add("ids", stationIds);
-        RequestBody requestBody = formBodyBuilder.build();
-        OkHttpUtil.enqueue(new Request.Builder().url(getStationsUrl(ids[0])).post(requestBody).build(), new Callback() {
+        final RequestBody requestBody = formBodyBuilder.build();
+        new Thread(new Runnable() {
             @Override
-            public void onFailure(Call call, IOException e) {
+            public void run() {
+                OkHttpUtil.enqueue(new Request.Builder().url(SecretUrlUtil.stationsInfo(ids[0])).post(requestBody).build(), new Callback() {
+                    @Override
+                    public void onFailure(Call call, IOException e) {
 
-            }
-
-            @Override
-            public void onResponse(Call call, Response response) throws IOException {
-                if (!response.isSuccessful()) {
-                    return;
-                }
-                String result = response.body().string();
-                if (result != null) {
-                    try {
-                        JSONArray array = new JSONArray(result);
-                        for (int i = 0; i < array.length(); i++) {
-                            JSONObject obj = array.getJSONObject(i);
-                            StationMonitorDto dto = stationList.get(i);
-
-                            if (!obj.isNull("datatime")) {
-                                dto.time = obj.getString("datatime");
-                            }
-
-                            dto.distance = getDistance(locationLng, locationLat, Double.valueOf(dto.lng), Double.valueOf(dto.lat));
-
-                            if (!obj.isNull("airpressure")) {
-                                String value = obj.getString("airpressure");
-                                if (!TextUtils.isEmpty(value)) {
-                                    if (value.length() >= 2 && value.contains(".")) {
-                                        if (value.equals(".0")) {
-                                            dto.airPressure = "0";
-                                        } else {
-                                            if (TextUtils.equals(value.substring(value.length() - 2, value.length()), ".0")) {
-                                                dto.airPressure = value.substring(0, value.indexOf("."));
-                                            } else {
-                                                dto.airPressure = value;
-                                            }
-                                        }
-                                    }
-                                } else {
-                                    dto.airPressure = CONST.noValue;
-                                }
-                            } else {
-                                dto.airPressure = CONST.noValue;
-                            }
-
-                            if (!obj.isNull("balltemp")) {
-                                String value = obj.getString("balltemp");
-                                if (!TextUtils.isEmpty(value)) {
-                                    if (value.length() >= 2 && value.contains(".")) {
-                                        if (value.equals(".0")) {
-                                            dto.ballTemp = "0";
-                                        } else {
-                                            if (TextUtils.equals(value.substring(value.length() - 2, value.length()), ".0")) {
-                                                dto.ballTemp = value.substring(0, value.indexOf("."));
-                                            } else {
-                                                dto.ballTemp = value;
-                                            }
-                                        }
-                                    }
-                                } else {
-                                    dto.ballTemp = CONST.noValue;
-                                }
-                            } else {
-                                dto.ballTemp = CONST.noValue;
-                            }
-
-                            if (!obj.isNull("humidity")) {
-                                String value = obj.getString("humidity");
-                                if (!TextUtils.isEmpty(value)) {
-                                    if (value.length() >= 2 && value.contains(".")) {
-                                        if (value.equals(".0")) {
-                                            dto.humidity = "0";
-                                        } else {
-                                            if (TextUtils.equals(value.substring(value.length() - 2, value.length()), ".0")) {
-                                                dto.humidity = value.substring(0, value.indexOf("."));
-                                            } else {
-                                                dto.humidity = value;
-                                            }
-                                        }
-                                    }
-                                } else {
-                                    dto.humidity = CONST.noValue;
-                                }
-                            } else {
-                                dto.humidity = CONST.noValue;
-                            }
-
-                            if (!obj.isNull("precipitation1h")) {
-                                String value = obj.getString("precipitation1h");
-                                if (!TextUtils.isEmpty(value)) {
-                                    if (value.length() >= 2 && value.contains(".")) {
-                                        if (value.equals(".0") || value.equals("0.0") || value.equals("0")) {
-                                            dto.precipitation1h = CONST.noValue;
-                                        } else {
-                                            if (TextUtils.equals(value.substring(value.length() - 2, value.length()), ".0")) {
-                                                dto.precipitation1h = value.substring(0, value.indexOf("."));
-                                            } else {
-                                                dto.precipitation1h = value;
-                                            }
-                                        }
-                                    }
-                                } else {
-                                    dto.precipitation1h = CONST.noValue;
-                                }
-                            } else {
-                                dto.precipitation1h = CONST.noValue;
-                            }
-
-                            if (!obj.isNull("winddir")) {
-                                String dir = null;
-                                String value = obj.getString("winddir");
-                                if (!TextUtils.isEmpty(value)) {
-                                    if (value.length() >= 2 && value.contains(".")) {
-                                        if (value.equals(".0")) {
-                                            dir = "0";
-                                        } else {
-                                            if (TextUtils.equals(value.substring(value.length() - 2, value.length()), ".0")) {
-                                                dir = value.substring(0, value.indexOf("."));
-                                            } else {
-                                                dir = value;
-                                            }
-                                        }
-                                    }
-
-                                    float fx = Float.valueOf(dir);
-                                    String wind_dir = null;
-                                    if (fx == 0 || fx == 360) {
-                                        wind_dir = mContext.getString(R.string.chart_north);
-                                    } else if (fx > 0 && fx < 90) {
-                                        wind_dir = mContext.getString(R.string.chart_north_east);
-                                    } else if (fx == 90) {
-                                        wind_dir = mContext.getString(R.string.chart_east);
-                                    } else if (fx > 90 && fx < 180) {
-                                        wind_dir = mContext.getString(R.string.chart_south_east);
-                                    } else if (fx == 180) {
-                                        wind_dir = mContext.getString(R.string.chart_south);
-                                    } else if (fx > 180 && fx < 270) {
-                                        wind_dir = mContext.getString(R.string.chart_south_west);
-                                    } else if (fx == 270) {
-                                        wind_dir = mContext.getString(R.string.chart_west);
-                                    } else if (fx > 270) {
-                                        wind_dir = mContext.getString(R.string.chart_north_west);
-                                    }
-                                    dto.windDir = wind_dir;
-                                } else {
-                                    dto.windDir = CONST.noValue;
-                                }
-                            } else {
-                                dto.windDir = CONST.noValue;
-                            }
-
-                            if (!obj.isNull("windspeed")) {
-                                String value = obj.getString("windspeed");
-                                if (!TextUtils.isEmpty(value)) {
-                                    if (value.length() >= 2 && value.contains(".")) {
-                                        if (value.equals(".0")) {
-                                            dto.windSpeed = "0";
-                                        } else {
-                                            if (TextUtils.equals(value.substring(value.length() - 2, value.length()), ".0")) {
-                                                dto.windSpeed = value.substring(0, value.indexOf("."));
-                                            } else {
-                                                dto.windSpeed = value;
-                                            }
-                                        }
-                                    }
-                                } else {
-                                    dto.windSpeed = CONST.noValue;
-                                }
-                            } else {
-                                dto.windSpeed = CONST.noValue;
-                            }
-
-                            if (!obj.isNull("pointtemp")) {
-                                String value = obj.getString("pointtemp");
-                                if (!TextUtils.isEmpty(value)) {
-                                    if (value.length() >= 2 && value.contains(".")) {
-                                        if (value.equals(".0")) {
-                                            dto.pointTemp = "0";
-                                        } else {
-                                            if (TextUtils.equals(value.substring(value.length() - 2, value.length()), ".0")) {
-                                                dto.pointTemp = value.substring(0, value.indexOf("."));
-                                            } else {
-                                                dto.pointTemp = value;
-                                            }
-                                        }
-                                    }
-                                } else {
-                                    dto.pointTemp = CONST.noValue;
-                                }
-                            } else {
-                                dto.pointTemp = CONST.noValue;
-                            }
-
-                            if (!obj.isNull("visibility")) {
-                                String value = obj.getString("visibility");
-                                if (!TextUtils.isEmpty(value)) {
-                                    if (value.length() >= 2 && value.contains(".")) {
-                                        if (value.equals(".0")) {
-                                            dto.visibility = "0";
-                                        } else {
-                                            if (TextUtils.equals(value.substring(value.length() - 2, value.length()), ".0")) {
-                                                float f = Float.valueOf(value) / 1000;
-                                                BigDecimal b = new BigDecimal(f);
-                                                float f1 = b.setScale(1, BigDecimal.ROUND_HALF_UP).floatValue();
-                                                dto.visibility = String.valueOf(f1).substring(0, String.valueOf(f1).indexOf("."));
-                                            } else {
-                                                float f = Float.valueOf(value) / 1000;
-                                                BigDecimal b = new BigDecimal(f);
-                                                float f1 = b.setScale(1, BigDecimal.ROUND_HALF_UP).floatValue();
-                                                dto.visibility = String.valueOf(f1);
-                                            }
-                                        }
-                                    }
-                                } else {
-                                    dto.visibility = CONST.noValue;
-                                }
-                            } else {
-                                dto.visibility = CONST.noValue;
-                            }
-
-                        }
-
-                        runOnUiThread(new Runnable() {
-                            @Override
-                            public void run() {
-                                addMarker(stationList, value, loadType);
-                            }
-                        });
-                    } catch (JSONException e) {
-                        e.printStackTrace();
-                    } catch (IndexOutOfBoundsException e) {
-                        e.printStackTrace();
                     }
-                }
+
+                    @Override
+                    public void onResponse(Call call, Response response) throws IOException {
+                        if (!response.isSuccessful()) {
+                            return;
+                        }
+                        String result = response.body().string();
+                        if (result != null) {
+                            try {
+                                JSONArray array = new JSONArray(result);
+                                for (int i = 0; i < array.length(); i++) {
+                                    JSONObject obj = array.getJSONObject(i);
+                                    StationMonitorDto dto = stationList.get(i);
+
+                                    if (!obj.isNull("datatime")) {
+                                        dto.time = obj.getString("datatime");
+                                    }
+
+                                    dto.distance = getDistance(locationLng, locationLat, Double.valueOf(dto.lng), Double.valueOf(dto.lat));
+
+                                    if (!obj.isNull("airpressure")) {
+                                        String value = obj.getString("airpressure");
+                                        if (!TextUtils.isEmpty(value)) {
+                                            if (value.length() >= 2 && value.contains(".")) {
+                                                if (value.equals(".0")) {
+                                                    dto.airPressure = "0";
+                                                } else {
+                                                    if (TextUtils.equals(value.substring(value.length() - 2, value.length()), ".0")) {
+                                                        dto.airPressure = value.substring(0, value.indexOf("."));
+                                                    } else {
+                                                        dto.airPressure = value;
+                                                    }
+                                                }
+                                            }
+                                        } else {
+                                            dto.airPressure = CONST.noValue;
+                                        }
+                                    } else {
+                                        dto.airPressure = CONST.noValue;
+                                    }
+
+                                    if (!obj.isNull("balltemp")) {
+                                        String value = obj.getString("balltemp");
+                                        if (!TextUtils.isEmpty(value)) {
+                                            if (value.length() >= 2 && value.contains(".")) {
+                                                if (value.equals(".0")) {
+                                                    dto.ballTemp = "0";
+                                                } else {
+                                                    if (TextUtils.equals(value.substring(value.length() - 2, value.length()), ".0")) {
+                                                        dto.ballTemp = value.substring(0, value.indexOf("."));
+                                                    } else {
+                                                        dto.ballTemp = value;
+                                                    }
+                                                }
+                                            }
+                                        } else {
+                                            dto.ballTemp = CONST.noValue;
+                                        }
+                                    } else {
+                                        dto.ballTemp = CONST.noValue;
+                                    }
+
+                                    if (!obj.isNull("humidity")) {
+                                        String value = obj.getString("humidity");
+                                        if (!TextUtils.isEmpty(value)) {
+                                            if (value.length() >= 2 && value.contains(".")) {
+                                                if (value.equals(".0")) {
+                                                    dto.humidity = "0";
+                                                } else {
+                                                    if (TextUtils.equals(value.substring(value.length() - 2, value.length()), ".0")) {
+                                                        dto.humidity = value.substring(0, value.indexOf("."));
+                                                    } else {
+                                                        dto.humidity = value;
+                                                    }
+                                                }
+                                            }
+                                        } else {
+                                            dto.humidity = CONST.noValue;
+                                        }
+                                    } else {
+                                        dto.humidity = CONST.noValue;
+                                    }
+
+                                    if (!obj.isNull("precipitation1h")) {
+                                        String value = obj.getString("precipitation1h");
+                                        if (!TextUtils.isEmpty(value)) {
+                                            if (value.length() >= 2 && value.contains(".")) {
+                                                if (value.equals(".0") || value.equals("0.0") || value.equals("0")) {
+                                                    dto.precipitation1h = CONST.noValue;
+                                                } else {
+                                                    if (TextUtils.equals(value.substring(value.length() - 2, value.length()), ".0")) {
+                                                        dto.precipitation1h = value.substring(0, value.indexOf("."));
+                                                    } else {
+                                                        dto.precipitation1h = value;
+                                                    }
+                                                }
+                                            }
+                                        } else {
+                                            dto.precipitation1h = CONST.noValue;
+                                        }
+                                    } else {
+                                        dto.precipitation1h = CONST.noValue;
+                                    }
+
+                                    if (!obj.isNull("winddir")) {
+                                        String dir = null;
+                                        String value = obj.getString("winddir");
+                                        if (!TextUtils.isEmpty(value)) {
+                                            if (value.length() >= 2 && value.contains(".")) {
+                                                if (value.equals(".0")) {
+                                                    dir = "0";
+                                                } else {
+                                                    if (TextUtils.equals(value.substring(value.length() - 2, value.length()), ".0")) {
+                                                        dir = value.substring(0, value.indexOf("."));
+                                                    } else {
+                                                        dir = value;
+                                                    }
+                                                }
+                                            }
+
+                                            float fx = Float.valueOf(dir);
+                                            String wind_dir = null;
+                                            if (fx == 0 || fx == 360) {
+                                                wind_dir = mContext.getString(R.string.chart_north);
+                                            } else if (fx > 0 && fx < 90) {
+                                                wind_dir = mContext.getString(R.string.chart_north_east);
+                                            } else if (fx == 90) {
+                                                wind_dir = mContext.getString(R.string.chart_east);
+                                            } else if (fx > 90 && fx < 180) {
+                                                wind_dir = mContext.getString(R.string.chart_south_east);
+                                            } else if (fx == 180) {
+                                                wind_dir = mContext.getString(R.string.chart_south);
+                                            } else if (fx > 180 && fx < 270) {
+                                                wind_dir = mContext.getString(R.string.chart_south_west);
+                                            } else if (fx == 270) {
+                                                wind_dir = mContext.getString(R.string.chart_west);
+                                            } else if (fx > 270) {
+                                                wind_dir = mContext.getString(R.string.chart_north_west);
+                                            }
+                                            dto.windDir = wind_dir;
+                                        } else {
+                                            dto.windDir = CONST.noValue;
+                                        }
+                                    } else {
+                                        dto.windDir = CONST.noValue;
+                                    }
+
+                                    if (!obj.isNull("windspeed")) {
+                                        String value = obj.getString("windspeed");
+                                        if (!TextUtils.isEmpty(value)) {
+                                            if (value.length() >= 2 && value.contains(".")) {
+                                                if (value.equals(".0")) {
+                                                    dto.windSpeed = "0";
+                                                } else {
+                                                    if (TextUtils.equals(value.substring(value.length() - 2, value.length()), ".0")) {
+                                                        dto.windSpeed = value.substring(0, value.indexOf("."));
+                                                    } else {
+                                                        dto.windSpeed = value;
+                                                    }
+                                                }
+                                            }
+                                        } else {
+                                            dto.windSpeed = CONST.noValue;
+                                        }
+                                    } else {
+                                        dto.windSpeed = CONST.noValue;
+                                    }
+
+                                    if (!obj.isNull("pointtemp")) {
+                                        String value = obj.getString("pointtemp");
+                                        if (!TextUtils.isEmpty(value)) {
+                                            if (value.length() >= 2 && value.contains(".")) {
+                                                if (value.equals(".0")) {
+                                                    dto.pointTemp = "0";
+                                                } else {
+                                                    if (TextUtils.equals(value.substring(value.length() - 2, value.length()), ".0")) {
+                                                        dto.pointTemp = value.substring(0, value.indexOf("."));
+                                                    } else {
+                                                        dto.pointTemp = value;
+                                                    }
+                                                }
+                                            }
+                                        } else {
+                                            dto.pointTemp = CONST.noValue;
+                                        }
+                                    } else {
+                                        dto.pointTemp = CONST.noValue;
+                                    }
+
+                                    if (!obj.isNull("visibility")) {
+                                        String value = obj.getString("visibility");
+                                        if (!TextUtils.isEmpty(value)) {
+                                            if (value.length() >= 2 && value.contains(".")) {
+                                                if (value.equals(".0")) {
+                                                    dto.visibility = "0";
+                                                } else {
+                                                    if (TextUtils.equals(value.substring(value.length() - 2, value.length()), ".0")) {
+                                                        float f = Float.valueOf(value) / 1000;
+                                                        BigDecimal b = new BigDecimal(f);
+                                                        float f1 = b.setScale(1, BigDecimal.ROUND_HALF_UP).floatValue();
+                                                        dto.visibility = String.valueOf(f1).substring(0, String.valueOf(f1).indexOf("."));
+                                                    } else {
+                                                        float f = Float.valueOf(value) / 1000;
+                                                        BigDecimal b = new BigDecimal(f);
+                                                        float f1 = b.setScale(1, BigDecimal.ROUND_HALF_UP).floatValue();
+                                                        dto.visibility = String.valueOf(f1);
+                                                    }
+                                                }
+                                            }
+                                        } else {
+                                            dto.visibility = CONST.noValue;
+                                        }
+                                    } else {
+                                        dto.visibility = CONST.noValue;
+                                    }
+
+                                }
+
+                                addMarker(stationList, value, loadType);
+                            } catch (JSONException e) {
+                                e.printStackTrace();
+                            } catch (IndexOutOfBoundsException e) {
+                                e.printStackTrace();
+                            }
+                        }
+                    }
+                });
             }
-        });
+        }).start();
     }
 
     /**
@@ -1498,11 +1478,13 @@ public class StationMonitorActivity extends BaseActivity implements OnClickListe
      * @param list
      * @param value
      */
-    private void addMarker(final List<StationMonitorDto> list, int value, String loadType) {
+    private void addMarker(final List<StationMonitorDto> list, int value, final String loadType) {
         removeStationMarkers();
         if (list.isEmpty() || list.size() == 0) {
             return;
         }
+
+        final LatLngBounds.Builder bounds = LatLngBounds.builder();
         for (int i = 0; i < list.size(); i++) {
             StationMonitorDto dto = list.get(i);
             double lat = 0;
@@ -1544,59 +1526,22 @@ public class StationMonitorActivity extends BaseActivity implements OnClickListe
                 options.icon(BitmapDescriptorFactory.fromView(markerView));
                 Marker m = aMap.addMarker(options);
                 markerList.add(m);
+
+                bounds.include(new LatLng(lat, lng));
             }
         }
 
-        if (tvProName.getVisibility() == View.VISIBLE) {
-            if (TextUtils.equals(loadType, LOADTYPE3)) {
-                drawProvinceBounds(tvProName.getText().toString());
-                setProvinceBounds();
-            }
-        }
-
-    }
-
-    /**
-     * 设置省份边界
-     */
-    private void setProvinceBounds() {
-        if (markerList.size() > 0) {
-            double leftLat = markerList.get(0).getPosition().latitude;
-            double leftLng = markerList.get(0).getPosition().longitude;
-            double rightLat = markerList.get(0).getPosition().latitude;
-            double rightLng = markerList.get(0).getPosition().longitude;
-            for (int i = 0; i < markerList.size(); i++) {
-                if (leftLat >= markerList.get(i).getPosition().latitude) {
-                    leftLat = markerList.get(i).getPosition().latitude;
-                }
-                if (leftLng >= markerList.get(i).getPosition().longitude) {
-                    leftLng = markerList.get(i).getPosition().longitude;
-                }
-                if (rightLat <= markerList.get(i).getPosition().latitude) {
-                    rightLat = markerList.get(i).getPosition().latitude;
-                }
-                if (rightLng <= markerList.get(i).getPosition().longitude) {
-                    rightLng = markerList.get(i).getPosition().longitude;
-                }
-            }
-
-            final LatLng left = new LatLng(leftLat, leftLng);
-            final LatLng right = new LatLng(rightLat, rightLng);
-            //延时1秒开始地图动画
-            new Handler().postDelayed(new Runnable() {
-                @Override
-                public void run() {
-                    try {
-                        LatLngBounds bounds = new LatLngBounds.Builder()
-                                .include(left)
-                                .include(right).build();
-                        aMap.animateCamera(CameraUpdateFactory.newLatLngBounds(bounds, 100));
-                    } catch (ArrayIndexOutOfBoundsException e) {
-                        e.printStackTrace();
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                if (tvProName.getVisibility() == View.VISIBLE) {
+                    if (TextUtils.equals(loadType, LOADTYPE3)) {
+                        drawProvinceBounds(tvProName.getText().toString());
+                        aMap.animateCamera(CameraUpdateFactory.newLatLngBounds(bounds.build(), 100));
                     }
                 }
-            }, 500);
-        }
+            }
+        });
     }
 
     /**

@@ -34,9 +34,9 @@ import com.china.fragment.StationDetailTempFragment;
 import com.china.fragment.StationDetailVisibilityFragment;
 import com.china.fragment.StationDetailWindFragment;
 import com.china.manager.DBManager;
-import com.china.manager.RainManager;
 import com.china.utils.CommonUtil;
 import com.china.utils.OkHttpUtil;
+import com.china.utils.SecretUrlUtil;
 import com.china.view.MainViewPager;
 
 import org.json.JSONArray;
@@ -46,7 +46,6 @@ import org.json.JSONObject;
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.List;
 
 import okhttp3.Call;
@@ -65,8 +64,6 @@ public class StationMonitorDetailActivity extends BaseActivity implements OnClic
 	private TextView tvTitle = null;
 	private MainViewPager viewPager;
 	private List<Fragment> fragments = new ArrayList<>();
-	public final static String SANX_DATA_99 = "sanx_data_99";//加密秘钥名称
-	public final static String APPID = "f63d329270a44900";//机密需要用到的AppId
 	private LinearLayout ll1, ll2, ll3, ll4, ll5, ll6;
 	private ImageView iv1, iv2, iv3, iv4, iv5, iv6;
 	private TextView tv1, tv2, tv3, tv4, tv5, tv6;
@@ -149,11 +146,11 @@ public class StationMonitorDetailActivity extends BaseActivity implements OnClic
 			tvTitle.setText(title+" - "+stationId);
 			
 			String interfaceType = getIntent().getStringExtra("interface");
-			asyncTask(stationId, interfaceType);
+			OkHttpDetail(stationId, interfaceType);
 			
 			String warningId = queryWarningIdByStationId(stationId);
 			if (!TextUtils.isEmpty(warningId)) {
-				asyncQuery(warningUrl+warningId);
+				OkHttpWarning(warningUrl+warningId);
 			}
 		}
 	}
@@ -197,9 +194,9 @@ public class StationMonitorDetailActivity extends BaseActivity implements OnClic
 	}
 	
 	/**
-	 * 异步请求
+	 * 获取预警信息
 	 */
-	private void asyncQuery(String requestUrl) {
+	private void OkHttpWarning(String requestUrl) {
 		OkHttpUtil.enqueue(new Request.Builder().url(requestUrl).build(), new Callback() {
 			@Override
 			public void onFailure(Call call, IOException e) {
@@ -479,40 +476,10 @@ public class StationMonitorDetailActivity extends BaseActivity implements OnClic
 	}
 	
 	/**
-	 * 加密请求字符串
-	 * @return
+	 * 实况监测详情
 	 */
-	private String getUrl(String stationids, String interfaceType) {
-		String URL = "http://decision-171.tianqi.cn/weather/rgwst/OneDayStatistics";//
-		if (TextUtils.equals(interfaceType, "newOneDay")) {
-			URL = "http://decision-171.tianqi.cn/weather/rgwst/newOneDayStatistics";
-		}
-		String sysdate = RainManager.getDate(Calendar.getInstance(), "yyyyMMddHHmmss");//系统时间
-		StringBuffer buffer = new StringBuffer();
-		buffer.append(URL);
-		buffer.append("?");
-		buffer.append("stationids=").append(stationids);
-		buffer.append("&");
-		buffer.append("date=").append(sysdate);
-		buffer.append("&");
-		buffer.append("appid=").append(APPID);
-		
-		String key = RainManager.getKey(SANX_DATA_99, buffer.toString());
-		buffer.delete(buffer.lastIndexOf("&"), buffer.length());
-		
-		buffer.append("&");
-		buffer.append("appid=").append(APPID.substring(0, 6));
-		buffer.append("&");
-		buffer.append("key=").append(key.substring(0, key.length() - 3));
-		String result = buffer.toString();
-		return result;
-	}
-	
-	/**
-	 * 获取最近10个站点号
-	 */
-	private void asyncTask(String stationids, String interfaceType) {
-		OkHttpUtil.enqueue(new Request.Builder().url(getUrl(stationids, interfaceType)).build(), new Callback() {
+	private void OkHttpDetail(String stationids, String interfaceType) {
+		OkHttpUtil.enqueue(new Request.Builder().url(SecretUrlUtil.stationDetail(stationids, interfaceType)).build(), new Callback() {
 			@Override
 			public void onFailure(Call call, IOException e) {
 

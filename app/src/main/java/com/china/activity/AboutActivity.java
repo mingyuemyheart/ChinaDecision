@@ -1,6 +1,5 @@
 package com.china.activity;
 
-import android.annotation.SuppressLint;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.view.View;
@@ -18,7 +17,6 @@ import com.china.utils.CommonUtil;
  *
  */
 
-@SuppressLint("SimpleDateFormat")
 public class AboutActivity extends BaseActivity implements OnClickListener{
 	
 	private LinearLayout llBack = null;

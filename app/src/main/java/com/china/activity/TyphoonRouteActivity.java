@@ -7,14 +7,12 @@ package com.china.activity;
 import android.Manifest;
 import android.annotation.SuppressLint;
 import android.content.Context;
-import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.graphics.Point;
 import android.media.ThumbnailUtils;
-import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
@@ -82,10 +80,10 @@ import com.china.dto.TyphoonDto;
 import com.china.dto.WindData;
 import com.china.dto.WindDto;
 import com.china.manager.CaiyunManager;
-import com.china.manager.RainManager;
 import com.china.utils.AuthorityUtil;
 import com.china.utils.CommonUtil;
 import com.china.utils.OkHttpUtil;
+import com.china.utils.SecretUrlUtil;
 import com.china.utils.WeatherUtil;
 import com.china.view.WaitWindView;
 import com.tendcloud.tenddata.TCAgent;
@@ -99,7 +97,6 @@ import java.math.BigDecimal;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 
@@ -135,10 +132,7 @@ public class TyphoonRouteActivity extends BaseActivity implements OnClickListene
 	private List<TyphoonDto> nameList = new ArrayList<>();//某一年所有台风
 	private List<TyphoonDto> startList = new ArrayList<>();//某一年活跃台风
 	private List<ArrayList<TyphoonDto>> pointsList = new ArrayList<>();//存放某一年所有活跃台风
-	//	private List<TyphoonDto> points = new ArrayList<>();//某个台风的数据点
-//	private List<TyphoonDto> forePoints = new ArrayList<>();//预报的点数据
 	private RoadThread mRoadThread = null;//绘制台风点的线程
-	//	private Marker rotateMarker = null;//台风旋转marker
 	private Marker clickMarker = null;//被点击的marker
 	private Circle circle, circle2;//七级风圈和十级风圈
 	private float zoom = 3.7f;
@@ -173,7 +167,6 @@ public class TyphoonRouteActivity extends BaseActivity implements OnClickListene
 	private WindData windData = null;
 	private int width = 0, height = 0;
 	private WaitWindView waitWindView = null;
-	private GroundOverlay windOverlay = null;
 	private boolean isHaveWindData = false;//是否已经加载完毕风场数据
 	private List<Marker> factTimeMarkers = new ArrayList<>();
 	private List<Marker> timeMarkers = new ArrayList<>();//预报时间markers
@@ -402,24 +395,29 @@ public class TyphoonRouteActivity extends BaseActivity implements OnClickListene
 	 * 绘制24h、48h警戒线
 	 */
 	private void drawWarningLines() {
-		//24小时
-		PolylineOptions line1 = new PolylineOptions();
-		line1.width(CommonUtil.dip2px(mContext, 2));
-		line1.color(getResources().getColor(R.color.red));
-		line1.add(new LatLng(34.005024, 126.993568), new LatLng(21.971252, 126.993568));
-		line1.add(new LatLng(17.965860, 118.995521), new LatLng(10.971050, 118.995521));
-		line1.add(new LatLng(4.486270, 113.018959) ,new LatLng(-0.035506, 104.998939));
-		aMap.addPolyline(line1);
-		drawWarningText(getString(R.string.line_24h), getResources().getColor(R.color.red), new LatLng(30.959474, 126.993568));
+		new Thread(new Runnable() {
+			@Override
+			public void run() {
+				//24小时
+				PolylineOptions line1 = new PolylineOptions();
+				line1.width(CommonUtil.dip2px(mContext, 2));
+				line1.color(getResources().getColor(R.color.red));
+				line1.add(new LatLng(34.005024, 126.993568), new LatLng(21.971252, 126.993568));
+				line1.add(new LatLng(17.965860, 118.995521), new LatLng(10.971050, 118.995521));
+				line1.add(new LatLng(4.486270, 113.018959) ,new LatLng(-0.035506, 104.998939));
+				aMap.addPolyline(line1);
+				drawWarningText(getString(R.string.line_24h), getResources().getColor(R.color.red), new LatLng(30.959474, 126.993568));
 
-		//48小时
-		PolylineOptions line2 = new PolylineOptions();
-		line2.width(CommonUtil.dip2px(mContext, 2));
-		line2.color(getResources().getColor(R.color.yellow));
-		line2.add(new LatLng(-0.035506, 104.998939), new LatLng(-0.035506, 119.962318));
-		line2.add(new LatLng(14.968860, 131.981361) ,new LatLng(33.959474, 131.981361));
-		aMap.addPolyline(line2);
-		drawWarningText(getString(R.string.line_48h), getResources().getColor(R.color.yellow), new LatLng(30.959474, 131.981361));
+				//48小时
+				PolylineOptions line2 = new PolylineOptions();
+				line2.width(CommonUtil.dip2px(mContext, 2));
+				line2.color(getResources().getColor(R.color.yellow));
+				line2.add(new LatLng(-0.035506, 104.998939), new LatLng(-0.035506, 119.962318));
+				line2.add(new LatLng(14.968860, 131.981361) ,new LatLng(33.959474, 131.981361));
+				aMap.addPolyline(line2);
+				drawWarningText(getString(R.string.line_48h), getResources().getColor(R.color.yellow), new LatLng(30.959474, 131.981361));
+			}
+		}).start();
 	}
 
 	/**
@@ -489,127 +487,133 @@ public class TyphoonRouteActivity extends BaseActivity implements OnClickListene
 	/**
 	 * 获取某一年的台风列表信息
 	 */
-	private void OkHttpTyphoonList(String url, final int currentYear, final int selectYear) {
-		OkHttpUtil.enqueue(new Request.Builder().url(url).build(), new Callback() {
+	private void OkHttpTyphoonList(final String url, final int currentYear, final int selectYear) {
+		new Thread(new Runnable() {
 			@Override
-			public void onFailure(Call call, IOException e) {
-
-			}
-
-			@Override
-			public void onResponse(Call call, Response response) throws IOException {
-				if (!response.isSuccessful()) {
-					return;
-				}
-				final String requestResult = response.body().string();
-				runOnUiThread(new Runnable() {
+			public void run() {
+				OkHttpUtil.enqueue(new Request.Builder().url(url).build(), new Callback() {
 					@Override
-					public void run() {
-						if (!TextUtils.isEmpty(requestResult)) {
-							String c = "(";
-							String c2 = "})";
-							String result = requestResult.substring(requestResult.indexOf(c)+c.length(), requestResult.indexOf(c2)+1);
-							if (!TextUtils.isEmpty(result)) {
-								try {
-									JSONObject obj = new JSONObject(result);
-									if (!obj.isNull("typhoonList")) {
-										nameList.clear();
-										startList.clear();
-										JSONArray array = obj.getJSONArray("typhoonList");
-										for (int i = 0; i < array.length(); i++) {
-											JSONArray itemArray = array.getJSONArray(i);
-											TyphoonDto dto = new TyphoonDto();
-											dto.id = itemArray.getString(0);
-											dto.enName = itemArray.getString(1);
-											dto.name = itemArray.getString(2);
-											dto.code = itemArray.getString(4);
-											dto.status = itemArray.getString(7);
-											nameList.add(dto);
+					public void onFailure(Call call, IOException e) {
 
-											//把活跃台风过滤出来存放
-											if (TextUtils.equals(dto.status, "start")) {
-												startList.add(dto);
-											}
-										}
+					}
 
-										String typhoonName = "";
-										for (int i = startList.size()-1; i >= 0; i--) {
-											TyphoonDto data = startList.get(i);
-											String detailUrl = "", name = "";
-											if (TextUtils.equals(data.enName, "nameless")) {
-												if (!TextUtils.isEmpty(typhoonName)) {
-													typhoonName = data.enName+"\n"+typhoonName;
-												}else {
-													typhoonName = data.enName;
+					@Override
+					public void onResponse(Call call, Response response) throws IOException {
+						if (!response.isSuccessful()) {
+							return;
+						}
+						final String requestResult = response.body().string();
+						runOnUiThread(new Runnable() {
+							@Override
+							public void run() {
+								if (!TextUtils.isEmpty(requestResult)) {
+									String c = "(";
+									String c2 = "})";
+									String result = requestResult.substring(requestResult.indexOf(c)+c.length(), requestResult.indexOf(c2)+1);
+									if (!TextUtils.isEmpty(result)) {
+										try {
+											JSONObject obj = new JSONObject(result);
+											if (!obj.isNull("typhoonList")) {
+												nameList.clear();
+												startList.clear();
+												JSONArray array = obj.getJSONArray("typhoonList");
+												for (int i = 0; i < array.length(); i++) {
+													JSONArray itemArray = array.getJSONArray(i);
+													TyphoonDto dto = new TyphoonDto();
+													dto.id = itemArray.getString(0);
+													dto.enName = itemArray.getString(1);
+													dto.name = itemArray.getString(2);
+													dto.code = itemArray.getString(4);
+													dto.status = itemArray.getString(7);
+													nameList.add(dto);
+
+													//把活跃台风过滤出来存放
+													if (TextUtils.equals(dto.status, "start")) {
+														startList.add(dto);
+													}
 												}
-												detailUrl = "http://decision-admin.tianqi.cn/Home/extra/gettyphoon/view/" + data.id;
-												name = data.code + " " + data.enName;
-											}else {
-												if (!TextUtils.isEmpty(typhoonName)) {
-													typhoonName = data.code + " " + data.name + " " + data.enName+"\n"+typhoonName;;
-												}else {
-													typhoonName = data.code + " " + data.name + " " + data.enName;
-												}
-												detailUrl = "http://decision-admin.tianqi.cn/Home/extra/gettyphoon/view/" + data.id;
-												name = data.code + " " + data.name + " " + data.enName;
-											}
-											OkHttpTyphoonDetail(detailUrl, name);
-										}
-										tvTyphoonName.setText(typhoonName);
 
-										if (startList.size() == 0) {// 没有生效台风
-											if (currentYear == selectYear) {// 判断选中年数==当前年数
-												tvTyphoonName.setText(getString(R.string.no_typhoon));
-											}else {
-												tvTyphoonName.setText(selectYear+"年");
-											}
+												String typhoonName = "";
+												for (int i = startList.size()-1; i >= 0; i--) {
+													TyphoonDto data = startList.get(i);
+													String detailUrl = "", name = "";
+													if (TextUtils.equals(data.enName, "nameless")) {
+														if (!TextUtils.isEmpty(typhoonName)) {
+															typhoonName = data.enName+"\n"+typhoonName;
+														}else {
+															typhoonName = data.enName;
+														}
+														detailUrl = "http://decision-admin.tianqi.cn/Home/extra/gettyphoon/view/" + data.id;
+														name = data.code + " " + data.enName;
+													}else {
+														if (!TextUtils.isEmpty(typhoonName)) {
+															typhoonName = data.code + " " + data.name + " " + data.enName+"\n"+typhoonName;;
+														}else {
+															typhoonName = data.code + " " + data.name + " " + data.enName;
+														}
+														detailUrl = "http://decision-admin.tianqi.cn/Home/extra/gettyphoon/view/" + data.id;
+														name = data.code + " " + data.name + " " + data.enName;
+													}
+													OkHttpTyphoonDetail(detailUrl, name);
+												}
+												tvTyphoonName.setText(typhoonName);
+
+												if (startList.size() == 0) {// 没有生效台风
+													if (currentYear == selectYear) {// 判断选中年数==当前年数
+														tvTyphoonName.setText(getString(R.string.no_typhoon));
+													}else {
+														tvTyphoonName.setText(selectYear+"年");
+													}
 //											ivLocation.setVisibility(View.GONE);
 //											ivTyphoonPlay.setVisibility(View.GONE);
 //											ivTyphoonWind.setVisibility(View.GONE);
 //											ivTyphoonRange.setVisibility(View.GONE);
-											cancelDialog();
+													cancelDialog();
 
-											ivLocation.setVisibility(View.GONE);
-											ivTyphoonWind.setVisibility(View.VISIBLE);
-											ivTyphoonPlay.setVisibility(View.GONE);
-											ivTyphoonRange.setVisibility(View.GONE);
-											mRadarManager = new CaiyunManager(getApplicationContext());
-											OkHttpMinute("http://api.tianqi.cn:8070/v1/img.py");
-											OkHttpCloudChart("http://decision-admin.tianqi.cn/Home/other/getDecisionCloudImages");
-										} else if (startList.size() == 1) {// 1个生效台风
-											ivLocation.setVisibility(View.VISIBLE);
-											ivTyphoonWind.setVisibility(View.VISIBLE);
-											ivTyphoonPlay.setVisibility(View.VISIBLE);
-											ivTyphoonRange.setVisibility(View.VISIBLE);
-											mRadarManager = new CaiyunManager(getApplicationContext());
-											OkHttpMinute("http://api.tianqi.cn:8070/v1/img.py");
-											OkHttpCloudChart("http://decision-admin.tianqi.cn/Home/other/getDecisionCloudImages");
-										} else {// 2个以上生效台风
-											ivLocation.setVisibility(View.VISIBLE);
-											ivTyphoonWind.setVisibility(View.VISIBLE);
-											ivTyphoonRange.setVisibility(View.VISIBLE);
-											ivTyphoonPlay.setVisibility(View.GONE);
-											mRadarManager = new CaiyunManager(getApplicationContext());
-											OkHttpMinute("http://api.tianqi.cn:8070/v1/img.py");
-											OkHttpCloudChart("http://decision-admin.tianqi.cn/Home/other/getDecisionCloudImages");
+													ivLocation.setVisibility(View.GONE);
+													ivTyphoonWind.setVisibility(View.VISIBLE);
+													ivTyphoonPlay.setVisibility(View.GONE);
+													ivTyphoonRange.setVisibility(View.GONE);
+													mRadarManager = new CaiyunManager(getApplicationContext());
+													OkHttpMinute("http://api.tianqi.cn:8070/v1/img.py");
+													OkHttpCloudChart("http://decision-admin.tianqi.cn/Home/other/getDecisionCloudImages");
+												} else if (startList.size() == 1) {// 1个生效台风
+													ivLocation.setVisibility(View.VISIBLE);
+													ivTyphoonWind.setVisibility(View.VISIBLE);
+													ivTyphoonPlay.setVisibility(View.VISIBLE);
+													ivTyphoonRange.setVisibility(View.VISIBLE);
+													mRadarManager = new CaiyunManager(getApplicationContext());
+													OkHttpMinute("http://api.tianqi.cn:8070/v1/img.py");
+													OkHttpCloudChart("http://decision-admin.tianqi.cn/Home/other/getDecisionCloudImages");
+												} else {// 2个以上生效台风
+													ivLocation.setVisibility(View.VISIBLE);
+													ivTyphoonWind.setVisibility(View.VISIBLE);
+													ivTyphoonRange.setVisibility(View.VISIBLE);
+													ivTyphoonPlay.setVisibility(View.GONE);
+													mRadarManager = new CaiyunManager(getApplicationContext());
+													OkHttpMinute("http://api.tianqi.cn:8070/v1/img.py");
+													OkHttpCloudChart("http://decision-admin.tianqi.cn/Home/other/getDecisionCloudImages");
+												}
+												tvTyphoonName.setVisibility(View.VISIBLE);
+											}
+
+											initNameListView();
+										} catch (JSONException e) {
+											e.printStackTrace();
 										}
-										tvTyphoonName.setVisibility(View.VISIBLE);
+
 									}
-
-									initNameListView();
-								} catch (JSONException e) {
-									e.printStackTrace();
+								}else {
+									tvTyphoonName.setText(getString(R.string.no_typhoon));
+									tvTyphoonName.setVisibility(View.VISIBLE);
 								}
-
 							}
-						}else {
-							tvTyphoonName.setText(getString(R.string.no_typhoon));
-							tvTyphoonName.setVisibility(View.VISIBLE);
-						}
+						});
 					}
 				});
 			}
-		});
+		}).start();
+
 	}
 
 	private void initNameListView() {
@@ -679,208 +683,215 @@ public class TyphoonRouteActivity extends BaseActivity implements OnClickListene
 	/**
 	 * 获取台风详情
 	 */
-	private void OkHttpTyphoonDetail(String url, final String name) {
-		OkHttpUtil.enqueue(new Request.Builder().url(url).build(), new Callback() {
+	private void OkHttpTyphoonDetail(final String url, final String name) {
+		new Thread(new Runnable() {
 			@Override
-			public void onFailure(Call call, IOException e) {
+			public void run() {
+				OkHttpUtil.enqueue(new Request.Builder().url(url).build(), new Callback() {
+					@Override
+					public void onFailure(Call call, IOException e) {
 
-			}
+					}
 
-			@Override
-			public void onResponse(Call call, Response response) throws IOException {
-				if (!response.isSuccessful()) {
-					return;
-				}
-				String requestResult = response.body().string();
-				if (!TextUtils.isEmpty(requestResult)) {
-					String c = "(";
-					String result = requestResult.substring(requestResult.indexOf(c)+c.length(), requestResult.indexOf(")"));
-					if (!TextUtils.isEmpty(result)) {
-						try {
-							JSONObject obj = new JSONObject(result);
-							if (!obj.isNull("typhoon")) {
-								ArrayList<TyphoonDto> points = new ArrayList<>();//台风实点
-								List<TyphoonDto> forePoints = new ArrayList<>();//台风预报点
-								JSONArray array = obj.getJSONArray("typhoon");
-								JSONArray itemArray = array.getJSONArray(8);
-								for (int j = 0; j < itemArray.length(); j++) {
-									JSONArray itemArray2 = itemArray.getJSONArray(j);
-									TyphoonDto dto = new TyphoonDto();
-									if (!TextUtils.isEmpty(name)) {
-										dto.name = name;
-									}
-									long longTime = itemArray2.getLong(2);
-									String time = sdf2.format(new Date(longTime));
-									dto.time = time;
+					@Override
+					public void onResponse(Call call, Response response) throws IOException {
+						if (!response.isSuccessful()) {
+							return;
+						}
+						String requestResult = response.body().string();
+						if (!TextUtils.isEmpty(requestResult)) {
+							String c = "(";
+							String result = requestResult.substring(requestResult.indexOf(c)+c.length(), requestResult.indexOf(")"));
+							if (!TextUtils.isEmpty(result)) {
+								try {
+									JSONObject obj = new JSONObject(result);
+									if (!obj.isNull("typhoon")) {
+										ArrayList<TyphoonDto> points = new ArrayList<>();//台风实点
+										List<TyphoonDto> forePoints = new ArrayList<>();//台风预报点
+										JSONArray array = obj.getJSONArray("typhoon");
+										JSONArray itemArray = array.getJSONArray(8);
+										for (int j = 0; j < itemArray.length(); j++) {
+											JSONArray itemArray2 = itemArray.getJSONArray(j);
+											TyphoonDto dto = new TyphoonDto();
+											if (!TextUtils.isEmpty(name)) {
+												dto.name = name;
+											}
+											long longTime = itemArray2.getLong(2);
+											String time = sdf2.format(new Date(longTime));
+											dto.time = time;
 //									String time = itemArray2.getString(1);
-									String str_year = time.substring(0, 4);
-									if(!TextUtils.isEmpty(str_year)){
-										dto.year = Integer.parseInt(str_year);
-									}
-									String str_month = time.substring(4, 6);
-									if(!TextUtils.isEmpty(str_month)){
-										dto.month = Integer.parseInt(str_month);
-									}
-									String str_day = time.substring(6, 8);
-									if(!TextUtils.isEmpty(str_day)){
-										dto.day = Integer.parseInt(str_day);
-									}
-									String str_hour = time.substring(8, 10);
-									if(!TextUtils.isEmpty(str_hour)){
-										dto.hour = Integer.parseInt(str_hour);
-									}
-
-									dto.lng = itemArray2.getDouble(4);
-									dto.lat = itemArray2.getDouble(5);
-									dto.pressure = itemArray2.getString(6);
-									dto.max_wind_speed = itemArray2.getString(7);
-									dto.move_speed = itemArray2.getString(9);
-									String fx_string = itemArray2.getString(8);
-									if( !TextUtils.isEmpty(fx_string)){
-										String windDir = "";
-										for (int i = 0; i < fx_string.length(); i++) {
-											String item = fx_string.substring(i, i+1);
-											if (TextUtils.equals(item, "N")) {
-												item = "北";
-											}else if (TextUtils.equals(item, "S")) {
-												item = "南";
-											}else if (TextUtils.equals(item, "W")) {
-												item = "西";
-											}else if (TextUtils.equals(item, "E")) {
-												item = "东";
+											String str_year = time.substring(0, 4);
+											if(!TextUtils.isEmpty(str_year)){
+												dto.year = Integer.parseInt(str_year);
 											}
-											windDir = windDir+item;
-										}
-										dto.wind_dir = windDir;
-									}
+											String str_month = time.substring(4, 6);
+											if(!TextUtils.isEmpty(str_month)){
+												dto.month = Integer.parseInt(str_month);
+											}
+											String str_day = time.substring(6, 8);
+											if(!TextUtils.isEmpty(str_day)){
+												dto.day = Integer.parseInt(str_day);
+											}
+											String str_hour = time.substring(8, 10);
+											if(!TextUtils.isEmpty(str_hour)){
+												dto.hour = Integer.parseInt(str_hour);
+											}
 
-									String type = itemArray2.getString(3);
-									if (TextUtils.equals(type, "TD")) {//热带低压
-										type = "1";
-									}else if (TextUtils.equals(type, "TS")) {//热带风暴
-										type = "2";
-									}else if (TextUtils.equals(type, "STS")) {//强热带风暴
-										type = "3";
-									}else if (TextUtils.equals(type, "TY")) {//台风
-										type = "4";
-									}else if (TextUtils.equals(type, "STY")) {//强台风
-										type = "5";
-									}else if (TextUtils.equals(type, "SuperTY")) {//超强台风
-										type = "6";
-									}
-									dto.type = type;
-									dto.isFactPoint = true;
+											dto.lng = itemArray2.getDouble(4);
+											dto.lat = itemArray2.getDouble(5);
+											dto.pressure = itemArray2.getString(6);
+											dto.max_wind_speed = itemArray2.getString(7);
+											dto.move_speed = itemArray2.getString(9);
+											String fx_string = itemArray2.getString(8);
+											if( !TextUtils.isEmpty(fx_string)){
+												String windDir = "";
+												for (int i = 0; i < fx_string.length(); i++) {
+													String item = fx_string.substring(i, i+1);
+													if (TextUtils.equals(item, "N")) {
+														item = "北";
+													}else if (TextUtils.equals(item, "S")) {
+														item = "南";
+													}else if (TextUtils.equals(item, "W")) {
+														item = "西";
+													}else if (TextUtils.equals(item, "E")) {
+														item = "东";
+													}
+													windDir = windDir+item;
+												}
+												dto.wind_dir = windDir;
+											}
 
-									JSONArray array10 = itemArray2.getJSONArray(10);
-									for (int m = 0; m < array10.length(); m++) {
-										JSONArray itemArray10 = array10.getJSONArray(m);
-										if (m == 0) {
-											dto.radius_7 = itemArray10.getString(1);
-											dto.en_radius_7 = itemArray10.getString(1);
-											dto.es_radius_7 = itemArray10.getString(2);
-											dto.wn_radius_7 = itemArray10.getString(3);
-											dto.ws_radius_7 = itemArray10.getString(4);
-										}else if (m == 1) {
-											dto.radius_10 = itemArray10.getString(1);
-											dto.en_radius_10 = itemArray10.getString(1);
-											dto.es_radius_10 = itemArray10.getString(2);
-											dto.wn_radius_10 = itemArray10.getString(3);
-											dto.ws_radius_10 = itemArray10.getString(4);
-										}
-									}
-									points.add(dto);
+											String type = itemArray2.getString(3);
+											if (TextUtils.equals(type, "TD")) {//热带低压
+												type = "1";
+											}else if (TextUtils.equals(type, "TS")) {//热带风暴
+												type = "2";
+											}else if (TextUtils.equals(type, "STS")) {//强热带风暴
+												type = "3";
+											}else if (TextUtils.equals(type, "TY")) {//台风
+												type = "4";
+											}else if (TextUtils.equals(type, "STY")) {//强台风
+												type = "5";
+											}else if (TextUtils.equals(type, "SuperTY")) {//超强台风
+												type = "6";
+											}
+											dto.type = type;
+											dto.isFactPoint = true;
 
-									if (!itemArray2.get(11).equals(null)) {
-										JSONObject obj11 = itemArray2.getJSONObject(11);
-										JSONArray array11 = obj11.getJSONArray("BABJ");
-										if (array11.length() > 0) {
-											forePoints.clear();
-										}
-										for (int n = 0; n < array11.length(); n++) {
-											JSONArray itemArray11 = array11.getJSONArray(n);
-											for (int i = 0; i < itemArray11.length(); i++) {
-												TyphoonDto data = new TyphoonDto();
-												if (!TextUtils.isEmpty(name)) {
-													data.name = name;
+											JSONArray array10 = itemArray2.getJSONArray(10);
+											for (int m = 0; m < array10.length(); m++) {
+												JSONArray itemArray10 = array10.getJSONArray(m);
+												if (m == 0) {
+													dto.radius_7 = itemArray10.getString(1);
+													dto.en_radius_7 = itemArray10.getString(1);
+													dto.es_radius_7 = itemArray10.getString(2);
+													dto.wn_radius_7 = itemArray10.getString(3);
+													dto.ws_radius_7 = itemArray10.getString(4);
+												}else if (m == 1) {
+													dto.radius_10 = itemArray10.getString(1);
+													dto.en_radius_10 = itemArray10.getString(1);
+													dto.es_radius_10 = itemArray10.getString(2);
+													dto.wn_radius_10 = itemArray10.getString(3);
+													dto.ws_radius_10 = itemArray10.getString(4);
 												}
-												data.lng = itemArray11.getDouble(2);
-												data.lat = itemArray11.getDouble(3);
-												data.pressure = itemArray11.getString(4);
-												data.move_speed = itemArray11.getString(5);
+											}
+											points.add(dto);
 
-												long t1 = longTime;
-												long t2 = itemArray11.getLong(0)*3600*1000;
-												long ttt = t1+t2;
-												String ttime = sdf2.format(new Date(ttt));
-												data.time = ttime;
-												String year = ttime.substring(0, 4);
-												if(!TextUtils.isEmpty(year)){
-													data.year = Integer.parseInt(year);
+											if (!itemArray2.get(11).equals(null)) {
+												JSONObject obj11 = itemArray2.getJSONObject(11);
+												JSONArray array11 = obj11.getJSONArray("BABJ");
+												if (array11.length() > 0) {
+													forePoints.clear();
 												}
-												String month = ttime.substring(4, 6);
-												if(!TextUtils.isEmpty(month)){
-													data.month = Integer.parseInt(month);
-												}
-												String day = ttime.substring(6, 8);
-												if(!TextUtils.isEmpty(day)){
-													data.day = Integer.parseInt(day);
-												}
-												String hour = ttime.substring(8, 10);
-												if(!TextUtils.isEmpty(hour)){
-													data.hour = Integer.parseInt(hour);
-												}
+												for (int n = 0; n < array11.length(); n++) {
+													JSONArray itemArray11 = array11.getJSONArray(n);
+													for (int i = 0; i < itemArray11.length(); i++) {
+														TyphoonDto data = new TyphoonDto();
+														if (!TextUtils.isEmpty(name)) {
+															data.name = name;
+														}
+														data.lng = itemArray11.getDouble(2);
+														data.lat = itemArray11.getDouble(3);
+														data.pressure = itemArray11.getString(4);
+														data.move_speed = itemArray11.getString(5);
 
-												String babjType = itemArray11.getString(7);
-												if (TextUtils.equals(babjType, "TD")) {//热带低压
-													babjType = "1";
-												}else if (TextUtils.equals(babjType, "TS")) {//热带风暴
-													babjType = "2";
-												}else if (TextUtils.equals(babjType, "STS")) {//强热带风暴
-													babjType = "3";
-												}else if (TextUtils.equals(babjType, "TY")) {//台风
-													babjType = "4";
-												}else if (TextUtils.equals(babjType, "STY")) {//强台风
-													babjType = "5";
-												}else if (TextUtils.equals(babjType, "SuperTY")) {//超强台风
-													babjType = "6";
-												}
-												data.type = babjType;
-												data.isFactPoint = false;
+														long t1 = longTime;
+														long t2 = itemArray11.getLong(0)*3600*1000;
+														long ttt = t1+t2;
+														String ttime = sdf2.format(new Date(ttt));
+														data.time = ttime;
+														String year = ttime.substring(0, 4);
+														if(!TextUtils.isEmpty(year)){
+															data.year = Integer.parseInt(year);
+														}
+														String month = ttime.substring(4, 6);
+														if(!TextUtils.isEmpty(month)){
+															data.month = Integer.parseInt(month);
+														}
+														String day = ttime.substring(6, 8);
+														if(!TextUtils.isEmpty(day)){
+															data.day = Integer.parseInt(day);
+														}
+														String hour = ttime.substring(8, 10);
+														if(!TextUtils.isEmpty(hour)){
+															data.hour = Integer.parseInt(hour);
+														}
 
-												forePoints.add(data);
+														String babjType = itemArray11.getString(7);
+														if (TextUtils.equals(babjType, "TD")) {//热带低压
+															babjType = "1";
+														}else if (TextUtils.equals(babjType, "TS")) {//热带风暴
+															babjType = "2";
+														}else if (TextUtils.equals(babjType, "STS")) {//强热带风暴
+															babjType = "3";
+														}else if (TextUtils.equals(babjType, "TY")) {//台风
+															babjType = "4";
+														}else if (TextUtils.equals(babjType, "STY")) {//强台风
+															babjType = "5";
+														}else if (TextUtils.equals(babjType, "SuperTY")) {//超强台风
+															babjType = "6";
+														}
+														data.type = babjType;
+														data.isFactPoint = false;
+
+														forePoints.add(data);
+													}
+												}
 											}
 										}
+
+										points.addAll(forePoints);
+										pointsList.add(points);
+
+										runOnUiThread(new Runnable() {
+											@Override
+											public void run() {
+												if (startList.size() <= 1) {
+													drawTyphoon(false, pointsList.get(0));
+												}else {
+													for (int i = 0; i < pointsList.size(); i++) {
+														drawTyphoon(false, pointsList.get(i));
+													}
+												}
+
+												cancelDialog();
+											}
+										});
+
 									}
+								} catch (JSONException e) {
+									e.printStackTrace();
 								}
-
-								points.addAll(forePoints);
-								pointsList.add(points);
-
-								runOnUiThread(new Runnable() {
-									@Override
-									public void run() {
-										if (startList.size() <= 1) {
-											drawTyphoon(false, pointsList.get(0));
-										}else {
-											for (int i = 0; i < pointsList.size(); i++) {
-												drawTyphoon(false, pointsList.get(i));
-											}
-										}
-
-										cancelDialog();
-									}
-								});
-
 							}
-						} catch (JSONException e) {
-							e.printStackTrace();
 						}
 					}
-				}
+				});
 			}
-		});
+		}).start();
+
 	}
 
+	@SuppressLint("HandlerLeak")
 	private Handler handler = new Handler() {
 		public void handleMessage(Message msg) {
 			if (msg.what == MSG_PAUSETYPHOON) {
@@ -1091,12 +1102,6 @@ public class TyphoonRouteActivity extends BaseActivity implements OnClickListene
 					@Override
 					public void run() {
 						drawRoute(start, end, factPointList.get(factPointList.size()-1));
-//						if (isAnimate || null != lastShikuangPoint) {
-//						if (null != lastShikuangPoint) {
-//							TyphoonDto point = lastShikuangPoint == null ? lastPoint : lastShikuangPoint;
-//							LatLng latlng = new LatLng(point.lat, point.lng);
-//							aMap.animateCamera(CameraUpdateFactory.newLatLngZoom(latlng, zoom));
-//						}
 					}
 				});
 			}
@@ -1698,57 +1703,63 @@ public class TyphoonRouteActivity extends BaseActivity implements OnClickListene
 	/**
 	 * 获取分钟级降水图
 	 */
-	private void OkHttpMinute(String url) {
-		OkHttpUtil.enqueue(new Request.Builder().url(url).build(), new Callback() {
+	private void OkHttpMinute(final String url) {
+		new Thread(new Runnable() {
 			@Override
-			public void onFailure(Call call, IOException e) {
+			public void run() {
+				OkHttpUtil.enqueue(new Request.Builder().url(url).build(), new Callback() {
+					@Override
+					public void onFailure(Call call, IOException e) {
 
-			}
+					}
 
-			@Override
-			public void onResponse(Call call, Response response) throws IOException {
-				if (!response.isSuccessful()) {
-					return;
-				}
-				String result = response.body().string();
-				if (!TextUtils.isEmpty(result)) {
-					try {
-						JSONObject obj = new JSONObject(result);
-						if (!obj.isNull("status")) {
-							if (obj.getString("status").equals("ok")) {
-								if (!obj.isNull("radar_img")) {
-									JSONArray array = new JSONArray(obj.getString("radar_img"));
-									for (int i = 0; i < array.length(); i++) {
-										JSONArray array0 = array.getJSONArray(i);
-										MinuteFallDto dto = new MinuteFallDto();
-										dto.setImgUrl(array0.optString(0));
-										dto.setTime(array0.optLong(1));
-										JSONArray itemArray = array0.getJSONArray(2);
-										dto.setP1(itemArray.optDouble(0));
-										dto.setP2(itemArray.optDouble(1));
-										dto.setP3(itemArray.optDouble(2));
-										dto.setP4(itemArray.optDouble(3));
-										radarList.add(dto);
-									}
-
-									runOnUiThread(new Runnable() {
-										@Override
-										public void run() {
-											if (radarList.size() > 0) {
-												startDownLoadImgs(radarList);
+					@Override
+					public void onResponse(Call call, Response response) throws IOException {
+						if (!response.isSuccessful()) {
+							return;
+						}
+						String result = response.body().string();
+						if (!TextUtils.isEmpty(result)) {
+							try {
+								JSONObject obj = new JSONObject(result);
+								if (!obj.isNull("status")) {
+									if (obj.getString("status").equals("ok")) {
+										if (!obj.isNull("radar_img")) {
+											JSONArray array = new JSONArray(obj.getString("radar_img"));
+											for (int i = 0; i < array.length(); i++) {
+												JSONArray array0 = array.getJSONArray(i);
+												MinuteFallDto dto = new MinuteFallDto();
+												dto.setImgUrl(array0.optString(0));
+												dto.setTime(array0.optLong(1));
+												JSONArray itemArray = array0.getJSONArray(2);
+												dto.setP1(itemArray.optDouble(0));
+												dto.setP2(itemArray.optDouble(1));
+												dto.setP3(itemArray.optDouble(2));
+												dto.setP4(itemArray.optDouble(3));
+												radarList.add(dto);
 											}
-										}
-									});
 
+											runOnUiThread(new Runnable() {
+												@Override
+												public void run() {
+													if (radarList.size() > 0) {
+														startDownLoadImgs(radarList);
+													}
+												}
+											});
+
+										}
+									}
 								}
+							} catch (JSONException e) {
+								e.printStackTrace();
 							}
 						}
-					} catch (JSONException e) {
-						e.printStackTrace();
 					}
-				}
+				});
 			}
-		});
+		}).start();
+
 	}
 
 	private void startDownLoadImgs(List<MinuteFallDto> list) {
@@ -1926,43 +1937,48 @@ public class TyphoonRouteActivity extends BaseActivity implements OnClickListene
 	/**
 	 * 获取云图数据
 	 */
-	private void OkHttpCloudChart(String url) {
-		OkHttpUtil.enqueue(new Request.Builder().url(url).build(), new Callback() {
+	private void OkHttpCloudChart(final String url) {
+		new Thread(new Runnable() {
 			@Override
-			public void onFailure(Call call, IOException e) {
-
-			}
-
-			@Override
-			public void onResponse(Call call, Response response) throws IOException {
-				if (!response.isSuccessful()) {
-					return;
-				}
-				final String result = response.body().string();
-				runOnUiThread(new Runnable() {
+			public void run() {
+				OkHttpUtil.enqueue(new Request.Builder().url(url).build(), new Callback() {
 					@Override
-					public void run() {
-						if (!TextUtils.isEmpty(result)) {
-							try {
-								JSONObject obj = new JSONObject(result);
-								if (!obj.isNull("l")) {
-									JSONArray array = obj.getJSONArray("l");
-									if (array.length() > 0) {
-										JSONObject itemObj = array.getJSONObject(0);
-										String imgUrl = itemObj.getString("l2");
-										if (!TextUtils.isEmpty(imgUrl)) {
-											downloadPortrait(imgUrl);
+					public void onFailure(Call call, IOException e) {
+
+					}
+
+					@Override
+					public void onResponse(Call call, Response response) throws IOException {
+						if (!response.isSuccessful()) {
+							return;
+						}
+						final String result = response.body().string();
+						runOnUiThread(new Runnable() {
+							@Override
+							public void run() {
+								if (!TextUtils.isEmpty(result)) {
+									try {
+										JSONObject obj = new JSONObject(result);
+										if (!obj.isNull("l")) {
+											JSONArray array = obj.getJSONArray("l");
+											if (array.length() > 0) {
+												JSONObject itemObj = array.getJSONObject(0);
+												String imgUrl = itemObj.getString("l2");
+												if (!TextUtils.isEmpty(imgUrl)) {
+													downloadPortrait(imgUrl);
+												}
+											}
 										}
+									} catch (JSONException e) {
+										e.printStackTrace();
 									}
 								}
-							} catch (JSONException e) {
-								e.printStackTrace();
 							}
-						}
+						});
 					}
 				});
 			}
-		});
+		}).start();
 	}
 
 	/**
@@ -2047,100 +2063,83 @@ public class TyphoonRouteActivity extends BaseActivity implements OnClickListene
 		}
 	}
 
-	private String getWindSecretUrl(String url, String type) {
-		String sysdate = RainManager.getDate(Calendar.getInstance(), "yyyyMMddHH");//系统时间
-		StringBuffer buffer = new StringBuffer();
-		buffer.append(url);
-		buffer.append("?");
-		buffer.append("type=").append(type);
-		buffer.append("&");
-		buffer.append("date=").append(sysdate);
-		buffer.append("&");
-		buffer.append("appid=").append(RainManager.APPID);
-
-		String key = RainManager.getKey(RainManager.CHINAWEATHER_DATA, buffer.toString());
-		buffer.delete(buffer.lastIndexOf("&"), buffer.length());
-
-		buffer.append("&");
-		buffer.append("appid=").append(RainManager.APPID.substring(0, 6));
-		buffer.append("&");
-		buffer.append("key=").append(key.substring(0, key.length() - 3));
-		String result = buffer.toString();
-		return result;
-	}
-
 	/**
 	 * 获取风场数据
 	 */
-	private void OkHttpWind(String url) {
-		OkHttpUtil.enqueue(new Request.Builder().url(getWindSecretUrl(url, "1000")).build(), new Callback() {
+	private void OkHttpWind() {
+		new Thread(new Runnable() {
 			@Override
-			public void onFailure(Call call, IOException e) {
+			public void run() {
+				OkHttpUtil.enqueue(new Request.Builder().url(SecretUrlUtil.windGFS("1000")).build(), new Callback() {
+					@Override
+					public void onFailure(Call call, IOException e) {
 
-			}
-
-			@Override
-			public void onResponse(Call call, Response response) throws IOException {
-				if (!response.isSuccessful()) {
-					return;
-				}
-				String result = response.body().string();
-				if (!TextUtils.isEmpty(result)) {
-					try {
-						JSONObject obj = new JSONObject(result);
-						if (windData == null) {
-							windData = new WindData();
-						}
-						if (obj != null) {
-							if (!obj.isNull("gridHeight")) {
-								windData.height = obj.getInt("gridHeight");
-							}
-							if (!obj.isNull("gridWidth")) {
-								windData.width = obj.getInt("gridWidth");
-							}
-							if (!obj.isNull("x0")) {
-								windData.x0 = obj.getDouble("x0");
-							}
-							if (!obj.isNull("y0")) {
-								windData.y0 = obj.getDouble("y0");
-							}
-							if (!obj.isNull("x1")) {
-								windData.x1 = obj.getDouble("x1");
-							}
-							if (!obj.isNull("y1")) {
-								windData.y1 = obj.getDouble("y1");
-							}
-							if (!obj.isNull("filetime")) {
-								windData.filetime = obj.getString("filetime");
-							}
-
-							if (!obj.isNull("field")) {
-								windData.dataList.clear();
-								JSONArray array = new JSONArray(obj.getString("field"));
-								for (int i = 0; i < array.length(); i+=2) {
-									WindDto dto2 = new WindDto();
-									dto2.initX = (float)(array.optDouble(i));
-									dto2.initY = (float)(array.optDouble(i+1));
-									windData.dataList.add(dto2);
-								}
-							}
-
-							runOnUiThread(new Runnable() {
-								@Override
-								public void run() {
-									cancelDialog();
-									reloadWind();
-									isHaveWindData = true;
-								}
-							});
-
-						}
-					} catch (JSONException e1) {
-						e1.printStackTrace();
 					}
-				}
+
+					@Override
+					public void onResponse(Call call, Response response) throws IOException {
+						if (!response.isSuccessful()) {
+							return;
+						}
+						String result = response.body().string();
+						if (!TextUtils.isEmpty(result)) {
+							try {
+								JSONObject obj = new JSONObject(result);
+								if (windData == null) {
+									windData = new WindData();
+								}
+								if (obj != null) {
+									if (!obj.isNull("gridHeight")) {
+										windData.height = obj.getInt("gridHeight");
+									}
+									if (!obj.isNull("gridWidth")) {
+										windData.width = obj.getInt("gridWidth");
+									}
+									if (!obj.isNull("x0")) {
+										windData.x0 = obj.getDouble("x0");
+									}
+									if (!obj.isNull("y0")) {
+										windData.y0 = obj.getDouble("y0");
+									}
+									if (!obj.isNull("x1")) {
+										windData.x1 = obj.getDouble("x1");
+									}
+									if (!obj.isNull("y1")) {
+										windData.y1 = obj.getDouble("y1");
+									}
+									if (!obj.isNull("filetime")) {
+										windData.filetime = obj.getString("filetime");
+									}
+
+									if (!obj.isNull("field")) {
+										windData.dataList.clear();
+										JSONArray array = new JSONArray(obj.getString("field"));
+										for (int i = 0; i < array.length(); i+=2) {
+											WindDto dto2 = new WindDto();
+											dto2.initX = (float)(array.optDouble(i));
+											dto2.initY = (float)(array.optDouble(i+1));
+											windData.dataList.add(dto2);
+										}
+									}
+
+									runOnUiThread(new Runnable() {
+										@Override
+										public void run() {
+											cancelDialog();
+											reloadWind();
+											isHaveWindData = true;
+										}
+									});
+
+								}
+							} catch (JSONException e1) {
+								e1.printStackTrace();
+							}
+						}
+					}
+				});
 			}
-		});
+		}).start();
 	}
 
 	@Override
@@ -2191,33 +2190,6 @@ public class TyphoonRouteActivity extends BaseActivity implements OnClickListene
 				e.printStackTrace();
 			}
 		}
-
-//		LayoutInflater inflater = (LayoutInflater) getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-//		View view = inflater.inflate(R.layout.welcome, null);
-//		showWind(waitWindView);
-	}
-
-	private void showWind(View view) {
-		LatLng leftlatlng = aMap.getProjection().fromScreenLocation(new Point(0, height));
-		LatLng rightLatlng = aMap.getProjection().fromScreenLocation(new Point(width, 0));
-		BitmapDescriptor fromView = BitmapDescriptorFactory.fromView(view);
-		LatLngBounds bounds = new LatLngBounds.Builder()
-				.include(leftlatlng)
-				.include(rightLatlng)
-				.build();
-
-		if (windOverlay == null) {
-			windOverlay = aMap.addGroundOverlay(new GroundOverlayOptions()
-					.anchor(0.5f, 0.5f)
-					.positionFromBounds(bounds)
-					.image(fromView)
-					.transparency(0.5f));
-		} else {
-			windOverlay.setImage(null);
-			windOverlay.setPositionFromBounds(bounds);
-			windOverlay.setImage(fromView);
-		}
-		aMap.runOnDrawFrame();
 	}
 
 	@Override
@@ -2317,7 +2289,7 @@ public class TyphoonRouteActivity extends BaseActivity implements OnClickListene
 		}else if (v.getId() == R.id.ivTyphoonWind) {
 			if (isWindOn == false) {//添加图层
 				if (isHaveWindData == false) {
-					OkHttpWind("http://scapi.weather.com.cn/weather/getwindmincas");
+					OkHttpWind();
 				}else {
 					reloadWind();
 				}

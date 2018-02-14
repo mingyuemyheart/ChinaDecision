@@ -21,8 +21,8 @@ public class CaiyunManager {
 	private LoadThread mLoadThread;
 	
 	public interface RadarListener {
-		public static final int RESULT_SUCCESSED = 1;
-		public static final int RESULT_FAILED = 2;
+		int RESULT_SUCCESSED = 1;
+		int RESULT_FAILED = 2;
 		void onResult(int result, List<MinuteFallDto> images);
 		void onProgress(String url, int progress);
 	}

@@ -13,11 +13,15 @@ import com.china.dto.StationMonitorDto;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * 实况排行
+ */
+
 public class StationMonitorRankAdapter extends BaseAdapter{
 	
 	private Context mContext = null;
 	private LayoutInflater mInflater = null;
-	private List<StationMonitorDto> mArrayList = new ArrayList<StationMonitorDto>();
+	private List<StationMonitorDto> mArrayList = new ArrayList<>();
 	
 	private final class ViewHolder{
 		TextView tvNum;

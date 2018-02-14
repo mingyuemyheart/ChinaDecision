@@ -226,7 +226,7 @@
             android:layout_above="@+id/llLegend"
             android:layout_marginLeft="10dp"
             android:layout_marginTop="10dp"
-            android:src="@drawable/iv_back_location"
+            android:src="@drawable/tf_icon_wz"
             android:visibility="gone" />
 
         <LinearLayout
