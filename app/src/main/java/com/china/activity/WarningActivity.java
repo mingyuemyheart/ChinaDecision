@@ -157,9 +157,10 @@ OnMarkerClickListener, InfoWindowAdapter, OnCameraChangeListener, OnMapScreenSho
 	//国家级预警图层
 	private HashMap<String, String> nationMap = new HashMap<>();
 	private LinearLayout llLayerButton, llLegend;
-	private ImageView iv1, iv2, iv3, iv4, iv5, iv6, iv7, iv8, ivLegend1, ivLegend2, ivLegend3, ivLegend4, ivLegend5, ivLegend7, ivLegend8;
-	private boolean flag1 = false, flag2 = false, flag3 = false, flag4 = false, flag5 = false, flag6 = false, flag7 = false, flag8 = false;
-	private String warningType1 = "fog", warningType2 = "baoyu", warningType3 = "shachen", warningType4 = "daxue", warningType5 = "gaowen", warningType7 = "lengkongqi", warningType8 = "lengkongqi";
+	private ImageView iv1, iv2, iv3, iv4, iv5, iv6, iv7, iv8, iv9, iv10, ivLegend1, ivLegend2, ivLegend3, ivLegend4, ivLegend5, ivLegend7, ivLegend8, ivLegend9, ivLegend10;
+	private boolean flag1 = false, flag2 = false, flag3 = false, flag4 = false, flag5 = false, flag6 = false, flag7 = false, flag8 = false, flag9 = false, flag10 = false;
+	private String warningType1 = "fog", warningType2 = "baoyu", warningType3 = "shachen", warningType4 = "daxue", warningType5 = "gaowen",
+			warningType7 = "lengkongqi", warningType8 = "lengkongqi", warningType9 = "wind", warningType10 = "thunderstorm";
 	private List<Polyline> polyline11 = new ArrayList<>();
 	private List<Polyline> polyline12 = new ArrayList<>();
 	private List<Polygon> polygons13 = new ArrayList<>();
@@ -181,6 +182,12 @@ OnMarkerClickListener, InfoWindowAdapter, OnCameraChangeListener, OnMapScreenSho
 	private List<Polyline> polyline81 = new ArrayList<>();
 	private List<Polyline> polyline82 = new ArrayList<>();
 	private List<Polygon> polygons83 = new ArrayList<>();
+	private List<Polyline> polyline91 = new ArrayList<>();
+	private List<Polyline> polyline92 = new ArrayList<>();
+	private List<Polygon> polygons93 = new ArrayList<>();
+	private List<Polyline> polyline101 = new ArrayList<>();
+	private List<Polyline> polyline102 = new ArrayList<>();
+	private List<Polygon> polygons103 = new ArrayList<>();
 	private SimpleDateFormat sdf1 = new SimpleDateFormat("yyyy");
 	private SimpleDateFormat sdf2 = new SimpleDateFormat("yyyyMMddHH");
 	private List<TyphoonDto> typhoonList = new ArrayList<>();
@@ -247,6 +254,10 @@ OnMarkerClickListener, InfoWindowAdapter, OnCameraChangeListener, OnMapScreenSho
 		iv7.setOnClickListener(this);
 		iv8 = (ImageView) findViewById(R.id.iv8);
 		iv8.setOnClickListener(this);
+		iv9 = (ImageView) findViewById(R.id.iv9);
+		iv9.setOnClickListener(this);
+		iv10 = (ImageView) findViewById(R.id.iv10);
+		iv10.setOnClickListener(this);
 		ivLegend1 = (ImageView) findViewById(R.id.ivLegend1);
 		ivLegend2 = (ImageView) findViewById(R.id.ivLegend2);
 		ivLegend3 = (ImageView) findViewById(R.id.ivLegend3);
@@ -254,6 +265,8 @@ OnMarkerClickListener, InfoWindowAdapter, OnCameraChangeListener, OnMapScreenSho
 		ivLegend5 = (ImageView) findViewById(R.id.ivLegend5);
 		ivLegend7 = (ImageView) findViewById(R.id.ivLegend7);
 		ivLegend8 = (ImageView) findViewById(R.id.ivLegend8);
+		ivLegend9 = (ImageView) findViewById(R.id.ivLegend9);
+		ivLegend10 = (ImageView) findViewById(R.id.ivLegend10);
 
 		initBroadCast();
 
@@ -582,6 +595,12 @@ OnMarkerClickListener, InfoWindowAdapter, OnCameraChangeListener, OnMapScreenSho
 		}
 		if (nationMap.containsKey("11B05")) {//寒潮
 			iv8.setVisibility(View.VISIBLE);
+		}
+		if (nationMap.containsKey("11B23")) {//海上大风
+			iv9.setVisibility(View.VISIBLE);
+		}
+		if (nationMap.containsKey("11B31")) {//强对流
+			iv10.setVisibility(View.VISIBLE);
 		}
 	}
 	
@@ -1311,6 +1330,32 @@ OnMarkerClickListener, InfoWindowAdapter, OnCameraChangeListener, OnMapScreenSho
 				ivLegend8.setVisibility(View.GONE);
 			}
 			break;
+		case R.id.iv9:
+			if (flag9 == false) {
+				drawWarningLayer(SecretUrlUtil.warningLayer(warningType9), warningType9);
+				flag9 = true;
+				iv9.setImageResource(R.drawable.warning_wind_open);
+				ivLegend9.setVisibility(View.VISIBLE);
+			}else {
+				removeWarningLayer(warningType9);
+				flag9 = false;
+				iv9.setImageResource(R.drawable.warning_wind_close);
+				ivLegend9.setVisibility(View.GONE);
+			}
+			break;
+		case R.id.iv10:
+			if (flag10 == false) {
+				drawWarningLayer(SecretUrlUtil.warningLayer(warningType10), warningType10);
+				flag10 = true;
+				iv10.setImageResource(R.drawable.warning_qiangduiliu_open);
+				ivLegend10.setVisibility(View.VISIBLE);
+			}else {
+				removeWarningLayer(warningType10);
+				flag10 = false;
+				iv10.setImageResource(R.drawable.warning_qiangduiliu_close);
+				ivLegend10.setVisibility(View.GONE);
+			}
+			break;
 
 		default:
 			break;
@@ -1472,6 +1517,36 @@ OnMarkerClickListener, InfoWindowAdapter, OnCameraChangeListener, OnMapScreenSho
 				polygons83.get(i).remove();
 			}
 			polygons83.clear();
+		}else if (TextUtils.equals(type, warningType9)) {
+			for (int i = 0; i < polyline91.size(); i++) {
+				polyline91.get(i).remove();
+			}
+			polyline91.clear();
+
+			for (int i = 0; i < polyline92.size(); i++) {
+				polyline92.get(i).remove();
+			}
+			polyline92.clear();
+
+			for (int i = 0; i < polygons93.size(); i++) {
+				polygons93.get(i).remove();
+			}
+			polygons93.clear();
+		}else if (TextUtils.equals(type, warningType10)) {
+			for (int i = 0; i < polyline101.size(); i++) {
+				polyline101.get(i).remove();
+			}
+			polyline101.clear();
+
+			for (int i = 0; i < polyline102.size(); i++) {
+				polyline102.get(i).remove();
+			}
+			polyline102.clear();
+
+			for (int i = 0; i < polygons103.size(); i++) {
+				polygons103.get(i).remove();
+			}
+			polygons103.clear();
 		}
 	}
 
@@ -1556,6 +1631,10 @@ OnMarkerClickListener, InfoWindowAdapter, OnCameraChangeListener, OnMapScreenSho
 												polyline71.add(p);
 											}else if (TextUtils.equals(type, warningType8)) {
 												polyline81.add(p);
+											}else if (TextUtils.equals(type, warningType9)) {
+												polyline91.add(p);
+											}else if (TextUtils.equals(type, warningType10)) {
+												polyline101.add(p);
 											}
 										}
 //							if (!itemObj.isNull("flags")) {
@@ -1610,6 +1689,10 @@ OnMarkerClickListener, InfoWindowAdapter, OnCameraChangeListener, OnMapScreenSho
 												polyline72.add(p);
 											}else if (TextUtils.equals(type, warningType8)) {
 												polyline82.add(p);
+											}else if (TextUtils.equals(type, warningType9)) {
+												polyline92.add(p);
+											}else if (TextUtils.equals(type, warningType10)) {
+												polyline102.add(p);
 											}
 										}
 									}
@@ -1681,6 +1764,10 @@ OnMarkerClickListener, InfoWindowAdapter, OnCameraChangeListener, OnMapScreenSho
 												polygons73.add(p);
 											}else if (TextUtils.equals(type, warningType8)) {
 												polygons83.add(p);
+											}else if (TextUtils.equals(type, warningType9)) {
+												polygons93.add(p);
+											}else if (TextUtils.equals(type, warningType10)) {
+												polygons103.add(p);
 											}
 										}
 //							if (!itemObj.isNull("symbols")) {

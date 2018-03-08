@@ -132,6 +132,22 @@
 
             <ImageView
                 android:visibility="gone"
+                android:id="@+id/iv9"
+                android:layout_width="35dp"
+                android:layout_height="35dp"
+                android:src="@drawable/warning_sea_close"
+                android:layout_marginBottom="5dp" />
+
+            <ImageView
+                android:visibility="gone"
+                android:id="@+id/iv10"
+                android:layout_width="35dp"
+                android:layout_height="35dp"
+                android:src="@drawable/warning_qiangduiliu_close"
+                android:layout_marginBottom="5dp" />
+
+            <ImageView
+                android:visibility="gone"
                 android:id="@+id/iv6"
                 android:layout_width="35dp"
                 android:layout_height="35dp"
@@ -213,6 +229,24 @@
                 android:layout_height="wrap_content"
                 android:adjustViewBounds="true"
                 android:src="@drawable/warning_legend_hanchao"
+                android:layout_marginBottom="5dp" />
+
+            <ImageView
+                android:visibility="gone"
+                android:id="@+id/ivLegend9"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:adjustViewBounds="true"
+                android:src="@drawable/warning_legend_wind"
+                android:layout_marginBottom="5dp" />
+
+            <ImageView
+                android:visibility="gone"
+                android:id="@+id/ivLegend10"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:adjustViewBounds="true"
+                android:src="@drawable/warning_legend_qiangduiliu"
                 android:layout_marginBottom="5dp" />
 
         </LinearLayout>
