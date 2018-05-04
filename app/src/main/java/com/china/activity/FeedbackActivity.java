@@ -67,7 +67,7 @@ public class FeedbackActivity extends BaseActivity implements OnClickListener{
 	/**
 	 * 意见反馈
 	 */
-	private void OkHttpFeedback(String url) {
+	private void OkHttpFeedback(final String url) {
 		if (TextUtils.isEmpty(url) || TextUtils.isEmpty(CONST.UID)) {
 			return;
 		}
@@ -75,51 +75,56 @@ public class FeedbackActivity extends BaseActivity implements OnClickListener{
 		builder.add("uid", CONST.UID);
 		builder.add("content", etContent.getText().toString());
 		builder.add("appid", appid);
-		RequestBody body = builder.build();
-		OkHttpUtil.enqueue(new Request.Builder().post(body).url(url).build(), new Callback() {
+		final RequestBody body = builder.build();
+		new Thread(new Runnable() {
 			@Override
-			public void onFailure(Call call, IOException e) {
-
-			}
-
-			@Override
-			public void onResponse(Call call, Response response) throws IOException {
-				if (!response.isSuccessful()) {
-					return;
-				}
-				final String result = response.body().string();
-				runOnUiThread(new Runnable() {
+			public void run() {
+				OkHttpUtil.enqueue(new Request.Builder().post(body).url(url).build(), new Callback() {
 					@Override
-					public void run() {
-						if (!TextUtils.isEmpty(result)) {
-							try {
-								JSONObject object = new JSONObject(result);
-								if (object != null) {
-									if (!object.isNull("status")) {
-										int status  = object.getInt("status");
-										if (status == 1) {//成功
-											Toast.makeText(mContext, getString(R.string.submit_success), Toast.LENGTH_SHORT).show();
-											finish();
-										}else {
-											//失败
-											if (!object.isNull("msg")) {
-												String msg = object.getString("msg");
-												if (msg != null) {
-													Toast.makeText(mContext, msg, Toast.LENGTH_SHORT).show();
+					public void onFailure(Call call, IOException e) {
+
+					}
+
+					@Override
+					public void onResponse(Call call, Response response) throws IOException {
+						if (!response.isSuccessful()) {
+							return;
+						}
+						final String result = response.body().string();
+						runOnUiThread(new Runnable() {
+							@Override
+							public void run() {
+								if (!TextUtils.isEmpty(result)) {
+									try {
+										JSONObject object = new JSONObject(result);
+										if (object != null) {
+											if (!object.isNull("status")) {
+												int status  = object.getInt("status");
+												if (status == 1) {//成功
+													Toast.makeText(mContext, getString(R.string.submit_success), Toast.LENGTH_SHORT).show();
+													finish();
+												}else {
+													//失败
+													if (!object.isNull("msg")) {
+														String msg = object.getString("msg");
+														if (msg != null) {
+															Toast.makeText(mContext, msg, Toast.LENGTH_SHORT).show();
+														}
+													}
 												}
 											}
 										}
+										cancelDialog();
+									} catch (JSONException e) {
+										e.printStackTrace();
 									}
 								}
-								cancelDialog();
-							} catch (JSONException e) {
-								e.printStackTrace();
 							}
-						}
+						});
 					}
 				});
 			}
-		});
+		}).start();
 	}
 	
 	@Override

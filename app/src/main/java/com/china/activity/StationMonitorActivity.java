@@ -904,7 +904,8 @@ public class StationMonitorActivity extends BaseActivity implements OnClickListe
             return;
         }
 
-        new Thread() {
+        new Thread(new Runnable() {
+            @Override
             public void run() {
                 String[] polyStr = item.districtBoundary();
                 if (polyStr == null || polyStr.length == 0) {
@@ -924,9 +925,8 @@ public class StationMonitorActivity extends BaseActivity implements OnClickListe
                     Polyline polyline = aMap.addPolyline(polylineOptions);
                     boundLines.add(polyline);
                 }
-
             }
-        }.start();
+        }).start();
     }
 
     /**
@@ -1776,7 +1776,6 @@ public class StationMonitorActivity extends BaseActivity implements OnClickListe
 
     @Override
     public View getInfoWindow(Marker arg0) {
-        // TODO Auto-generated method stub
         return null;
     }
 
@@ -1861,7 +1860,6 @@ public class StationMonitorActivity extends BaseActivity implements OnClickListe
 
     @Override
     public void onMapScreenShot(Bitmap arg0, int arg1) {
-        // TODO Auto-generated method stub
     }
 
     @Override

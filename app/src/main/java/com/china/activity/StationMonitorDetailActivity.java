@@ -196,51 +196,56 @@ public class StationMonitorDetailActivity extends BaseActivity implements OnClic
 	/**
 	 * 获取预警信息
 	 */
-	private void OkHttpWarning(String requestUrl) {
-		OkHttpUtil.enqueue(new Request.Builder().url(requestUrl).build(), new Callback() {
+	private void OkHttpWarning(final String url) {
+		new Thread(new Runnable() {
 			@Override
-			public void onFailure(Call call, IOException e) {
+			public void run() {
+				OkHttpUtil.enqueue(new Request.Builder().url(url).build(), new Callback() {
+					@Override
+					public void onFailure(Call call, IOException e) {
 
-			}
+					}
 
-			@Override
-			public void onResponse(Call call, Response response) throws IOException {
-				if (!response.isSuccessful()) {return;}
-				String result = response.body().string();
-				if (result != null) {
-					try {
-						JSONObject object = new JSONObject(result);
-						if (object != null) {
-							if (!object.isNull("data")) {
-								warningList.clear();
-								JSONArray jsonArray = object.getJSONArray("data");
-								for (int i = 0; i < jsonArray.length(); i++) {
-									JSONArray tempArray = jsonArray.getJSONArray(i);
-									WarningDto dto = new WarningDto();
-									dto.html = tempArray.optString(1);
-									String[] array = dto.html.split("-");
-									String item0 = array[0];
-									String item1 = array[1];
-									String item2 = array[2];
+					@Override
+					public void onResponse(Call call, Response response) throws IOException {
+						if (!response.isSuccessful()) {return;}
+						String result = response.body().string();
+						if (!TextUtils.isEmpty(result)) {
+							try {
+								JSONObject object = new JSONObject(result);
+								if (object != null) {
+									if (!object.isNull("data")) {
+										warningList.clear();
+										JSONArray jsonArray = object.getJSONArray("data");
+										for (int i = 0; i < jsonArray.length(); i++) {
+											JSONArray tempArray = jsonArray.getJSONArray(i);
+											WarningDto dto = new WarningDto();
+											dto.html = tempArray.optString(1);
+											String[] array = dto.html.split("-");
+											String item0 = array[0];
+											String item1 = array[1];
+											String item2 = array[2];
 
-									dto.provinceId = item0.substring(0, 2);
-									dto.type = item2.substring(0, 5);
-									dto.color = item2.substring(5, 7);
-									dto.time = item1;
-									dto.lng = tempArray.optString(2);
-									dto.lat = tempArray.optString(3);
-									dto.name = tempArray.optString(0);
+											dto.provinceId = item0.substring(0, 2);
+											dto.type = item2.substring(0, 5);
+											dto.color = item2.substring(5, 7);
+											dto.time = item1;
+											dto.lng = tempArray.optString(2);
+											dto.lat = tempArray.optString(3);
+											dto.name = tempArray.optString(0);
 
-									warningList.add(dto);
+											warningList.add(dto);
+										}
+									}
 								}
+							} catch (JSONException e) {
+								e.printStackTrace();
 							}
 						}
-					} catch (JSONException e) {
-						e.printStackTrace();
 					}
-				}
+				});
 			}
-		});
+		}).start();
 	}
 	
 	/**
@@ -478,621 +483,626 @@ public class StationMonitorDetailActivity extends BaseActivity implements OnClic
 	/**
 	 * 实况监测详情
 	 */
-	private void OkHttpDetail(String stationids, String interfaceType) {
-		OkHttpUtil.enqueue(new Request.Builder().url(SecretUrlUtil.stationDetail(stationids, interfaceType)).build(), new Callback() {
+	private void OkHttpDetail(final String stationids, final String interfaceType) {
+		new Thread(new Runnable() {
 			@Override
-			public void onFailure(Call call, IOException e) {
+			public void run() {
+				OkHttpUtil.enqueue(new Request.Builder().url(SecretUrlUtil.stationDetail(stationids, interfaceType)).build(), new Callback() {
+					@Override
+					public void onFailure(Call call, IOException e) {
 
-			}
-
-			@Override
-			public void onResponse(Call call, Response response) throws IOException {
-
-				if (!response.isSuccessful()) {
-					return;
-				}
-				String result = response.body().string();
-				if (result != null) {
-					try {
-						JSONArray array = new JSONArray(result);
-						final StationMonitorDto dto = new StationMonitorDto();
-						JSONObject obj = array.getJSONObject(0);
-						if (!obj.isNull("present")) {
-							JSONObject presentObj = obj.getJSONObject("present");
-							if (!presentObj.isNull("atballtemp")) {
-								String value = presentObj.getString("atballtemp");
-								if (!TextUtils.isEmpty(value)) {
-									if (value.length() >= 2 && value.contains(".")) {
-										if (value.equals(".0")) {
-											dto.currentTemp = "0";
-										}else {
-											if (TextUtils.equals(value.substring(value.length()-2, value.length()), ".0")) {
-												dto.currentTemp = value.substring(0, value.indexOf("."));
-											}else {
-												dto.currentTemp = value;
-											}
-										}
-									}
-								}else {
-									dto.currentTemp = CONST.noValue;
-								}
-							}else {
-								dto.currentTemp = CONST.noValue;
-							}
-
-							if (!presentObj.isNull("atprecipitation1h")) {
-								String value = presentObj.getString("atprecipitation1h");
-								if (!TextUtils.isEmpty(value)) {
-									if (value.length() >= 2 && value.contains(".")) {
-										if (value.equals(".0")) {
-											dto.current1hRain = "0";
-										}else {
-											if (TextUtils.equals(value.substring(value.length()-2, value.length()), ".0")) {
-												dto.current1hRain = value.substring(0, value.indexOf("."));
-											}else {
-												dto.current1hRain = value;
-											}
-										}
-									}
-								}else {
-									dto.current1hRain = CONST.noValue;
-								}
-							}else {
-								dto.current1hRain = CONST.noValue;
-							}
-
-							if (!presentObj.isNull("athumidity")) {
-								String value = presentObj.getString("athumidity");
-								if (!TextUtils.isEmpty(value)) {
-									if (value.length() >= 2 && value.contains(".")) {
-										if (value.equals(".0")) {
-											dto.currentHumidity = "0";
-										}else {
-											if (TextUtils.equals(value.substring(value.length()-2, value.length()), ".0")) {
-												dto.currentHumidity = value.substring(0, value.indexOf("."));
-											}else {
-												dto.currentHumidity = value;
-											}
-										}
-									}
-								}else {
-									dto.currentHumidity = CONST.noValue;
-								}
-							}else {
-								dto.currentHumidity = CONST.noValue;
-							}
-
-							if (!presentObj.isNull("atwindspeed")) {
-								String value = presentObj.getString("atwindspeed");
-								if (!TextUtils.isDigitsOnly(value)) {
-									if (value.length() >= 2 && value.contains(".")) {
-										if (value.equals(".0")) {
-											dto.currentWindSpeed = "0";
-										}else {
-											if (TextUtils.equals(value.substring(value.length()-2, value.length()), ".0")) {
-												dto.currentWindSpeed = value.substring(0, value.indexOf("."));
-											}else {
-												dto.currentWindSpeed = value;
-											}
-										}
-									}
-								}else {
-									dto.currentWindSpeed = CONST.noValue;
-								}
-							}else {
-								dto.currentWindSpeed = CONST.noValue;
-							}
-
-							if (!presentObj.isNull("atairpressure")) {
-								String value = presentObj.getString("atairpressure");
-								if (!TextUtils.isEmpty(value)) {
-									if (value.length() >= 2 && value.contains(".")) {
-										if (value.equals(".0")) {
-											dto.currentPressure = "0";
-										}else {
-											if (TextUtils.equals(value.substring(value.length()-2, value.length()), ".0")) {
-												dto.currentPressure = value.substring(0, value.indexOf("."));
-											}else {
-												dto.currentPressure = value;
-											}
-										}
-									}
-								}else {
-									dto.currentPressure = CONST.noValue;
-								}
-							}else {
-								dto.currentPressure = CONST.noValue;
-							}
-
-							if (!presentObj.isNull("atvisibility")) {
-								String value = presentObj.getString("atvisibility");
-								if (!TextUtils.isEmpty(value)) {
-									if (value.length() >= 2 && value.contains(".")) {
-										if (value.equals(".0")) {
-											dto.currentVisible = "0";
-										}else {
-											if (TextUtils.equals(value.substring(value.length()-2, value.length()), ".0")) {
-												float f = Float.valueOf(value)/1000;
-												BigDecimal b = new BigDecimal(f);
-												float f1 = b.setScale(1,BigDecimal.ROUND_HALF_UP).floatValue();
-												dto.currentVisible = String.valueOf(f1).substring(0, String.valueOf(f1).indexOf("."));
-											}else {
-												float f = Float.valueOf(value)/1000;
-												BigDecimal b = new BigDecimal(f);
-												float f1 = b.setScale(1,BigDecimal.ROUND_HALF_UP).floatValue();
-												dto.currentVisible = String.valueOf(f1);
-											}
-										}
-									}
-								}else {
-									dto.currentVisible = CONST.noValue;
-								}
-							}else {
-								dto.currentVisible = CONST.noValue;
-							}
-						}
-
-						if (!obj.isNull("statistics")) {
-							JSONObject statisticsObj = obj.getJSONObject("statistics");
-							if (!statisticsObj.isNull("maxtemperature")) {
-								String value = statisticsObj.getString("maxtemperature");
-								if (!TextUtils.isEmpty(value)) {
-									if (value.length() >= 2 && value.contains(".")) {
-										if (value.equals(".0")) {
-											dto.statisHighTemp = "0";
-										}else {
-											if (TextUtils.equals(value.substring(value.length()-2, value.length()), ".0")) {
-												dto.statisHighTemp = value.substring(0, value.indexOf("."));
-											}else {
-												dto.statisHighTemp = value;
-											}
-										}
-									}
-								}else {
-									dto.statisHighTemp = CONST.noValue;
-								}
-							}else {
-								dto.statisHighTemp = CONST.noValue;
-							}
-
-							if (!statisticsObj.isNull("mintemperature")) {
-								String value = statisticsObj.getString("mintemperature");
-								if (!TextUtils.isEmpty(value)) {
-									if (value.length() >= 2 && value.contains(".")) {
-										if (value.equals(".0")) {
-											dto.statisLowTemp = "0";
-										}else {
-											if (TextUtils.equals(value.substring(value.length()-2, value.length()), ".0")) {
-												dto.statisLowTemp = value.substring(0, value.indexOf("."));
-											}else {
-												dto.statisLowTemp = value;
-											}
-										}
-									}
-								}else {
-									dto.statisLowTemp = CONST.noValue;
-								}
-							}else {
-								dto.statisLowTemp = CONST.noValue;
-							}
-
-							if (!statisticsObj.isNull("mean")) {
-								String value = statisticsObj.getString("mean");
-								if (!TextUtils.isEmpty(value)) {
-									if (value.length() >= 2 && value.contains(".")) {
-										if (value.equals(".0")) {
-											dto.statisAverTemp = "0";
-										}else {
-											if (TextUtils.equals(value.substring(value.length()-2, value.length()), ".0")) {
-												dto.statisAverTemp = value.substring(0, value.indexOf("."));
-											}else {
-												dto.statisAverTemp = value;
-											}
-										}
-									}
-								}else {
-									dto.statisAverTemp = CONST.noValue;
-								}
-							}else {
-								dto.statisAverTemp = CONST.noValue;
-							}
-
-							if (!statisticsObj.isNull("rainfall3")) {
-								String value = statisticsObj.getString("rainfall3");
-								if (!TextUtils.isEmpty(value)) {
-									if (value.length() >= 2 && value.contains(".")) {
-										if (value.equals(".0")) {
-											dto.statis3hRain = "0";
-										}else {
-											if (TextUtils.equals(value.substring(value.length()-2, value.length()), ".0")) {
-												dto.statis3hRain = value.substring(0, value.indexOf("."));
-											}else {
-												dto.statis3hRain = value;
-											}
-										}
-									}
-								}else {
-									dto.statis3hRain = CONST.noValue;
-								}
-							}else {
-								dto.statis3hRain = CONST.noValue;
-							}
-
-							if (!statisticsObj.isNull("rainfall6")) {
-								String value = statisticsObj.getString("rainfall6");
-								if (!TextUtils.isEmpty(value)) {
-									if (value.length() >= 2 && value.contains(".")) {
-										if (value.equals(".0")) {
-											dto.statis6hRain = "0";
-										}else {
-											if (TextUtils.equals(value.substring(value.length()-2, value.length()), ".0")) {
-												dto.statis6hRain = value.substring(0, value.indexOf("."));
-											}else {
-												dto.statis6hRain = value;
-											}
-										}
-									}
-								}else {
-									dto.statis6hRain = CONST.noValue;
-								}
-							}else {
-								dto.statis6hRain = CONST.noValue;
-							}
-
-							if (!statisticsObj.isNull("rainfall12")) {
-								String value = statisticsObj.getString("rainfall12");
-								if (!TextUtils.isEmpty(value)) {
-									if (value.length() >= 2 && value.contains(".")) {
-										if (value.equals(".0")) {
-											dto.statis12hRain = "0";
-										}else {
-											if (TextUtils.equals(value.substring(value.length()-2, value.length()), ".0")) {
-												dto.statis12hRain = value.substring(0, value.indexOf("."));
-											}else {
-												dto.statis12hRain = value;
-											}
-										}
-									}
-								}else {
-									dto.statis12hRain = CONST.noValue;
-								}
-							}else {
-								dto.statis12hRain = CONST.noValue;
-							}
-
-							if (!statisticsObj.isNull("rainfall24")) {
-								String value = statisticsObj.getString("rainfall24");
-								if (!TextUtils.isEmpty(value)) {
-									if (value.length() >= 2 && value.contains(".")) {
-										if (value.equals(".0")) {
-											dto.statis24hRain = "0";
-										}else {
-											if (TextUtils.equals(value.substring(value.length()-2, value.length()), ".0")) {
-												dto.statis24hRain = value.substring(0, value.indexOf("."));
-											}else {
-												dto.statis24hRain = value;
-											}
-										}
-									}
-								}else {
-									dto.statis24hRain = CONST.noValue;
-								}
-							}else {
-								dto.statis24hRain = CONST.noValue;
-							}
-
-							if (!statisticsObj.isNull("maxhumidity")) {
-								String value = statisticsObj.getString("maxhumidity");
-								if (!TextUtils.isEmpty(value)) {
-									if (value.length() >= 2 && value.contains(".")) {
-										if (value.equals(".0")) {
-											dto.statisMaxHumidity = "0";
-										}else {
-											if (TextUtils.equals(value.substring(value.length()-2, value.length()), ".0")) {
-												dto.statisMaxHumidity = value.substring(0, value.indexOf("."));
-											}else {
-												dto.statisMaxHumidity = value;
-											}
-										}
-									}
-								}else {
-									dto.statisMaxHumidity = CONST.noValue;
-								}
-							}else {
-								dto.statisMaxHumidity = CONST.noValue;
-							}
-
-							if (!statisticsObj.isNull("minhumidity")) {
-								String value = statisticsObj.getString("minhumidity");
-								if (!TextUtils.isEmpty(value)) {
-									if (value.length() >= 2 && value.contains(".")) {
-										if (value.equals(".0")) {
-											dto.statisMinHumidity = "0";
-										}else {
-											if (TextUtils.equals(value.substring(value.length()-2, value.length()), ".0")) {
-												dto.statisMinHumidity = value.substring(0, value.indexOf("."));
-											}else {
-												dto.statisMinHumidity = value;
-											}
-										}
-									}
-								}else {
-									dto.statisMinHumidity = CONST.noValue;
-								}
-							}else {
-								dto.statisMinHumidity = CONST.noValue;
-							}
-
-							if (!statisticsObj.isNull("maxwindspeed")) {
-								String value = statisticsObj.getString("maxwindspeed");
-								if (!TextUtils.isEmpty(value)) {
-									if (value.length() >= 2 && value.contains(".")) {
-										if (value.equals(".0")) {
-											dto.statisMaxSpeed = "0";
-										}else {
-											if (TextUtils.equals(value.substring(value.length()-2, value.length()), ".0")) {
-												dto.statisMaxSpeed = value.substring(0, value.indexOf("."));
-											}else {
-												dto.statisMaxSpeed = value;
-											}
-										}
-									}
-								}else {
-									dto.statisMaxSpeed = CONST.noValue;
-								}
-							}else {
-								dto.statisMaxSpeed = CONST.noValue;
-							}
-
-							if (!statisticsObj.isNull("maxpressure")) {
-								String value = statisticsObj.getString("maxpressure");
-								if (!TextUtils.isEmpty(value)) {
-									if (value.length() >= 2 && value.contains(".")) {
-										if (value.equals(".0")) {
-											dto.statisMaxPressure = "0";
-										}else {
-											if (TextUtils.equals(value.substring(value.length()-2, value.length()), ".0")) {
-												dto.statisMaxPressure = value.substring(0, value.indexOf("."));
-											}else {
-												dto.statisMaxPressure = value;
-											}
-										}
-									}
-								}else {
-									dto.statisMaxPressure = CONST.noValue;
-								}
-							}else {
-								dto.statisMaxPressure = CONST.noValue;
-							}
-
-							if (!statisticsObj.isNull("minpressure")) {
-								String value = statisticsObj.getString("minpressure");
-								if (!TextUtils.isEmpty(value)) {
-									if (value.length() >= 2 && value.contains(".")) {
-										if (value.equals(".0")) {
-											dto.statisMinPressure = "0";
-										}else {
-											if (TextUtils.equals(value.substring(value.length()-2, value.length()), ".0")) {
-												dto.statisMinPressure = value.substring(0, value.indexOf("."));
-											}else {
-												dto.statisMinPressure = value;
-											}
-										}
-									}
-								}else {
-									dto.statisMinPressure = CONST.noValue;
-								}
-							}else {
-								dto.statisMinPressure = CONST.noValue;
-							}
-
-							if (!statisticsObj.isNull("minvisibility")) {
-								String value = statisticsObj.getString("minvisibility");
-								if (!TextUtils.isEmpty(value)) {
-									if (value.length() >= 2 && value.contains(".")) {
-										if (value.equals(".0")) {
-											dto.statisMinVisible = "0";
-										}else {
-											if (TextUtils.equals(value.substring(value.length()-2, value.length()), ".0")) {
-												float f = Float.valueOf(value)/1000;
-												BigDecimal b = new BigDecimal(f);
-												float f1 = b.setScale(1,BigDecimal.ROUND_HALF_UP).floatValue();
-												dto.statisMinVisible = String.valueOf(f1).substring(0, String.valueOf(f1).indexOf("."));
-											}else {
-												float f = Float.valueOf(value)/1000;
-												BigDecimal b = new BigDecimal(f);
-												float f1 = b.setScale(1,BigDecimal.ROUND_HALF_UP).floatValue();
-												dto.statisMinVisible = String.valueOf(f1);
-											}
-										}
-									}
-								}else {
-									dto.statisMinVisible = CONST.noValue;
-								}
-							}else {
-								dto.statisMinVisible = CONST.noValue;
-							}
-						}
-
-						JSONArray itemArray = obj.getJSONArray("24H");
-						List<StationMonitorDto> tempList = new ArrayList<StationMonitorDto>();
-						for (int i = 0; i < itemArray.length(); i++) {
-							JSONObject itemObj = itemArray.getJSONObject(i);
-							StationMonitorDto data = new StationMonitorDto();
-							if (!itemObj.isNull("datatime")) {
-								data.time = itemObj.getString("datatime");
-							}
-
-							if (!itemObj.isNull("balltemp")) {
-								String value = itemObj.getString("balltemp");
-								if (!TextUtils.isEmpty(value)) {
-									if (value.length() >= 2 && value.contains(".")) {
-										if (value.equals(".0")) {
-											data.ballTemp = "0";
-										}else {
-											if (TextUtils.equals(value.substring(value.length()-2, value.length()), ".0")) {
-												data.ballTemp = value.substring(0, value.indexOf("."));
-											}else {
-												data.ballTemp = value;
-											}
-										}
-									}
-								}else {
-									data.ballTemp = CONST.noValue;
-								}
-							}else {
-								data.ballTemp = CONST.noValue;
-							}
-
-							if (!itemObj.isNull("precipitation1h")) {
-								String value = itemObj.getString("precipitation1h");
-								if (!TextUtils.isEmpty(value)) {
-									if (value.length() >= 2 && value.contains(".")) {
-										if (value.equals(".0")) {
-											data.precipitation1h = "0";
-										}else {
-											if (TextUtils.equals(value.substring(value.length()-2, value.length()), ".0")) {
-												data.precipitation1h = value.substring(0, value.indexOf("."));
-											}else {
-												data.precipitation1h = value;
-											}
-										}
-									}
-								}else {
-									data.precipitation1h = CONST.noValue;
-								}
-							}else {
-								data.precipitation1h = CONST.noValue;
-							}
-
-							if (!itemObj.isNull("humidity")) {
-								String value = itemObj.getString("humidity");
-								if (!TextUtils.isEmpty(value)) {
-									if (value.length() >= 2 && value.contains(".")) {
-										if (value.equals(".0")) {
-											data.humidity = "0";
-										}else {
-											if (TextUtils.equals(value.substring(value.length()-2, value.length()), ".0")) {
-												data.humidity = value.substring(0, value.indexOf("."));
-											}else {
-												data.humidity = value;
-											}
-										}
-									}
-								}else {
-									data.humidity = CONST.noValue;
-								}
-							}else {
-								data.humidity = CONST.noValue;
-							}
-
-							if (!itemObj.isNull("windspeed")) {
-								String value = itemObj.getString("windspeed");
-								if (!TextUtils.isEmpty(value)) {
-									if (value.length() >= 2 && value.contains(".")) {
-										if (value.equals(".0")) {
-											data.windSpeed = "0";
-										}else {
-											if (TextUtils.equals(value.substring(value.length()-2, value.length()), ".0")) {
-												data.windSpeed = value.substring(0, value.indexOf("."));
-											}else {
-												data.windSpeed = value;
-											}
-										}
-									}
-								}else {
-									data.windSpeed = CONST.noValue;
-								}
-							}else {
-								data.windSpeed = CONST.noValue;
-							}
-
-							if (!itemObj.isNull("winddir")) {
-								String value = itemObj.getString("winddir");
-								if (!TextUtils.isEmpty(value)) {
-									if (value.length() >= 2 && value.contains(".")) {
-										if (value.equals(".0")) {
-											data.windDir = "0";
-										}else {
-											if (TextUtils.equals(value.substring(value.length()-2, value.length()), ".0")) {
-												data.windDir = value.substring(0, value.indexOf("."));
-											}else {
-												data.windDir = value;
-											}
-										}
-									}
-								}else {
-									data.windDir = CONST.noValue;
-								}
-							}else {
-								data.windDir = CONST.noValue;
-							}
-
-							if (!itemObj.isNull("airpressure")) {
-								String value = itemObj.getString("airpressure");
-								if (!TextUtils.isEmpty(value)) {
-									if (value.length() >= 2 && value.contains(".")) {
-										if (value.equals(".0")) {
-											data.airPressure = "0";
-										}else {
-											if (TextUtils.equals(value.substring(value.length()-2, value.length()), ".0")) {
-												data.airPressure = value.substring(0, value.indexOf("."));
-											}else {
-												data.airPressure = value;
-											}
-										}
-									}
-								}else {
-									data.airPressure = CONST.noValue;
-								}
-							}else {
-								data.airPressure = CONST.noValue;
-							}
-
-							if (!itemObj.isNull("visibility")) {
-								String value = itemObj.getString("visibility");
-								if (!TextUtils.isEmpty(value)) {
-									if (value.length() >= 2 && value.contains(".")) {
-										if (value.equals(".0")) {
-											data.visibility = "0";
-										}else {
-											if (TextUtils.equals(value.substring(value.length()-2, value.length()), ".0")) {
-												float f = Float.valueOf(value)/1000;
-												BigDecimal b = new BigDecimal(f);
-												float f1 = b.setScale(1,BigDecimal.ROUND_HALF_UP).floatValue();
-												data.visibility = String.valueOf(f1).substring(0, String.valueOf(f1).indexOf("."));
-											}else {
-												float f = Float.valueOf(value)/1000;
-												BigDecimal b = new BigDecimal(f);
-												float f1 = b.setScale(1,BigDecimal.ROUND_HALF_UP).floatValue();
-												data.visibility = String.valueOf(f1);
-											}
-										}
-									}
-								}else {
-									data.visibility = CONST.noValue;
-								}
-							}else {
-								data.visibility = CONST.noValue;
-							}
-
-							tempList.add(data);
-						}
-						dto.dataList.addAll(tempList);
-
-						runOnUiThread(new Runnable() {
-							@Override
-							public void run() {
-								initViewPager(dto);
-								cancelDialog();
-							}
-						});
-					} catch (JSONException e) {
-						e.printStackTrace();
 					}
-				}
+
+					@Override
+					public void onResponse(Call call, Response response) throws IOException {
+
+						if (!response.isSuccessful()) {
+							return;
+						}
+						String result = response.body().string();
+						if (!TextUtils.isEmpty(result)) {
+							try {
+								JSONArray array = new JSONArray(result);
+								final StationMonitorDto dto = new StationMonitorDto();
+								JSONObject obj = array.getJSONObject(0);
+								if (!obj.isNull("present")) {
+									JSONObject presentObj = obj.getJSONObject("present");
+									if (!presentObj.isNull("atballtemp")) {
+										String value = presentObj.getString("atballtemp");
+										if (!TextUtils.isEmpty(value)) {
+											if (value.length() >= 2 && value.contains(".")) {
+												if (value.equals(".0")) {
+													dto.currentTemp = "0";
+												}else {
+													if (TextUtils.equals(value.substring(value.length()-2, value.length()), ".0")) {
+														dto.currentTemp = value.substring(0, value.indexOf("."));
+													}else {
+														dto.currentTemp = value;
+													}
+												}
+											}
+										}else {
+											dto.currentTemp = CONST.noValue;
+										}
+									}else {
+										dto.currentTemp = CONST.noValue;
+									}
+
+									if (!presentObj.isNull("atprecipitation1h")) {
+										String value = presentObj.getString("atprecipitation1h");
+										if (!TextUtils.isEmpty(value)) {
+											if (value.length() >= 2 && value.contains(".")) {
+												if (value.equals(".0")) {
+													dto.current1hRain = "0";
+												}else {
+													if (TextUtils.equals(value.substring(value.length()-2, value.length()), ".0")) {
+														dto.current1hRain = value.substring(0, value.indexOf("."));
+													}else {
+														dto.current1hRain = value;
+													}
+												}
+											}
+										}else {
+											dto.current1hRain = CONST.noValue;
+										}
+									}else {
+										dto.current1hRain = CONST.noValue;
+									}
+
+									if (!presentObj.isNull("athumidity")) {
+										String value = presentObj.getString("athumidity");
+										if (!TextUtils.isEmpty(value)) {
+											if (value.length() >= 2 && value.contains(".")) {
+												if (value.equals(".0")) {
+													dto.currentHumidity = "0";
+												}else {
+													if (TextUtils.equals(value.substring(value.length()-2, value.length()), ".0")) {
+														dto.currentHumidity = value.substring(0, value.indexOf("."));
+													}else {
+														dto.currentHumidity = value;
+													}
+												}
+											}
+										}else {
+											dto.currentHumidity = CONST.noValue;
+										}
+									}else {
+										dto.currentHumidity = CONST.noValue;
+									}
+
+									if (!presentObj.isNull("atwindspeed")) {
+										String value = presentObj.getString("atwindspeed");
+										if (!TextUtils.isDigitsOnly(value)) {
+											if (value.length() >= 2 && value.contains(".")) {
+												if (value.equals(".0")) {
+													dto.currentWindSpeed = "0";
+												}else {
+													if (TextUtils.equals(value.substring(value.length()-2, value.length()), ".0")) {
+														dto.currentWindSpeed = value.substring(0, value.indexOf("."));
+													}else {
+														dto.currentWindSpeed = value;
+													}
+												}
+											}
+										}else {
+											dto.currentWindSpeed = CONST.noValue;
+										}
+									}else {
+										dto.currentWindSpeed = CONST.noValue;
+									}
+
+									if (!presentObj.isNull("atairpressure")) {
+										String value = presentObj.getString("atairpressure");
+										if (!TextUtils.isEmpty(value)) {
+											if (value.length() >= 2 && value.contains(".")) {
+												if (value.equals(".0")) {
+													dto.currentPressure = "0";
+												}else {
+													if (TextUtils.equals(value.substring(value.length()-2, value.length()), ".0")) {
+														dto.currentPressure = value.substring(0, value.indexOf("."));
+													}else {
+														dto.currentPressure = value;
+													}
+												}
+											}
+										}else {
+											dto.currentPressure = CONST.noValue;
+										}
+									}else {
+										dto.currentPressure = CONST.noValue;
+									}
+
+									if (!presentObj.isNull("atvisibility")) {
+										String value = presentObj.getString("atvisibility");
+										if (!TextUtils.isEmpty(value)) {
+											if (value.length() >= 2 && value.contains(".")) {
+												if (value.equals(".0")) {
+													dto.currentVisible = "0";
+												}else {
+													if (TextUtils.equals(value.substring(value.length()-2, value.length()), ".0")) {
+														float f = Float.valueOf(value)/1000;
+														BigDecimal b = new BigDecimal(f);
+														float f1 = b.setScale(1,BigDecimal.ROUND_HALF_UP).floatValue();
+														dto.currentVisible = String.valueOf(f1).substring(0, String.valueOf(f1).indexOf("."));
+													}else {
+														float f = Float.valueOf(value)/1000;
+														BigDecimal b = new BigDecimal(f);
+														float f1 = b.setScale(1,BigDecimal.ROUND_HALF_UP).floatValue();
+														dto.currentVisible = String.valueOf(f1);
+													}
+												}
+											}
+										}else {
+											dto.currentVisible = CONST.noValue;
+										}
+									}else {
+										dto.currentVisible = CONST.noValue;
+									}
+								}
+
+								if (!obj.isNull("statistics")) {
+									JSONObject statisticsObj = obj.getJSONObject("statistics");
+									if (!statisticsObj.isNull("maxtemperature")) {
+										String value = statisticsObj.getString("maxtemperature");
+										if (!TextUtils.isEmpty(value)) {
+											if (value.length() >= 2 && value.contains(".")) {
+												if (value.equals(".0")) {
+													dto.statisHighTemp = "0";
+												}else {
+													if (TextUtils.equals(value.substring(value.length()-2, value.length()), ".0")) {
+														dto.statisHighTemp = value.substring(0, value.indexOf("."));
+													}else {
+														dto.statisHighTemp = value;
+													}
+												}
+											}
+										}else {
+											dto.statisHighTemp = CONST.noValue;
+										}
+									}else {
+										dto.statisHighTemp = CONST.noValue;
+									}
+
+									if (!statisticsObj.isNull("mintemperature")) {
+										String value = statisticsObj.getString("mintemperature");
+										if (!TextUtils.isEmpty(value)) {
+											if (value.length() >= 2 && value.contains(".")) {
+												if (value.equals(".0")) {
+													dto.statisLowTemp = "0";
+												}else {
+													if (TextUtils.equals(value.substring(value.length()-2, value.length()), ".0")) {
+														dto.statisLowTemp = value.substring(0, value.indexOf("."));
+													}else {
+														dto.statisLowTemp = value;
+													}
+												}
+											}
+										}else {
+											dto.statisLowTemp = CONST.noValue;
+										}
+									}else {
+										dto.statisLowTemp = CONST.noValue;
+									}
+
+									if (!statisticsObj.isNull("mean")) {
+										String value = statisticsObj.getString("mean");
+										if (!TextUtils.isEmpty(value)) {
+											if (value.length() >= 2 && value.contains(".")) {
+												if (value.equals(".0")) {
+													dto.statisAverTemp = "0";
+												}else {
+													if (TextUtils.equals(value.substring(value.length()-2, value.length()), ".0")) {
+														dto.statisAverTemp = value.substring(0, value.indexOf("."));
+													}else {
+														dto.statisAverTemp = value;
+													}
+												}
+											}
+										}else {
+											dto.statisAverTemp = CONST.noValue;
+										}
+									}else {
+										dto.statisAverTemp = CONST.noValue;
+									}
+
+									if (!statisticsObj.isNull("rainfall3")) {
+										String value = statisticsObj.getString("rainfall3");
+										if (!TextUtils.isEmpty(value)) {
+											if (value.length() >= 2 && value.contains(".")) {
+												if (value.equals(".0")) {
+													dto.statis3hRain = "0";
+												}else {
+													if (TextUtils.equals(value.substring(value.length()-2, value.length()), ".0")) {
+														dto.statis3hRain = value.substring(0, value.indexOf("."));
+													}else {
+														dto.statis3hRain = value;
+													}
+												}
+											}
+										}else {
+											dto.statis3hRain = CONST.noValue;
+										}
+									}else {
+										dto.statis3hRain = CONST.noValue;
+									}
+
+									if (!statisticsObj.isNull("rainfall6")) {
+										String value = statisticsObj.getString("rainfall6");
+										if (!TextUtils.isEmpty(value)) {
+											if (value.length() >= 2 && value.contains(".")) {
+												if (value.equals(".0")) {
+													dto.statis6hRain = "0";
+												}else {
+													if (TextUtils.equals(value.substring(value.length()-2, value.length()), ".0")) {
+														dto.statis6hRain = value.substring(0, value.indexOf("."));
+													}else {
+														dto.statis6hRain = value;
+													}
+												}
+											}
+										}else {
+											dto.statis6hRain = CONST.noValue;
+										}
+									}else {
+										dto.statis6hRain = CONST.noValue;
+									}
+
+									if (!statisticsObj.isNull("rainfall12")) {
+										String value = statisticsObj.getString("rainfall12");
+										if (!TextUtils.isEmpty(value)) {
+											if (value.length() >= 2 && value.contains(".")) {
+												if (value.equals(".0")) {
+													dto.statis12hRain = "0";
+												}else {
+													if (TextUtils.equals(value.substring(value.length()-2, value.length()), ".0")) {
+														dto.statis12hRain = value.substring(0, value.indexOf("."));
+													}else {
+														dto.statis12hRain = value;
+													}
+												}
+											}
+										}else {
+											dto.statis12hRain = CONST.noValue;
+										}
+									}else {
+										dto.statis12hRain = CONST.noValue;
+									}
+
+									if (!statisticsObj.isNull("rainfall24")) {
+										String value = statisticsObj.getString("rainfall24");
+										if (!TextUtils.isEmpty(value)) {
+											if (value.length() >= 2 && value.contains(".")) {
+												if (value.equals(".0")) {
+													dto.statis24hRain = "0";
+												}else {
+													if (TextUtils.equals(value.substring(value.length()-2, value.length()), ".0")) {
+														dto.statis24hRain = value.substring(0, value.indexOf("."));
+													}else {
+														dto.statis24hRain = value;
+													}
+												}
+											}
+										}else {
+											dto.statis24hRain = CONST.noValue;
+										}
+									}else {
+										dto.statis24hRain = CONST.noValue;
+									}
+
+									if (!statisticsObj.isNull("maxhumidity")) {
+										String value = statisticsObj.getString("maxhumidity");
+										if (!TextUtils.isEmpty(value)) {
+											if (value.length() >= 2 && value.contains(".")) {
+												if (value.equals(".0")) {
+													dto.statisMaxHumidity = "0";
+												}else {
+													if (TextUtils.equals(value.substring(value.length()-2, value.length()), ".0")) {
+														dto.statisMaxHumidity = value.substring(0, value.indexOf("."));
+													}else {
+														dto.statisMaxHumidity = value;
+													}
+												}
+											}
+										}else {
+											dto.statisMaxHumidity = CONST.noValue;
+										}
+									}else {
+										dto.statisMaxHumidity = CONST.noValue;
+									}
+
+									if (!statisticsObj.isNull("minhumidity")) {
+										String value = statisticsObj.getString("minhumidity");
+										if (!TextUtils.isEmpty(value)) {
+											if (value.length() >= 2 && value.contains(".")) {
+												if (value.equals(".0")) {
+													dto.statisMinHumidity = "0";
+												}else {
+													if (TextUtils.equals(value.substring(value.length()-2, value.length()), ".0")) {
+														dto.statisMinHumidity = value.substring(0, value.indexOf("."));
+													}else {
+														dto.statisMinHumidity = value;
+													}
+												}
+											}
+										}else {
+											dto.statisMinHumidity = CONST.noValue;
+										}
+									}else {
+										dto.statisMinHumidity = CONST.noValue;
+									}
+
+									if (!statisticsObj.isNull("maxwindspeed")) {
+										String value = statisticsObj.getString("maxwindspeed");
+										if (!TextUtils.isEmpty(value)) {
+											if (value.length() >= 2 && value.contains(".")) {
+												if (value.equals(".0")) {
+													dto.statisMaxSpeed = "0";
+												}else {
+													if (TextUtils.equals(value.substring(value.length()-2, value.length()), ".0")) {
+														dto.statisMaxSpeed = value.substring(0, value.indexOf("."));
+													}else {
+														dto.statisMaxSpeed = value;
+													}
+												}
+											}
+										}else {
+											dto.statisMaxSpeed = CONST.noValue;
+										}
+									}else {
+										dto.statisMaxSpeed = CONST.noValue;
+									}
+
+									if (!statisticsObj.isNull("maxpressure")) {
+										String value = statisticsObj.getString("maxpressure");
+										if (!TextUtils.isEmpty(value)) {
+											if (value.length() >= 2 && value.contains(".")) {
+												if (value.equals(".0")) {
+													dto.statisMaxPressure = "0";
+												}else {
+													if (TextUtils.equals(value.substring(value.length()-2, value.length()), ".0")) {
+														dto.statisMaxPressure = value.substring(0, value.indexOf("."));
+													}else {
+														dto.statisMaxPressure = value;
+													}
+												}
+											}
+										}else {
+											dto.statisMaxPressure = CONST.noValue;
+										}
+									}else {
+										dto.statisMaxPressure = CONST.noValue;
+									}
+
+									if (!statisticsObj.isNull("minpressure")) {
+										String value = statisticsObj.getString("minpressure");
+										if (!TextUtils.isEmpty(value)) {
+											if (value.length() >= 2 && value.contains(".")) {
+												if (value.equals(".0")) {
+													dto.statisMinPressure = "0";
+												}else {
+													if (TextUtils.equals(value.substring(value.length()-2, value.length()), ".0")) {
+														dto.statisMinPressure = value.substring(0, value.indexOf("."));
+													}else {
+														dto.statisMinPressure = value;
+													}
+												}
+											}
+										}else {
+											dto.statisMinPressure = CONST.noValue;
+										}
+									}else {
+										dto.statisMinPressure = CONST.noValue;
+									}
+
+									if (!statisticsObj.isNull("minvisibility")) {
+										String value = statisticsObj.getString("minvisibility");
+										if (!TextUtils.isEmpty(value)) {
+											if (value.length() >= 2 && value.contains(".")) {
+												if (value.equals(".0")) {
+													dto.statisMinVisible = "0";
+												}else {
+													if (TextUtils.equals(value.substring(value.length()-2, value.length()), ".0")) {
+														float f = Float.valueOf(value)/1000;
+														BigDecimal b = new BigDecimal(f);
+														float f1 = b.setScale(1,BigDecimal.ROUND_HALF_UP).floatValue();
+														dto.statisMinVisible = String.valueOf(f1).substring(0, String.valueOf(f1).indexOf("."));
+													}else {
+														float f = Float.valueOf(value)/1000;
+														BigDecimal b = new BigDecimal(f);
+														float f1 = b.setScale(1,BigDecimal.ROUND_HALF_UP).floatValue();
+														dto.statisMinVisible = String.valueOf(f1);
+													}
+												}
+											}
+										}else {
+											dto.statisMinVisible = CONST.noValue;
+										}
+									}else {
+										dto.statisMinVisible = CONST.noValue;
+									}
+								}
+
+								JSONArray itemArray = obj.getJSONArray("24H");
+								List<StationMonitorDto> tempList = new ArrayList<StationMonitorDto>();
+								for (int i = 0; i < itemArray.length(); i++) {
+									JSONObject itemObj = itemArray.getJSONObject(i);
+									StationMonitorDto data = new StationMonitorDto();
+									if (!itemObj.isNull("datatime")) {
+										data.time = itemObj.getString("datatime");
+									}
+
+									if (!itemObj.isNull("balltemp")) {
+										String value = itemObj.getString("balltemp");
+										if (!TextUtils.isEmpty(value)) {
+											if (value.length() >= 2 && value.contains(".")) {
+												if (value.equals(".0")) {
+													data.ballTemp = "0";
+												}else {
+													if (TextUtils.equals(value.substring(value.length()-2, value.length()), ".0")) {
+														data.ballTemp = value.substring(0, value.indexOf("."));
+													}else {
+														data.ballTemp = value;
+													}
+												}
+											}
+										}else {
+											data.ballTemp = CONST.noValue;
+										}
+									}else {
+										data.ballTemp = CONST.noValue;
+									}
+
+									if (!itemObj.isNull("precipitation1h")) {
+										String value = itemObj.getString("precipitation1h");
+										if (!TextUtils.isEmpty(value)) {
+											if (value.length() >= 2 && value.contains(".")) {
+												if (value.equals(".0")) {
+													data.precipitation1h = "0";
+												}else {
+													if (TextUtils.equals(value.substring(value.length()-2, value.length()), ".0")) {
+														data.precipitation1h = value.substring(0, value.indexOf("."));
+													}else {
+														data.precipitation1h = value;
+													}
+												}
+											}
+										}else {
+											data.precipitation1h = CONST.noValue;
+										}
+									}else {
+										data.precipitation1h = CONST.noValue;
+									}
+
+									if (!itemObj.isNull("humidity")) {
+										String value = itemObj.getString("humidity");
+										if (!TextUtils.isEmpty(value)) {
+											if (value.length() >= 2 && value.contains(".")) {
+												if (value.equals(".0")) {
+													data.humidity = "0";
+												}else {
+													if (TextUtils.equals(value.substring(value.length()-2, value.length()), ".0")) {
+														data.humidity = value.substring(0, value.indexOf("."));
+													}else {
+														data.humidity = value;
+													}
+												}
+											}
+										}else {
+											data.humidity = CONST.noValue;
+										}
+									}else {
+										data.humidity = CONST.noValue;
+									}
+
+									if (!itemObj.isNull("windspeed")) {
+										String value = itemObj.getString("windspeed");
+										if (!TextUtils.isEmpty(value)) {
+											if (value.length() >= 2 && value.contains(".")) {
+												if (value.equals(".0")) {
+													data.windSpeed = "0";
+												}else {
+													if (TextUtils.equals(value.substring(value.length()-2, value.length()), ".0")) {
+														data.windSpeed = value.substring(0, value.indexOf("."));
+													}else {
+														data.windSpeed = value;
+													}
+												}
+											}
+										}else {
+											data.windSpeed = CONST.noValue;
+										}
+									}else {
+										data.windSpeed = CONST.noValue;
+									}
+
+									if (!itemObj.isNull("winddir")) {
+										String value = itemObj.getString("winddir");
+										if (!TextUtils.isEmpty(value)) {
+											if (value.length() >= 2 && value.contains(".")) {
+												if (value.equals(".0")) {
+													data.windDir = "0";
+												}else {
+													if (TextUtils.equals(value.substring(value.length()-2, value.length()), ".0")) {
+														data.windDir = value.substring(0, value.indexOf("."));
+													}else {
+														data.windDir = value;
+													}
+												}
+											}
+										}else {
+											data.windDir = CONST.noValue;
+										}
+									}else {
+										data.windDir = CONST.noValue;
+									}
+
+									if (!itemObj.isNull("airpressure")) {
+										String value = itemObj.getString("airpressure");
+										if (!TextUtils.isEmpty(value)) {
+											if (value.length() >= 2 && value.contains(".")) {
+												if (value.equals(".0")) {
+													data.airPressure = "0";
+												}else {
+													if (TextUtils.equals(value.substring(value.length()-2, value.length()), ".0")) {
+														data.airPressure = value.substring(0, value.indexOf("."));
+													}else {
+														data.airPressure = value;
+													}
+												}
+											}
+										}else {
+											data.airPressure = CONST.noValue;
+										}
+									}else {
+										data.airPressure = CONST.noValue;
+									}
+
+									if (!itemObj.isNull("visibility")) {
+										String value = itemObj.getString("visibility");
+										if (!TextUtils.isEmpty(value)) {
+											if (value.length() >= 2 && value.contains(".")) {
+												if (value.equals(".0")) {
+													data.visibility = "0";
+												}else {
+													if (TextUtils.equals(value.substring(value.length()-2, value.length()), ".0")) {
+														float f = Float.valueOf(value)/1000;
+														BigDecimal b = new BigDecimal(f);
+														float f1 = b.setScale(1,BigDecimal.ROUND_HALF_UP).floatValue();
+														data.visibility = String.valueOf(f1).substring(0, String.valueOf(f1).indexOf("."));
+													}else {
+														float f = Float.valueOf(value)/1000;
+														BigDecimal b = new BigDecimal(f);
+														float f1 = b.setScale(1,BigDecimal.ROUND_HALF_UP).floatValue();
+														data.visibility = String.valueOf(f1);
+													}
+												}
+											}
+										}else {
+											data.visibility = CONST.noValue;
+										}
+									}else {
+										data.visibility = CONST.noValue;
+									}
+
+									tempList.add(data);
+								}
+								dto.dataList.addAll(tempList);
+
+								runOnUiThread(new Runnable() {
+									@Override
+									public void run() {
+										initViewPager(dto);
+										cancelDialog();
+									}
+								});
+							} catch (JSONException e) {
+								e.printStackTrace();
+							}
+						}
+					}
+				});
 			}
-		});
+		}).start();
 	}
 	
 	@Override

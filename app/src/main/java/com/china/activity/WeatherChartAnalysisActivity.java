@@ -143,29 +143,34 @@ public class WeatherChartAnalysisActivity extends BaseActivity implements View.O
         }
     }
 
-    private void OkHttpData(String url) {
-        OkHttpUtil.enqueue(new Request.Builder().url(url).build(), new Callback() {
+    private void OkHttpData(final String url) {
+        new Thread(new Runnable() {
             @Override
-            public void onFailure(Call call, IOException e) {
+            public void run() {
+                OkHttpUtil.enqueue(new Request.Builder().url(url).build(), new Callback() {
+                    @Override
+                    public void onFailure(Call call, IOException e) {
 
-            }
+                    }
 
-            @Override
-            public void onResponse(Call call, Response response) throws IOException {
-                if (!response.isSuccessful()) {
-                    return;
-                }
-                String result = response.body().string();
-                if (type == 1) {
-                    result1 = result;
-                }else if (type == 2) {
-                    result2 = result;
-                }else if (type == 3) {
-                    result3 = result;
-                }
-                parseData(result);
+                    @Override
+                    public void onResponse(Call call, Response response) throws IOException {
+                        if (!response.isSuccessful()) {
+                            return;
+                        }
+                        String result = response.body().string();
+                        if (type == 1) {
+                            result1 = result;
+                        }else if (type == 2) {
+                            result2 = result;
+                        }else if (type == 3) {
+                            result3 = result;
+                        }
+                        parseData(result);
+                    }
+                });
             }
-        });
+        }).start();
     }
 
     private void parseData(String result) {
@@ -175,146 +180,151 @@ public class WeatherChartAnalysisActivity extends BaseActivity implements View.O
                 JSONObject obj = new JSONObject(result);
                 if (!obj.isNull("list")) {
                     JSONArray array = obj.getJSONArray("list");
-                    String dataUrl = array.getString(0);
-                    OkHttpUtil.enqueue(new Request.Builder().url(dataUrl).build(), new Callback() {
+                    final String dataUrl = array.getString(0);
+                    new Thread(new Runnable() {
                         @Override
-                        public void onFailure(Call call, IOException e) {
-
-                        }
-
-                        @Override
-                        public void onResponse(Call call, Response response) throws IOException {
-                            if (!response.isSuccessful()) {
-                                return;
-                            }
-                            final String result = response.body().string();
-                            runOnUiThread(new Runnable() {
+                        public void run() {
+                            OkHttpUtil.enqueue(new Request.Builder().url(dataUrl).build(), new Callback() {
                                 @Override
-                                public void run() {
-                                    if (!TextUtils.isEmpty(result)) {
-                                        try {
-                                            final JSONObject obj = new JSONObject(result);
+                                public void onFailure(Call call, IOException e) {
 
-                                            if (!obj.isNull("mtime")) {
-                                                long mTime = obj.getLong("mtime");
-                                                tvTime.setText(sdf1.format(new Date(mTime))+"更新");
-                                                tvTime.setVisibility(View.VISIBLE);
-                                            }
+                                }
 
-                                            ivShare.setVisibility(View.VISIBLE);
-                                            reShare.setVisibility(View.VISIBLE);
+                                @Override
+                                public void onResponse(Call call, Response response) throws IOException {
+                                    if (!response.isSuccessful()) {
+                                        return;
+                                    }
+                                    final String result = response.body().string();
+                                    runOnUiThread(new Runnable() {
+                                        @Override
+                                        public void run() {
+                                            if (!TextUtils.isEmpty(result)) {
+                                                try {
+                                                    final JSONObject obj = new JSONObject(result);
 
-                                            new Thread(new Runnable() {
-                                                @Override
-                                                public void run() {
-                                                    try {
-                                                        if (!obj.isNull("lines")) {
-                                                            JSONArray lines = obj.getJSONArray("lines");
-                                                            for (int i = 0; i < lines.length(); i++) {
-                                                                JSONObject itemObj = lines.getJSONObject(i);
-                                                                if (!itemObj.isNull("point")) {
-                                                                    JSONArray points = itemObj.getJSONArray("point");
-                                                                    PolylineOptions polylineOption = new PolylineOptions();
-                                                                    polylineOption.width(6).color(0xff406bbf);
-                                                                    for (int j = 0; j < points.length(); j++) {
-                                                                        JSONObject point = points.getJSONObject(j);
-                                                                        double lat = point.getDouble("y");
-                                                                        double lng = point.getDouble("x");
-                                                                        polylineOption.add(new LatLng(lat, lng));
+                                                    if (!obj.isNull("mtime")) {
+                                                        long mTime = obj.getLong("mtime");
+                                                        tvTime.setText(sdf1.format(new Date(mTime))+"更新");
+                                                        tvTime.setVisibility(View.VISIBLE);
+                                                    }
+
+                                                    ivShare.setVisibility(View.VISIBLE);
+                                                    reShare.setVisibility(View.VISIBLE);
+
+                                                    new Thread(new Runnable() {
+                                                        @Override
+                                                        public void run() {
+                                                            try {
+                                                                if (!obj.isNull("lines")) {
+                                                                    JSONArray lines = obj.getJSONArray("lines");
+                                                                    for (int i = 0; i < lines.length(); i++) {
+                                                                        JSONObject itemObj = lines.getJSONObject(i);
+                                                                        if (!itemObj.isNull("point")) {
+                                                                            JSONArray points = itemObj.getJSONArray("point");
+                                                                            PolylineOptions polylineOption = new PolylineOptions();
+                                                                            polylineOption.width(6).color(0xff406bbf);
+                                                                            for (int j = 0; j < points.length(); j++) {
+                                                                                JSONObject point = points.getJSONObject(j);
+                                                                                double lat = point.getDouble("y");
+                                                                                double lng = point.getDouble("x");
+                                                                                polylineOption.add(new LatLng(lat, lng));
+                                                                            }
+                                                                            Polyline p = aMap.addPolyline(polylineOption);
+                                                                            polyline1.add(p);
+                                                                        }
+                                                                        if (!itemObj.isNull("flags")) {
+                                                                            JSONObject flags = itemObj.getJSONObject("flags");
+                                                                            String text = "";
+                                                                            if (!flags.isNull("text")) {
+                                                                                text = flags.getString("text");
+                                                                            }
+                                                                            if (!flags.isNull("items")) {
+                                                                                JSONArray items = flags.getJSONArray("items");
+                                                                                JSONObject item = items.getJSONObject(0);
+                                                                                double lat = item.getDouble("y");
+                                                                                double lng = item.getDouble("x");
+                                                                                TextOptions to = new TextOptions();
+                                                                                to.position(new LatLng(lat, lng));
+                                                                                to.text(text);
+                                                                                to.fontColor(Color.BLACK);
+                                                                                to.fontSize(30);
+                                                                                to.backgroundColor(Color.TRANSPARENT);
+                                                                                Text t = aMap.addText(to);
+                                                                                textList1.add(t);
+                                                                            }
+                                                                        }
                                                                     }
-                                                                    Polyline p = aMap.addPolyline(polylineOption);
-                                                                    polyline1.add(p);
                                                                 }
-                                                                if (!itemObj.isNull("flags")) {
-                                                                    JSONObject flags = itemObj.getJSONObject("flags");
-                                                                    String text = "";
-                                                                    if (!flags.isNull("text")) {
-                                                                        text = flags.getString("text");
+                                                                if (!obj.isNull("line_symbols")) {
+                                                                    JSONArray line_symbols = obj.getJSONArray("line_symbols");
+                                                                    for (int i = 0; i < line_symbols.length(); i++) {
+                                                                        JSONObject itemObj = line_symbols.getJSONObject(i);
+                                                                        if (!itemObj.isNull("items")) {
+                                                                            JSONArray items = itemObj.getJSONArray("items");
+                                                                            PolylineOptions polylineOption = new PolylineOptions();
+                                                                            polylineOption.width(6).color(0xff406bbf);
+                                                                            for (int j = 0; j < items.length(); j++) {
+                                                                                JSONObject item = items.getJSONObject(j);
+                                                                                double lat = item.getDouble("y");
+                                                                                double lng = item.getDouble("x");
+                                                                                polylineOption.add(new LatLng(lat, lng));
+                                                                            }
+                                                                            Polyline p = aMap.addPolyline(polylineOption);
+                                                                            polyline2.add(p);
+                                                                        }
                                                                     }
-                                                                    if (!flags.isNull("items")) {
-                                                                        JSONArray items = flags.getJSONArray("items");
-                                                                        JSONObject item = items.getJSONObject(0);
-                                                                        double lat = item.getDouble("y");
-                                                                        double lng = item.getDouble("x");
+                                                                }
+                                                                if (!obj.isNull("symbols")) {
+                                                                    JSONArray symbols = obj.getJSONArray("symbols");
+                                                                    for (int i = 0; i < symbols.length(); i++) {
+                                                                        JSONObject itemObj = symbols.getJSONObject(i);
+                                                                        String text = "";
+                                                                        int color = Color.BLACK;
+                                                                        if (!itemObj.isNull("type")) {
+                                                                            String type = itemObj.getString("type");
+                                                                            if (TextUtils.equals(type, "60")) {
+                                                                                text = "H";
+                                                                                color = Color.RED;
+                                                                            }else if (TextUtils.equals(type, "61")) {
+                                                                                text = "L";
+                                                                                color = Color.BLUE;
+                                                                            }else if (TextUtils.equals(type, "37")) {
+                                                                                text = "台";
+                                                                                color = Color.GREEN;
+                                                                            }
+                                                                        }
+                                                                        double lat = itemObj.getDouble("y");
+                                                                        double lng = itemObj.getDouble("x");
                                                                         TextOptions to = new TextOptions();
                                                                         to.position(new LatLng(lat, lng));
                                                                         to.text(text);
-                                                                        to.fontColor(Color.BLACK);
-                                                                        to.fontSize(30);
+                                                                        to.fontColor(color);
+                                                                        to.fontSize(60);
                                                                         to.backgroundColor(Color.TRANSPARENT);
                                                                         Text t = aMap.addText(to);
-                                                                        textList1.add(t);
+                                                                        textList2.add(t);
                                                                     }
                                                                 }
+                                                            } catch (JSONException e) {
+                                                                e.printStackTrace();
                                                             }
-                                                        }
-                                                        if (!obj.isNull("line_symbols")) {
-                                                            JSONArray line_symbols = obj.getJSONArray("line_symbols");
-                                                            for (int i = 0; i < line_symbols.length(); i++) {
-                                                                JSONObject itemObj = line_symbols.getJSONObject(i);
-                                                                if (!itemObj.isNull("items")) {
-                                                                    JSONArray items = itemObj.getJSONArray("items");
-                                                                    PolylineOptions polylineOption = new PolylineOptions();
-                                                                    polylineOption.width(6).color(0xff406bbf);
-                                                                    for (int j = 0; j < items.length(); j++) {
-                                                                        JSONObject item = items.getJSONObject(j);
-                                                                        double lat = item.getDouble("y");
-                                                                        double lng = item.getDouble("x");
-                                                                        polylineOption.add(new LatLng(lat, lng));
-                                                                    }
-                                                                    Polyline p = aMap.addPolyline(polylineOption);
-                                                                    polyline2.add(p);
-                                                                }
-                                                            }
-                                                        }
-                                                        if (!obj.isNull("symbols")) {
-                                                            JSONArray symbols = obj.getJSONArray("symbols");
-                                                            for (int i = 0; i < symbols.length(); i++) {
-                                                                JSONObject itemObj = symbols.getJSONObject(i);
-                                                                String text = "";
-                                                                int color = Color.BLACK;
-                                                                if (!itemObj.isNull("type")) {
-                                                                    String type = itemObj.getString("type");
-                                                                    if (TextUtils.equals(type, "60")) {
-                                                                        text = "H";
-                                                                        color = Color.RED;
-                                                                    }else if (TextUtils.equals(type, "61")) {
-                                                                        text = "L";
-                                                                        color = Color.BLUE;
-                                                                    }else if (TextUtils.equals(type, "37")) {
-                                                                        text = "台";
-                                                                        color = Color.GREEN;
-                                                                    }
-                                                                }
-                                                                double lat = itemObj.getDouble("y");
-                                                                double lng = itemObj.getDouble("x");
-                                                                TextOptions to = new TextOptions();
-                                                                to.position(new LatLng(lat, lng));
-                                                                to.text(text);
-                                                                to.fontColor(color);
-                                                                to.fontSize(60);
-                                                                to.backgroundColor(Color.TRANSPARENT);
-                                                                Text t = aMap.addText(to);
-                                                                textList2.add(t);
-                                                            }
-                                                        }
-                                                    } catch (JSONException e) {
-                                                        e.printStackTrace();
-                                                    }
 
+                                                        }
+                                                    }).start();
+
+                                                } catch (JSONException e) {
+                                                    e.printStackTrace();
                                                 }
-                                            }).start();
-
-                                        } catch (JSONException e) {
-                                            e.printStackTrace();
+                                            }
+                                            cancelDialog();
                                         }
-                                    }
-                                    cancelDialog();
+                                    });
+
                                 }
                             });
-
                         }
-                    });
+                    }).start();
                 }
             } catch (JSONException e) {
                 e.printStackTrace();

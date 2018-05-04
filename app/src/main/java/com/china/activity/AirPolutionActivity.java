@@ -231,33 +231,38 @@ OnMapClickListener, OnCameraChangeListener, OnMapScreenShotListener{
 	 * 获取空气质量排行
 	 */
 	private void OkHttpRank() {
-		OkHttpUtil.enqueue(new Request.Builder().url(SecretUrlUtil.airpollution()).build(), new Callback() {
+		new Thread(new Runnable() {
 			@Override
-			public void onFailure(Call call, IOException e) {
+			public void run() {
+				OkHttpUtil.enqueue(new Request.Builder().url(SecretUrlUtil.airpollution()).build(), new Callback() {
+					@Override
+					public void onFailure(Call call, IOException e) {
 
-			}
+					}
 
-			@Override
-			public void onResponse(Call call, Response response) throws IOException {
-				if (!response.isSuccessful()) {
-					return;
-				}
-				String result = response.body().string();
-				if (result != null) {
-					parseStationInfo(result, level1);
-					parseStationInfo(result, level2);
-					parseStationInfo(result, level3);
-
-					runOnUiThread(new Runnable() {
-						@Override
-						public void run() {
-							cancelDialog();
-							addMarker(level1);
+					@Override
+					public void onResponse(Call call, Response response) throws IOException {
+						if (!response.isSuccessful()) {
+							return;
 						}
-					});
-				}
+						String result = response.body().string();
+						if (result != null) {
+							parseStationInfo(result, level1);
+							parseStationInfo(result, level2);
+							parseStationInfo(result, level3);
+
+							runOnUiThread(new Runnable() {
+								@Override
+								public void run() {
+									cancelDialog();
+									addMarker(level1);
+								}
+							});
+						}
+					}
+				});
 			}
-		});
+		}).start();
 	}
 	
 	/**
@@ -681,130 +686,145 @@ OnMapClickListener, OnCameraChangeListener, OnMapScreenShotListener{
 	/**
 	 * 获取实况信息、预报信息
 	 */
-	private void getWeatherInfo(String cityId, final double lat, final double lng) {
+	private void getWeatherInfo(final String cityId, final double lat, final double lng) {
 		if (TextUtils.isEmpty(cityId)) {
 			return;
 		}
-		WeatherAPI.getWeather2(mContext, cityId, Language.ZH_CN, new AsyncResponseHandler() {
+		new Thread(new Runnable() {
 			@Override
-			public void onComplete(Weather content) {
-				super.onComplete(content);
-				aqiList.clear();
-				if (content != null) {
-					//空气质量
-					try {
-						JSONObject obj = content.getAirQualityInfo();
-						if (!obj.isNull("k3")) {
-							String[] array = obj.getString("k3").split("\\|");
-							factAqiList.clear();
-							for (int i = 0; i < array.length; i++) {
-								AqiDto data = new AqiDto();
-								if (!TextUtils.isEmpty(array[i]) && !TextUtils.equals(array[i], "?")) {
-									if (i == array.length-1) {
-										data.aqi = tvAqiCount.getText().toString();
-									}else {
-										data.aqi = array[i];
+			public void run() {
+				WeatherAPI.getWeather2(mContext, cityId, Language.ZH_CN, new AsyncResponseHandler() {
+					@Override
+					public void onComplete(final Weather content) {
+						super.onComplete(content);
+						runOnUiThread(new Runnable() {
+							@Override
+							public void run() {
+								aqiList.clear();
+								if (content != null) {
+									//空气质量
+									try {
+										JSONObject obj = content.getAirQualityInfo();
+										if (!obj.isNull("k3")) {
+											String[] array = obj.getString("k3").split("\\|");
+											factAqiList.clear();
+											for (int i = 0; i < array.length; i++) {
+												AqiDto data = new AqiDto();
+												if (!TextUtils.isEmpty(array[i]) && !TextUtils.equals(array[i], "?")) {
+													if (i == array.length-1) {
+														data.aqi = tvAqiCount.getText().toString();
+													}else {
+														data.aqi = array[i];
+													}
+													factAqiList.add(data);
+												}
+											}
+										}
+									} catch (JSONException e) {
+										e.printStackTrace();
 									}
-									factAqiList.add(data);
 								}
+
+								OkHttpXiangJiAqi(lng, lat);
 							}
-						}
-					} catch (JSONException e) {
-						e.printStackTrace();
+						});
 					}
-				}
-				
-				OkHttpXiangJiAqi(lng, lat);
+
+					@Override
+					public void onError(Throwable error, String content) {
+						super.onError(error, content);
+					}
+				});
 			}
-			
-			@Override
-			public void onError(Throwable error, String content) {
-				super.onError(error, content);
-			}
-		});
+		}).start();
 	}
 	
 	/**
 	 * 请求象辑aqi
 	 */
-	private void OkHttpXiangJiAqi(double lng, double lat) {
-		OkHttpUtil.enqueue(new Request.Builder().url(SecretUrlUtil.airForecast(lng, lat)).build(), new Callback() {
+	private void OkHttpXiangJiAqi(final double lng, final double lat) {
+		new Thread(new Runnable() {
 			@Override
-			public void onFailure(Call call, IOException e) {
+			public void run() {
+				OkHttpUtil.enqueue(new Request.Builder().url(SecretUrlUtil.airForecast(lng, lat)).build(), new Callback() {
+					@Override
+					public void onFailure(Call call, IOException e) {
 
-			}
-
-			@Override
-			public void onResponse(Call call, Response response) throws IOException {
-				if (!response.isSuccessful()) {
-					return;
-				}
-				String result = response.body().string();
-				if (result != null) {
-					try {
-						JSONObject obj = new JSONObject(result.toString());
-						if (!obj.isNull("reqTime")) {
-							aqiDate = obj.getString("reqTime");
-						}
-
-						if (!obj.isNull("series")) {
-							aqiList.clear();
-							JSONArray array = obj.getJSONArray("series");
-							foreAqiList.clear();
-							for (int i = 0; i < array.length(); i++) {
-								AqiDto data = new AqiDto();
-								data.aqi = String.valueOf(array.get(i));
-								foreAqiList.add(data);
-							}
-							aqiList.addAll(factAqiList);
-							aqiList.addAll(foreAqiList);
-						}
-
-						if (aqiList.size() > 0) {
-							try {
-								if (!TextUtils.isEmpty(aqiList.get(0).aqi)) {
-									maxAqi = Integer.valueOf(aqiList.get(0).aqi);
-									minAqi = Integer.valueOf(aqiList.get(0).aqi);
-									for (int i = 0; i < aqiList.size(); i++) {
-										if (!TextUtils.isEmpty(aqiList.get(i).aqi)) {
-											if (maxAqi <= Integer.valueOf(aqiList.get(i).aqi)) {
-												maxAqi = Integer.valueOf(aqiList.get(i).aqi);
-											}
-											if (minAqi >= Integer.valueOf(aqiList.get(i).aqi)) {
-												minAqi = Integer.valueOf(aqiList.get(i).aqi);
-											}
-										}
-									}
-									maxAqi = maxAqi + (50 - maxAqi%50);
-
-									runOnUiThread(new Runnable() {
-										@Override
-										public void run() {
-											if (configuration.orientation == Configuration.ORIENTATION_PORTRAIT) {
-												setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
-												showPortrait();
-												ivExpand.setImageResource(R.drawable.iv_expand);
-											}else {
-												setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
-												showLandscape();
-												ivExpand.setImageResource(R.drawable.iv_collose);
-											}
-										}
-									});
-
-								}
-							} catch (ArrayIndexOutOfBoundsException e) {
-								e.printStackTrace();
-							} catch (IndexOutOfBoundsException e) {
-								e.printStackTrace();
-							}
-						}
-					} catch (JSONException e1) {
-						e1.printStackTrace();
 					}
-				}
+
+					@Override
+					public void onResponse(Call call, Response response) throws IOException {
+						if (!response.isSuccessful()) {
+							return;
+						}
+						final String result = response.body().string();
+						runOnUiThread(new Runnable() {
+							@Override
+							public void run() {
+								if (!TextUtils.isEmpty(result)) {
+									try {
+										JSONObject obj = new JSONObject(result);
+										if (!obj.isNull("reqTime")) {
+											aqiDate = obj.getString("reqTime");
+										}
+
+										if (!obj.isNull("series")) {
+											aqiList.clear();
+											JSONArray array = obj.getJSONArray("series");
+											foreAqiList.clear();
+											for (int i = 0; i < array.length(); i++) {
+												AqiDto data = new AqiDto();
+												data.aqi = String.valueOf(array.get(i));
+												foreAqiList.add(data);
+											}
+											aqiList.addAll(factAqiList);
+											aqiList.addAll(foreAqiList);
+										}
+
+										if (aqiList.size() > 0) {
+											try {
+												if (!TextUtils.isEmpty(aqiList.get(0).aqi)) {
+													maxAqi = Integer.valueOf(aqiList.get(0).aqi);
+													minAqi = Integer.valueOf(aqiList.get(0).aqi);
+													for (int i = 0; i < aqiList.size(); i++) {
+														if (!TextUtils.isEmpty(aqiList.get(i).aqi)) {
+															if (maxAqi <= Integer.valueOf(aqiList.get(i).aqi)) {
+																maxAqi = Integer.valueOf(aqiList.get(i).aqi);
+															}
+															if (minAqi >= Integer.valueOf(aqiList.get(i).aqi)) {
+																minAqi = Integer.valueOf(aqiList.get(i).aqi);
+															}
+														}
+													}
+													maxAqi = maxAqi + (50 - maxAqi%50);
+
+													if (configuration.orientation == Configuration.ORIENTATION_PORTRAIT) {
+														setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
+														showPortrait();
+														ivExpand.setImageResource(R.drawable.iv_expand);
+													}else {
+														setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
+														showLandscape();
+														ivExpand.setImageResource(R.drawable.iv_collose);
+													}
+
+												}
+											} catch (ArrayIndexOutOfBoundsException e) {
+												e.printStackTrace();
+											} catch (IndexOutOfBoundsException e) {
+												e.printStackTrace();
+											}
+										}
+									} catch (JSONException e1) {
+										e1.printStackTrace();
+									}
+								}
+							}
+						});
+					}
+				});
 			}
-		});
+		}).start();
 	}
 	
 	private void showPortrait() {

@@ -5,6 +5,7 @@ package com.china.activity;
  */
 
 import android.Manifest;
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
@@ -281,6 +282,7 @@ public class PDFActivity extends BaseActivity implements OnClickListener {
 		return null;
 	}
 
+	@SuppressLint("HandlerLeak")
 	private Handler handler = new Handler() {
 		public void handleMessage(Message msg) {
 			if (msg.what == 0) {

@@ -127,60 +127,65 @@ public class DecisionNewsActivity extends BaseActivity implements OnClickListene
 	/**
 	 * 获取列表数据
 	 */
-	private void OkHttpList(String url) {
-		OkHttpUtil.enqueue(new Request.Builder().url(url).build(), new Callback() {
+	private void OkHttpList(final String url) {
+		new Thread(new Runnable() {
 			@Override
-			public void onFailure(Call call, IOException e) {
-
-			}
-
-			@Override
-			public void onResponse(Call call, Response response) throws IOException {
-				if (!response.isSuccessful()) {
-					return;
-				}
-				final String result = response.body().string();
-				runOnUiThread(new Runnable() {
+			public void run() {
+				OkHttpUtil.enqueue(new Request.Builder().url(url).build(), new Callback() {
 					@Override
-					public void run() {
-						if (!TextUtils.isEmpty(result)) {
-							try {
-								JSONObject obj = new JSONObject(result);
-								if (!obj.isNull("info")) {
-									mList.clear();
-									JSONArray array = obj.getJSONArray("info");
-									for (int i = 0; i < array.length(); i++) {
-										DisasterDto dto = new DisasterDto();
-										JSONObject itemObj = array.getJSONObject(i);
-										if (!itemObj.isNull("url")) {
-											dto.url = itemObj.getString("url");
-										}
-										if (!itemObj.isNull("time")) {
-											dto.time = itemObj.getString("time");
-										}
-										if (!itemObj.isNull("title")) {
-											dto.title = itemObj.getString("title");
-										}
-										if (!itemObj.isNull("image")) {
-											dto.imgUrl = itemObj.getString("image");
-										}
-										mList.add(dto);
-									}
+					public void onFailure(Call call, IOException e) {
 
-									if (mAdapter != null) {
-										mAdapter.notifyDataSetChanged();
-									}
-									progressBar.setVisibility(View.GONE);
-									refreshLayout.setRefreshing(false);
-								}
-							} catch (JSONException e) {
-								e.printStackTrace();
-							}
+					}
+
+					@Override
+					public void onResponse(Call call, Response response) throws IOException {
+						if (!response.isSuccessful()) {
+							return;
 						}
+						final String result = response.body().string();
+						runOnUiThread(new Runnable() {
+							@Override
+							public void run() {
+								if (!TextUtils.isEmpty(result)) {
+									try {
+										JSONObject obj = new JSONObject(result);
+										if (!obj.isNull("info")) {
+											mList.clear();
+											JSONArray array = obj.getJSONArray("info");
+											for (int i = 0; i < array.length(); i++) {
+												DisasterDto dto = new DisasterDto();
+												JSONObject itemObj = array.getJSONObject(i);
+												if (!itemObj.isNull("url")) {
+													dto.url = itemObj.getString("url");
+												}
+												if (!itemObj.isNull("time")) {
+													dto.time = itemObj.getString("time");
+												}
+												if (!itemObj.isNull("title")) {
+													dto.title = itemObj.getString("title");
+												}
+												if (!itemObj.isNull("image")) {
+													dto.imgUrl = itemObj.getString("image");
+												}
+												mList.add(dto);
+											}
+
+											if (mAdapter != null) {
+												mAdapter.notifyDataSetChanged();
+											}
+											progressBar.setVisibility(View.GONE);
+											refreshLayout.setRefreshing(false);
+										}
+									} catch (JSONException e) {
+										e.printStackTrace();
+									}
+								}
+							}
+						});
 					}
 				});
 			}
-		});
+		}).start();
 	}
 
 	@Override

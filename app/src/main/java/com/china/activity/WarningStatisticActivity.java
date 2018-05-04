@@ -118,109 +118,110 @@ public class WarningStatisticActivity extends BaseActivity implements View.OnCli
      * 获取预警统计信息
      * @param url
      */
-    private void OkHttpStatistic(String url, final boolean isParseTime) {
-        OkHttpUtil.enqueue(new Request.Builder().url(url).build(), new Callback() {
+    private void OkHttpStatistic(final String url, final boolean isParseTime) {
+        new Thread(new Runnable() {
             @Override
-            public void onFailure(Call call, IOException e) {
+            public void run() {
+                OkHttpUtil.enqueue(new Request.Builder().url(url).build(), new Callback() {
+                    @Override
+                    public void onFailure(Call call, IOException e) {
 
-            }
+                    }
 
-            @Override
-            public void onResponse(Call call, Response response) throws IOException {
-                if (!response.isSuccessful()) {
-                    return;
-                }
-                String result = response.body().string();
-                if (!TextUtils.isEmpty(result)) {
-                    try {
-                        JSONObject object = new JSONObject(result);
-                        if (isParseTime) {
-                            if (!object.isNull("time")) {
-                                final String time = object.getString("time");
-                                if (!TextUtils.isEmpty(time)) {
-                                    runOnUiThread(new Runnable() {
-                                        @Override
-                                        public void run() {
-                                            try {
-                                                tvTime.setText(sdf2.format(sdf1.parse(time))+" - "+sdf3.format(new Date()));
-                                            } catch (ParseException e) {
-                                                e.printStackTrace();
-                                            }
-                                        }
-                                    });
-                                }
-                            }
+                    @Override
+                    public void onResponse(Call call, Response response) throws IOException {
+                        if (!response.isSuccessful()) {
+                            return;
                         }
-                        if (!object.isNull("data")) {
-                            groupList.clear();
-                            childList.clear();
-                            JSONArray array = object.getJSONArray("data");
-                            for (int i = 0; i < array.length(); i++) {
-                                WarningDto dto = new WarningDto();
-                                JSONObject obj = array.getJSONObject(i);
-                                if (!obj.isNull("name")) {
-                                    dto.areaName = obj.getString("name");
-                                }
-                                if (!obj.isNull("areaid")) {
-                                    dto.areaId = obj.getString("areaid");
-                                }
-                                if (!obj.isNull("areaKey")) {
-                                    dto.areaKey = obj.getString("areaKey");
-                                }
-                                if (!obj.isNull("count")) {
-                                    String[] count = obj.getString("count").split("\\|");
-                                    dto.warningCount = count[0];
-                                    dto.redCount = count[1];
-                                    dto.orangeCount = count[2];
-                                    dto.yellowCount = count[3];
-                                    dto.blueCount = count[4];
-                                }
-
-                                if (!obj.isNull("list")) {
-                                    List<WarningDto> list = new ArrayList<>();
-                                    list.clear();
-                                    JSONArray listArray = obj.getJSONArray("list");
-                                    for (int j = 0; j < listArray.length(); j++) {
-                                        JSONObject itemObj = listArray.getJSONObject(j);
-                                        WarningDto d = new WarningDto();
-                                        if (!itemObj.isNull("name")) {
-                                            d.shortName = itemObj.getString("name");
-                                        }
-                                        if (!itemObj.isNull("code")) {
-                                            d.type = itemObj.getString("code");
-                                        }
-                                        if (!itemObj.isNull("count")) {
-                                            String[] count = itemObj.getString("count").split("\\|");
-                                            d.warningCount = count[0];
-                                            d.redCount = count[1];
-                                            d.orangeCount = count[2];
-                                            d.yellowCount = count[3];
-                                            d.blueCount = count[4];
-                                        }
-                                        list.add(d);
-                                    }
-                                    childList.add(list);
-                                }
-
-                                groupList.add(dto);
-                            }
-                        }
-
+                        final String result = response.body().string();
                         runOnUiThread(new Runnable() {
                             @Override
                             public void run() {
-                                if (groupList.size() > 0 && mAdapter != null) {
-                                    mAdapter.notifyDataSetChanged();
+                                if (!TextUtils.isEmpty(result)) {
+                                    try {
+                                        JSONObject object = new JSONObject(result);
+                                        if (isParseTime) {
+                                            if (!object.isNull("time")) {
+                                                String time = object.getString("time");
+                                                if (!TextUtils.isEmpty(time)) {
+                                                    try {
+                                                        tvTime.setText(sdf2.format(sdf1.parse(time))+" - "+sdf3.format(new Date()));
+                                                    } catch (ParseException e) {
+                                                        e.printStackTrace();
+                                                    }
+                                                }
+                                            }
+                                        }
+                                        if (!object.isNull("data")) {
+                                            groupList.clear();
+                                            childList.clear();
+                                            JSONArray array = object.getJSONArray("data");
+                                            for (int i = 0; i < array.length(); i++) {
+                                                WarningDto dto = new WarningDto();
+                                                JSONObject obj = array.getJSONObject(i);
+                                                if (!obj.isNull("name")) {
+                                                    dto.areaName = obj.getString("name");
+                                                }
+                                                if (!obj.isNull("areaid")) {
+                                                    dto.areaId = obj.getString("areaid");
+                                                }
+                                                if (!obj.isNull("areaKey")) {
+                                                    dto.areaKey = obj.getString("areaKey");
+                                                }
+                                                if (!obj.isNull("count")) {
+                                                    String[] count = obj.getString("count").split("\\|");
+                                                    dto.warningCount = count[0];
+                                                    dto.redCount = count[1];
+                                                    dto.orangeCount = count[2];
+                                                    dto.yellowCount = count[3];
+                                                    dto.blueCount = count[4];
+                                                }
+
+                                                if (!obj.isNull("list")) {
+                                                    List<WarningDto> list = new ArrayList<>();
+                                                    list.clear();
+                                                    JSONArray listArray = obj.getJSONArray("list");
+                                                    for (int j = 0; j < listArray.length(); j++) {
+                                                        JSONObject itemObj = listArray.getJSONObject(j);
+                                                        WarningDto d = new WarningDto();
+                                                        if (!itemObj.isNull("name")) {
+                                                            d.shortName = itemObj.getString("name");
+                                                        }
+                                                        if (!itemObj.isNull("code")) {
+                                                            d.type = itemObj.getString("code");
+                                                        }
+                                                        if (!itemObj.isNull("count")) {
+                                                            String[] count = itemObj.getString("count").split("\\|");
+                                                            d.warningCount = count[0];
+                                                            d.redCount = count[1];
+                                                            d.orangeCount = count[2];
+                                                            d.yellowCount = count[3];
+                                                            d.blueCount = count[4];
+                                                        }
+                                                        list.add(d);
+                                                    }
+                                                    childList.add(list);
+                                                }
+
+                                                groupList.add(dto);
+                                            }
+                                        }
+
+                                        if (mAdapter != null) {
+                                            mAdapter.notifyDataSetChanged();
+                                        }
+                                        cancelDialog();
+
+                                    } catch (JSONException e) {
+                                        e.printStackTrace();
+                                    }
                                 }
-                                cancelDialog();
                             }
                         });
-                    } catch (JSONException e) {
-                        e.printStackTrace();
                     }
-                }
+                });
             }
-        });
+        }).start();
     }
 
     @Override

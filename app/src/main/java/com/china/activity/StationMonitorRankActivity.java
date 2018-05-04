@@ -211,152 +211,157 @@ public class StationMonitorRankActivity extends BaseActivity implements OnClickL
 		}
 	}
 	
-	private void OkHttpList(String url) {
+	private void OkHttpList(final String url) {
 		showDialog();
-		OkHttpUtil.enqueue(new Request.Builder().url(url).build(), new Callback() {
+		new Thread(new Runnable() {
 			@Override
-			public void onFailure(Call call, IOException e) {
-
-			}
-
-			@Override
-			public void onResponse(Call call, Response response) throws IOException {
-				if (!response.isSuccessful()) {
-					return;
-				}
-				final String result = response.body().string();
-				runOnUiThread(new Runnable() {
+			public void run() {
+				OkHttpUtil.enqueue(new Request.Builder().url(url).build(), new Callback() {
 					@Override
-					public void run() {
-						if (!TextUtils.isEmpty(result)) {
-							try {
-								JSONArray array = new JSONArray(result);
-								JSONObject obj0 = array.getJSONObject(0);
-								if (!obj0.isNull("balltempmax")) {
-									ttList.clear();
-									JSONArray itemArray = obj0.getJSONArray("balltempmax");
-									for (int i = 0; i < itemArray.length(); i++) {
-										JSONObject itemObj = itemArray.getJSONObject(i);
-										StationMonitorDto dto = new StationMonitorDto();
-										dto.provinceName = itemObj.getString("province");
-										dto.name = itemObj.getString("city");
-										dto.ballTemp = itemObj.getString("balltemp");
-										dto.value = dto.ballTemp+getString(R.string.unit_degree);
-										dto.stationId = itemObj.getString("stationid");
-										ttList.add(dto);
-									}
-								}
+					public void onFailure(Call call, IOException e) {
 
-								JSONObject obj1 = array.getJSONObject(1);
-								if (!obj1.isNull("humiditymax")) {
-									hMaxList.clear();
-									JSONArray itemArray = obj1.getJSONArray("humiditymax");
-									for (int i = 0; i < itemArray.length(); i++) {
-										JSONObject itemObj = itemArray.getJSONObject(i);
-										StationMonitorDto dto = new StationMonitorDto();
-										dto.provinceName = itemObj.getString("province");
-										dto.name = itemObj.getString("city");
-										dto.humidity = itemObj.getString("humidity");
-										dto.value = dto.humidity+getString(R.string.unit_percent);
-										dto.stationId = itemObj.getString("stationid");
-										hMaxList.add(dto);
-									}
-								}
+					}
 
-								JSONObject obj2 = array.getJSONObject(2);
-								if (!obj2.isNull("airpressuremax")) {
-									pMaxList.clear();
-									JSONArray itemArray = obj2.getJSONArray("airpressuremax");
-									for (int i = 0; i < itemArray.length(); i++) {
-										JSONObject itemObj = itemArray.getJSONObject(i);
-										StationMonitorDto dto = new StationMonitorDto();
-										dto.provinceName = itemObj.getString("province");
-										dto.name = itemObj.getString("city");
-										dto.airPressure = itemObj.getString("airpressure");
-										dto.value = dto.airPressure+getString(R.string.unit_hPa);
-										dto.stationId = itemObj.getString("stationid");
-										pMaxList.add(dto);
-									}
-								}
-
-								JSONObject obj3 = array.getJSONObject(3);
-								if (!obj3.isNull("visibilitymax")) {
-									vMaxList.clear();
-									JSONArray itemArray = obj3.getJSONArray("visibilitymax");
-									for (int i = 0; i < itemArray.length(); i++) {
-										JSONObject itemObj = itemArray.getJSONObject(i);
-										StationMonitorDto dto = new StationMonitorDto();
-										dto.provinceName = itemObj.getString("province");
-										dto.name = itemObj.getString("city");
-										dto.visibility = itemObj.getString("visibility");
-										dto.value = dto.visibility+getString(R.string.unit_km);
-										dto.stationId = itemObj.getString("stationid");
-										vMaxList.add(dto);
-									}
-								}
-
-								JSONObject obj4 = array.getJSONObject(4);
-								if (!obj4.isNull("windspeedmax")) {
-									wList.clear();
-									JSONArray itemArray = obj4.getJSONArray("windspeedmax");
-									for (int i = 0; i < itemArray.length(); i++) {
-										JSONObject itemObj = itemArray.getJSONObject(i);
-										StationMonitorDto dto = new StationMonitorDto();
-										dto.provinceName = itemObj.getString("province");
-										dto.name = itemObj.getString("city");
-
-										float fx = Float.valueOf(itemObj.getString("winddir"));
-										String wind_dir = null;
-										if(fx == 0 || fx == 360){
-											wind_dir = mContext.getString(R.string.chart_north);
-										}else if(fx > 0 && fx < 90){
-											wind_dir = mContext.getString(R.string.chart_north_east);
-										}else if(fx == 90){
-											wind_dir = mContext.getString(R.string.chart_east);
-										}else if(fx > 90 && fx< 180){
-											wind_dir = mContext.getString(R.string.chart_south_east);
-										}else if(fx == 180){
-											wind_dir = mContext.getString(R.string.chart_south);
-										}else if(fx > 180 && fx < 270){
-											wind_dir = mContext.getString(R.string.chart_south_west);
-										}else if(fx == 270){
-											wind_dir = mContext.getString(R.string.chart_west);
-										}else if(fx > 270){
-											wind_dir = mContext.getString(R.string.chart_north_west);
-										}
-										dto.windDir = wind_dir;
-										dto.windSpeed = itemObj.getString("windspeed");
-										dto.value = dto.windDir+" "+dto.windSpeed+getString(R.string.unit_speed);
-										dto.stationId = itemObj.getString("stationid");
-										wList.add(dto);
-									}
-								}
-
-								JSONObject obj5 = array.getJSONObject(5);
-								if (!obj5.isNull("rainfallmax")) {
-									rList.clear();
-									JSONArray itemArray = obj5.getJSONArray("rainfallmax");
-									for (int i = 0; i < itemArray.length(); i++) {
-										JSONObject itemObj = itemArray.getJSONObject(i);
-										StationMonitorDto dto = new StationMonitorDto();
-										dto.provinceName = itemObj.getString("province");
-										dto.name = itemObj.getString("city");
-										dto.precipitation1h = itemObj.getString("rainfall");
-										dto.value = dto.precipitation1h+getString(R.string.unit_mm);
-										dto.stationId = itemObj.getString("stationid");
-										rList.add(dto);
-									}
-								}
-								setListData(rList);
-								cancelDialog();
-							} catch (JSONException e) {
-								e.printStackTrace();
-							}
+					@Override
+					public void onResponse(Call call, Response response) throws IOException {
+						if (!response.isSuccessful()) {
+							return;
 						}
+						final String result = response.body().string();
+						runOnUiThread(new Runnable() {
+							@Override
+							public void run() {
+								if (!TextUtils.isEmpty(result)) {
+									try {
+										JSONArray array = new JSONArray(result);
+										JSONObject obj0 = array.getJSONObject(0);
+										if (!obj0.isNull("balltempmax")) {
+											ttList.clear();
+											JSONArray itemArray = obj0.getJSONArray("balltempmax");
+											for (int i = 0; i < itemArray.length(); i++) {
+												JSONObject itemObj = itemArray.getJSONObject(i);
+												StationMonitorDto dto = new StationMonitorDto();
+												dto.provinceName = itemObj.getString("province");
+												dto.name = itemObj.getString("city");
+												dto.ballTemp = itemObj.getString("balltemp");
+												dto.value = dto.ballTemp+getString(R.string.unit_degree);
+												dto.stationId = itemObj.getString("stationid");
+												ttList.add(dto);
+											}
+										}
+
+										JSONObject obj1 = array.getJSONObject(1);
+										if (!obj1.isNull("humiditymax")) {
+											hMaxList.clear();
+											JSONArray itemArray = obj1.getJSONArray("humiditymax");
+											for (int i = 0; i < itemArray.length(); i++) {
+												JSONObject itemObj = itemArray.getJSONObject(i);
+												StationMonitorDto dto = new StationMonitorDto();
+												dto.provinceName = itemObj.getString("province");
+												dto.name = itemObj.getString("city");
+												dto.humidity = itemObj.getString("humidity");
+												dto.value = dto.humidity+getString(R.string.unit_percent);
+												dto.stationId = itemObj.getString("stationid");
+												hMaxList.add(dto);
+											}
+										}
+
+										JSONObject obj2 = array.getJSONObject(2);
+										if (!obj2.isNull("airpressuremax")) {
+											pMaxList.clear();
+											JSONArray itemArray = obj2.getJSONArray("airpressuremax");
+											for (int i = 0; i < itemArray.length(); i++) {
+												JSONObject itemObj = itemArray.getJSONObject(i);
+												StationMonitorDto dto = new StationMonitorDto();
+												dto.provinceName = itemObj.getString("province");
+												dto.name = itemObj.getString("city");
+												dto.airPressure = itemObj.getString("airpressure");
+												dto.value = dto.airPressure+getString(R.string.unit_hPa);
+												dto.stationId = itemObj.getString("stationid");
+												pMaxList.add(dto);
+											}
+										}
+
+										JSONObject obj3 = array.getJSONObject(3);
+										if (!obj3.isNull("visibilitymax")) {
+											vMaxList.clear();
+											JSONArray itemArray = obj3.getJSONArray("visibilitymax");
+											for (int i = 0; i < itemArray.length(); i++) {
+												JSONObject itemObj = itemArray.getJSONObject(i);
+												StationMonitorDto dto = new StationMonitorDto();
+												dto.provinceName = itemObj.getString("province");
+												dto.name = itemObj.getString("city");
+												dto.visibility = itemObj.getString("visibility");
+												dto.value = dto.visibility+getString(R.string.unit_km);
+												dto.stationId = itemObj.getString("stationid");
+												vMaxList.add(dto);
+											}
+										}
+
+										JSONObject obj4 = array.getJSONObject(4);
+										if (!obj4.isNull("windspeedmax")) {
+											wList.clear();
+											JSONArray itemArray = obj4.getJSONArray("windspeedmax");
+											for (int i = 0; i < itemArray.length(); i++) {
+												JSONObject itemObj = itemArray.getJSONObject(i);
+												StationMonitorDto dto = new StationMonitorDto();
+												dto.provinceName = itemObj.getString("province");
+												dto.name = itemObj.getString("city");
+
+												float fx = Float.valueOf(itemObj.getString("winddir"));
+												String wind_dir = null;
+												if(fx == 0 || fx == 360){
+													wind_dir = mContext.getString(R.string.chart_north);
+												}else if(fx > 0 && fx < 90){
+													wind_dir = mContext.getString(R.string.chart_north_east);
+												}else if(fx == 90){
+													wind_dir = mContext.getString(R.string.chart_east);
+												}else if(fx > 90 && fx< 180){
+													wind_dir = mContext.getString(R.string.chart_south_east);
+												}else if(fx == 180){
+													wind_dir = mContext.getString(R.string.chart_south);
+												}else if(fx > 180 && fx < 270){
+													wind_dir = mContext.getString(R.string.chart_south_west);
+												}else if(fx == 270){
+													wind_dir = mContext.getString(R.string.chart_west);
+												}else if(fx > 270){
+													wind_dir = mContext.getString(R.string.chart_north_west);
+												}
+												dto.windDir = wind_dir;
+												dto.windSpeed = itemObj.getString("windspeed");
+												dto.value = dto.windDir+" "+dto.windSpeed+getString(R.string.unit_speed);
+												dto.stationId = itemObj.getString("stationid");
+												wList.add(dto);
+											}
+										}
+
+										JSONObject obj5 = array.getJSONObject(5);
+										if (!obj5.isNull("rainfallmax")) {
+											rList.clear();
+											JSONArray itemArray = obj5.getJSONArray("rainfallmax");
+											for (int i = 0; i < itemArray.length(); i++) {
+												JSONObject itemObj = itemArray.getJSONObject(i);
+												StationMonitorDto dto = new StationMonitorDto();
+												dto.provinceName = itemObj.getString("province");
+												dto.name = itemObj.getString("city");
+												dto.precipitation1h = itemObj.getString("rainfall");
+												dto.value = dto.precipitation1h+getString(R.string.unit_mm);
+												dto.stationId = itemObj.getString("stationid");
+												rList.add(dto);
+											}
+										}
+										setListData(rList);
+										cancelDialog();
+									} catch (JSONException e) {
+										e.printStackTrace();
+									}
+								}
+							}
+						});
 					}
 				});
 			}
-		});
+		}).start();
 	}
 	
 	/**
@@ -364,176 +369,181 @@ public class StationMonitorRankActivity extends BaseActivity implements OnClickL
 	 * @param type //1、21、22、3、4、5、6分别代表降水、高温、低温、相对湿度、风向风速、能见度、气压
 	 * @param url
 	 */
-	private void OkHttpSingle(String url, final int type) {
+	private void OkHttpSingle(final String url, final int type) {
 		showDialog();
-		OkHttpUtil.enqueue(new Request.Builder().url(url).build(), new Callback() {
+		new Thread(new Runnable() {
 			@Override
-			public void onFailure(Call call, IOException e) {
-
-			}
-
-			@Override
-			public void onResponse(Call call, Response response) throws IOException {
-				if (!response.isSuccessful()) {
-					return;
-				}
-				final String result = response.body().string();
-				runOnUiThread(new Runnable() {
+			public void run() {
+				OkHttpUtil.enqueue(new Request.Builder().url(url).build(), new Callback() {
 					@Override
-					public void run() {
-						if (!TextUtils.isEmpty(result)) {
-							try {
-								JSONObject obj = new JSONObject(result);
-								if (!obj.isNull("balltempmax")) {
-									ttList.clear();
-									JSONArray itemArray = obj.getJSONArray("balltempmax");
-									for (int i = 0; i < itemArray.length(); i++) {
-										JSONObject itemObj = itemArray.getJSONObject(i);
-										StationMonitorDto dto = new StationMonitorDto();
-										dto.provinceName = itemObj.getString("province");
-										dto.name = itemObj.getString("city");
-										dto.ballTemp = itemObj.getString("balltemp");
-										dto.value = dto.ballTemp+getString(R.string.unit_degree);
-										dto.stationId = itemObj.getString("stationid");
-										ttList.add(dto);
-									}
-								}
+					public void onFailure(Call call, IOException e) {
 
-								if (!obj.isNull("balltempmin")) {
-									ltList.clear();
-									JSONArray itemArray = obj.getJSONArray("balltempmin");
-									for (int i = 0; i < itemArray.length(); i++) {
-										JSONObject itemObj = itemArray.getJSONObject(i);
-										StationMonitorDto dto = new StationMonitorDto();
-										dto.provinceName = itemObj.getString("province");
-										dto.name = itemObj.getString("city");
-										dto.ballTemp = itemObj.getString("balltemp");
-										dto.value = dto.ballTemp+getString(R.string.unit_degree);
-										dto.stationId = itemObj.getString("stationid");
-										ltList.add(dto);
-									}
-								}
+					}
 
-								if (!obj.isNull("humiditymax")) {
-									hMaxList.clear();
-									JSONArray itemArray = obj.getJSONArray("humiditymax");
-									for (int i = 0; i < itemArray.length(); i++) {
-										JSONObject itemObj = itemArray.getJSONObject(i);
-										StationMonitorDto dto = new StationMonitorDto();
-										dto.provinceName = itemObj.getString("province");
-										dto.name = itemObj.getString("city");
-										dto.humidity = itemObj.getString("humidity");
-										dto.value = dto.humidity+getString(R.string.unit_percent);
-										dto.stationId = itemObj.getString("stationid");
-										hMaxList.add(dto);
-									}
-								}
-
-								if (!obj.isNull("airpressuremax")) {
-									pMaxList.clear();
-									JSONArray itemArray = obj.getJSONArray("airpressuremax");
-									for (int i = 0; i < itemArray.length(); i++) {
-										JSONObject itemObj = itemArray.getJSONObject(i);
-										StationMonitorDto dto = new StationMonitorDto();
-										dto.provinceName = itemObj.getString("province");
-										dto.name = itemObj.getString("city");
-										dto.airPressure = itemObj.getString("airpressure");
-										dto.value = dto.airPressure+getString(R.string.unit_hPa);
-										dto.stationId = itemObj.getString("stationid");
-										pMaxList.add(dto);
-									}
-								}
-
-								if (!obj.isNull("visibilitymax")) {
-									vMaxList.clear();
-									JSONArray itemArray = obj.getJSONArray("visibilitymax");
-									for (int i = 0; i < itemArray.length(); i++) {
-										JSONObject itemObj = itemArray.getJSONObject(i);
-										StationMonitorDto dto = new StationMonitorDto();
-										dto.provinceName = itemObj.getString("province");
-										dto.name = itemObj.getString("city");
-										dto.visibility = itemObj.getString("visibility");
-										dto.value = dto.visibility+getString(R.string.unit_km);
-										dto.stationId = itemObj.getString("stationid");
-										vMaxList.add(dto);
-									}
-								}
-
-								if (!obj.isNull("windspeedmax")) {
-									wList.clear();
-									JSONArray itemArray = obj.getJSONArray("windspeedmax");
-									for (int i = 0; i < itemArray.length(); i++) {
-										JSONObject itemObj = itemArray.getJSONObject(i);
-										StationMonitorDto dto = new StationMonitorDto();
-										dto.provinceName = itemObj.getString("province");
-										dto.name = itemObj.getString("city");
-
-										float fx = Float.valueOf(itemObj.getString("winddir"));
-										String wind_dir = null;
-										if(fx == 0 || fx == 360){
-											wind_dir = mContext.getString(R.string.chart_north);
-										}else if(fx > 0 && fx < 90){
-											wind_dir = mContext.getString(R.string.chart_north_east);
-										}else if(fx == 90){
-											wind_dir = mContext.getString(R.string.chart_east);
-										}else if(fx > 90 && fx< 180){
-											wind_dir = mContext.getString(R.string.chart_south_east);
-										}else if(fx == 180){
-											wind_dir = mContext.getString(R.string.chart_south);
-										}else if(fx > 180 && fx < 270){
-											wind_dir = mContext.getString(R.string.chart_south_west);
-										}else if(fx == 270){
-											wind_dir = mContext.getString(R.string.chart_west);
-										}else if(fx > 270){
-											wind_dir = mContext.getString(R.string.chart_north_west);
-										}
-										dto.windDir = wind_dir;
-										dto.windSpeed = itemObj.getString("windspeed");
-										dto.value = dto.windDir+" "+dto.windSpeed+getString(R.string.unit_speed);
-										dto.stationId = itemObj.getString("stationid");
-										wList.add(dto);
-									}
-								}
-
-								if (!obj.isNull("rainfallmax")) {
-									rList.clear();
-									JSONArray itemArray = obj.getJSONArray("rainfallmax");
-									for (int i = 0; i < itemArray.length(); i++) {
-										JSONObject itemObj = itemArray.getJSONObject(i);
-										StationMonitorDto dto = new StationMonitorDto();
-										dto.provinceName = itemObj.getString("province");
-										dto.name = itemObj.getString("city");
-										dto.precipitation1h = itemObj.getString("rainfall");
-										dto.value = dto.precipitation1h+getString(R.string.unit_mm);
-										dto.stationId = itemObj.getString("stationid");
-										rList.add(dto);
-									}
-								}
-
-								if (type == 1) {
-									setListData(rList);
-								}else if (type == 21) {
-									setListData(ttList);
-								}else if (type == 22) {
-									setListData(ltList);
-								}else if (type == 3) {
-									setListData(hMaxList);
-								}else if (type == 4) {
-									setListData(wList);
-								}else if (type == 5) {
-									setListData(vMaxList);
-								}else if (type == 6) {
-									setListData(pMaxList);
-								}
-								cancelDialog();
-							} catch (JSONException e) {
-								e.printStackTrace();
-							}
+					@Override
+					public void onResponse(Call call, Response response) throws IOException {
+						if (!response.isSuccessful()) {
+							return;
 						}
+						final String result = response.body().string();
+						runOnUiThread(new Runnable() {
+							@Override
+							public void run() {
+								if (!TextUtils.isEmpty(result)) {
+									try {
+										JSONObject obj = new JSONObject(result);
+										if (!obj.isNull("balltempmax")) {
+											ttList.clear();
+											JSONArray itemArray = obj.getJSONArray("balltempmax");
+											for (int i = 0; i < itemArray.length(); i++) {
+												JSONObject itemObj = itemArray.getJSONObject(i);
+												StationMonitorDto dto = new StationMonitorDto();
+												dto.provinceName = itemObj.getString("province");
+												dto.name = itemObj.getString("city");
+												dto.ballTemp = itemObj.getString("balltemp");
+												dto.value = dto.ballTemp+getString(R.string.unit_degree);
+												dto.stationId = itemObj.getString("stationid");
+												ttList.add(dto);
+											}
+										}
+
+										if (!obj.isNull("balltempmin")) {
+											ltList.clear();
+											JSONArray itemArray = obj.getJSONArray("balltempmin");
+											for (int i = 0; i < itemArray.length(); i++) {
+												JSONObject itemObj = itemArray.getJSONObject(i);
+												StationMonitorDto dto = new StationMonitorDto();
+												dto.provinceName = itemObj.getString("province");
+												dto.name = itemObj.getString("city");
+												dto.ballTemp = itemObj.getString("balltemp");
+												dto.value = dto.ballTemp+getString(R.string.unit_degree);
+												dto.stationId = itemObj.getString("stationid");
+												ltList.add(dto);
+											}
+										}
+
+										if (!obj.isNull("humiditymax")) {
+											hMaxList.clear();
+											JSONArray itemArray = obj.getJSONArray("humiditymax");
+											for (int i = 0; i < itemArray.length(); i++) {
+												JSONObject itemObj = itemArray.getJSONObject(i);
+												StationMonitorDto dto = new StationMonitorDto();
+												dto.provinceName = itemObj.getString("province");
+												dto.name = itemObj.getString("city");
+												dto.humidity = itemObj.getString("humidity");
+												dto.value = dto.humidity+getString(R.string.unit_percent);
+												dto.stationId = itemObj.getString("stationid");
+												hMaxList.add(dto);
+											}
+										}
+
+										if (!obj.isNull("airpressuremax")) {
+											pMaxList.clear();
+											JSONArray itemArray = obj.getJSONArray("airpressuremax");
+											for (int i = 0; i < itemArray.length(); i++) {
+												JSONObject itemObj = itemArray.getJSONObject(i);
+												StationMonitorDto dto = new StationMonitorDto();
+												dto.provinceName = itemObj.getString("province");
+												dto.name = itemObj.getString("city");
+												dto.airPressure = itemObj.getString("airpressure");
+												dto.value = dto.airPressure+getString(R.string.unit_hPa);
+												dto.stationId = itemObj.getString("stationid");
+												pMaxList.add(dto);
+											}
+										}
+
+										if (!obj.isNull("visibilitymax")) {
+											vMaxList.clear();
+											JSONArray itemArray = obj.getJSONArray("visibilitymax");
+											for (int i = 0; i < itemArray.length(); i++) {
+												JSONObject itemObj = itemArray.getJSONObject(i);
+												StationMonitorDto dto = new StationMonitorDto();
+												dto.provinceName = itemObj.getString("province");
+												dto.name = itemObj.getString("city");
+												dto.visibility = itemObj.getString("visibility");
+												dto.value = dto.visibility+getString(R.string.unit_km);
+												dto.stationId = itemObj.getString("stationid");
+												vMaxList.add(dto);
+											}
+										}
+
+										if (!obj.isNull("windspeedmax")) {
+											wList.clear();
+											JSONArray itemArray = obj.getJSONArray("windspeedmax");
+											for (int i = 0; i < itemArray.length(); i++) {
+												JSONObject itemObj = itemArray.getJSONObject(i);
+												StationMonitorDto dto = new StationMonitorDto();
+												dto.provinceName = itemObj.getString("province");
+												dto.name = itemObj.getString("city");
+
+												float fx = Float.valueOf(itemObj.getString("winddir"));
+												String wind_dir = null;
+												if(fx == 0 || fx == 360){
+													wind_dir = mContext.getString(R.string.chart_north);
+												}else if(fx > 0 && fx < 90){
+													wind_dir = mContext.getString(R.string.chart_north_east);
+												}else if(fx == 90){
+													wind_dir = mContext.getString(R.string.chart_east);
+												}else if(fx > 90 && fx< 180){
+													wind_dir = mContext.getString(R.string.chart_south_east);
+												}else if(fx == 180){
+													wind_dir = mContext.getString(R.string.chart_south);
+												}else if(fx > 180 && fx < 270){
+													wind_dir = mContext.getString(R.string.chart_south_west);
+												}else if(fx == 270){
+													wind_dir = mContext.getString(R.string.chart_west);
+												}else if(fx > 270){
+													wind_dir = mContext.getString(R.string.chart_north_west);
+												}
+												dto.windDir = wind_dir;
+												dto.windSpeed = itemObj.getString("windspeed");
+												dto.value = dto.windDir+" "+dto.windSpeed+getString(R.string.unit_speed);
+												dto.stationId = itemObj.getString("stationid");
+												wList.add(dto);
+											}
+										}
+
+										if (!obj.isNull("rainfallmax")) {
+											rList.clear();
+											JSONArray itemArray = obj.getJSONArray("rainfallmax");
+											for (int i = 0; i < itemArray.length(); i++) {
+												JSONObject itemObj = itemArray.getJSONObject(i);
+												StationMonitorDto dto = new StationMonitorDto();
+												dto.provinceName = itemObj.getString("province");
+												dto.name = itemObj.getString("city");
+												dto.precipitation1h = itemObj.getString("rainfall");
+												dto.value = dto.precipitation1h+getString(R.string.unit_mm);
+												dto.stationId = itemObj.getString("stationid");
+												rList.add(dto);
+											}
+										}
+
+										if (type == 1) {
+											setListData(rList);
+										}else if (type == 21) {
+											setListData(ttList);
+										}else if (type == 22) {
+											setListData(ltList);
+										}else if (type == 3) {
+											setListData(hMaxList);
+										}else if (type == 4) {
+											setListData(wList);
+										}else if (type == 5) {
+											setListData(vMaxList);
+										}else if (type == 6) {
+											setListData(pMaxList);
+										}
+										cancelDialog();
+									} catch (JSONException e) {
+										e.printStackTrace();
+									}
+								}
+							}
+						});
 					}
 				});
 			}
-		});
+		}).start();
 	}
 	
 	private void initListView() {

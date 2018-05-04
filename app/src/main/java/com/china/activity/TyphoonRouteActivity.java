@@ -1380,7 +1380,6 @@ public class TyphoonRouteActivity extends BaseActivity implements OnClickListene
 
 	@Override
 	public void onGeocodeSearched(GeocodeResult arg0, int arg1) {
-		// TODO Auto-generated method stub
 	}
 	@Override
 	public void onRegeocodeSearched(RegeocodeResult result, int rCode) {
@@ -1662,7 +1661,6 @@ public class TyphoonRouteActivity extends BaseActivity implements OnClickListene
 
 	@Override
 	public View getInfoWindow(Marker arg0) {
-		// TODO Auto-generated method stub
 		return null;
 	}
 
@@ -1718,43 +1716,43 @@ public class TyphoonRouteActivity extends BaseActivity implements OnClickListene
 						if (!response.isSuccessful()) {
 							return;
 						}
-						String result = response.body().string();
-						if (!TextUtils.isEmpty(result)) {
-							try {
-								JSONObject obj = new JSONObject(result);
-								if (!obj.isNull("status")) {
-									if (obj.getString("status").equals("ok")) {
-										if (!obj.isNull("radar_img")) {
-											JSONArray array = new JSONArray(obj.getString("radar_img"));
-											for (int i = 0; i < array.length(); i++) {
-												JSONArray array0 = array.getJSONArray(i);
-												MinuteFallDto dto = new MinuteFallDto();
-												dto.setImgUrl(array0.optString(0));
-												dto.setTime(array0.optLong(1));
-												JSONArray itemArray = array0.getJSONArray(2);
-												dto.setP1(itemArray.optDouble(0));
-												dto.setP2(itemArray.optDouble(1));
-												dto.setP3(itemArray.optDouble(2));
-												dto.setP4(itemArray.optDouble(3));
-												radarList.add(dto);
-											}
+						final String result = response.body().string();
+						runOnUiThread(new Runnable() {
+							@Override
+							public void run() {
+								if (!TextUtils.isEmpty(result)) {
+									try {
+										JSONObject obj = new JSONObject(result);
+										if (!obj.isNull("status")) {
+											if (obj.getString("status").equals("ok")) {
+												if (!obj.isNull("radar_img")) {
+													JSONArray array = new JSONArray(obj.getString("radar_img"));
+													for (int i = 0; i < array.length(); i++) {
+														JSONArray array0 = array.getJSONArray(i);
+														MinuteFallDto dto = new MinuteFallDto();
+														dto.setImgUrl(array0.optString(0));
+														dto.setTime(array0.optLong(1));
+														JSONArray itemArray = array0.getJSONArray(2);
+														dto.setP1(itemArray.optDouble(0));
+														dto.setP2(itemArray.optDouble(1));
+														dto.setP3(itemArray.optDouble(2));
+														dto.setP4(itemArray.optDouble(3));
+														radarList.add(dto);
+													}
 
-											runOnUiThread(new Runnable() {
-												@Override
-												public void run() {
 													if (radarList.size() > 0) {
 														startDownLoadImgs(radarList);
 													}
-												}
-											});
 
+												}
+											}
 										}
+									} catch (JSONException e) {
+										e.printStackTrace();
 									}
 								}
-							} catch (JSONException e) {
-								e.printStackTrace();
 							}
-						}
+						});
 					}
 				});
 			}

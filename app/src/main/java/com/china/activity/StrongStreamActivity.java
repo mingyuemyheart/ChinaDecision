@@ -170,7 +170,7 @@ public class StrongStreamActivity extends BaseActivity implements OnClickListene
 		}
 		
 		mRadarManager = new StrongStreamManager(getApplicationContext());
-		asyncRadarData(dataUrl);
+		OkHttpData(dataUrl);
 		
 		String columnId = getIntent().getStringExtra(CONST.COLUMN_ID);
 		CommonUtil.submitClickCount(columnId, title);
@@ -191,37 +191,40 @@ public class StrongStreamActivity extends BaseActivity implements OnClickListene
 	 * 获取雷达图数据
 	 * @param url
 	 */
-	private void asyncRadarData(String url) {
-		OkHttpUtil.enqueue(new Request.Builder().url(url).build(), new Callback() {
+	private void OkHttpData(final String url) {
+		new Thread(new Runnable() {
 			@Override
-			public void onFailure(Call call, IOException e) {
+			public void run() {
+				OkHttpUtil.enqueue(new Request.Builder().url(url).build(), new Callback() {
+					@Override
+					public void onFailure(Call call, IOException e) {
 
-			}
+					}
 
-			@Override
-			public void onResponse(Call call, Response response) throws IOException {
-				if (!response.isSuccessful()) {
-					return;
-				}
-				String result = response.body().string();
-				if (result != null) {
-					try {
-						JSONObject object = new JSONObject(result.toString());
+					@Override
+					public void onResponse(Call call, Response response) throws IOException {
+						if (!response.isSuccessful()) {
+							return;
+						}
+						String result = response.body().string();
+						if (result != null) {
+							try {
+								JSONObject object = new JSONObject(result.toString());
 
-						//强对流图层数据
-						if (!object.isNull("cn_scw")) {
-							JSONObject obj = object.getJSONObject("cn_scw");
-							hashMap.clear();
-							if (!obj.isNull("obs")) {
-								JSONArray array = obj.getJSONArray("obs");
-								for (int i = 0; i < array.length(); i++) {
-									JSONObject itemObj = array.getJSONObject(i);
-									if (!itemObj.isNull("startTime")) {
-										String startTime = itemObj.getString("startTime");
-										hashMap.put(startTime, itemObj);
+								//强对流图层数据
+								if (!object.isNull("cn_scw")) {
+									JSONObject obj = object.getJSONObject("cn_scw");
+									hashMap.clear();
+									if (!obj.isNull("obs")) {
+										JSONArray array = obj.getJSONArray("obs");
+										for (int i = 0; i < array.length(); i++) {
+											JSONObject itemObj = array.getJSONObject(i);
+											if (!itemObj.isNull("startTime")) {
+												String startTime = itemObj.getString("startTime");
+												hashMap.put(startTime, itemObj);
+											}
+										}
 									}
-								}
-							}
 
 //							if (!obj.isNull("forecast")) {
 //								JSONObject itemObj = obj.getJSONObject("forecast");
@@ -230,79 +233,81 @@ public class StrongStreamActivity extends BaseActivity implements OnClickListene
 //									hashMap.put(startTime, itemObj);
 //								}
 //							}
-						}
-
-						//闪电数据
-						if (!object.isNull("lightning")) {
-							JSONObject obj = object.getJSONObject("lightning");
-							lightingMap.clear();
-							if (!obj.isNull("observe")) {
-								JSONArray array = obj.getJSONArray("observe");
-								for (int i = 0; i < array.length(); i++) {
-									JSONObject itemObj = array.getJSONObject(i);
-									if (!itemObj.isNull("startTime")) {
-										String startTime = itemObj.getString("startTime");
-										lightingMap.put(startTime, itemObj);
-									}
 								}
-							}
 
-							if (!obj.isNull("forecast")) {
-								JSONArray array = obj.getJSONArray("forecast");
-								for (int i = 0; i < array.length(); i++) {
-									JSONObject itemObj = array.getJSONObject(i);
-									if (!itemObj.isNull("startTime")) {
-										String startTime = itemObj.getString("startTime");
-										lightingMap.put(startTime, itemObj);
-									}
-								}
-							}
-						}
-
-						//雷达图层数据
-						if (!object.isNull("radar")) {
-							JSONObject obj = object.getJSONObject("radar");
-							radarList.clear();
-							if (!obj.isNull("files_before")) {
-								JSONArray array = new JSONArray(obj.getString("files_before"));
-								for (int i = 0; i < array.length(); i++) {
-									StrongStreamDto dto = new StrongStreamDto();
-									String itemUrl = array.getString(i);
-									if (!TextUtils.isEmpty(itemUrl)) {
-										dto.imgUrl = radarDataUrl+itemUrl;
-										dto.time = itemUrl.substring(itemUrl.length()-16, itemUrl.length()-4);
-										if (i == array.length()-1) {
-											dto.tag = "currentTime";
+								//闪电数据
+								if (!object.isNull("lightning")) {
+									JSONObject obj = object.getJSONObject("lightning");
+									lightingMap.clear();
+									if (!obj.isNull("observe")) {
+										JSONArray array = obj.getJSONArray("observe");
+										for (int i = 0; i < array.length(); i++) {
+											JSONObject itemObj = array.getJSONObject(i);
+											if (!itemObj.isNull("startTime")) {
+												String startTime = itemObj.getString("startTime");
+												lightingMap.put(startTime, itemObj);
+											}
 										}
-										radarList.add(dto);
+									}
+
+									if (!obj.isNull("forecast")) {
+										JSONArray array = obj.getJSONArray("forecast");
+										for (int i = 0; i < array.length(); i++) {
+											JSONObject itemObj = array.getJSONObject(i);
+											if (!itemObj.isNull("startTime")) {
+												String startTime = itemObj.getString("startTime");
+												lightingMap.put(startTime, itemObj);
+											}
+										}
 									}
 								}
-							}
 
-							if (!obj.isNull("files_after")) {
-								JSONArray array = new JSONArray(obj.getString("files_after"));
-								for (int i = 0; i < array.length(); i++) {
-									StrongStreamDto dto = new StrongStreamDto();
-									String itemUrl = array.getString(i);
-									if (!TextUtils.isEmpty(itemUrl)) {
-										dto.imgUrl = radarDataUrl+itemUrl;
-										dto.time = itemUrl.substring(itemUrl.length()-16, itemUrl.length()-4);
-										radarList.add(dto);
+								//雷达图层数据
+								if (!object.isNull("radar")) {
+									JSONObject obj = object.getJSONObject("radar");
+									radarList.clear();
+									if (!obj.isNull("files_before")) {
+										JSONArray array = new JSONArray(obj.getString("files_before"));
+										for (int i = 0; i < array.length(); i++) {
+											StrongStreamDto dto = new StrongStreamDto();
+											String itemUrl = array.getString(i);
+											if (!TextUtils.isEmpty(itemUrl)) {
+												dto.imgUrl = radarDataUrl+itemUrl;
+												dto.time = itemUrl.substring(itemUrl.length()-16, itemUrl.length()-4);
+												if (i == array.length()-1) {
+													dto.tag = "currentTime";
+												}
+												radarList.add(dto);
+											}
+										}
+									}
+
+									if (!obj.isNull("files_after")) {
+										JSONArray array = new JSONArray(obj.getString("files_after"));
+										for (int i = 0; i < array.length(); i++) {
+											StrongStreamDto dto = new StrongStreamDto();
+											String itemUrl = array.getString(i);
+											if (!TextUtils.isEmpty(itemUrl)) {
+												dto.imgUrl = radarDataUrl+itemUrl;
+												dto.time = itemUrl.substring(itemUrl.length()-16, itemUrl.length()-4);
+												radarList.add(dto);
+											}
+										}
+									}
+
+									if (radarList.size() > 0) {
+										startDownLoadImgs(radarList);
 									}
 								}
-							}
 
-							if (radarList.size() > 0) {
-								startDownLoadImgs(radarList);
+							} catch (JSONException e) {
+								e.printStackTrace();
 							}
 						}
-
-					} catch (JSONException e) {
-						e.printStackTrace();
 					}
-				}
+				});
 			}
-		});
+		}).start();
 	}
 	
 	private void startDownLoadImgs(List<StrongStreamDto> list) {
@@ -720,7 +725,6 @@ public class StrongStreamActivity extends BaseActivity implements OnClickListene
 
 	@Override
 	public void onMapScreenShot(Bitmap arg0, int arg1) {
-		// TODO Auto-generated method stub
 	}
 	
 	@Override

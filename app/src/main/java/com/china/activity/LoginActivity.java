@@ -263,9 +263,9 @@ public class LoginActivity extends BaseActivity implements OnClickListener, AMap
 	}
 	
 	/**
-	 * 异步请求
+	 * 登录
 	 */
-	private void OkHttpLogin(String url) {
+	private void OkHttpLogin(final String url) {
 		FormBody.Builder builder = new FormBody.Builder();
 		builder.add("username", etUserName.getText().toString());
 		builder.add("password", etPwd.getText().toString());
@@ -278,207 +278,207 @@ public class LoginActivity extends BaseActivity implements OnClickListener, AMap
 		builder.add("address", addr);
 		builder.add("lat", lat);
 		builder.add("lng", lng);
-		RequestBody body = builder.build();
-		OkHttpUtil.enqueue(new Request.Builder().post(body).url(url).build(), new Callback() {
+		final RequestBody body = builder.build();
+		new Thread(new Runnable() {
 			@Override
-			public void onFailure(Call call, IOException e) {
+			public void run() {
+				OkHttpUtil.enqueue(new Request.Builder().post(body).url(url).build(), new Callback() {
+					@Override
+					public void onFailure(Call call, IOException e) {
 
-			}
+					}
 
-			@Override
-			public void onResponse(Call call, Response response) throws IOException {
-				if (!response.isSuccessful()) {
-					return;
-				}
-				String result = response.body().string();
-				if (!TextUtils.isEmpty(result)) {
-					try {
-						JSONObject object = new JSONObject(result);
-						if (object != null) {
-							if (!object.isNull("status")) {
-								int status  = object.getInt("status");
-								if (status == 1) {//成功
-									JSONArray array = object.getJSONArray("column");
-									dataList.clear();
-									for (int i = 0; i < array.length(); i++) {
-										JSONObject obj = array.getJSONObject(i);
-										ColumnData data = new ColumnData();
-										if (!obj.isNull("id")) {
-											data.columnId = obj.getString("id");
-										}
-										if (!obj.isNull("localviewid")) {
-											data.id = obj.getString("localviewid");
-										}
-										if (!obj.isNull("name")) {
-											data.name = obj.getString("name");
-										}
-										if (!obj.isNull("icon")) {
-											data.icon = obj.getString("icon");
-										}
-										if (!obj.isNull("desc")) {
-											data.desc = obj.getString("desc");
-										}
-										if (!obj.isNull("showtype")) {
-											data.showType = obj.getString("showtype");
-										}
-										if (!obj.isNull("dataurl")) {
-											data.dataUrl = obj.getString("dataurl");
-										}
-										if (!obj.isNull("child")) {
-											JSONArray childArray = obj.getJSONArray("child");
-											for (int j = 0; j < childArray.length(); j++) {
-												JSONObject childObj = childArray.getJSONObject(j);
-												ColumnData dto = new ColumnData();
-												if (!childObj.isNull("id")) {
-													dto.columnId = childObj.getString("id");
-												}
-												if (!childObj.isNull("localviewid")) {
-													dto.id = childObj.getString("localviewid");
-												}
-												if (!childObj.isNull("name")) {
-													dto.name = childObj.getString("name");
-												}
-												if (!childObj.isNull("desc")) {
-													dto.desc = childObj.getString("desc");
-												}
-												if (!childObj.isNull("icon")) {
-													dto.icon = childObj.getString("icon");
-												}
-												if (!childObj.isNull("showtype")) {
-													dto.showType = childObj.getString("showtype");
-												}
-												if (!childObj.isNull("dataurl")) {
-													dto.dataUrl = childObj.getString("dataurl");
-												}
+					@Override
+					public void onResponse(Call call, Response response) throws IOException {
+						if (!response.isSuccessful()) {
+							return;
+						}
+						final String result = response.body().string();
+						runOnUiThread(new Runnable() {
+							@Override
+							public void run() {
+								if (!TextUtils.isEmpty(result)) {
+									try {
+										JSONObject object = new JSONObject(result);
+										if (object != null) {
+											if (!object.isNull("status")) {
+												int status  = object.getInt("status");
+												if (status == 1) {//成功
+													JSONArray array = object.getJSONArray("column");
+													dataList.clear();
+													for (int i = 0; i < array.length(); i++) {
+														JSONObject obj = array.getJSONObject(i);
+														ColumnData data = new ColumnData();
+														if (!obj.isNull("id")) {
+															data.columnId = obj.getString("id");
+														}
+														if (!obj.isNull("localviewid")) {
+															data.id = obj.getString("localviewid");
+														}
+														if (!obj.isNull("name")) {
+															data.name = obj.getString("name");
+														}
+														if (!obj.isNull("icon")) {
+															data.icon = obj.getString("icon");
+														}
+														if (!obj.isNull("desc")) {
+															data.desc = obj.getString("desc");
+														}
+														if (!obj.isNull("showtype")) {
+															data.showType = obj.getString("showtype");
+														}
+														if (!obj.isNull("dataurl")) {
+															data.dataUrl = obj.getString("dataurl");
+														}
+														if (!obj.isNull("child")) {
+															JSONArray childArray = obj.getJSONArray("child");
+															for (int j = 0; j < childArray.length(); j++) {
+																JSONObject childObj = childArray.getJSONObject(j);
+																ColumnData dto = new ColumnData();
+																if (!childObj.isNull("id")) {
+																	dto.columnId = childObj.getString("id");
+																}
+																if (!childObj.isNull("localviewid")) {
+																	dto.id = childObj.getString("localviewid");
+																}
+																if (!childObj.isNull("name")) {
+																	dto.name = childObj.getString("name");
+																}
+																if (!childObj.isNull("desc")) {
+																	dto.desc = childObj.getString("desc");
+																}
+																if (!childObj.isNull("icon")) {
+																	dto.icon = childObj.getString("icon");
+																}
+																if (!childObj.isNull("showtype")) {
+																	dto.showType = childObj.getString("showtype");
+																}
+																if (!childObj.isNull("dataurl")) {
+																	dto.dataUrl = childObj.getString("dataurl");
+																}
 
-												if (!childObj.isNull("child")) {
-													JSONArray childArray2 = childObj.getJSONArray("child");
-													for (int m = 0; m < childArray2.length(); m++) {
-														JSONObject childObj2 = childArray2.getJSONObject(m);
-														ColumnData d = new ColumnData();
-														if (!childObj2.isNull("id")) {
-															d.columnId = childObj2.getString("id");
+																if (!childObj.isNull("child")) {
+																	JSONArray childArray2 = childObj.getJSONArray("child");
+																	for (int m = 0; m < childArray2.length(); m++) {
+																		JSONObject childObj2 = childArray2.getJSONObject(m);
+																		ColumnData d = new ColumnData();
+																		if (!childObj2.isNull("id")) {
+																			d.columnId = childObj2.getString("id");
+																		}
+																		if (!childObj2.isNull("localviewid")) {
+																			d.id = childObj2.getString("localviewid");
+																		}
+																		if (!childObj2.isNull("name")) {
+																			d.name = childObj2.getString("name");
+																		}
+																		if (!childObj2.isNull("desc")) {
+																			d.desc = childObj2.getString("desc");
+																		}
+																		if (!childObj2.isNull("icon")) {
+																			d.icon = childObj2.getString("icon");
+																		}
+																		if (!childObj2.isNull("showtype")) {
+																			d.showType = childObj2.getString("showtype");
+																		}
+																		if (!childObj2.isNull("dataurl")) {
+																			d.dataUrl = childObj2.getString("dataurl");
+																		}
+																		dto.child.add(d);
+																	}
+																}
+
+																data.child.add(dto);
+															}
 														}
-														if (!childObj2.isNull("localviewid")) {
-															d.id = childObj2.getString("localviewid");
+														dataList.add(data);
+													}
+
+													if (!object.isNull("appinfo")) {
+														JSONObject obj = object.getJSONObject("appinfo");
+														if (!obj.isNull("counturl")) {
+															CONST.COUNTURL = obj.getString("counturl");
 														}
-														if (!childObj2.isNull("name")) {
-															d.name = childObj2.getString("name");
+														if (!obj.isNull("recommendurl")) {
+															CONST.RECOMMENDURL = obj.getString("recommendurl");
 														}
-														if (!childObj2.isNull("desc")) {
-															d.desc = childObj2.getString("desc");
+														if (!obj.isNull("news")) {
+															pdfList.clear();
+															JSONArray newsArray = obj.getJSONArray("news");
+															for (int i = 0; i < newsArray.length(); i++) {
+																JSONObject itemObj = newsArray.getJSONObject(i);
+																NewsDto dto = new NewsDto();
+																if (!itemObj.isNull("name")) {
+																	dto.title = itemObj.getString("name");
+																}
+																if (!itemObj.isNull("url")) {
+																	dto.detailUrl = itemObj.getString("url");
+																}
+																if (!itemObj.isNull("time")) {
+																	dto.time = itemObj.getString("time");
+																}
+																if (!itemObj.isNull("img")) {
+																	dto.imgUrl = itemObj.getString("img");
+																}
+																pdfList.add(dto);
+															}
 														}
-														if (!childObj2.isNull("icon")) {
-															d.icon = childObj2.getString("icon");
+													}
+
+													if (!object.isNull("info")) {
+														JSONObject obj = new JSONObject(object.getString("info"));
+														if (!obj.isNull("id")) {
+															String uid = obj.getString("id");
+															String userGroup = obj.getString("usergroup");
+
+															//把用户信息保存在sharedPreferance里
+															SharedPreferences sharedPreferences = getSharedPreferences(CONST.USERINFO, Context.MODE_PRIVATE);
+															Editor editor = sharedPreferences.edit();
+															editor.putString(CONST.UserInfo.uId, uid);
+															editor.putString(CONST.UserInfo.userName, etUserName.getText().toString());
+															editor.putString(CONST.UserInfo.passWord, etPwd.getText().toString());
+															editor.putString(CONST.UserInfo.userGroup, userGroup);
+															editor.commit();
+
+															CONST.UID = uid;
+															CONST.USERNAME = etUserName.getText().toString();
+															CONST.PASSWORD = etPwd.getText().toString();
+															CONST.USERGROUP = userGroup;
+
+															cancelDialog();
+															Intent intent = new Intent(mContext, MainActivity.class);
+															Bundle bundle = new Bundle();
+															bundle.putParcelableArrayList("dataList", (ArrayList<? extends Parcelable>) dataList);
+															bundle.putParcelableArrayList("pdfList", (ArrayList<? extends Parcelable>) pdfList);
+															intent.putExtras(bundle);
+															startActivity(intent);
+															finish();
+
+															//统计登录事件
+															TCAgent.onLogin(CONST.UID, TDAccount.AccountType.REGISTERED, CONST.USERNAME);
 														}
-														if (!childObj2.isNull("showtype")) {
-															d.showType = childObj2.getString("showtype");
+													}
+												}else {
+													//失败
+													if (!object.isNull("msg")) {
+														String msg = object.getString("msg");
+														cancelDialog();
+														if (msg != null) {
+															Toast.makeText(mContext, msg, Toast.LENGTH_SHORT).show();
 														}
-														if (!childObj2.isNull("dataurl")) {
-															d.dataUrl = childObj2.getString("dataurl");
-														}
-														dto.child.add(d);
 													}
 												}
-
-												data.child.add(dto);
 											}
 										}
-										dataList.add(data);
-									}
-
-									if (!object.isNull("appinfo")) {
-										JSONObject obj = object.getJSONObject("appinfo");
-										if (!obj.isNull("counturl")) {
-											CONST.COUNTURL = obj.getString("counturl");
-										}
-										if (!obj.isNull("recommendurl")) {
-											CONST.RECOMMENDURL = obj.getString("recommendurl");
-										}
-										if (!obj.isNull("news")) {
-											pdfList.clear();
-											JSONArray newsArray = obj.getJSONArray("news");
-											for (int i = 0; i < newsArray.length(); i++) {
-												JSONObject itemObj = newsArray.getJSONObject(i);
-												NewsDto dto = new NewsDto();
-												if (!itemObj.isNull("name")) {
-													dto.title = itemObj.getString("name");
-												}
-												if (!itemObj.isNull("url")) {
-													dto.detailUrl = itemObj.getString("url");
-												}
-												if (!itemObj.isNull("time")) {
-													dto.time = itemObj.getString("time");
-												}
-												if (!itemObj.isNull("img")) {
-													dto.imgUrl = itemObj.getString("img");
-												}
-												pdfList.add(dto);
-											}
-										}
-									}
-
-									if (!object.isNull("info")) {
-										JSONObject obj = new JSONObject(object.getString("info"));
-										if (!obj.isNull("id")) {
-											String uid = obj.getString("id");
-											String userGroup = obj.getString("usergroup");
-
-											//把用户信息保存在sharedPreferance里
-											SharedPreferences sharedPreferences = getSharedPreferences(CONST.USERINFO, Context.MODE_PRIVATE);
-											Editor editor = sharedPreferences.edit();
-											editor.putString(CONST.UserInfo.uId, uid);
-											editor.putString(CONST.UserInfo.userName, etUserName.getText().toString());
-											editor.putString(CONST.UserInfo.passWord, etPwd.getText().toString());
-											editor.putString(CONST.UserInfo.userGroup, userGroup);
-											editor.commit();
-
-											CONST.UID = uid;
-											CONST.USERNAME = etUserName.getText().toString();
-											CONST.PASSWORD = etPwd.getText().toString();
-											CONST.USERGROUP = userGroup;
-
-											runOnUiThread(new Runnable() {
-												@Override
-												public void run() {
-													cancelDialog();
-													Intent intent = new Intent(mContext, MainActivity.class);
-													Bundle bundle = new Bundle();
-													bundle.putParcelableArrayList("dataList", (ArrayList<? extends Parcelable>) dataList);
-													bundle.putParcelableArrayList("pdfList", (ArrayList<? extends Parcelable>) pdfList);
-													intent.putExtras(bundle);
-													startActivity(intent);
-													finish();
-												}
-											});
-
-											//统计登录事件
-											TCAgent.onLogin(CONST.UID, TDAccount.AccountType.REGISTERED, CONST.USERNAME);
-										}
-									}
-								}else {
-									//失败
-									if (!object.isNull("msg")) {
-										final String msg = object.getString("msg");
-										runOnUiThread(new Runnable() {
-											@Override
-											public void run() {
-												cancelDialog();
-												if (msg != null) {
-													Toast.makeText(mContext, msg, Toast.LENGTH_SHORT).show();
-												}
-											}
-										});
+									} catch (JSONException e) {
+										e.printStackTrace();
 									}
 								}
 							}
-						}
-					} catch (JSONException e) {
-						e.printStackTrace();
+						});
 					}
-				}
+				});
 			}
-		});
+		}).start();
 	}
 
 	@Override

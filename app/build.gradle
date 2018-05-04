@@ -13,12 +13,12 @@ android {
         applicationId "com.china"
         minSdkVersion 17
         targetSdkVersion 26
-        versionCode 98
-        versionName "3.1.7"
+        versionCode 100
+        versionName "3.1.9"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
 
         ndk {
-            abiFilters 'armeabi-v7a', 'armeabi', 'x86'
+            abiFilters 'armeabi-v7a', 'armeabi'
         }
     }
     buildTypes {
@@ -40,10 +40,6 @@ android {
 
 dependencies {
     compile fileTree(include: ['*.jar'], dir: 'libs')
-    androidTestCompile('com.android.support.test.espresso:espresso-core:2.2.2', {
-        exclude group: 'com.android.support', module: 'support-annotations'
-    })
-    testCompile 'junit:junit:4.12'
     compile 'com.android.support:appcompat-v7:26.1.0'
     compile files('libs/exoplayer_lib.jar')
     compile files('libs/nineoldandroids-2.4.0.jar')

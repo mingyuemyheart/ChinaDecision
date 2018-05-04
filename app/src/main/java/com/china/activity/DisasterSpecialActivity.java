@@ -52,8 +52,6 @@ public class DisasterSpecialActivity extends BaseActivity implements OnClickList
 	private DisasterSpecialAdapter mAdapter = null;
 	private List<DisasterDto> mList = new ArrayList<>();
 	private RefreshLayout refreshLayout = null;//下拉刷新布局
-	private SimpleDateFormat sdf1 = new SimpleDateFormat("yyyyMMdd");
-	private SimpleDateFormat sdf2 = new SimpleDateFormat("yyyy年MM月dd日");
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -122,61 +120,66 @@ public class DisasterSpecialActivity extends BaseActivity implements OnClickList
 		});
 	}
 	
-	private void OkHttpList(String url) {
-		OkHttpUtil.enqueue(new Request.Builder().url(url).build(), new Callback() {
+	private void OkHttpList(final String url) {
+		new Thread(new Runnable() {
 			@Override
-			public void onFailure(Call call, IOException e) {
-
-			}
-
-			@Override
-			public void onResponse(Call call, Response response) throws IOException {
-				if (!response.isSuccessful()) {
-					return;
-				}
-				final String result = response.body().string();
-				runOnUiThread(new Runnable() {
+			public void run() {
+				OkHttpUtil.enqueue(new Request.Builder().url(url).build(), new Callback() {
 					@Override
-					public void run() {
-						if (!TextUtils.isEmpty(result)) {
-							try {
-								JSONObject obj = new JSONObject(result);
-								if (!obj.isNull("info")) {
-									mList.clear();
-									JSONArray array = obj.getJSONArray("info");
-									for (int i = 0; i < array.length(); i++) {
-										DisasterDto dto = new DisasterDto();
-										JSONObject itemObj = array.getJSONObject(i);
-										if (!itemObj.isNull("url")) {
-											dto.url = itemObj.getString("url");
-										}
-										if (!itemObj.isNull("time")) {
-											dto.time = itemObj.getString("time");
-										}
-										if (!itemObj.isNull("title")) {
-											dto.title = itemObj.getString("title");
-										}
-										if (!itemObj.isNull("image")) {
-											dto.imgUrl = itemObj.getString("image");
-										}
-										mList.add(dto);
-									}
+					public void onFailure(Call call, IOException e) {
 
-									if (mList.size() > 0 && mAdapter != null) {
-										mAdapter.notifyDataSetChanged();
-									}
-									refreshLayout.setRefreshing(false);
-									cancelDialog();
+					}
 
-								}
-							} catch (JSONException e) {
-								e.printStackTrace();
-							}
+					@Override
+					public void onResponse(Call call, Response response) throws IOException {
+						if (!response.isSuccessful()) {
+							return;
 						}
+						final String result = response.body().string();
+						runOnUiThread(new Runnable() {
+							@Override
+							public void run() {
+								if (!TextUtils.isEmpty(result)) {
+									try {
+										JSONObject obj = new JSONObject(result);
+										if (!obj.isNull("info")) {
+											mList.clear();
+											JSONArray array = obj.getJSONArray("info");
+											for (int i = 0; i < array.length(); i++) {
+												DisasterDto dto = new DisasterDto();
+												JSONObject itemObj = array.getJSONObject(i);
+												if (!itemObj.isNull("url")) {
+													dto.url = itemObj.getString("url");
+												}
+												if (!itemObj.isNull("time")) {
+													dto.time = itemObj.getString("time");
+												}
+												if (!itemObj.isNull("title")) {
+													dto.title = itemObj.getString("title");
+												}
+												if (!itemObj.isNull("image")) {
+													dto.imgUrl = itemObj.getString("image");
+												}
+												mList.add(dto);
+											}
+
+											if (mList.size() > 0 && mAdapter != null) {
+												mAdapter.notifyDataSetChanged();
+											}
+											refreshLayout.setRefreshing(false);
+											cancelDialog();
+
+										}
+									} catch (JSONException e) {
+										e.printStackTrace();
+									}
+								}
+							}
+						});
 					}
 				});
 			}
-		});
+		}).start();
 	}
 
 	@Override

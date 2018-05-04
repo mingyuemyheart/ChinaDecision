@@ -157,58 +157,63 @@ OnMapClickListener, InfoWindowAdapter, OnMapScreenShotListener{
 		OkHttpData(url);
 	}
 	
-	private void OkHttpData(String url) {
+	private void OkHttpData(final String url) {
 		if (TextUtils.isEmpty(url)) {
 			return;
 		}
-		OkHttpUtil.enqueue(new Request.Builder().url(url).build(), new Callback() {
+		new Thread(new Runnable() {
 			@Override
-			public void onFailure(Call call, IOException e) {
+			public void run() {
+				OkHttpUtil.enqueue(new Request.Builder().url(url).build(), new Callback() {
+					@Override
+					public void onFailure(Call call, IOException e) {
 
-			}
+					}
 
-			@Override
-			public void onResponse(Call call, Response response) throws IOException {
-				if (!response.isSuccessful()) {
-					return;
-				}
-				String result = response.body().string();
-				if (!TextUtils.isEmpty(result)) {
-					try {
-						JSONObject obj = new JSONObject(result);
-						if (!obj.isNull("data")) {
-							mList.clear();
-							JSONArray array = obj.getJSONArray("data");
-							for (int i = 0; i < array.length(); i++) {
-								SocietyDto dto = new SocietyDto();
-								JSONObject itemObj = array.getJSONObject(i);
-								dto.lat = itemObj.getDouble("lat");
-								dto.lng = itemObj.getDouble("lon");
-								dto.time = itemObj.getLong("time");
-								dto.main = itemObj.getInt("main");
-								JSONObject subinfo = itemObj.getJSONObject("subinfo");
-								dto.type = subinfo.getInt("type");
-								dto.level = subinfo.getInt("level");
-								mList.add(dto);
+					@Override
+					public void onResponse(Call call, Response response) throws IOException {
+						if (!response.isSuccessful()) {
+							return;
+						}
+						String result = response.body().string();
+						if (!TextUtils.isEmpty(result)) {
+							try {
+								JSONObject obj = new JSONObject(result);
+								if (!obj.isNull("data")) {
+									mList.clear();
+									JSONArray array = obj.getJSONArray("data");
+									for (int i = 0; i < array.length(); i++) {
+										SocietyDto dto = new SocietyDto();
+										JSONObject itemObj = array.getJSONObject(i);
+										dto.lat = itemObj.getDouble("lat");
+										dto.lng = itemObj.getDouble("lon");
+										dto.time = itemObj.getLong("time");
+										dto.main = itemObj.getInt("main");
+										JSONObject subinfo = itemObj.getJSONObject("subinfo");
+										dto.type = subinfo.getInt("type");
+										dto.level = subinfo.getInt("level");
+										mList.add(dto);
+									}
+								}
+
+								runOnUiThread(new Runnable() {
+									@Override
+									public void run() {
+										cancelDialog();
+										if (mList.size() > 0) {
+											reSeekBar.setVisibility(View.VISIBLE);
+										}
+										addMarker();
+									}
+								});
+							} catch (JSONException e) {
+								e.printStackTrace();
 							}
 						}
-
-						runOnUiThread(new Runnable() {
-							@Override
-							public void run() {
-								cancelDialog();
-								if (mList.size() > 0) {
-									reSeekBar.setVisibility(View.VISIBLE);
-								}
-								addMarker();
-							}
-						});
-					} catch (JSONException e) {
-						e.printStackTrace();
 					}
-				}
+				});
 			}
-		});
+		}).start();
 	}
 	
 	private void markerExpandAnimation(Marker marker) {
@@ -371,7 +376,6 @@ OnMapClickListener, InfoWindowAdapter, OnMapScreenShotListener{
 
 	@Override
 	public View getInfoWindow(Marker arg0) {
-		// TODO Auto-generated method stub
 		return null;
 	}
 
@@ -521,7 +525,6 @@ OnMapClickListener, InfoWindowAdapter, OnMapScreenShotListener{
 
 	@Override
 	public void onMapScreenShot(Bitmap arg0, int arg1) {
-		// TODO Auto-generated method stub
 	}
 
 	@Override

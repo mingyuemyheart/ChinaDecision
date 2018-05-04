@@ -140,79 +140,84 @@ public class WarningDetailActivity extends BaseActivity implements OnClickListen
 	/**
 	 * 获取预警详情
 	 */
-	private void OkHttpWarningDetail(String url) {
-		OkHttpUtil.enqueue(new Request.Builder().url(url).build(), new Callback() {
+	private void OkHttpWarningDetail(final String url) {
+		new Thread(new Runnable() {
 			@Override
-			public void onFailure(Call call, IOException e) {
-
-			}
-
-			@Override
-			public void onResponse(Call call, Response response) throws IOException {
-				if (!response.isSuccessful()) {
-					return;
-				}
-				final String result = response.body().string();
-				runOnUiThread(new Runnable() {
+			public void run() {
+				OkHttpUtil.enqueue(new Request.Builder().url(url).build(), new Callback() {
 					@Override
-					public void run() {
-						if (!TextUtils.isEmpty(result)) {
-							try {
-								JSONObject object = new JSONObject(result);
-								if (object != null) {
-									if (!object.isNull("sendTime")) {
-										tvTime.setText(object.getString("sendTime"));
-									}
+					public void onFailure(Call call, IOException e) {
 
-									if (!object.isNull("description")) {
-										tvIntro.setText(object.getString("description"));
-									}
+					}
 
-									String name = object.getString("headline");
-									if (!TextUtils.isEmpty(name)) {
-										tvName.setText(name.replace(getString(R.string.publish), getString(R.string.publish)+"\n"));
-									}
-
-									Bitmap bitmap = null;
-									if (object.getString("severityCode").equals(CONST.blue[0])) {
-										bitmap = CommonUtil.getImageFromAssetsFile(mContext,"warning/"+object.getString("eventType")+CONST.blue[1]+CONST.imageSuffix);
-										if (bitmap == null) {
-											bitmap = CommonUtil.getImageFromAssetsFile(mContext,"warning/"+"default"+CONST.blue[1]+CONST.imageSuffix);
-										}
-									}else if (object.getString("severityCode").equals(CONST.yellow[0])) {
-										bitmap = CommonUtil.getImageFromAssetsFile(mContext,"warning/"+object.getString("eventType")+CONST.yellow[1]+CONST.imageSuffix);
-										if (bitmap == null) {
-											bitmap = CommonUtil.getImageFromAssetsFile(mContext,"warning/"+"default"+CONST.yellow[1]+CONST.imageSuffix);
-										}
-									}else if (object.getString("severityCode").equals(CONST.orange[0])) {
-										bitmap = CommonUtil.getImageFromAssetsFile(mContext,"warning/"+object.getString("eventType")+CONST.orange[1]+CONST.imageSuffix);
-										if (bitmap == null) {
-											bitmap = CommonUtil.getImageFromAssetsFile(mContext,"warning/"+"default"+CONST.orange[1]+CONST.imageSuffix);
-										}
-									}else if (object.getString("severityCode").equals(CONST.red[0])) {
-										bitmap = CommonUtil.getImageFromAssetsFile(mContext,"warning/"+object.getString("eventType")+CONST.red[1]+CONST.imageSuffix);
-										if (bitmap == null) {
-											bitmap = CommonUtil.getImageFromAssetsFile(mContext,"warning/"+"default"+CONST.red[1]+CONST.imageSuffix);
-										}
-									}
-									if (bitmap == null) {
-										bitmap = CommonUtil.getImageFromAssetsFile(mContext,"warning/"+"default"+CONST.imageSuffix);
-									}
-									imageView.setImageBitmap(bitmap);
-
-									initDBManager();
-									scrollView.setVisibility(View.VISIBLE);
-									ivShare.setVisibility(View.VISIBLE);
-									refreshLayout.setRefreshing(false);
-								}
-							} catch (JSONException e) {
-								e.printStackTrace();
-							}
+					@Override
+					public void onResponse(Call call, Response response) throws IOException {
+						if (!response.isSuccessful()) {
+							return;
 						}
+						final String result = response.body().string();
+						runOnUiThread(new Runnable() {
+							@Override
+							public void run() {
+								if (!TextUtils.isEmpty(result)) {
+									try {
+										JSONObject object = new JSONObject(result);
+										if (object != null) {
+											if (!object.isNull("sendTime")) {
+												tvTime.setText(object.getString("sendTime"));
+											}
+
+											if (!object.isNull("description")) {
+												tvIntro.setText(object.getString("description"));
+											}
+
+											String name = object.getString("headline");
+											if (!TextUtils.isEmpty(name)) {
+												tvName.setText(name.replace(getString(R.string.publish), getString(R.string.publish)+"\n"));
+											}
+
+											Bitmap bitmap = null;
+											if (object.getString("severityCode").equals(CONST.blue[0])) {
+												bitmap = CommonUtil.getImageFromAssetsFile(mContext,"warning/"+object.getString("eventType")+CONST.blue[1]+CONST.imageSuffix);
+												if (bitmap == null) {
+													bitmap = CommonUtil.getImageFromAssetsFile(mContext,"warning/"+"default"+CONST.blue[1]+CONST.imageSuffix);
+												}
+											}else if (object.getString("severityCode").equals(CONST.yellow[0])) {
+												bitmap = CommonUtil.getImageFromAssetsFile(mContext,"warning/"+object.getString("eventType")+CONST.yellow[1]+CONST.imageSuffix);
+												if (bitmap == null) {
+													bitmap = CommonUtil.getImageFromAssetsFile(mContext,"warning/"+"default"+CONST.yellow[1]+CONST.imageSuffix);
+												}
+											}else if (object.getString("severityCode").equals(CONST.orange[0])) {
+												bitmap = CommonUtil.getImageFromAssetsFile(mContext,"warning/"+object.getString("eventType")+CONST.orange[1]+CONST.imageSuffix);
+												if (bitmap == null) {
+													bitmap = CommonUtil.getImageFromAssetsFile(mContext,"warning/"+"default"+CONST.orange[1]+CONST.imageSuffix);
+												}
+											}else if (object.getString("severityCode").equals(CONST.red[0])) {
+												bitmap = CommonUtil.getImageFromAssetsFile(mContext,"warning/"+object.getString("eventType")+CONST.red[1]+CONST.imageSuffix);
+												if (bitmap == null) {
+													bitmap = CommonUtil.getImageFromAssetsFile(mContext,"warning/"+"default"+CONST.red[1]+CONST.imageSuffix);
+												}
+											}
+											if (bitmap == null) {
+												bitmap = CommonUtil.getImageFromAssetsFile(mContext,"warning/"+"default"+CONST.imageSuffix);
+											}
+											imageView.setImageBitmap(bitmap);
+
+											initDBManager();
+											scrollView.setVisibility(View.VISIBLE);
+											ivShare.setVisibility(View.VISIBLE);
+											refreshLayout.setRefreshing(false);
+										}
+									} catch (JSONException e) {
+										e.printStackTrace();
+									}
+								}
+							}
+						});
 					}
 				});
 			}
-		});
+		}).start();
 	}
 
 	@Override

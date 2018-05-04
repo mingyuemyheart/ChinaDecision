@@ -27,13 +27,10 @@ import android.text.TextUtils;
 import android.util.Base64;
 import android.util.Log;
 import android.view.View;
-import android.view.ViewGroup;
-import android.view.ViewGroup.MarginLayoutParams;
 import android.view.WindowManager;
 import android.view.inputmethod.InputMethodManager;
 import android.webkit.WebView;
 import android.widget.EditText;
-import android.widget.GridView;
 import android.widget.ImageView;
 import android.widget.ListAdapter;
 import android.widget.ListView;
@@ -59,7 +56,6 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.lang.reflect.Field;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.security.MessageDigest;
@@ -118,63 +114,6 @@ public class CommonUtil {
 		return height;
 	}
     
-    /**
-	 * 解决ScrollView与ListView共存的问题
-	 * 
-	 * @param listView
-	 */
-	public static void setListViewHeightBasedOnChildren(ListView listView) {
-		ListAdapter listAdapter = listView.getAdapter();
-		if (listAdapter == null) {
-			return;
-		}
-
-		int totalHeight = 0;
-		for (int i = 0; i < listAdapter.getCount(); i++) {
-			View listItem = listAdapter.getView(i, null, listView);
-			listItem.measure(0, 0); 
-			totalHeight += listItem.getMeasuredHeight();
-		}
-
-		ViewGroup.LayoutParams params = listView.getLayoutParams();
-		params.height = totalHeight + (listView.getDividerHeight() * (listAdapter.getCount() - 0));
-		((MarginLayoutParams) params).setMargins(0, 0, 0, 0);
-		listView.setLayoutParams(params);
-	}
-	
-	/**
-	 * 解决ScrollView与GridView共存的问题
-	 * 
-	 */
-	public static void setGridViewHeightBasedOnChildren(GridView gridView) {
-		ListAdapter listAdapter = gridView.getAdapter();
-		if (listAdapter == null) {
-			return;
-		}
-		
-		Class<GridView> tempGridView = GridView.class; // 获得gridview这个类的class
-		int column = -1;
-        try {
- 
-            Field field = tempGridView.getDeclaredField("mRequestedNumColumns"); // 获得申明的字段
-            field.setAccessible(true); // 设置访问权限
-            column = Integer.valueOf(field.get(gridView).toString()); // 获取字段的值
-        } catch (Exception e1) {
-        }
-
-		int totalHeight = 0;
-		for (int i = 0; i < listAdapter.getCount(); i+=column) {
-			View listItem = listAdapter.getView(i, null, gridView);
-			listItem.measure(0, 0); 
-			totalHeight += listItem.getMeasuredHeight();
-		}
-
-		ViewGroup.LayoutParams params = gridView.getLayoutParams();
-		params.height = totalHeight + (gridView.getVerticalSpacing() * (listAdapter.getCount()/column - 1) + 0);
-		((MarginLayoutParams) params).setMargins(0, 0, 0, 0);
-		gridView.setLayoutParams(params);
-	}
-	
 	/**
 	 * 日期转星期
 	 *
@@ -196,33 +135,6 @@ public class CommonUtil {
 		if (w < 0)
 			w = 0;
 		return weekDays[w];
-	}
-	
-	/**
-	 * 判断白天或晚上对应的天气现象
-	 * @param fa 白天天气现象编号
-	 * @param fb 晚上天气现象编号
-	 * @return
-	 */
-	public static int getPheCode(int fa, int fb) {
-		int pheCode = 0;
-		SimpleDateFormat sdf1 = new SimpleDateFormat("HH:mm");
-		
-		try {
-			long currentTime = new Date().getTime();//当前时间
-			long eight = sdf1.parse("08:00").getTime();//早上08:00
-			long twenty = sdf1.parse("20:00").getTime();//晚上20:00
-			
-			if (currentTime >= eight && currentTime <= twenty) {
-				pheCode = fa;
-			}else {
-				pheCode = fb;
-			}
-		} catch (ParseException e) {
-			e.printStackTrace();
-		}
-		
-		return pheCode;
 	}
 	
 	/**
@@ -425,74 +337,6 @@ public class CommonUtil {
 	}
 	
 	/**
-	 * 根据颜色值判断颜色
-	 * @param colorType
-	 * @param val
-	 * @return
-	 */
-	public static int colorForValue(String colorType, float val) {
-		int color = 0;
-		if (TextUtils.equals(colorType, "jiangshui")) {
-			if (val >= 0 && val < 1) {
-				return 0xff2EAD06;
-			} else if (val >= 1 && val < 10) {
-				return 0xff000000;
-			} else if (val >= 10 && val < 25) {
-				return 0xff0901EC;
-			} else if (val >= 25 && val < 50) {
-				return 0xffC804C8;
-			} else if (val >= 50) {
-				return 0xffC50724;
-			}
-		} else if (TextUtils.equals(colorType, "wendu")) {
-			if (val < -30) {
-				return 0xff201885;
-			} else if (val >= -30 && val < -20) {
-				return 0xff114AD9;
-			} else if (val >= -20 && val < -10) {
-				return 0xff4DB4F7;
-			} else if (val >= -10 && val < 0) {
-				return 0xffD1F8F3;
-			} else if (val >= 0 && val < 10) {
-				return 0xffF9F2BB;
-			} else if (val >= 10 && val < 20) {
-				return 0xffF9DE45;
-			} else if (val >= 20 && val < 30) {
-				return 0xffFFA800;
-			} else if (val >= 30 && val < 40) {
-				return 0xffFF6D00;
-			} else if (val >= 40 && val < 50) {
-				return 0xffE60000;
-			} else if (val >= 50) {
-				return 0xff9E0001;
-			}
-		} else if (TextUtils.equals(colorType, "bianwen")) {
-			if (val > 0) {
-				return 0xffFF0000;
-			} else if (val == 0) {
-				return 0xff000000;
-			} else {
-				return 0xff0000FF;
-			}
-		} else if (TextUtils.equals(colorType, "radar")) {
-			return 0xffff00ff;
-		} else if (TextUtils.equals(colorType, "shidu")) {
-			if (val >= 0 && val < 10) {
-				return 0xffFF6000;
-			} else if (val >= 10 && val < 30) {
-				return 0xffFEA51A;
-			} else if (val >= 30 && val < 50) {
-				return 0xffFFFC9F;
-			} else if (val >= 50) {
-				return 0xffD6E6DA;
-			}
-		}
-
-		return color;
-
-	}
-	
-	/**
 	 * 读取assets下文件
 	 * @param fileName
 	 * @return
@@ -638,7 +482,6 @@ public class CommonUtil {
 	 * @param isCover 判断是否为覆盖合成
 	 * @return
 	 */
-    @SuppressWarnings("deprecation")
 	public static Bitmap mergeBitmap(Context context, Bitmap bitmap1, Bitmap bitmap2, boolean isCover) {
     	if (bitmap1 == null || bitmap2 == null) {
 			return null;

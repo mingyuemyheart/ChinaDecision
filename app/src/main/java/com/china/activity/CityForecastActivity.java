@@ -223,39 +223,44 @@ public class CityForecastActivity extends BaseActivity implements OnClickListene
      * 获取数据
      * @param url
      */
-    private void OkHttpCityForecast(String url) {
-        OkHttpUtil.enqueue(new Request.Builder().url(url).build(), new Callback() {
+    private void OkHttpCityForecast(final String url) {
+        new Thread(new Runnable() {
             @Override
-            public void onFailure(Call call, IOException e) {
-
-            }
-
-            @Override
-            public void onResponse(Call call, Response response) throws IOException {
-                if (!response.isSuccessful()) {
-                    return;
-                }
-                final String result = response.body().string();
-                runOnUiThread(new Runnable() {
+            public void run() {
+                OkHttpUtil.enqueue(new Request.Builder().url(url).build(), new Callback() {
                     @Override
-                    public void run() {
-                        if (!TextUtils.isEmpty(result)) {
-                            parseStationInfo(result, "level1", proMap);
-                            parseStationInfo(result, "level2", cityMap);
-                            parseStationInfo(result, "level3", disMap);
+                    public void onFailure(Call call, IOException e) {
 
-                            Iterator iterator = proMap.entrySet().iterator();
-                            while (iterator.hasNext()) {
-                                Map.Entry entry = (Map.Entry) iterator.next();
-                                Object key = entry.getKey();
-                                getWeathersInfo(key+"");
-                            }
-                            cancelDialog();
+                    }
+
+                    @Override
+                    public void onResponse(Call call, Response response) throws IOException {
+                        if (!response.isSuccessful()) {
+                            return;
                         }
+                        final String result = response.body().string();
+                        runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                if (!TextUtils.isEmpty(result)) {
+                                    parseStationInfo(result, "level1", proMap);
+                                    parseStationInfo(result, "level2", cityMap);
+                                    parseStationInfo(result, "level3", disMap);
+
+                                    Iterator iterator = proMap.entrySet().iterator();
+                                    while (iterator.hasNext()) {
+                                        Map.Entry entry = (Map.Entry) iterator.next();
+                                        Object key = entry.getKey();
+                                        getWeathersInfo(key+"");
+                                    }
+                                    cancelDialog();
+                                }
+                            }
+                        });
                     }
                 });
             }
-        });
+        }).start();
     }
 
     /**
@@ -305,57 +310,66 @@ public class CityForecastActivity extends BaseActivity implements OnClickListene
     /**
      * 获取多个站点天气信息
      */
-    private void getWeathersInfo(String cityId) {
+    private void getWeathersInfo(final String cityId) {
         if (TextUtils.isEmpty(cityId)) {
             return;
         }
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    WeatherAPI.getWeather2(mContext, cityId, Constants.Language.ZH_CN, new AsyncResponseHandler() {
+                        @Override
+                        public void onComplete(final Weather content) {
+                            super.onComplete(content);
+                            runOnUiThread(new Runnable() {
+                                @Override
+                                public void run() {
+                                    if (content != null) {
+                                        try {
+                                            WeatherDto dto =  new WeatherDto();
+                                            JSONObject city = content.getCityInfo();
+                                            dto.cityName = city.getString("c3");
+                                            dto.lat = city.getString("c14");
+                                            dto.lng = city.getString("c13");
+                                            dto.cityId = city.getString("c1");
 
-        try {
-            WeatherAPI.getWeather2(mContext, cityId, Constants.Language.ZH_CN, new AsyncResponseHandler() {
-                @Override
-                public void onComplete(Weather content) {
-                    super.onComplete(content);
-                    if (content != null) {
-                        try {
-                            WeatherDto dto =  new WeatherDto();
-                            JSONObject city = content.getCityInfo();
-                            dto.cityName = city.getString("c3");
-                            dto.lat = city.getString("c14");
-                            dto.lng = city.getString("c13");
-                            dto.cityId = city.getString("c1");
+                                            JSONArray weekArray = content.getWeatherForecastInfo(1);
+                                            JSONObject weekObj = weekArray.getJSONObject(0);
 
-                            JSONArray weekArray = content.getWeatherForecastInfo(1);
-                            JSONObject weekObj = weekArray.getJSONObject(0);
+                                            dto.lowPheCode = Integer.valueOf(weekObj.getString("fb"));
+                                            dto.lowTemp = Integer.valueOf(weekObj.getString("fd"));
+                                            dto.lowWindDir = Integer.valueOf(weekObj.getString("ff"));
+                                            dto.lowWindForce = Integer.valueOf(weekObj.getString("fh"));
 
-                            dto.lowPheCode = Integer.valueOf(weekObj.getString("fb"));
-                            dto.lowTemp = Integer.valueOf(weekObj.getString("fd"));
-                            dto.lowWindDir = Integer.valueOf(weekObj.getString("ff"));
-                            dto.lowWindForce = Integer.valueOf(weekObj.getString("fh"));
+                                            dto.highPheCode = Integer.valueOf(weekObj.getString("fa"));
+                                            dto.highTemp = Integer.valueOf(weekObj.getString("fc"));
+                                            dto.highWindDir = Integer.valueOf(weekObj.getString("fe"));
+                                            dto.highWindForce = Integer.valueOf(weekObj.getString("fg"));
 
-                            dto.highPheCode = Integer.valueOf(weekObj.getString("fa"));
-                            dto.highTemp = Integer.valueOf(weekObj.getString("fc"));
-                            dto.highWindDir = Integer.valueOf(weekObj.getString("fe"));
-                            dto.highWindForce = Integer.valueOf(weekObj.getString("fg"));
+                                            dto.publishTime = content.getForecastTime();
+                                            dto.isLoaded = true;
 
-                            dto.publishTime = content.getForecastTime();
-                            dto.isLoaded = true;
+                                            if (!weatherMap.containsKey(dto.cityId)) {
+                                                weatherMap.put(dto.cityId, dto);
+                                            }
 
-                            if (!weatherMap.containsKey(dto.cityId)) {
-                                weatherMap.put(dto.cityId, dto);
-                            }
-
-                            addMarker(dto);
-                        }catch (JSONException e) {
-                            e.printStackTrace();
+                                            addMarker(dto);
+                                        }catch (JSONException e) {
+                                            e.printStackTrace();
+                                        }
+                                    }
+                                }
+                            });
                         }
-                    }
+                    });
+                } catch (Exception e) {
+                    e.printStackTrace();
+                } catch (OutOfMemoryError e) {
+                    e.printStackTrace();
                 }
-            });
-        } catch (Exception e) {
-            e.printStackTrace();
-        } catch (OutOfMemoryError e) {
-            e.printStackTrace();
-        }
+            }
+        }).start();
     }
 
     private void addMarker(final WeatherDto dto) {
@@ -617,7 +631,6 @@ public class CityForecastActivity extends BaseActivity implements OnClickListene
 
     @Override
     public void onMapScreenShot(Bitmap arg0, int arg1) {
-        // TODO Auto-generated method stub
     }
 
     @Override

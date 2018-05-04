@@ -149,62 +149,68 @@ public class WeatherInfoActivity extends BaseActivity implements OnClickListener
 		});
 	}
 	
-	private void OkHttpList(String url) {
-		OkHttpUtil.enqueue(new Request.Builder().url(url).build(), new Callback() {
+	private void OkHttpList(final String url) {
+		new Thread(new Runnable() {
 			@Override
-			public void onFailure(Call call, IOException e) {
+			public void run() {
+				OkHttpUtil.enqueue(new Request.Builder().url(url).build(), new Callback() {
+					@Override
+					public void onFailure(Call call, IOException e) {
 
-			}
+					}
 
-			@Override
-			public void onResponse(Call call, Response response) throws IOException {
-				if (!response.isSuccessful()) {
-					return;
-				}
-				String result = response.body().string();
-				if (!TextUtils.isEmpty(result)) {
-					try {
-						JSONObject obj = new JSONObject(result);
-						if (!obj.isNull("l")) {
-							JSONArray array = new JSONArray(obj.getString("l"));
-							for (int i = 0; i < array.length(); i++) {
-								JSONObject itemObj = array.getJSONObject(i);
-								NewsDto dto = new NewsDto();
-								dto.title = itemObj.getString("l1");
-								dto.detailUrl = itemObj.getString("l2");
-								dto.time = itemObj.getString("l3");
-								dto.imgUrl = itemObj.getString("l4");
-								mList.add(dto);
-							}
+					@Override
+					public void onResponse(Call call, Response response) throws IOException {
+						if (!response.isSuccessful()) {
+							return;
 						}
-						if (!obj.isNull("prev")) {
-							dataUrl = obj.getString("prev");
-						}
-						if (!obj.isNull("type")) {
-							showType = obj.getString("type");
-						}
-
+						final String result = response.body().string();
 						runOnUiThread(new Runnable() {
 							@Override
 							public void run() {
-								if (mAdapter != null) {
-									mAdapter.notifyDataSetChanged();
-								}
-								cancelDialog();
-								if (refreshLayout.isRefreshing()) {
-									refreshLayout.setRefreshing(false);
-								}
-								if (refreshLayout.isLoading()) {
-									refreshLayout.setLoading(false);
+								if (!TextUtils.isEmpty(result)) {
+									try {
+										JSONObject obj = new JSONObject(result);
+										if (!obj.isNull("l")) {
+											JSONArray array = new JSONArray(obj.getString("l"));
+											for (int i = 0; i < array.length(); i++) {
+												JSONObject itemObj = array.getJSONObject(i);
+												NewsDto dto = new NewsDto();
+												dto.title = itemObj.getString("l1");
+												dto.detailUrl = itemObj.getString("l2");
+												dto.time = itemObj.getString("l3");
+												dto.imgUrl = itemObj.getString("l4");
+												mList.add(dto);
+											}
+										}
+										if (!obj.isNull("prev")) {
+											dataUrl = obj.getString("prev");
+										}
+										if (!obj.isNull("type")) {
+											showType = obj.getString("type");
+										}
+
+										if (mAdapter != null) {
+											mAdapter.notifyDataSetChanged();
+										}
+										cancelDialog();
+										if (refreshLayout.isRefreshing()) {
+											refreshLayout.setRefreshing(false);
+										}
+										if (refreshLayout.isLoading()) {
+											refreshLayout.setLoading(false);
+										}
+
+									} catch (JSONException e1) {
+										e1.printStackTrace();
+									}
 								}
 							}
 						});
-					} catch (JSONException e1) {
-						e1.printStackTrace();
 					}
-				}
+				});
 			}
-		});
+		}).start();
 	}
 	
 	@Override

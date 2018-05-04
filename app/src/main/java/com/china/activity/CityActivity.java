@@ -126,6 +126,9 @@ public class CityActivity extends BaseActivity implements OnClickListener {
      * 迁移到天气详情界面
      */
     private void intentWeatherDetail(CityDto data) {
+        if (data == null) {
+            return;
+        }
         Bundle bundle = new Bundle();
         bundle.putParcelable("data", data);
         Intent intent;
@@ -208,7 +211,7 @@ public class CityActivity extends BaseActivity implements OnClickListener {
         runOnUiThread(new Runnable() {
             @Override
             public void run() {
-                if (cityList.size() > 0 && cityAdapter != null) {
+                if (cityAdapter != null) {
                     cityAdapter.notifyDataSetChanged();
                 }
             }

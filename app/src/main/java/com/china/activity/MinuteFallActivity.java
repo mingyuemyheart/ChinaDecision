@@ -400,50 +400,55 @@ OnMapClickListener, OnGeocodeSearchListener, OnMapScreenShotListener{
 	 * 获取彩云数据
 	 * @param url
 	 */
-	private void OkHttpCaiyun(String url) {
-		OkHttpUtil.enqueue(new Request.Builder().url(url).build(), new Callback() {
+	private void OkHttpCaiyun(final String url) {
+		new Thread(new Runnable() {
 			@Override
-			public void onFailure(Call call, IOException e) {
+			public void run() {
+				OkHttpUtil.enqueue(new Request.Builder().url(url).build(), new Callback() {
+					@Override
+					public void onFailure(Call call, IOException e) {
 
-			}
+					}
 
-			@Override
-			public void onResponse(Call call, Response response) throws IOException {
-				if (!response.isSuccessful()) {
-					return;
-				}
-				String result = response.body().string();
-				if (!TextUtils.isEmpty(result)) {
-					try {
-						JSONObject obj = new JSONObject(result);
-						if (!obj.isNull("status")) {
-							if (obj.getString("status").equals("ok")) {
-								if (!obj.isNull("radar_img")) {
-									JSONArray array = new JSONArray(obj.getString("radar_img"));
-									for (int i = 0; i < array.length(); i++) {
-										JSONArray array0 = array.getJSONArray(i);
-										MinuteFallDto dto = new MinuteFallDto();
-										dto.setImgUrl(array0.optString(0));
-										dto.setTime(array0.optLong(1));
-										JSONArray itemArray = array0.getJSONArray(2);
-										dto.setP1(itemArray.optDouble(0));
-										dto.setP2(itemArray.optDouble(1));
-										dto.setP3(itemArray.optDouble(2));
-										dto.setP4(itemArray.optDouble(3));
-										mList.add(dto);
-									}
-									if (mList.size() > 0) {
-										startDownLoadImgs(mList);
+					@Override
+					public void onResponse(Call call, Response response) throws IOException {
+						if (!response.isSuccessful()) {
+							return;
+						}
+						String result = response.body().string();
+						if (!TextUtils.isEmpty(result)) {
+							try {
+								JSONObject obj = new JSONObject(result);
+								if (!obj.isNull("status")) {
+									if (obj.getString("status").equals("ok")) {
+										if (!obj.isNull("radar_img")) {
+											JSONArray array = new JSONArray(obj.getString("radar_img"));
+											for (int i = 0; i < array.length(); i++) {
+												JSONArray array0 = array.getJSONArray(i);
+												MinuteFallDto dto = new MinuteFallDto();
+												dto.setImgUrl(array0.optString(0));
+												dto.setTime(array0.optLong(1));
+												JSONArray itemArray = array0.getJSONArray(2);
+												dto.setP1(itemArray.optDouble(0));
+												dto.setP2(itemArray.optDouble(1));
+												dto.setP3(itemArray.optDouble(2));
+												dto.setP4(itemArray.optDouble(3));
+												mList.add(dto);
+											}
+											if (mList.size() > 0) {
+												startDownLoadImgs(mList);
+											}
+										}
 									}
 								}
+							} catch (JSONException e) {
+								e.printStackTrace();
 							}
 						}
-					} catch (JSONException e) {
-						e.printStackTrace();
 					}
-				}
+				});
 			}
-		});
+		}).start();
 	}
 	
 	private void startDownLoadImgs(List<MinuteFallDto> list) {

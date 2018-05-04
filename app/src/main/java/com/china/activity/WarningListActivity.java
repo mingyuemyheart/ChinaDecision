@@ -80,7 +80,7 @@ public class WarningListActivity extends BaseActivity implements OnClickListener
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		setContentView(R.layout.warning_list);
+		setContentView(R.layout.activity_warning_list);
 		mContext = this;
 		initWidget();
 		initListView();
@@ -92,7 +92,6 @@ public class WarningListActivity extends BaseActivity implements OnClickListener
 	/**
 	 * 初始化控件
 	 */
-	@SuppressWarnings("unchecked")
 	private void initWidget() {
 		columnId = getIntent().getStringExtra(CONST.COLUMN_ID);//栏目id
 
@@ -258,7 +257,7 @@ public class WarningListActivity extends BaseActivity implements OnClickListener
 		list1.clear();
 		String[] array1 = getResources().getStringArray(R.array.warningType);
 		for (int i = 0; i < array1.length; i++) {
-			HashMap<String, Integer> map = new HashMap<String, Integer>();
+			HashMap<String, Integer> map = new HashMap<>();
 			String[] value = array1[i].split(",");
 			int count = 0;
 			for (int j = 0; j < warningList.size(); j++) {
@@ -328,7 +327,7 @@ public class WarningListActivity extends BaseActivity implements OnClickListener
 		list2.clear();
 		String[] array2 = getResources().getStringArray(R.array.warningColor);
 		for (int i = 0; i < array2.length; i++) {
-			HashMap<String, Integer> map = new HashMap<String, Integer>();
+			HashMap<String, Integer> map = new HashMap<>();
 			String[] value = array2[i].split(",");
 			int count = 0;
 			for (int j = 0; j < warningList.size(); j++) {
@@ -398,7 +397,7 @@ public class WarningListActivity extends BaseActivity implements OnClickListener
 		list3.clear();
 		String[] array3 = getResources().getStringArray(R.array.warningDis);
 		for (int i = 0; i < array3.length; i++) {
-			HashMap<String, Integer> map = new HashMap<String, Integer>();
+			HashMap<String, Integer> map = new HashMap<>();
 			String[] value = array3[i].split(",");
 			int count = 0;
 			for (int j = 0; j < warningList.size(); j++) {

@@ -190,56 +190,66 @@ public class ReserveCityActivity extends BaseActivity implements View.OnClickLis
     /**
      * 获取预警信息
      */
-    private void OkHttpWarning(String url) {
-        OkHttpUtil.enqueue(new Request.Builder().url(url).build(), new Callback() {
+    private void OkHttpWarning(final String url) {
+        new Thread(new Runnable() {
             @Override
-            public void onFailure(Call call, IOException e) {
+            public void run() {
+                OkHttpUtil.enqueue(new Request.Builder().url(url).build(), new Callback() {
+                    @Override
+                    public void onFailure(Call call, IOException e) {
 
-            }
+                    }
 
-            @Override
-            public void onResponse(Call call, Response response) throws IOException {
-                if (!response.isSuccessful()) {
-                    return;
-                }
-                String result = response.body().string();
-                if (!TextUtils.isEmpty(result)) {
-                    try {
-                        JSONObject object = new JSONObject(result);
-                        if (object != null) {
-                            if (!object.isNull("data")) {
-                                warningList.clear();
-                                JSONArray jsonArray = object.getJSONArray("data");
-                                for (int i = 0; i < jsonArray.length(); i++) {
-                                    JSONArray tempArray = jsonArray.getJSONArray(i);
-                                    WarningDto dto = new WarningDto();
-                                    dto.html = tempArray.optString(1);
-                                    String[] array = dto.html.split("-");
-                                    String item0 = array[0];
-                                    String item1 = array[1];
-                                    String item2 = array[2];
+                    @Override
+                    public void onResponse(Call call, Response response) throws IOException {
+                        if (!response.isSuccessful()) {
+                            return;
+                        }
+                        final String result = response.body().string();
+                        runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                if (!TextUtils.isEmpty(result)) {
+                                    try {
+                                        JSONObject object = new JSONObject(result);
+                                        if (object != null) {
+                                            if (!object.isNull("data")) {
+                                                warningList.clear();
+                                                JSONArray jsonArray = object.getJSONArray("data");
+                                                for (int i = 0; i < jsonArray.length(); i++) {
+                                                    JSONArray tempArray = jsonArray.getJSONArray(i);
+                                                    WarningDto dto = new WarningDto();
+                                                    dto.html = tempArray.optString(1);
+                                                    String[] array = dto.html.split("-");
+                                                    String item0 = array[0];
+                                                    String item1 = array[1];
+                                                    String item2 = array[2];
 
-                                    dto.item0 = item0;
-                                    dto.provinceId = item0.substring(0, 2);
-                                    dto.type = item2.substring(0, 5);
-                                    dto.color = item2.substring(5, 7);
-                                    dto.time = item1;
-                                    dto.lng = tempArray.optString(2);
-                                    dto.lat = tempArray.optString(3);
-                                    dto.name = tempArray.optString(0);
+                                                    dto.item0 = item0;
+                                                    dto.provinceId = item0.substring(0, 2);
+                                                    dto.type = item2.substring(0, 5);
+                                                    dto.color = item2.substring(5, 7);
+                                                    dto.time = item1;
+                                                    dto.lng = tempArray.optString(2);
+                                                    dto.lat = tempArray.optString(3);
+                                                    dto.name = tempArray.optString(0);
 
-                                    if (!dto.name.contains("解除")) {
-                                        warningList.add(dto);
+                                                    if (!dto.name.contains("解除")) {
+                                                        warningList.add(dto);
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    } catch (JSONException e) {
+                                        e.printStackTrace();
                                     }
                                 }
                             }
-                        }
-                    } catch (JSONException e) {
-                        e.printStackTrace();
+                        });
                     }
-                }
+                });
             }
-        });
+        }).start();
     }
 
     /**
@@ -329,36 +339,46 @@ public class ReserveCityActivity extends BaseActivity implements View.OnClickLis
         });
     }
 
-    private void OkHttpGeo(double lng, double lat, final String cityName) {
-        OkHttpUtil.enqueue(new Request.Builder().url(SecretUrlUtil.geo(lng, lat)).build(), new Callback() {
+    private void OkHttpGeo(final double lng, final double lat, final String cityName) {
+        new Thread(new Runnable() {
             @Override
-            public void onFailure(Call call, IOException e) {
+            public void run() {
+                OkHttpUtil.enqueue(new Request.Builder().url(SecretUrlUtil.geo(lng, lat)).build(), new Callback() {
+                    @Override
+                    public void onFailure(Call call, IOException e) {
 
-            }
-
-            @Override
-            public void onResponse(Call call, Response response) throws IOException {
-                if (!response.isSuccessful()) {
-                    return;
-                }
-                String result = response.body().string();
-                if (!TextUtils.isEmpty(result)) {
-                    try {
-                        JSONObject obj = new JSONObject(result);
-                        if (!obj.isNull("geo")) {
-                            JSONObject geoObj = obj.getJSONObject("geo");
-                            if (!geoObj.isNull("id")) {
-                                final String cityId = geoObj.getString("id");
-                                final String warningId = queryWarningIdByCityId(cityId);
-                                getWeatherInfos(cityId, cityName, warningId);
-                            }
-                        }
-                    } catch (JSONException e) {
-                        e.printStackTrace();
                     }
-                }
+
+                    @Override
+                    public void onResponse(Call call, Response response) throws IOException {
+                        if (!response.isSuccessful()) {
+                            return;
+                        }
+                        final String result = response.body().string();
+                        runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                if (!TextUtils.isEmpty(result)) {
+                                    try {
+                                        JSONObject obj = new JSONObject(result);
+                                        if (!obj.isNull("geo")) {
+                                            JSONObject geoObj = obj.getJSONObject("geo");
+                                            if (!geoObj.isNull("id")) {
+                                                String cityId = geoObj.getString("id");
+                                                String warningId = queryWarningIdByCityId(cityId);
+                                                getWeatherInfos(cityId, cityName, warningId);
+                                            }
+                                        }
+                                    } catch (JSONException e) {
+                                        e.printStackTrace();
+                                    }
+                                }
+                            }
+                        });
+                    }
+                });
             }
-        });
+        }).start();
     }
 
     /**
@@ -370,7 +390,7 @@ public class ReserveCityActivity extends BaseActivity implements View.OnClickLis
         SharedPreferences sharedPreferences = getSharedPreferences("RESERVE_CITY", Context.MODE_PRIVATE);
         String cityInfo = sharedPreferences.getString("cityInfo", "");
         cityList.clear();
-        List<String> cityIds = new ArrayList<>();
+        final List<String> cityIds = new ArrayList<>();
         cityIds.add(locationCityId);
         CityDto dto = new CityDto();
         dto.cityId = locationCityId;
@@ -389,66 +409,71 @@ public class ReserveCityActivity extends BaseActivity implements View.OnClickLis
                 cityIds.add(itemArray[0]);
             }
         }
-        WeatherAPI.getWeathers2(mContext, cityIds, Constants.Language.ZH_CN, new AsyncResponseHandler() {
+        new Thread(new Runnable() {
             @Override
-            public void onComplete(final List<Weather> contentList) {
-                super.onComplete(contentList);
-                runOnUiThread(new Runnable() {
+            public void run() {
+                WeatherAPI.getWeathers2(mContext, cityIds, Constants.Language.ZH_CN, new AsyncResponseHandler() {
                     @Override
-                    public void run() {
-                        for (int i = 0; i < contentList.size(); i++) {
-                            Weather content = contentList.get(i);
-                            if (content != null) {
-                                //实况信息
-                                JSONObject object = content.getWeatherFactInfo();
-                                try {
-                                    CityDto dto = cityList.get(i);
-                                    if (!object.isNull("l5")) {
-                                        String weatherCode = WeatherUtil.lastValue(object.getString("l5"));
-                                        if (!TextUtils.isEmpty(weatherCode)) {
-                                            dto.highPheCode = Integer.parseInt(weatherCode);
+                    public void onComplete(final List<Weather> contentList) {
+                        super.onComplete(contentList);
+                        runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                for (int i = 0; i < contentList.size(); i++) {
+                                    Weather content = contentList.get(i);
+                                    if (content != null) {
+                                        //实况信息
+                                        JSONObject object = content.getWeatherFactInfo();
+                                        try {
+                                            CityDto dto = cityList.get(i);
+                                            if (!object.isNull("l5")) {
+                                                String weatherCode = WeatherUtil.lastValue(object.getString("l5"));
+                                                if (!TextUtils.isEmpty(weatherCode)) {
+                                                    dto.highPheCode = Integer.parseInt(weatherCode);
+                                                }
+                                            }
+                                            if (!object.isNull("l1")) {
+                                                String factTemp = WeatherUtil.lastValue(object.getString("l1"));
+                                                dto.highTemp = factTemp;
+                                            }
+
+                                            List<WarningDto> list = new ArrayList<>();
+                                            for (int j = 0; j < warningList.size(); j++) {
+                                                WarningDto data = warningList.get(j);
+                                                if (TextUtils.equals(data.item0, dto.warningId)) {
+                                                    list.add(data);
+                                                }
+                                            }
+                                            dto.warningList.addAll(list);
+
+                                        } catch (JSONException e) {
+                                            e.printStackTrace();
                                         }
                                     }
-                                    if (!object.isNull("l1")) {
-                                        String factTemp = WeatherUtil.lastValue(object.getString("l1"));
-                                        dto.highTemp = factTemp;
-                                    }
-
-                                    List<WarningDto> list = new ArrayList<>();
-                                    for (int j = 0; j < warningList.size(); j++) {
-                                        WarningDto data = warningList.get(j);
-                                        if (TextUtils.equals(data.item0, dto.warningId)) {
-                                            list.add(data);
-                                        }
-                                    }
-                                    dto.warningList.addAll(list);
-
-                                } catch (JSONException e) {
-                                    e.printStackTrace();
                                 }
+
+                                if (cityList.size() > 1) {
+                                    tvPrompt.setVisibility(View.VISIBLE);
+                                }else {
+                                    tvPrompt.setVisibility(View.GONE);
+                                }
+
+                                if (mAdapter != null) {
+                                    mAdapter.notifyDataSetChanged();
+                                }
+                                divider.setVisibility(View.VISIBLE);
+                                llAdd.setVisibility(View.VISIBLE);
+                                cancelDialog();
                             }
-                        }
-
-                        if (cityList.size() > 1) {
-                            tvPrompt.setVisibility(View.VISIBLE);
-                        }else {
-                            tvPrompt.setVisibility(View.GONE);
-                        }
-
-                        if (mAdapter != null) {
-                            mAdapter.notifyDataSetChanged();
-                        }
-                        divider.setVisibility(View.VISIBLE);
-                        llAdd.setVisibility(View.VISIBLE);
-                        cancelDialog();
+                        });
+                    }
+                    @Override
+                    public void onError(Throwable error, String content) {
+                        super.onError(error, content);
                     }
                 });
             }
-            @Override
-            public void onError(Throwable error, String content) {
-                super.onError(error, content);
-            }
-        });
+        }).start();
     }
 
     /**
@@ -461,61 +486,70 @@ public class ReserveCityActivity extends BaseActivity implements View.OnClickLis
             Toast.makeText(mContext, "选择的城市信息有误", Toast.LENGTH_SHORT).show();
             return;
         }
-        WeatherAPI.getWeather2(mContext, cityId, Constants.Language.ZH_CN, new AsyncResponseHandler() {
+        new Thread(new Runnable() {
             @Override
-            public void onComplete(Weather content) {
-                super.onComplete(content);
-                if (content != null) {
-                    //实况信息
-                    JSONObject object = content.getWeatherFactInfo();
-                    try {
-                        CityDto dto = new CityDto();
-                        dto.cityName = cityName;
-                        dto.cityId = cityId;
-                        if (!object.isNull("l5")) {
-                            String weatherCode = WeatherUtil.lastValue(object.getString("l5"));
-                            if (!TextUtils.isEmpty(weatherCode)) {
-                                dto.highPheCode = Integer.parseInt(weatherCode);
+            public void run() {
+                WeatherAPI.getWeather2(mContext, cityId, Constants.Language.ZH_CN, new AsyncResponseHandler() {
+                    @Override
+                    public void onComplete(final Weather content) {
+                        super.onComplete(content);
+                        runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                if (content != null) {
+                                    //实况信息
+                                    JSONObject object = content.getWeatherFactInfo();
+                                    try {
+                                        CityDto dto = new CityDto();
+                                        dto.cityName = cityName;
+                                        dto.cityId = cityId;
+                                        if (!object.isNull("l5")) {
+                                            String weatherCode = WeatherUtil.lastValue(object.getString("l5"));
+                                            if (!TextUtils.isEmpty(weatherCode)) {
+                                                dto.highPheCode = Integer.parseInt(weatherCode);
+                                            }
+                                        }
+                                        if (!object.isNull("l1")) {
+                                            String factTemp = WeatherUtil.lastValue(object.getString("l1"));
+                                            dto.highTemp = factTemp;
+                                        }
+
+                                        dto.warningId = warningId;
+                                        List<WarningDto> list = new ArrayList<>();
+                                        for (int i = 0; i < warningList.size(); i++) {
+                                            WarningDto data = warningList.get(i);
+                                            if (TextUtils.equals(data.item0, dto.warningId)) {
+                                                list.add(data);
+                                            }
+                                        }
+                                        dto.warningList.addAll(list);
+
+                                        cityList.add(dto);
+
+                                        if (cityList.size() > 1) {
+                                            tvPrompt.setVisibility(View.VISIBLE);
+                                        }else {
+                                            tvPrompt.setVisibility(View.GONE);
+                                        }
+
+                                        if (mAdapter != null) {
+                                            mAdapter.notifyDataSetChanged();
+                                        }
+                                    } catch (JSONException e) {
+                                        e.printStackTrace();
+                                    }
+                                }
                             }
-                        }
-                        if (!object.isNull("l1")) {
-                            String factTemp = WeatherUtil.lastValue(object.getString("l1"));
-                            dto.highTemp = factTemp;
-                        }
-
-                        dto.warningId = warningId;
-                        List<WarningDto> list = new ArrayList<>();
-                        for (int i = 0; i < warningList.size(); i++) {
-                            WarningDto data = warningList.get(i);
-                            if (TextUtils.equals(data.item0, dto.warningId)) {
-                                list.add(data);
-                            }
-                        }
-                        dto.warningList.addAll(list);
-
-                        cityList.add(dto);
-
-                        if (cityList.size() > 1) {
-                            tvPrompt.setVisibility(View.VISIBLE);
-                        }else {
-                            tvPrompt.setVisibility(View.GONE);
-                        }
-
-                        if (mAdapter != null) {
-                            mAdapter.notifyDataSetChanged();
-                        }
-                    } catch (JSONException e) {
-                        e.printStackTrace();
+                        });
                     }
-                }
-            }
 
-            @Override
-            public void onError(Throwable error, String content) {
-                super.onError(error, content);
+                    @Override
+                    public void onError(Throwable error, String content) {
+                        super.onError(error, content);
+                    }
+                });
             }
-        });
-
+        }).start();
     }
 
     /**

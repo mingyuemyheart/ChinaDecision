@@ -33,14 +33,18 @@ import org.json.JSONObject;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * 左右切换的预警界面
+ */
+
 public class HeadWarningActivity extends BaseActivity implements OnClickListener{
 	
 	private Context mContext = null;
 	private LinearLayout llBack = null;
 	private TextView tvTitle = null;
 	private MainViewPager viewPager;
-	private List<Fragment> fragments = new ArrayList<Fragment>();
-	private ArrayList<WarningDto> warnList = new ArrayList<WarningDto>();
+	private List<Fragment> fragments = new ArrayList<>();
+	private List<WarningDto> warnList = new ArrayList<>();
 	private ImageView[] ivTips = null;//装载点的数组
 	private ViewGroup viewGroup = null;
 	private ImageView ivShare = null;
@@ -48,7 +52,7 @@ public class HeadWarningActivity extends BaseActivity implements OnClickListener
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		setContentView(R.layout.head_warning);
+		setContentView(R.layout.activity_head_warning);
 		mContext = this;
 		initWidget();
 		initViewPager();
@@ -68,7 +72,6 @@ public class HeadWarningActivity extends BaseActivity implements OnClickListener
 	/**
 	 * 初始化viewPager
 	 */
-	@SuppressWarnings("unchecked")
 	private void initViewPager() {
 		warnList.clear();
 		warnList.addAll(getIntent().getExtras().<WarningDto>getParcelableArrayList("warningList"));
