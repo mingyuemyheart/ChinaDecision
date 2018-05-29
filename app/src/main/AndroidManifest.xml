@@ -283,6 +283,10 @@
             android:name="com.china.activity.ReserveCityActivity"
             android:screenOrientation="portrait" />
 
+        <activity
+            android:name="com.china.activity.PointFactActivity"
+            android:screenOrientation="portrait" />
+
 
         <!-- umeng -->
         <meta-data

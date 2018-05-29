@@ -1040,7 +1040,11 @@ public class MainActivity extends BaseActivity implements OnClickListener, AMapL
 						intent = new Intent(mContext, WeatherChartAnalysisActivity.class);
 						intent.putExtra(CONST.ACTIVITY_NAME, dto.name);
 						startActivity(intent);
-					}else if (TextUtils.equals(dto.id, "201")) {//城市天气预报
+					}else if (TextUtils.equals(dto.id, "110")) {//格点实况
+                        intent = new Intent(mContext, PointFactActivity.class);
+                        intent.putExtra(CONST.ACTIVITY_NAME, dto.name);
+                        startActivity(intent);
+                    }else if (TextUtils.equals(dto.id, "201")) {//城市天气预报
 						intent = new Intent(mContext, CityForecastActivity.class);
 						intent.putExtra(CONST.COLUMN_ID, dto.columnId);
 						intent.putExtra(CONST.ACTIVITY_NAME, dto.name);

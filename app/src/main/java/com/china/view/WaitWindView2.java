@@ -11,7 +11,6 @@ import android.os.Message;
 import android.text.TextUtils;
 import android.util.AttributeSet;
 import android.util.DisplayMetrics;
-import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup.LayoutParams;
 import android.widget.ImageView;
@@ -70,7 +69,7 @@ public class WaitWindView2 extends View {
 		height = dm.heightPixels;
 
 		paint = new Paint();
-		paint.setColor(Color.WHITE);
+		paint.setColor(0x8055A7FF);
 		paint.setAntiAlias(true);
 		paint.setStrokeWidth(4f);
 
@@ -107,7 +106,6 @@ public class WaitWindView2 extends View {
 			frameCount = 10;//帧数
 			speedRate = 1.0f;//离子运动速度系数
 		}
-		Log.e("curFreq", curFreq+"");
 
 		getParticleInfo();
 	}
@@ -437,7 +435,7 @@ public class WaitWindView2 extends View {
 					}
 				}
 			}
-		};
+		}
 	};
 
 }
