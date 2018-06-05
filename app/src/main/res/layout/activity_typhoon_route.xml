@@ -41,6 +41,15 @@
             android:textSize="@dimen/level_5"
             android:visibility="gone" />
 
+        <ImageView
+            android:layout_marginTop="10dp"
+            android:layout_marginLeft="10dp"
+            android:visibility="gone"
+            android:id="@+id/ivWarning"
+            android:layout_width="35dp"
+            android:layout_height="35dp"
+            android:layout_below="@+id/tvTyphoonName"/>
+
         <LinearLayout
             android:id="@+id/llTyphoonWind"
             android:layout_width="wrap_content"
