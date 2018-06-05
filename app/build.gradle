@@ -11,10 +11,10 @@ android {
 
     defaultConfig {
         applicationId "com.china"
-        minSdkVersion 17
+        minSdkVersion 19
         targetSdkVersion 26
-        versionCode 101
-        versionName "3.2.0"
+        versionCode 102
+        versionName "3.2.1"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
 
         ndk {
@@ -40,7 +40,7 @@ android {
 
 dependencies {
     compile fileTree(include: ['*.jar'], dir: 'libs')
-    compile 'com.android.support:appcompat-v7:26.1.0'
+    compile 'com.android.support:appcompat-v7:26.+'
     compile files('libs/exoplayer_lib.jar')
     compile files('libs/nineoldandroids-2.4.0.jar')
     compile files('libs/scene-final.jar')
@@ -62,7 +62,7 @@ dependencies {
         exclude group: 'org.json', module: 'json'
     }
     compile project(':android-pdf-viewer')
-    compile files('libs/AMap3DMap_5.7.0_AMapSearch_5.7.0_AMapLocation_3.7.0_20171229.jar')
     compile files('libs/SaaS_AppAnalytics_Android_SDK_V4.0.15.jar')
     compile files('libs/ChinaWeatherAPI.jar')
+    compile files('libs/AMap3DMap_5.7.0_AMapSearch_5.7.0_AMapLocation_3.7.0_20171229.jar')
 }

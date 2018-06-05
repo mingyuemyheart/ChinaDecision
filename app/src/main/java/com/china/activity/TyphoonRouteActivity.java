@@ -7,6 +7,7 @@ package com.china.activity;
 import android.Manifest;
 import android.annotation.SuppressLint;
 import android.content.Context;
+import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -21,7 +22,10 @@ import android.os.Message;
 import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
+import android.text.Spannable;
+import android.text.SpannableStringBuilder;
 import android.text.TextUtils;
+import android.text.style.ForegroundColorSpan;
 import android.util.DisplayMetrics;
 import android.util.TypedValue;
 import android.view.KeyEvent;
@@ -66,6 +70,8 @@ import com.amap.api.maps.model.Marker;
 import com.amap.api.maps.model.MarkerOptions;
 import com.amap.api.maps.model.Polyline;
 import com.amap.api.maps.model.PolylineOptions;
+import com.amap.api.maps.model.Text;
+import com.amap.api.maps.model.TextOptions;
 import com.amap.api.services.core.LatLonPoint;
 import com.amap.api.services.geocoder.GeocodeResult;
 import com.amap.api.services.geocoder.GeocodeSearch;
@@ -77,6 +83,7 @@ import com.china.adapter.TyphoonYearAdapter;
 import com.china.common.CONST;
 import com.china.dto.MinuteFallDto;
 import com.china.dto.TyphoonDto;
+import com.china.dto.WarningDto;
 import com.china.dto.WindData;
 import com.china.dto.WindDto;
 import com.china.manager.CaiyunManager;
@@ -190,6 +197,7 @@ public class TyphoonRouteActivity extends BaseActivity implements OnClickListene
 	private GeocodeSearch geocoderSearch = null;
 	private String locationCity = "";
 	private Bundle bundle = null;
+	private ImageView ivWarning;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -299,6 +307,7 @@ public class TyphoonRouteActivity extends BaseActivity implements OnClickListene
 		ivTyphoonRadar.setOnClickListener(this);
 		ivTyphoonCloud = (ImageView) findViewById(R.id.ivTyphoonCloud);
 		ivTyphoonCloud.setOnClickListener(this);
+		ivWarning = (ImageView) findViewById(R.id.ivWarning);
 		container = (RelativeLayout) findViewById(R.id.container);
 		container2 = (RelativeLayout) findViewById(R.id.container2);
 		ivGuide = (ImageView) findViewById(R.id.ivGuide);
@@ -341,6 +350,7 @@ public class TyphoonRouteActivity extends BaseActivity implements OnClickListene
 
 		startLocation();
 		drawWarningLines();
+		OkHttpWarning("http://decision-admin.tianqi.cn/Home/extra/getwarns?order=1");
 	}
 
 	/**
@@ -371,6 +381,8 @@ public class TyphoonRouteActivity extends BaseActivity implements OnClickListene
 		}
 	}
 
+	private Circle circle100, circle300, circle500;
+	private Text text100, text300, text500;
 	private void addLocationMarker(LatLng latLng) {
 		if (latLng == null) {
 			return;
@@ -389,6 +401,77 @@ public class TyphoonRouteActivity extends BaseActivity implements OnClickListene
 			locationMarker.remove();
 		}
 		locationMarker = aMap.addMarker(options);
+
+
+		if (circle100 != null) {
+			circle100.remove();
+			circle100 = null;
+		}
+		circle100 = aMap.addCircle(new CircleOptions().center(latLng)
+				.radius(100000).strokeColor(0x90ff6c00).strokeWidth(5));
+
+		if (circle300 != null) {
+			circle300.remove();
+			circle300 = null;
+		}
+		circle300 = aMap.addCircle(new CircleOptions().center(latLng)
+				.radius(300000).strokeColor(0x90ffd800).strokeWidth(5));
+
+		if (circle500 != null) {
+			circle500.remove();
+			circle500 = null;
+		}
+		circle500 = aMap.addCircle(new CircleOptions().center(latLng)
+				.radius(500000).strokeColor(0x9000b4ff).strokeWidth(5));
+
+		if (text100 != null) {
+			text100.remove();
+			text100 = null;
+		}
+		text100 = addPolylinesCircle(latLng, 100000, 0xffff6c00, "100km");
+
+		if (text300 != null) {
+			text300.remove();
+			text300 = null;
+		}
+		text300 = addPolylinesCircle(latLng, 300000, 0xffffd800, "300km");
+
+		if (text500 != null) {
+			text500.remove();
+			text500 = null;
+		}
+		text500 = addPolylinesCircle(latLng, 500000, 0xff00b4ff, "500km");
+
+	}
+
+	/**
+	 * @param center 中心点坐标
+	 * @param radius      半径 米
+	 */
+	private Text addPolylinesCircle(LatLng center, int radius, int color, String distance) {
+		double r = 6371000.79;
+		int numpoints = 360;
+		double phase = 2 * Math.PI / numpoints;
+
+		//画图
+//		for (int i = 0; i < numpoints; i++) {
+			double dx = (radius * Math.cos(numpoints*3/4 * phase));
+			double dy = (radius * Math.sin(numpoints*3/4 * phase));//乘以1.6 椭圆比例
+
+			double dlng = dx / (r * Math.cos(center.latitude * Math.PI / 180) * Math.PI / 180);
+			double dlat = dy / (r * Math.PI / 180);
+
+		TextOptions textOptions = new TextOptions();
+		textOptions.backgroundColor(Color.TRANSPARENT);
+		textOptions.fontSize(40);
+		textOptions.fontColor(color);
+		textOptions.text(distance);
+		textOptions.position(new LatLng(center.latitude + dlat, center.longitude + dlng));
+		Text text = aMap.addText(textOptions);
+//		}
+
+		return text;
+
 	}
 
 	/**
@@ -434,6 +517,100 @@ public class TyphoonRouteActivity extends BaseActivity implements OnClickListene
 		options.position(latLng);
 		options.icon(BitmapDescriptorFactory.fromView(view));
 		aMap.addMarker(options);
+	}
+
+	/**
+	 * 获取预警信息
+	 */
+	private void OkHttpWarning(final String url) {
+		new Thread(new Runnable() {
+			@Override
+			public void run() {
+				OkHttpUtil.enqueue(new Request.Builder().url(url).build(), new Callback() {
+					@Override
+					public void onFailure(Call call, IOException e) {
+
+					}
+
+					@Override
+					public void onResponse(Call call, Response response) throws IOException {
+						if (!response.isSuccessful()) {
+							return;
+						}
+						final String result = response.body().string();
+						runOnUiThread(new Runnable() {
+							@Override
+							public void run() {
+								if (!TextUtils.isEmpty(result)) {
+									try {
+										final JSONObject object = new JSONObject(result);
+										if (object != null) {
+											if (!object.isNull("data")) {
+												JSONArray jsonArray = object.getJSONArray("data");
+												for (int i = jsonArray.length()-1; i >= 0; i--) {
+													JSONArray tempArray = jsonArray.getJSONArray(i);
+													final WarningDto dto = new WarningDto();
+													dto.html = tempArray.optString(1);
+													String[] array = dto.html.split("-");
+													String item0 = array[0];
+													String item1 = array[1];
+													String item2 = array[2];
+
+													dto.item0 = item0;
+													dto.provinceId = item0.substring(0, 2);
+													dto.type = item2.substring(0, 5);
+													dto.color = item2.substring(5, 7);
+													dto.time = item1;
+													dto.lng = tempArray.optString(2);
+													dto.lat = tempArray.optString(3);
+													dto.name = tempArray.optString(0);
+
+													if (!dto.name.contains("解除") && TextUtils.equals(item0, "000000") && item2.startsWith("11B01")) {//国家级台风预警
+														Bitmap bitmap = null;
+														if (dto.color.equals(CONST.blue[0])) {
+															bitmap = CommonUtil.getImageFromAssetsFile(mContext,"warning/"+dto.type+CONST.blue[1]+CONST.imageSuffix);
+
+														}else if (dto.color.equals(CONST.yellow[0])) {
+															bitmap = CommonUtil.getImageFromAssetsFile(mContext,"warning/"+dto.type+CONST.yellow[1]+CONST.imageSuffix);
+
+														}else if (dto.color.equals(CONST.orange[0])) {
+															bitmap = CommonUtil.getImageFromAssetsFile(mContext,"warning/"+dto.type+CONST.orange[1]+CONST.imageSuffix);
+
+														}else if (dto.color.equals(CONST.red[0])) {
+															bitmap = CommonUtil.getImageFromAssetsFile(mContext,"warning/"+dto.type+CONST.red[1]+CONST.imageSuffix);
+
+														}
+														if (bitmap != null) {
+															ivWarning.setImageBitmap(bitmap);
+															ivWarning.setVisibility(View.VISIBLE);
+															ivWarning.setOnClickListener(new OnClickListener() {
+																@Override
+																public void onClick(View v) {
+																	Intent intentDetail = new Intent(mContext, WarningDetailActivity.class);
+																	Bundle bundle = new Bundle();
+																	bundle.putParcelable("data", dto);
+																	intentDetail.putExtras(bundle);
+																	startActivity(intentDetail);
+																}
+															});
+														}
+													}
+
+												}
+
+											}
+										}
+									} catch (JSONException e) {
+										e.printStackTrace();
+									}
+								}
+							}
+						});
+
+					}
+				});
+			}
+		}).start();
 	}
 
 	private void initYearListView() {
@@ -2366,6 +2543,36 @@ public class TyphoonRouteActivity extends BaseActivity implements OnClickListene
 			if (isRanging) {
 				isRanging = false;
 				ivTyphoonRange.setImageResource(R.drawable.iv_typhoon_cj_off);
+
+				if (circle100 != null) {
+					circle100.remove();
+					circle100 = null;
+				}
+
+				if (circle300 != null) {
+					circle300.remove();
+					circle300 = null;
+				}
+
+				if (circle500 != null) {
+					circle500.remove();
+					circle500 = null;
+				}
+
+				if (text100 != null) {
+					text100.remove();
+					text100 = null;
+				}
+
+				if (text300 != null) {
+					text300.remove();
+					text300 = null;
+				}
+
+				if (text500 != null) {
+					text500.remove();
+					text500 = null;
+				}
 
 				for (int i = 0; i < rangeMarkers.size(); i++) {
 					rangeMarkers.get(i).remove();
