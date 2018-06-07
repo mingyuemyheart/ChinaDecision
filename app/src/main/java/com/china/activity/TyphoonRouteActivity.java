@@ -1396,6 +1396,7 @@ public class TyphoonRouteActivity extends BaseActivity implements OnClickListene
 			}
 			tOption.icons(iconList);
 			tOption.period(2);
+			tOption.zIndex(-10);
 
 
 			if (circle != null) {
