@@ -113,6 +113,10 @@ public class StaticsActivity extends BaseActivity implements OnClickListener, On
 	private boolean isFirstLoad = true;//是否为默认第一次加载数据
 	private final int MSG_CLICKMARKER = 1001;//点击marker
 	private final String level1 = "level1", level2 = "level2", level3 = "level3";
+	private SimpleDateFormat sdf1 = new SimpleDateFormat("yyyyMMddHHmmss");
+	private SimpleDateFormat sdf2 = new SimpleDateFormat("yyyy-MM-dd");
+	private SimpleDateFormat sdf3 = new SimpleDateFormat("yyyyMMdd");
+	private SimpleDateFormat sdf4 = new SimpleDateFormat("MM月dd日");
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -524,7 +528,7 @@ public class StaticsActivity extends BaseActivity implements OnClickListener, On
 						progressBar.setVisibility(View.VISIBLE);
 						reContent.setVisibility(View.INVISIBLE);
 
-						OkHttpDetail(SecretUrlUtil.statisticDetail(result[2], result[1]));
+						OkHttpDetail(SecretUrlUtil.statisticDetail(result[2]));
 					}
 					break;
 			}
@@ -553,26 +557,28 @@ public class StaticsActivity extends BaseActivity implements OnClickListener, On
 								if (!TextUtils.isEmpty(result)) {
 									try {
 										JSONObject obj = new JSONObject(result);
-										SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMdd");
-										SimpleDateFormat sdf2 = new SimpleDateFormat("yyyy-MM-dd");
-										String startTime = sdf2.format(sdf.parse(obj.getString("starttime")));
-										String endTime = sdf2.format(sdf.parse(obj.getString("endtime")));
+										String startTime = sdf2.format(sdf3.parse(obj.getString("starttime")));
+										String endTime = sdf2.format(sdf3.parse(obj.getString("endtime")));
+
 										String no_rain_lx = obj.getInt("no_rain_lx")+"";//连续没雨天数
 										if (TextUtils.equals(no_rain_lx, "-1")) {
 											no_rain_lx = getString(R.string.no_statics);
 										}else {
 											no_rain_lx = no_rain_lx+"天";
 										}
-										String mai_lx = obj.getInt("mai_lx")+"";//连续霾天数
-										if (TextUtils.equals(mai_lx, "-1")) {
-											mai_lx = getString(R.string.no_statics);
-										}else {
-											mai_lx = mai_lx+"天";
-										}
-										String highTemp = null;//高温
-										String lowTemp = null;//低温
-										String highWind = null;//最大风速
-										String highRain = null;//最大降水量
+
+//										String mai_lx = obj.getInt("mai_lx")+"";//连续霾天数
+//										if (TextUtils.equals(mai_lx, "-1")) {
+//											mai_lx = getString(R.string.no_statics);
+//										}else {
+//											mai_lx = mai_lx+"天";
+//										}
+
+										String highTemp = "";//高温
+										String lowTemp = "";//低温
+										String highWind = "";//最大风速
+										String highRain = "";//最大降水量
+										String lxGaowen = "";//连续高温
 
 										if (!obj.isNull("count")) {
 											JSONArray array = new JSONArray(obj.getString("count"));
@@ -580,65 +586,50 @@ public class StaticsActivity extends BaseActivity implements OnClickListener, On
 											JSONObject itemObj1 = array.getJSONObject(1);//降水
 											JSONObject itemObj5 = array.getJSONObject(5);//风速
 
+											//温度
 											if (!itemObj0.isNull("max") && !itemObj0.isNull("min")) {
 												highTemp = itemObj0.getString("max");
 												if (TextUtils.equals(highTemp, "-1.0")) {
 													highTemp = getString(R.string.no_statics);
 												}else {
-													highTemp = highTemp+"℃";
+													String time = sdf4.format(sdf1.parse(itemObj0.getString("maxtime")));
+													highTemp = highTemp+"℃"+"("+time+")";
 												}
 												lowTemp = itemObj0.getString("min");
 												if (TextUtils.equals(lowTemp, "-1.0")) {
 													lowTemp = getString(R.string.no_statics);
 												}else {
-													lowTemp = lowTemp+"℃";
+													String time = sdf4.format(sdf1.parse(itemObj0.getString("mintime")));
+													lowTemp = lowTemp+"℃"+"("+time+")";
 												}
 											}
+
+											//降水
 											if (!itemObj1.isNull("max")) {
 												highRain = itemObj1.getString("max");
 												if (TextUtils.equals(highRain, "-1.0")) {
 													highRain = getString(R.string.no_statics);
 												}else {
-													highRain = highRain+"mm";
+													String time = sdf4.format(sdf1.parse(itemObj1.getString("maxtime")));
+													highRain = highRain+"mm"+"("+time+")";
 												}
 											}
+
+											//风速
 											if (!itemObj5.isNull("max")) {
 												highWind = itemObj5.getString("max");
 												if (TextUtils.equals(highWind, "-1.0")) {
 													highWind = getString(R.string.no_statics);
 												}else {
-													highWind = highWind+"m/s";
+													String maxlv = itemObj5.getString("maxlv");
+													String time = sdf4.format(sdf1.parse(itemObj5.getString("maxtime")));
+													highWind = highWind+"m/s["+maxlv+"级]"+"("+time+")";
 												}
 											}
+
 										}
 
 										if (startTime != null && endTime != null && highTemp != null && lowTemp != null && highWind != null && highRain != null) {
-											StringBuffer buffer = new StringBuffer();
-											buffer.append(getString(R.string.from)).append(startTime);
-											buffer.append(getString(R.string.to)).append(endTime);
-											buffer.append("：\n");
-											buffer.append(getString(R.string.highest_temp)).append(highTemp).append("，");
-											buffer.append(getString(R.string.lowest_temp)).append(lowTemp).append("，");
-											buffer.append(getString(R.string.max_speed)).append(highWind).append("，");
-											buffer.append(getString(R.string.max_fall)).append(highRain).append("，");
-											buffer.append(getString(R.string.lx_no_fall)).append(no_rain_lx).append("，");
-											buffer.append(getString(R.string.lx_no_mai)).append(mai_lx).append("。");
-
-											SpannableStringBuilder builder = new SpannableStringBuilder(buffer.toString());
-											ForegroundColorSpan builderSpan1 = new ForegroundColorSpan(getResources().getColor(R.color.builder));
-											ForegroundColorSpan builderSpan2 = new ForegroundColorSpan(getResources().getColor(R.color.builder));
-											ForegroundColorSpan builderSpan3 = new ForegroundColorSpan(getResources().getColor(R.color.builder));
-											ForegroundColorSpan builderSpan4 = new ForegroundColorSpan(getResources().getColor(R.color.builder));
-											ForegroundColorSpan builderSpan5 = new ForegroundColorSpan(getResources().getColor(R.color.builder));
-											ForegroundColorSpan builderSpan6 = new ForegroundColorSpan(getResources().getColor(R.color.builder));
-
-											builder.setSpan(builderSpan1, 29, 29+highTemp.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
-											builder.setSpan(builderSpan2, 29+highTemp.length()+6, 29+highTemp.length()+6+lowTemp.length(), Spannable.SPAN_INCLUSIVE_INCLUSIVE);
-											builder.setSpan(builderSpan3, 29+highTemp.length()+6+lowTemp.length()+6, 29+highTemp.length()+6+lowTemp.length()+6+highWind.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
-											builder.setSpan(builderSpan4, 29+highTemp.length()+6+lowTemp.length()+6+highWind.length()+7, 29+highTemp.length()+6+lowTemp.length()+6+highWind.length()+7+highRain.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
-											builder.setSpan(builderSpan5, 29+highTemp.length()+6+lowTemp.length()+6+highWind.length()+7+highRain.length()+8, 29+highTemp.length()+6+lowTemp.length()+6+highWind.length()+7+highRain.length()+8+no_rain_lx.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
-											builder.setSpan(builderSpan6, 29+highTemp.length()+6+lowTemp.length()+6+highWind.length()+7+highRain.length()+8+no_rain_lx.length()+6, 29+highTemp.length()+6+lowTemp.length()+6+highWind.length()+7+highRain.length()+8+no_rain_lx.length()+6+mai_lx.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
-											tvDetail.setText(builder);
 
 											long start = sdf2.parse(startTime).getTime();
 											long end = sdf2.parse(endTime).getTime();
@@ -649,6 +640,7 @@ public class StaticsActivity extends BaseActivity implements OnClickListener, On
 													JSONObject itemObj = array.getJSONObject(i);
 													String name = itemObj.getString("name");
 													int value = itemObj.getInt("value");
+													int maxlx = itemObj.getInt("maxlx");
 
 													if (i == 0) {
 														if (value == -1) {
@@ -671,15 +663,7 @@ public class StaticsActivity extends BaseActivity implements OnClickListener, On
 															mCircularProgressBar2.setProgress(-value/dayCount);
 														}
 													}else if (i == 2) {
-														if (value == -1) {
-															tvBar3.setText(name + "\n" + "--");
-															animate(mCircularProgressBar3, null, 0, 1000);
-															mCircularProgressBar3.setProgress(0);
-														}else {
-															tvBar3.setText(name + "\n" + value + "天");
-															animate(mCircularProgressBar3, null, -value/dayCount, 1000);
-															mCircularProgressBar3.setProgress(-value/dayCount);
-														}
+
 													}else if (i == 3) {
 														if (value == -1) {
 															tvBar4.setText(name + "\n" + "--");
@@ -691,6 +675,20 @@ public class StaticsActivity extends BaseActivity implements OnClickListener, On
 															mCircularProgressBar4.setProgress(-value/dayCount);
 														}
 													}else if (i == 4) {
+
+													}else if (i == 5) {
+														if (value == -1) {
+															tvBar3.setText(name + "\n" + "--");
+															animate(mCircularProgressBar3, null, 0, 1000);
+															mCircularProgressBar3.setProgress(0);
+														}else {
+															tvBar3.setText(name + "\n" + value + "天");
+															animate(mCircularProgressBar3, null, -value/dayCount, 1000);
+															mCircularProgressBar3.setProgress(-value/dayCount);
+														}
+													}else if (i == 6) {
+														lxGaowen = maxlx+"天";
+
 														if (value == -1) {
 															tvBar5.setText(name + "\n" + "--");
 															animate(mCircularProgressBar5, null, 0, 1000);
@@ -703,6 +701,34 @@ public class StaticsActivity extends BaseActivity implements OnClickListener, On
 													}
 												}
 											}
+
+											StringBuffer buffer = new StringBuffer();
+											buffer.append(getString(R.string.from)).append(startTime);
+											buffer.append(getString(R.string.to)).append(endTime);
+											buffer.append("：\n");
+											buffer.append(getString(R.string.highest_temp)).append(highTemp).append("，");
+											buffer.append(getString(R.string.lowest_temp)).append(lowTemp).append("，");
+											buffer.append(getString(R.string.max_speed)).append(highWind).append("，");
+											buffer.append(getString(R.string.max_fall)).append(highRain).append("，");
+											buffer.append(getString(R.string.lx_no_fall)).append(no_rain_lx).append("，");
+											buffer.append(getString(R.string.lx_gaowen)).append(lxGaowen).append("。");
+
+											SpannableStringBuilder builder = new SpannableStringBuilder(buffer.toString());
+											ForegroundColorSpan builderSpan1 = new ForegroundColorSpan(getResources().getColor(R.color.builder));
+											ForegroundColorSpan builderSpan2 = new ForegroundColorSpan(getResources().getColor(R.color.builder));
+											ForegroundColorSpan builderSpan3 = new ForegroundColorSpan(getResources().getColor(R.color.builder));
+											ForegroundColorSpan builderSpan4 = new ForegroundColorSpan(getResources().getColor(R.color.builder));
+											ForegroundColorSpan builderSpan5 = new ForegroundColorSpan(getResources().getColor(R.color.builder));
+											ForegroundColorSpan builderSpan6 = new ForegroundColorSpan(getResources().getColor(R.color.builder));
+
+											builder.setSpan(builderSpan1, 29, 29+highTemp.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+											builder.setSpan(builderSpan2, 29+highTemp.length()+6, 29+highTemp.length()+6+lowTemp.length(), Spannable.SPAN_INCLUSIVE_INCLUSIVE);
+											builder.setSpan(builderSpan3, 29+highTemp.length()+6+lowTemp.length()+6, 29+highTemp.length()+6+lowTemp.length()+6+highWind.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+											builder.setSpan(builderSpan4, 29+highTemp.length()+6+lowTemp.length()+6+highWind.length()+7, 29+highTemp.length()+6+lowTemp.length()+6+highWind.length()+7+highRain.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+											builder.setSpan(builderSpan5, 29+highTemp.length()+6+lowTemp.length()+6+highWind.length()+7+highRain.length()+8, 29+highTemp.length()+6+lowTemp.length()+6+highWind.length()+7+highRain.length()+8+no_rain_lx.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+											builder.setSpan(builderSpan6, 29+highTemp.length()+6+lowTemp.length()+6+highWind.length()+7+highRain.length()+8+no_rain_lx.length()+7, 29+highTemp.length()+6+lowTemp.length()+6+highWind.length()+7+highRain.length()+8+no_rain_lx.length()+7+lxGaowen.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+											tvDetail.setText(builder);
+
 										}
 										progressBar.setVisibility(View.INVISIBLE);
 										reContent.setVisibility(View.VISIBLE);

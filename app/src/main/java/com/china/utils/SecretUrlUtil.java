@@ -108,7 +108,7 @@ public class SecretUrlUtil {
      * 天气统计详情
      * @return
      */
-    public static String statisticDetail(String stationid, String areaid) {
+    public static String statisticDetail(String stationid) {
         String URL = "http://scapi.weather.com.cn/weather/historycount";
         SimpleDateFormat sdf1 = new SimpleDateFormat("yyyyMMddHHmm");
         String sysdate = sdf1.format(new Date());
@@ -117,7 +117,7 @@ public class SecretUrlUtil {
         buffer.append("?");
         buffer.append("stationid=").append(stationid);
         buffer.append("&");
-        buffer.append("areaid=").append(areaid);
+        buffer.append("type=").append("all");
         buffer.append("&");
         buffer.append("date=").append(sysdate);
         buffer.append("&");

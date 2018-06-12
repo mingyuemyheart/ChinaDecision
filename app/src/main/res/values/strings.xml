@@ -251,7 +251,8 @@
     <string name="max_fall">日最大降水量</string>
     <string name="lx_no_fall">连续无降水日数</string>
     <string name="lx_no_mai">连续霾日数</string>
-    
+    <string name="lx_gaowen">连续高温日数</string>
+
     <!-- 新闻类 -->
     <string name="last_page">已经是最后一页</string>
     

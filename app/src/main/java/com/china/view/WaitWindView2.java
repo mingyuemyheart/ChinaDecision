@@ -69,7 +69,7 @@ public class WaitWindView2 extends View {
 		height = dm.heightPixels;
 
 		paint = new Paint();
-		paint.setColor(0x8055A7FF);
+		paint.setColor(Color.WHITE);
 		paint.setAntiAlias(true);
 		paint.setStrokeWidth(4f);
 
