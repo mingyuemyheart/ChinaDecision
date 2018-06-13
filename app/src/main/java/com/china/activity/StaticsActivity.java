@@ -560,12 +560,12 @@ public class StaticsActivity extends BaseActivity implements OnClickListener, On
 										String startTime = sdf2.format(sdf3.parse(obj.getString("starttime")));
 										String endTime = sdf2.format(sdf3.parse(obj.getString("endtime")));
 
-										String no_rain_lx = obj.getInt("no_rain_lx")+"";//连续没雨天数
-										if (TextUtils.equals(no_rain_lx, "-1")) {
-											no_rain_lx = getString(R.string.no_statics);
-										}else {
-											no_rain_lx = no_rain_lx+"天";
-										}
+//										String no_rain_lx = obj.getInt("no_rain_lx")+"";//连续没雨天数
+//										if (TextUtils.equals(no_rain_lx, "-1")) {
+//											no_rain_lx = getString(R.string.no_statics);
+//										}else {
+//											no_rain_lx = no_rain_lx+"天";
+//										}
 
 //										String mai_lx = obj.getInt("mai_lx")+"";//连续霾天数
 //										if (TextUtils.equals(mai_lx, "-1")) {
@@ -579,6 +579,7 @@ public class StaticsActivity extends BaseActivity implements OnClickListener, On
 										String highWind = "";//最大风速
 										String highRain = "";//最大降水量
 										String lxGaowen = "";//连续高温
+                                        String no_rain_lx = "";//连续没雨天数
 
 										if (!obj.isNull("count")) {
 											JSONArray array = new JSONArray(obj.getString("count"));
@@ -641,6 +642,10 @@ public class StaticsActivity extends BaseActivity implements OnClickListener, On
 													String name = itemObj.getString("name");
 													int value = itemObj.getInt("value");
 													int maxlx = itemObj.getInt("maxlx");
+													int nomaxlx = 0;
+													if (!itemObj.isNull("nomaxlx")) {
+                                                        nomaxlx = itemObj.getInt("nomaxlx");
+                                                    }
 
 													if (i == 0) {
 														if (value == -1) {
@@ -653,6 +658,8 @@ public class StaticsActivity extends BaseActivity implements OnClickListener, On
 															mCircularProgressBar1.setProgress(-value/dayCount);
 														}
 													}else if (i == 1) {
+                                                        no_rain_lx = nomaxlx+"天";
+
 														if (value == -1) {
 															tvBar2.setText(name + "\n" + "--");
 															animate(mCircularProgressBar2, null, 0, 1000);
