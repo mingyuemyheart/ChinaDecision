@@ -39,7 +39,6 @@ import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
-import android.widget.GridView;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
@@ -56,6 +55,7 @@ import com.china.R;
 import com.china.adapter.MainAdapter;
 import com.china.common.CONST;
 import com.china.common.ColumnData;
+import com.china.common.MyApplication;
 import com.china.dto.NewsDto;
 import com.china.dto.WarningDto;
 import com.china.dto.WeatherDto;
@@ -73,6 +73,7 @@ import com.china.view.HourView;
 import com.china.view.MainViewPager;
 import com.china.view.MyHorizontalScrollView;
 import com.china.view.MyHorizontalScrollView.ScrollListener;
+import com.china.view.ScrollviewGridview;
 import com.china.view.VerticalSwipeRefreshLayout;
 
 import org.json.JSONArray;
@@ -93,7 +94,7 @@ import okhttp3.Callback;
 import okhttp3.Request;
 import okhttp3.Response;
 
-public class MainActivity extends BaseActivity implements OnClickListener, AMapLocationListener{
+public class MainActivity extends BaseActivity implements OnClickListener, AMapLocationListener, MyApplication.NavigationListener{
 	
 	private Context mContext = null;
 	private ImageView ivAdd = null;
@@ -119,7 +120,7 @@ public class MainActivity extends BaseActivity implements OnClickListener, AMapL
 	private long mExitTime;//记录点击完返回按钮后的long型时间
 	private AMapLocationClientOption mLocationOption = null;//声明mLocationOption对象
 	private AMapLocationClient mLocationClient = null;//声明AMapLocationClient类对象
-	private GridView gridView = null;
+	private ScrollviewGridview gridView = null;
 	private MainAdapter mAdapter = null;
 	private ArrayList<ColumnData> channelList = new ArrayList<>();
 	private List<WarningDto> warningList = new ArrayList<>();//预警列表
@@ -172,6 +173,50 @@ public class MainActivity extends BaseActivity implements OnClickListener, AMapL
 		initWidget();
 		initViewPager();
 		initGridView();
+		MyApplication.setNavigationListener(this);
+	}
+
+	@Override
+	public void showNavigation(boolean show) {
+		onLayoutMeasure();
+	}
+
+	@Override
+	protected void onResume() {
+		super.onResume();
+		onLayoutMeasure();
+	}
+
+	/**
+	 * 判断navigation是否显示，重新计算页面布局
+	 */
+	private void onLayoutMeasure() {
+		DisplayMetrics dm = new DisplayMetrics();
+		getWindowManager().getDefaultDisplay().getMetrics(dm);
+		width = dm.widthPixels;
+		height = dm.heightPixels;
+
+		int statusBarHeight = -1;//状态栏高度
+		//获取status_bar_height资源的ID
+		int resourceId = getResources().getIdentifier("status_bar_height", "dimen", "android");
+		if (resourceId > 0) {
+			//根据资源ID获取响应的尺寸值
+			statusBarHeight = getResources().getDimensionPixelSize(resourceId);
+		}
+		reTitle.measure(0, 0);
+		int height1 = reTitle.getMeasuredHeight();
+		llFact.measure(0, 0);
+		int height2 = llFact.getMeasuredHeight();
+		int height3 = 0;
+		if (viewPager != null && pdfList.size() > 0) {
+			viewPager.measure(0, 0);
+			height3 = (int)(30*density);
+		}
+
+		if (mAdapter != null) {
+			mAdapter.height = height-statusBarHeight-height1-height2-height3;
+			mAdapter.notifyDataSetChanged();
+		}
 	}
 
     /**
@@ -626,42 +671,47 @@ public class MainActivity extends BaseActivity implements OnClickListener, AMapL
 							runOnUiThread(new Runnable() {
 								@Override
 								public void run() {
-									if (content != null) {
+									String result = content.toString();
+									if (!TextUtils.isEmpty(result)) {
 										try {
+											JSONObject obj = new JSONObject(result);
+
 											//实况信息
-											JSONObject object = content.getWeatherFactInfo();
-											if (!object.isNull("l7")) {
-												String time = object.getString("l7");
-												if (time != null) {
-													tvTime.setText(time + getString(R.string.publish));
+											if (!obj.isNull("l")) {
+												JSONObject l = obj.getJSONObject("l");
+												if (!l.isNull("l7")) {
+													String time = l.getString("l7");
+													if (time != null) {
+														tvTime.setText(time + getString(R.string.publish));
+													}
 												}
-											}
-											if (!object.isNull("l1")) {
-												String factTemp = WeatherUtil.lastValue(object.getString("l1"));
-												tvTemperature.setText(factTemp);
-											}
-											if (!object.isNull("l2")) {
-												String humidity = WeatherUtil.lastValue(object.getString("l2"));
-												if (TextUtils.isEmpty(humidity) || TextUtils.equals(humidity, "null")) {
-													tvHumidity.setText("湿度" + "--");
-												}else {
-													tvHumidity.setText("湿度" + humidity + getString(R.string.unit_percent));
+												if (!l.isNull("l1")) {
+													String factTemp = WeatherUtil.lastValue(l.getString("l1"));
+													tvTemperature.setText(factTemp);
 												}
-											}
-											if (!object.isNull("l4")) {
-												String windDir = WeatherUtil.lastValue(object.getString("l4"));
-												if (!object.isNull("l3")) {
-													String windForce = WeatherUtil.lastValue(object.getString("l3"));
-													tvWind.setText(getString(WeatherUtil.getWindDirection(Integer.valueOf(windDir))) +
-															WeatherUtil.getFactWindForce(Integer.valueOf(windForce)));
+												if (!l.isNull("l2")) {
+													String humidity = WeatherUtil.lastValue(l.getString("l2"));
+													if (TextUtils.isEmpty(humidity) || TextUtils.equals(humidity, "null")) {
+														tvHumidity.setText("湿度" + "--");
+													}else {
+														tvHumidity.setText("湿度" + humidity + getString(R.string.unit_percent));
+													}
+												}
+												if (!l.isNull("l4")) {
+													String windDir = WeatherUtil.lastValue(l.getString("l4"));
+													if (!l.isNull("l3")) {
+														String windForce = WeatherUtil.lastValue(l.getString("l3"));
+														tvWind.setText(getString(WeatherUtil.getWindDirection(Integer.valueOf(windDir))) +
+																WeatherUtil.getFactWindForce(Integer.valueOf(windForce)));
+													}
 												}
 											}
 
-											//空气质量
-											JSONObject obj = content.getAirQualityInfo();
-											if (obj != null) {
-												if (!obj.isNull("k3")) {
-													String num = WeatherUtil.lastValue(obj.getString("k3"));
+											//aqi信息
+											if (!obj.isNull("k")) {
+												JSONObject k = obj.getJSONObject("k");
+												if (!k.isNull("k3")) {
+													String num = WeatherUtil.lastValue(k.getString("k3"));
 													if (!TextUtils.isEmpty(num)) {
 														tvQuality.setText("AQI" + " " +
 																WeatherUtil.getAqi(mContext, Integer.valueOf(num)) + " " + num);
@@ -670,127 +720,74 @@ public class MainActivity extends BaseActivity implements OnClickListener, AMapL
 												}
 											}
 
-											//预警
-											warningList.clear();
-											JSONArray warningArray = content.getWarningInfo();
-											if (warningArray != null && warningArray.length() > 0) {
-												for (int j = 0; j < warningArray.length(); j++) {
-													JSONObject warningObj = warningArray.getJSONObject(j);
-													if (!warningObj.isNull("w11")) {
-														WarningDto dto = new WarningDto();
-														String html = warningObj.getString("w11");
-														dto.html = html;
-														if (!TextUtils.isEmpty(html) && html.contains("content2")) {
-															dto.html = html.substring(html.indexOf("content2/")+"content2/".length(), html.length());
-															String[] array = dto.html.split("-");
-															String item0 = array[0];
-															String item1 = array[1];
-															String item2 = array[2];
-
-															dto.item0 = item0;
-															dto.provinceId = item0.substring(0, 2);
-															dto.type = item2.substring(0, 5);
-															dto.color = item2.substring(5, 7);
-															dto.time = item1;
-															String w1 = warningObj.getString("w1");
-															String w3 = warningObj.getString("w3");
-															String w5 = warningObj.getString("w5");
-															String w7 = warningObj.getString("w7");
-															dto.name = w1+w3+"发布"+w5+w7+"预警";
-															warningList.add(dto);
-
-															if (j == 0) {
-																tvWarning.setText(w5+w7+"预警");
-																llWarning.setVisibility(View.VISIBLE);
-															}
-														}
-													}
-												}
-											}
-
 											//逐小时预报信息
-											JSONArray hourlyArray = content.getHourlyFineForecast2();
-											List<WeatherDto> hourlyList = new ArrayList<>();
-											for (int i = 0; i < hourlyArray.length(); i++) {
-												JSONObject itemObj = hourlyArray.getJSONObject(i);
-												WeatherDto dto = new WeatherDto();
-												dto.hourlyCode = Integer.valueOf(itemObj.getString("ja"));
-												dto.hourlyTemp = Integer.valueOf(itemObj.getString("jb"));
-												dto.hourlyTime = itemObj.getString("jf");
-												hourlyList.add(dto);
-											}
+											if (!obj.isNull("jh")) {
+												JSONArray jh = obj.getJSONArray("jh");
+												List<WeatherDto> hourlyList = new ArrayList<>();
+												for (int i = 0; i < jh.length(); i++) {
+													JSONObject itemObj = jh.getJSONObject(i);
+													WeatherDto dto = new WeatherDto();
+													dto.hourlyCode = Integer.valueOf(itemObj.getString("ja"));
+													dto.hourlyTemp = Integer.valueOf(itemObj.getString("jb"));
+													dto.hourlyTime = itemObj.getString("jf");
+													hourlyList.add(dto);
+												}
 
-											hourView = new HourView(mContext);
-											hourView.setData(hourlyList, width*2/density, MainActivity.this);
-											llContainer1.removeAllViews();
-											llContainer1.addView(hourView, (int)(CommonUtil.dip2px(mContext, width*2/density)), (int)(CommonUtil.dip2px(mContext, 100)));
+												hourView = new HourView(mContext);
+												hourView.setData(hourlyList, width*2/density, MainActivity.this);
+												llContainer1.removeAllViews();
+												llContainer1.addView(hourView, (int)(CommonUtil.dip2px(mContext, width*2/density)), (int)(CommonUtil.dip2px(mContext, 100)));
+											}
 
 											//15天预报信息
-											llContainer2.removeAllViews();
-											for (int i = 1; i <= 15; i++) {
-												JSONArray timeArray = content.getTimeInfo(i);
-												JSONObject timeObj = timeArray.getJSONObject(0);
-												String week = timeObj.getString("t4");//星期几
-												String date = timeObj.getString("t1");//日期
+											if (!obj.isNull("f")) {
+												llContainer2.removeAllViews();
+												JSONObject f = obj.getJSONObject("f");
+												String f0 = f.getString("f0");
+												JSONArray f1 = f.getJSONArray("f1");
+												for (int i = 0; i < f1.length(); i++) {
+													String week = CommonUtil.getWeek(i);//星期几
+													String date = CommonUtil.getDate(f0, i);//日期
 
-												JSONArray weeklyArray = content.getWeatherForecastInfo(i);
-												JSONObject weeklyObj = weeklyArray.getJSONObject(0);
-												//晚上
-												int lowPheCode = Integer.valueOf(weeklyObj.getString("fb"));
-												String lowPhe  = getString(WeatherUtil.getWeatherId(Integer.valueOf(weeklyObj.getString("fb"))));
-												int lowTemp = Integer.valueOf(weeklyObj.getString("fd"));
+													//预报内容
+													JSONObject weeklyObj = f1.getJSONObject(i);
+													//晚上
+													int lowPheCode = Integer.valueOf(weeklyObj.getString("fb"));
+													int lowTemp = Integer.valueOf(weeklyObj.getString("fd"));
 
-												int highPheCode = 0;
-												String highPhe = null;
-												int highTemp = 0;
-
-												//白天数据缺失时，就使用第二天白天数据
-												if (TextUtils.isEmpty(weeklyObj.getString("fa"))) {
-													JSONObject secondObj = content.getWeatherForecastInfo(2).getJSONObject(0);
-													highPheCode = Integer.valueOf(secondObj.getString("fa"));
-													highPhe = getString(WeatherUtil.getWeatherId(Integer.valueOf(secondObj.getString("fa"))));
-
-													int time1 = Integer.valueOf(secondObj.getString("fc"));
-													int time2 = Integer.valueOf(weeklyObj.getString("fd"));
-													if (time1 <= time2) {
-														highTemp = time2 + 2;
-													}else {
-														highTemp = Integer.valueOf(secondObj.getString("fc"));
-													}
-												}else {
 													//白天
-													highPheCode = Integer.valueOf(weeklyObj.getString("fa"));
-													highPhe = getString(WeatherUtil.getWeatherId(Integer.valueOf(weeklyObj.getString("fa"))));
-													highTemp = Integer.valueOf(weeklyObj.getString("fc"));
-												}
+													int highPheCode = Integer.valueOf(weeklyObj.getString("fa"));
+													int highTemp = Integer.valueOf(weeklyObj.getString("fc"));
 
-												LayoutInflater inflater = (LayoutInflater) getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-												View view = inflater.inflate(R.layout.weekly_layout, null);
-												TextView tvWeek = (TextView) view.findViewById(R.id.tvWeek);
-												ImageView ivPheHigh = (ImageView) view.findViewById(R.id.ivPheHigh);
-												ImageView ivPheLow = (ImageView) view.findViewById(R.id.ivPheLow);
-												TextView tvTemp = (TextView) view.findViewById(R.id.tvTemp);
-												if (i == 1) {
-													tvWeek.setText(getString(R.string.today));
-												}else {
-													String weekStr = mContext.getString(R.string.week)+week.substring(week.length()-1, week.length());
-													tvWeek.setText(weekStr);
+													LayoutInflater inflater = (LayoutInflater) getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+													View view = inflater.inflate(R.layout.weekly_layout, null);
+													TextView tvWeek = (TextView) view.findViewById(R.id.tvWeek);
+													ImageView ivPheHigh = (ImageView) view.findViewById(R.id.ivPheHigh);
+													ImageView ivPheLow = (ImageView) view.findViewById(R.id.ivPheLow);
+													TextView tvTemp = (TextView) view.findViewById(R.id.tvTemp);
+													if (i == 0) {
+														tvWeek.setText("今天");
+													}else if (i == 1) {
+														tvWeek.setText("明天");
+													}else {
+														tvWeek.setText(week);
+													}
+													ivPheHigh.setImageBitmap(WeatherUtil.getDayBitmap(mContext, highPheCode));
+													ivPheLow.setImageBitmap(WeatherUtil.getNightBitmap(mContext, lowPheCode));
+													tvTemp.setText(highTemp+getString(R.string.unit_degree)+"/"+lowTemp+getString(R.string.unit_degree));
+													llContainer2.addView(view);
 												}
-												ivPheHigh.setImageBitmap(WeatherUtil.getDayBitmap(mContext, highPheCode));
-												ivPheLow.setImageBitmap(WeatherUtil.getNightBitmap(mContext, lowPheCode));
-												tvTemp.setText(highTemp+getString(R.string.unit_degree)+"/"+lowTemp+getString(R.string.unit_degree));
-												llContainer2.addView(view);
 											}
+
 										} catch (JSONException e) {
 											e.printStackTrace();
-										} catch (NullPointerException e) {
-											e.printStackTrace();
 										}
-
-										refreshLayout.setRefreshing(false);
-										progressBar.setVisibility(View.GONE);
-										llFact.setVisibility(View.VISIBLE);
 									}
+
+									refreshLayout.setRefreshing(false);
+									progressBar.setVisibility(View.GONE);
+									llFact.setVisibility(View.VISIBLE);
+
 								}
 							});
 						}
@@ -801,11 +798,17 @@ public class MainActivity extends BaseActivity implements OnClickListener, AMapL
 						}
 					});
 
-//								//获取预警信息
-//								String warningId = queryWarningIdByCityId(cityId);
-//								if (!TextUtils.isEmpty(warningId)) {
-//									OkHttpWarning("http://decision-admin.tianqi.cn/Home/extra/getwarns?order=1&areaid="+warningId);
-//								}
+					runOnUiThread(new Runnable() {
+						@Override
+						public void run() {
+							//获取预警信息
+							String warningId = queryWarningIdByCityId(cityId);
+							if (!TextUtils.isEmpty(warningId)) {
+								OkHttpWarning("http://decision-admin.tianqi.cn/Home/extra/getwarns?order=1&areaid="+"21");
+							}
+						}
+					});
+
 				}
 			}
 		}).start();
@@ -819,8 +822,7 @@ public class MainActivity extends BaseActivity implements OnClickListener, AMapL
 		dbManager.openDateBase();
 		dbManager.closeDatabase();
 		SQLiteDatabase database = SQLiteDatabase.openOrCreateDatabase(DBManager.DB_PATH + "/" + DBManager.DB_NAME, null);
-		Cursor cursor = null;
-		cursor = database.rawQuery("select * from " + DBManager.TABLE_NAME3 + " where cid = " + "\"" + cityId + "\"",null);
+		Cursor cursor = database.rawQuery("select * from " + DBManager.TABLE_NAME3 + " where cid = " + "\"" + cityId + "\"",null);
 		String warningId = null;
 		for (int i = 0; i < cursor.getCount(); i++) {
 			cursor.moveToPosition(i);
@@ -911,23 +913,6 @@ public class MainActivity extends BaseActivity implements OnClickListener, AMapL
 	}
 
 	private void initGridView() {
-		int statusBarHeight = -1;//状态栏高度
-		//获取status_bar_height资源的ID
-		int resourceId = getResources().getIdentifier("status_bar_height", "dimen", "android");
-		if (resourceId > 0) {
-			//根据资源ID获取响应的尺寸值
-			statusBarHeight = getResources().getDimensionPixelSize(resourceId);
-		}
-		reTitle.measure(0, 0);
-		int height1 = reTitle.getMeasuredHeight();
-		llFact.measure(0, 0);
-		int height2 = llFact.getMeasuredHeight();
-		int height3 = 0;
-		if (viewPager != null && pdfList.size() > 0) {
-			viewPager.measure(0, 0);
-			height3 = (int)(30*density);
-		}
-
 		channelList.clear();
 		if (!getIntent().hasExtra("dataList")) {
 			return;
@@ -937,12 +922,10 @@ public class MainActivity extends BaseActivity implements OnClickListener, AMapL
 			return;
 		}
 		channelList.addAll(dataList);
-		gridView = (GridView) findViewById(R.id.gridView);
-		mAdapter = new MainAdapter(mContext, channelList, height-statusBarHeight-height1-height2-height3);
+		gridView = (ScrollviewGridview) findViewById(R.id.gridView);
+		mAdapter = new MainAdapter(mContext, channelList);
 		gridView.setAdapter(mAdapter);
-		ViewGroup.LayoutParams params = gridView.getLayoutParams();
-		params.height = (int) ((height-statusBarHeight-height1-height2-height3)/3*Math.ceil((double)(channelList.size()/3.0f)));
-		gridView.setLayoutParams(params);
+		onLayoutMeasure();
 		gridView.setOnItemClickListener(new OnItemClickListener() {
 			@Override
 			public void onItemClick(AdapterView<?> arg0, View arg1, int arg2, long arg3) {

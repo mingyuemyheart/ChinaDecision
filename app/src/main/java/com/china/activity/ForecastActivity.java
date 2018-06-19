@@ -156,50 +156,55 @@ public class ForecastActivity extends BaseActivity implements OnClickListener{
 						runOnUiThread(new Runnable() {
 							@Override
 							public void run() {
-								if (content != null) {
+								String result = content.toString();
+								if (!TextUtils.isEmpty(result)) {
 									try {
+										JSONObject obj = new JSONObject(result);
+
 										//实况信息
-										JSONObject object = content.getWeatherFactInfo();
-										if (!object.isNull("l7")) {
-											String time = object.getString("l7");
-											if (time != null) {
-												tvTime.setText(time + getString(R.string.publish));
+										if (!obj.isNull("l")) {
+											JSONObject l = obj.getJSONObject("l");
+											if (!l.isNull("l7")) {
+												String time = l.getString("l7");
+												if (time != null) {
+													tvTime.setText(time + getString(R.string.publish));
+												}
 											}
-										}
-										if (!object.isNull("l5")) {
-											String weatherCode = WeatherUtil.lastValue(object.getString("l5"));
-											int current = Integer.parseInt(sdf2.format(new Date()));
-											if (current >= 5 && current < 18) {
-												ivPhenomenon.setImageBitmap(WeatherUtil.getDayBitmap(mContext, Integer.valueOf(weatherCode)));
-											}else {
-												ivPhenomenon.setImageBitmap(WeatherUtil.getNightBitmap(mContext, Integer.valueOf(weatherCode)));
+											if (!l.isNull("l5")) {
+												String weatherCode = WeatherUtil.lastValue(l.getString("l5"));
+												int current = Integer.parseInt(sdf2.format(new Date()));
+												if (current >= 5 && current < 18) {
+													ivPhenomenon.setImageBitmap(WeatherUtil.getDayBitmap(mContext, Integer.valueOf(weatherCode)));
+												}else {
+													ivPhenomenon.setImageBitmap(WeatherUtil.getNightBitmap(mContext, Integer.valueOf(weatherCode)));
+												}
+												tvPhe.setText(getString(WeatherUtil.getWeatherId(Integer.valueOf(weatherCode))));
 											}
-											tvPhe.setText(getString(WeatherUtil.getWeatherId(Integer.valueOf(weatherCode))));
-										}
-										if (!object.isNull("l1")) {
-											String factTemp = WeatherUtil.lastValue(object.getString("l1"));
-											tvTemp.setText(factTemp);
-										}
-										if (!object.isNull("l2")) {
-											String humidity = WeatherUtil.lastValue(object.getString("l2"));
-											tvHumidity.setText(getString(R.string.humidity)+" "+humidity + getString(R.string.unit_percent));
-										}
-										if (!object.isNull("l4")) {
-											String windDir = WeatherUtil.lastValue(object.getString("l4"));
-											if (!object.isNull("l3")) {
-												String windForce = WeatherUtil.lastValue(object.getString("l3"));
-												if (!TextUtils.isEmpty(windDir) && !TextUtils.isEmpty(windForce)) {
-													tvWind.setText(getString(WeatherUtil.getWindDirection(Integer.valueOf(windDir)))+
-															" " + WeatherUtil.getFactWindForce(Integer.valueOf(windForce)));
+											if (!l.isNull("l1")) {
+												String factTemp = WeatherUtil.lastValue(l.getString("l1"));
+												tvTemp.setText(factTemp);
+											}
+											if (!l.isNull("l2")) {
+												String humidity = WeatherUtil.lastValue(l.getString("l2"));
+												tvHumidity.setText(getString(R.string.humidity)+" "+humidity + getString(R.string.unit_percent));
+											}
+											if (!l.isNull("l4")) {
+												String windDir = WeatherUtil.lastValue(l.getString("l4"));
+												if (!l.isNull("l3")) {
+													String windForce = WeatherUtil.lastValue(l.getString("l3"));
+													if (!TextUtils.isEmpty(windDir) && !TextUtils.isEmpty(windForce)) {
+														tvWind.setText(getString(WeatherUtil.getWindDirection(Integer.valueOf(windDir)))+
+																" " + WeatherUtil.getFactWindForce(Integer.valueOf(windForce)));
+													}
 												}
 											}
 										}
 
 										//空气质量
-										JSONObject obj = content.getAirQualityInfo();
-										if (obj != null) {
-											if (!obj.isNull("k3")) {
-												String num = WeatherUtil.lastValue(obj.getString("k3"));
+										if (!obj.isNull("k")) {
+											JSONObject k = obj.getJSONObject("k");
+											if (!k.isNull("k3")) {
+												String num = WeatherUtil.lastValue(k.getString("k3"));
 												if (!TextUtils.isEmpty(num)) {
 													tvQuality.setText(getString(R.string.weather_quality) + " " +
 															WeatherUtil.getAqi(mContext, Integer.valueOf(num)) + " " + num);
@@ -208,126 +213,113 @@ public class ForecastActivity extends BaseActivity implements OnClickListener{
 										}
 
 										//逐小时预报信息
-										JSONArray hourlyArray = content.getHourlyFineForecast2();
-										llContainer1.removeAllViews();
-										for (int i = 0; i < hourlyArray.length(); i++) {
-											JSONObject itemObj = hourlyArray.getJSONObject(i);
-											int hourlyCode = Integer.valueOf(itemObj.getString("ja"));
-											int hourlyTemp = Integer.valueOf(itemObj.getString("jb"));
-											String hourlyTime = itemObj.getString("jf");
+										if (!obj.isNull("jh")) {
+											JSONArray jh = obj.getJSONArray("jh");
+											llContainer1.removeAllViews();
+											for (int i = 0; i < jh.length(); i++) {
+												JSONObject itemObj = jh.getJSONObject(i);
+												int hourlyCode = Integer.valueOf(itemObj.getString("ja"));
+												int hourlyTemp = Integer.valueOf(itemObj.getString("jb"));
+												String hourlyTime = itemObj.getString("jf");
 
-											LayoutInflater inflater = (LayoutInflater) getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-											View view = inflater.inflate(R.layout.layout_hour_forecast, null);
-											TextView tvHour = (TextView) view.findViewById(R.id.tvHour);
-											ImageView ivPhe = (ImageView) view.findViewById(R.id.ivPhe);
-											TextView tvPhe = (TextView) view.findViewById(R.id.tvPhe);
-											TextView tvTemp = (TextView) view.findViewById(R.id.tvTemp);
-											try {
-												int current = Integer.parseInt(sdf2.format(sdf1.parse(hourlyTime)));
-												tvHour.setText(current+getString(R.string.hour));
-												if (current >= 5 && current < 18) {
-													ivPhe.setImageBitmap(WeatherUtil.getDayBitmap(mContext, hourlyCode));
-												}else {
-													ivPhe.setImageBitmap(WeatherUtil.getNightBitmap(mContext, hourlyCode));
+												LayoutInflater inflater = (LayoutInflater) getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+												View view = inflater.inflate(R.layout.layout_hour_forecast, null);
+												TextView tvHour = (TextView) view.findViewById(R.id.tvHour);
+												ImageView ivPhe = (ImageView) view.findViewById(R.id.ivPhe);
+												TextView tvPhe = (TextView) view.findViewById(R.id.tvPhe);
+												TextView tvTemp = (TextView) view.findViewById(R.id.tvTemp);
+												try {
+													int current = Integer.parseInt(sdf2.format(sdf1.parse(hourlyTime)));
+													tvHour.setText(current+getString(R.string.hour));
+													if (current >= 5 && current < 18) {
+														ivPhe.setImageBitmap(WeatherUtil.getDayBitmap(mContext, hourlyCode));
+													}else {
+														ivPhe.setImageBitmap(WeatherUtil.getNightBitmap(mContext, hourlyCode));
+													}
+												} catch (ParseException e) {
+													e.printStackTrace();
 												}
+												tvPhe.setText(getString(WeatherUtil.getWeatherId(hourlyCode)));
+												tvTemp.setText(hourlyTemp+getString(R.string.unit_degree));
+												llContainer1.addView(view);
+											}
+										}
+
+										//15天预报
+										if (!obj.isNull("f")) {
+											weeklyList.clear();
+											JSONObject f = obj.getJSONObject("f");
+											String f0 = f.getString("f0");
+
+											long foreDate = 0,currentDate = 0;
+											try {
+												String fTime = sdf3.format(sdf1.parse(f0));
+												foreDate = sdf3.parse(fTime).getTime();
+												currentDate = sdf3.parse(sdf3.format(new Date())).getTime();
 											} catch (ParseException e) {
 												e.printStackTrace();
 											}
-											tvPhe.setText(getString(WeatherUtil.getWeatherId(hourlyCode)));
-											tvTemp.setText(hourlyTemp+getString(R.string.unit_degree));
-											llContainer1.addView(view);
-										}
 
-										//一周预报信息
-										long foreDate = 0;
-										long currentDate = 0;
-										try {
-											String f0 = sdf3.format(sdf1.parse(content.getForecastTime()));
-											foreDate = sdf3.parse(f0).getTime();
-											currentDate = sdf3.parse(sdf3.format(new Date())).getTime();
-										} catch (ParseException e) {
-											e.printStackTrace();
-										}
+											if (!f.isNull("f1")) {
+												JSONArray f1 = f.getJSONArray("f1");
+												for (int i = 0; i < f1.length(); i++) {
+													WeatherDto dto = new WeatherDto();
 
-										weeklyList.clear();
-										//这里只去一周预报，默认为15天，所以遍历7次
-										for (int i = 1; i <= 15; i++) {
-											WeatherDto dto = new WeatherDto();
+													dto.week = CommonUtil.getWeek(i);//星期几
+													dto.date = CommonUtil.getDate(f0, i);//日期
 
-											JSONArray weeklyArray = content.getWeatherForecastInfo(i);
-											JSONObject weeklyObj = weeklyArray.getJSONObject(0);
+													JSONObject weeklyObj = f1.getJSONObject(i);
+													//晚上
+													dto.lowPheCode = Integer.valueOf(weeklyObj.getString("fb"));
+													dto.lowPhe = getString(WeatherUtil.getWeatherId(Integer.valueOf(weeklyObj.getString("fb"))));
+													dto.lowTemp = Integer.valueOf(weeklyObj.getString("fd"));
+													dto.lowWindDir = Integer.valueOf(weeklyObj.getString("ff"));
+													dto.lowWindForce = Integer.valueOf(weeklyObj.getString("fh"));
 
-											//晚上
-											dto.lowPheCode = Integer.valueOf(weeklyObj.getString("fb"));
-											dto.lowPhe = getString(WeatherUtil.getWeatherId(Integer.valueOf(weeklyObj.getString("fb"))));
-											dto.lowTemp = Integer.valueOf(weeklyObj.getString("fd"));
-											dto.lowWindDir = Integer.valueOf(weeklyObj.getString("ff"));
-											dto.lowWindForce = Integer.valueOf(weeklyObj.getString("fh"));
+													//白天
+													dto.highPheCode = Integer.valueOf(weeklyObj.getString("fa"));
+													dto.highPhe = getString(WeatherUtil.getWeatherId(Integer.valueOf(weeklyObj.getString("fa"))));
+													dto.highTemp = Integer.valueOf(weeklyObj.getString("fc"));
+													dto.highWindDir = Integer.valueOf(weeklyObj.getString("fe"));
+													dto.highWindForce = Integer.valueOf(weeklyObj.getString("fg"));
 
-											//白天数据缺失时，就使用第二天白天数据
-											if (TextUtils.isEmpty(weeklyObj.getString("fa"))) {
-												JSONObject secondObj = content.getWeatherForecastInfo(2).getJSONObject(0);
-												dto.highPheCode = Integer.valueOf(secondObj.getString("fa"));
-												dto.highPhe = getString(WeatherUtil.getWeatherId(Integer.valueOf(secondObj.getString("fa"))));
+													weeklyList.add(dto);
 
-												int time1 = Integer.valueOf(secondObj.getString("fc"));
-												int time2 = Integer.valueOf(weeklyObj.getString("fd"));
-												if (time1 <= time2) {
-													dto.highTemp = time2 + 2;
-												}else {
-													dto.highTemp = Integer.valueOf(secondObj.getString("fc"));
-												}
-
-												dto.highWindDir = Integer.valueOf(secondObj.getString("fe"));
-												dto.highWindForce = Integer.valueOf(secondObj.getString("fg"));
-											}else {
-												//白天
-												dto.highPheCode = Integer.valueOf(weeklyObj.getString("fa"));
-												dto.highPhe = getString(WeatherUtil.getWeatherId(Integer.valueOf(weeklyObj.getString("fa"))));
-												dto.highTemp = Integer.valueOf(weeklyObj.getString("fc"));
-												dto.highWindDir = Integer.valueOf(weeklyObj.getString("fe"));
-												dto.highWindForce = Integer.valueOf(weeklyObj.getString("fg"));
-											}
-
-											JSONArray timeArray =  content.getTimeInfo(i);
-											JSONObject timeObj = timeArray.getJSONObject(0);
-											dto.week = timeObj.getString("t4");//星期几
-											dto.date = timeObj.getString("t1");//日期
-
-											weeklyList.add(dto);
-
-											if (currentDate > foreDate) {
-												if (i == 2) {
-													tvForeTemp.setText(dto.highTemp+"℃"+"/"+dto.lowTemp+"℃");
-												}
-											}else {
-												if (i == 1) {
-													tvForeTemp.setText(dto.highTemp+"℃"+"/"+dto.lowTemp+"℃");
+													if (currentDate > foreDate) {
+														if (i == 1) {
+															tvForeTemp.setText(dto.highTemp+"℃"+"/"+dto.lowTemp+"℃");
+														}
+													}else {
+														if (i == 0) {
+															tvForeTemp.setText(dto.highTemp+"℃"+"/"+dto.lowTemp+"℃");
+														}
+													}
 												}
 											}
+
+											//一周预报列表
+											if (mAdapter != null) {
+												mAdapter.foreDate = foreDate;
+												mAdapter.currentDate = currentDate;
+												mAdapter.notifyDataSetChanged();
+											}
+
+											//一周预报曲线
+											WeeklyView weeklyView = new WeeklyView(mContext);
+											weeklyView.setData(weeklyList, foreDate, currentDate);
+											llContainer2.removeAllViews();
+											llContainer2.addView(weeklyView, width*2, (int)(CommonUtil.dip2px(mContext, 400)));
+
 										}
 
-										//一周预报列表
-										if (mAdapter != null) {
-											mAdapter.foreDate = foreDate;
-											mAdapter.currentDate = currentDate;
-											mAdapter.notifyDataSetChanged();
-										}
-
-										//一周预报曲线
-										WeeklyView weeklyView = new WeeklyView(mContext);
-										weeklyView.setData(weeklyList, foreDate, currentDate);
-										llContainer2.removeAllViews();
-										llContainer2.addView(weeklyView, width*2, (int)(CommonUtil.dip2px(mContext, 400)));
 									} catch (JSONException e) {
 										e.printStackTrace();
-									} catch (NullPointerException e) {
-										e.printStackTrace();
 									}
-
-									scrollView.setVisibility(View.VISIBLE);
-									cancelDialog();
 								}
+
+								scrollView.setVisibility(View.VISIBLE);
+								cancelDialog();
+
 							}
 						});
 					}

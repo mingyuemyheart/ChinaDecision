@@ -865,5 +865,65 @@ public class CommonUtil {
 		//返回整个结果
 		return sb.toString();
 	}
+
+    /**
+     * 根据当前时间获取日期
+     * @param i (+1为后一天，-1为前一天，0表示当天)
+     * @return
+     */
+    public static String getDate(String time, int i) {
+        Calendar c = Calendar.getInstance();
+
+        SimpleDateFormat sdf2 = new SimpleDateFormat("yyyyMMddHHmm");
+        try {
+            Date date = sdf2.parse(time);
+            c.setTime(date);
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
+
+        c.add(Calendar.DAY_OF_MONTH, i);
+        SimpleDateFormat sdf1 = new SimpleDateFormat("yyyyMMdd");
+        String date = sdf1.format(c.getTime());
+        return date;
+    }
+
+    /**
+     * 根据当前时间获取星期几
+     * @param i (+1为后一天，-1为前一天，0表示当天)
+     * @return
+     */
+    public static String getWeek(int i) {
+        String week = "";
+
+        Calendar c = Calendar.getInstance();
+        c.add(Calendar.DAY_OF_WEEK, i);
+
+        switch (c.get(Calendar.DAY_OF_WEEK)) {
+            case Calendar.SUNDAY:
+                week = "周日";
+                break;
+            case Calendar.MONDAY:
+                week = "周一";
+                break;
+            case Calendar.TUESDAY:
+                week = "周二";
+                break;
+            case Calendar.WEDNESDAY:
+                week = "周三";
+                break;
+            case Calendar.THURSDAY:
+                week = "周四";
+                break;
+            case Calendar.FRIDAY:
+                week = "周五";
+                break;
+            case Calendar.SATURDAY:
+                week = "周六";
+                break;
+        }
+
+        return week;
+    }
     
 }
