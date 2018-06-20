@@ -26,7 +26,6 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:gravity="center"
-                    android:lineSpacingExtra="3dp"
                     android:padding="5dp"
                     android:textColor="@color/black"
                     android:textSize="@dimen/level_3" />
@@ -36,7 +35,6 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:gravity="center"
-                    android:padding="5dp"
                     android:textColor="@color/text_color4"
                     android:textSize="@dimen/level_5" />
 
@@ -51,11 +49,9 @@
 
                 <ImageView
                     android:id="@+id/imageView"
-                    android:layout_width="120dip"
-                    android:layout_height="120dip"
-                    android:layout_gravity="center"
-                    android:layout_marginBottom="10dp"
-                    android:layout_marginTop="10dp" />
+                    android:layout_width="100dp"
+                    android:layout_height="100dp"
+                    android:layout_gravity="center" />
 
                 <TextView
                     android:id="@+id/tvGuide"
@@ -66,6 +62,47 @@
                     android:textColor="@color/text_color4"
                     android:textSize="@dimen/level_4"
                     android:visibility="gone" />
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="0.5dp"
+                    android:layout_marginTop="10dp"
+                    android:layout_marginBottom="10dp"
+                    android:background="@color/light_gray"/>
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:background="@color/white"
+                    android:paddingLeft="10dp"
+                    android:textColor="@color/black"
+                    android:text="预警信息来源"
+                    android:textSize="@dimen/level_4" />
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:paddingLeft="10dp"
+                    android:layout_marginTop="3dp"
+                    android:background="@color/white"
+                    android:gravity="center_vertical">
+
+                    <ImageView
+                        android:layout_width="20dp"
+                        android:layout_height="20dp"
+                        android:src="@drawable/warning_default"/>
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginLeft="2dp"
+                        android:textColor="@color/black"
+                        android:text="国家预警信息发布中心"
+                        android:textSize="@dimen/level_4" />
+
+                </LinearLayout>
+
             </LinearLayout>
         </ScrollView>
     </com.china.view.RefreshLayout>

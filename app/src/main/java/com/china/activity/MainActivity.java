@@ -804,7 +804,7 @@ public class MainActivity extends BaseActivity implements OnClickListener, AMapL
 							//获取预警信息
 							String warningId = queryWarningIdByCityId(cityId);
 							if (!TextUtils.isEmpty(warningId)) {
-								OkHttpWarning("http://decision-admin.tianqi.cn/Home/extra/getwarns?order=1&areaid="+"21");
+								OkHttpWarning("http://decision-admin.tianqi.cn/Home/extra/getwarns?order=1&areaid="+warningId);
 							}
 						}
 					});
