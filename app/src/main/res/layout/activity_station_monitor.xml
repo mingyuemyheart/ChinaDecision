@@ -1,20 +1,20 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:orientation="vertical" >
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:orientation="vertical">
 
     <RelativeLayout
         android:id="@+id/reTitle"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:background="@color/title_bg"
-        android:orientation="vertical" >
+        android:orientation="vertical">
 
         <RelativeLayout
             android:id="@+id/re"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content" >
+            android:layout_height="wrap_content">
 
             <LinearLayout
                 android:id="@+id/llBack"
@@ -25,12 +25,12 @@
                 android:paddingBottom="12dp"
                 android:paddingLeft="10dp"
                 android:paddingRight="10dp"
-                android:paddingTop="12dp" >
+                android:paddingTop="12dp">
 
                 <ImageView
                     android:layout_width="@dimen/level_2"
                     android:layout_height="@dimen/level_2"
-                    android:src="@drawable/iv_back" />
+                    android:src="@drawable/iv_back"/>
 
                 <TextView
                     android:layout_width="wrap_content"
@@ -38,7 +38,7 @@
                     android:gravity="center_vertical"
                     android:text="@string/back"
                     android:textColor="@color/black"
-                    android:textSize="@dimen/level_4" />
+                    android:textSize="@dimen/level_4"/>
             </LinearLayout>
 
             <TextView
@@ -49,115 +49,105 @@
                 android:gravity="center"
                 android:padding="10dp"
                 android:textColor="@color/black"
-                android:textSize="@dimen/level_3" />
+                android:textSize="@dimen/level_3"/>
 
             <ImageView
                 android:id="@+id/ivShare"
                 android:layout_width="38dp"
                 android:layout_height="38dp"
-                android:padding="10dp"
                 android:layout_alignParentRight="true"
                 android:layout_centerVertical="true"
                 android:layout_marginRight="5dp"
-                android:src="@drawable/iv_share_black" />
+                android:padding="10dp"
+                android:src="@drawable/iv_share_black"/>
         </RelativeLayout>
 
-        <HorizontalScrollView
-            android:id="@+id/hScrollView"
+        <LinearLayout
+            android:id="@+id/llScrollView"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_below="@+id/re"
-            android:overScrollMode="never"
-            android:scrollbarStyle="outsideOverlay"
-            android:scrollbarThumbHorizontal="@drawable/scrollbar_horizontal_line" >
+            android:gravity="center_vertical"
+            android:orientation="horizontal"
+            android:paddingBottom="5dp"
+            android:paddingLeft="10dp"
+            android:paddingRight="10dp"
+            android:paddingTop="5dp">
 
-            <LinearLayout
-                android:id="@+id/llScrollView"
-                android:layout_width="wrap_content"
+            <TextView
+                android:id="@+id/tvRain2"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:background="@color/title_bg"
-                android:gravity="center_vertical"
-                android:orientation="horizontal"
-                android:paddingBottom="5dp"
-                android:paddingLeft="10dp"
-                android:paddingRight="10dp"
-                android:paddingTop="5dp" >
+                android:layout_weight="1"
+                android:background="@drawable/bg_layer_button"
+                android:gravity="center"
+                android:text="@string/rainfall"
+                android:textColor="#2d5a9d"
+                android:textSize="@dimen/level_4"/>
 
-                <TextView
-                    android:id="@+id/tvRain2"
-                    android:layout_width="50dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:background="@drawable/bg_layer_button"
-                    android:gravity="center"
-                    android:text="@string/rainfall"
-                    android:textColor="#2d5a9d"
-                    android:textSize="@dimen/level_4" />
+            <TextView
+                android:id="@+id/tvTemp2"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:gravity="center"
+                android:text="@string/temp"
+                android:textColor="@color/text_color4"
+                android:textSize="@dimen/level_4"/>
 
-                <TextView
-                    android:id="@+id/tvTemp2"
-                    android:layout_width="50dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:gravity="center"
-                    android:text="@string/temp"
-                    android:textColor="@color/text_color4"
-                    android:textSize="@dimen/level_4" />
+            <TextView
+                android:id="@+id/tvHumidity2"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:gravity="center"
+                android:text="湿度"
+                android:textColor="@color/text_color4"
+                android:textSize="@dimen/level_4"/>
 
-                <TextView
-                    android:id="@+id/tvHumidity2"
-                    android:layout_width="70dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:gravity="center"
-                    android:text="@string/humidity"
-                    android:textColor="@color/text_color4"
-                    android:textSize="@dimen/level_4" />
+            <TextView
+                android:id="@+id/tvWindSpeed2"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:gravity="center"
+                android:text="风速"
+                android:textColor="@color/text_color4"
+                android:textSize="@dimen/level_4"/>
 
-                <TextView
-                    android:id="@+id/tvWindSpeed2"
-                    android:layout_width="70dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:gravity="center"
-                    android:text="@string/wind_speed"
-                    android:textColor="@color/text_color4"
-                    android:textSize="@dimen/level_4" />
+            <TextView
+                android:id="@+id/tvVisibility2"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:gravity="center"
+                android:text="@string/visible"
+                android:textColor="@color/text_color4"
+                android:textSize="@dimen/level_4"/>
 
-                <TextView
-                    android:id="@+id/tvVisibility2"
-                    android:layout_width="60dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:gravity="center"
-                    android:text="@string/visible"
-                    android:textColor="@color/text_color4"
-                    android:textSize="@dimen/level_4" />
-
-                <TextView
-                    android:id="@+id/tvPressure2"
-                    android:layout_width="50dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:gravity="center"
-                    android:text="@string/pressure"
-                    android:textColor="@color/text_color4"
-                    android:textSize="@dimen/level_4" />
-            </LinearLayout>
-        </HorizontalScrollView>
+            <TextView
+                android:id="@+id/tvPressure2"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:gravity="center"
+                android:text="@string/pressure"
+                android:textColor="@color/text_color4"
+                android:textSize="@dimen/level_4"/>
+        </LinearLayout>
     </RelativeLayout>
 
     <com.amap.api.maps.MapView
         android:id="@+id/map"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_below="@+id/reTitle" />
+        android:layout_below="@+id/reTitle"/>
 
     <RelativeLayout
         android:id="@+id/reShare"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_below="@+id/reTitle" >
+        android:layout_below="@+id/reTitle">
 
         <TextView
             android:id="@+id/tvLayerName"
@@ -166,50 +156,131 @@
             android:layout_centerHorizontal="true"
             android:layout_marginTop="10dp"
             android:textColor="@color/black"
-            android:textSize="@dimen/level_4" />
+            android:textSize="@dimen/level_4"/>
 
         <LinearLayout
             android:id="@+id/llCursor"
-            android:orientation="vertical"
             android:layout_width="30dp"
             android:layout_height="160dp"
             android:layout_below="@+id/tvLayerName"
-            android:layout_margin="10dp"/>
+            android:layout_margin="10dp"
+            android:orientation="vertical"
+            android:visibility="gone"/>
+
+        <LinearLayout
+            android:id="@+id/llCursor2"
+            android:layout_width="wrap_content"
+            android:layout_height="120dp"
+            android:layout_below="@+id/tvLayerName"
+            android:layout_margin="10dp"
+            android:layout_toRightOf="@+id/llCursor"
+            android:gravity="center_vertical"
+            android:orientation="horizontal">
+
+            <RelativeLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content">
+
+                <TextView
+                    android:id="@+id/tvCursorBar"
+                    android:layout_width="10dp"
+                    android:layout_height="120dp"
+                    android:layout_centerHorizontal="true"
+                    android:background="@drawable/cursor_bg"/>
+
+                <ImageView
+                    android:id="@+id/ivAdd"
+                    android:layout_width="20dp"
+                    android:layout_height="20dp"
+                    android:layout_centerHorizontal="true"
+                    android:src="@drawable/cursor_add"/>
+
+                <ImageView
+                    android:id="@+id/ivMinuse"
+                    android:layout_width="20dp"
+                    android:layout_height="20dp"
+                    android:layout_alignBottom="@+id/tvCursorBar"
+                    android:layout_centerHorizontal="true"
+                    android:src="@drawable/cursor_minuse"/>
+
+                <ImageView
+                    android:id="@+id/ivCursor"
+                    android:layout_width="25dp"
+                    android:layout_height="10dp"
+                    android:layout_centerHorizontal="true"
+                    android:src="@drawable/cursor_move"/>
+
+            </RelativeLayout>
+
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="80dp"
+                android:layout_marginLeft="5dp"
+                android:gravity="center_horizontal"
+                android:orientation="vertical">
+
+                <ImageView
+                    android:layout_width="25dp"
+                    android:layout_height="20dp"
+                    android:layout_weight="1"
+                    android:src="@drawable/cursor_nation"/>
+
+                <ImageView
+                    android:layout_width="25dp"
+                    android:layout_height="20dp"
+                    android:layout_weight="1"
+                    android:src="@drawable/cursor_pro"/>
+
+                <ImageView
+                    android:layout_width="25dp"
+                    android:layout_height="20dp"
+                    android:layout_weight="1"
+                    android:src="@drawable/cursor_city"/>
+
+                <ImageView
+                    android:layout_width="25dp"
+                    android:layout_height="20dp"
+                    android:layout_weight="1"
+                    android:src="@drawable/cursor_dis"/>
+
+            </LinearLayout>
+
+        </LinearLayout>
 
         <ImageView
             android:id="@+id/ivMapSearch"
             android:layout_width="35dp"
             android:layout_height="35dp"
-            android:layout_below="@+id/tvLayerName"
             android:layout_alignParentRight="true"
+            android:layout_below="@+id/tvLayerName"
             android:layout_margin="10dp"
-            android:src="@drawable/skjc_icon_fx" />
+            android:src="@drawable/skjc_icon_fx"/>
 
         <TextView
-            android:visibility="gone"
-            android:layout_below="@+id/ivMapSearch"
             android:id="@+id/tvProName"
             android:layout_width="35dp"
             android:layout_height="35dp"
-            android:textSize="@dimen/level_5"
-            android:textColor="@color/white"
             android:layout_alignParentRight="true"
+            android:layout_below="@+id/ivMapSearch"
             android:layout_marginRight="10dp"
-            android:text="北京"
             android:background="@drawable/skjc_icon_city"
-            android:gravity="center"/>
+            android:gravity="center"
+            android:text="北京"
+            android:textColor="@color/white"
+            android:textSize="@dimen/level_5"
+            android:visibility="gone"/>
 
         <ImageView
-            android:visibility="gone"
             android:id="@+id/ivProName"
             android:layout_width="16dp"
             android:layout_height="16dp"
+            android:layout_alignParentRight="true"
+            android:layout_below="@+id/ivMapSearch"
+            android:layout_marginRight="10dp"
+            android:src="@drawable/skjc_icon_del"
             android:translationX="8dp"
             android:translationY="-8dp"
-            android:layout_below="@+id/ivMapSearch"
-            android:layout_alignParentRight="true"
-            android:layout_marginRight="10dp"
-            android:src="@drawable/skjc_icon_del" />
+            android:visibility="gone"/>
 
         <ImageView
             android:id="@+id/ivRank"
@@ -217,7 +288,7 @@
             android:layout_height="35dp"
             android:layout_above="@+id/ivLocation"
             android:layout_marginLeft="10dp"
-            android:src="@drawable/iv_rank" />
+            android:src="@drawable/iv_rank"/>
 
         <ImageView
             android:id="@+id/ivLocation"
@@ -227,7 +298,7 @@
             android:layout_marginLeft="10dp"
             android:layout_marginTop="10dp"
             android:src="@drawable/tf_icon_wz"
-            android:visibility="gone" />
+            android:visibility="gone"/>
 
         <LinearLayout
             android:id="@+id/llLegend"
@@ -235,20 +306,20 @@
             android:layout_height="wrap_content"
             android:layout_alignParentBottom="true"
             android:gravity="center_vertical"
-            android:paddingLeft="10dp" >
+            android:paddingLeft="10dp">
 
             <ImageView
                 android:id="@+id/ivLegendPrompt"
                 android:layout_width="35dp"
                 android:layout_height="35dp"
                 android:src="@drawable/iv_map_legend"
-                android:visibility="visible" />
+                android:visibility="visible"/>
 
             <ImageView
                 android:id="@+id/ivLegend"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:visibility="visible" />
+                android:visibility="visible"/>
         </LinearLayout>
 
         <RelativeLayout
@@ -259,7 +330,7 @@
             android:background="@color/white"
             android:orientation="vertical"
             android:paddingBottom="10dp"
-            android:visibility="gone" >
+            android:visibility="gone">
 
             <ImageView
                 android:id="@+id/ivDelete"
@@ -267,7 +338,7 @@
                 android:layout_height="40dp"
                 android:layout_alignParentRight="true"
                 android:padding="10dp"
-                android:src="@drawable/iv_delete_black" />
+                android:src="@drawable/iv_delete_black"/>
 
             <TextView
                 android:id="@+id/tvName"
@@ -279,7 +350,7 @@
                 android:layout_marginTop="10dp"
                 android:gravity="center"
                 android:textColor="@color/text_color3"
-                android:textSize="@dimen/level_4" />
+                android:textSize="@dimen/level_4"/>
 
             <TextView
                 android:id="@+id/tvStationId"
@@ -289,7 +360,7 @@
                 android:layout_centerHorizontal="true"
                 android:gravity="center"
                 android:textColor="@color/text_color3"
-                android:textSize="@dimen/level_4" />
+                android:textSize="@dimen/level_4"/>
 
             <LinearLayout
                 android:id="@+id/llDis"
@@ -297,19 +368,19 @@
                 android:layout_height="wrap_content"
                 android:layout_below="@+id/tvStationId"
                 android:layout_centerHorizontal="true"
-                android:gravity="center|bottom" >
+                android:gravity="center|bottom">
 
                 <ImageView
                     android:layout_width="15dp"
                     android:layout_height="15dp"
-                    android:src="@drawable/iv_distance" />
+                    android:src="@drawable/iv_distance"/>
 
                 <TextView
                     android:id="@+id/tvDistance"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:textColor="@color/text_color3"
-                    android:textSize="@dimen/level_5" />
+                    android:textSize="@dimen/level_5"/>
             </LinearLayout>
 
             <LinearLayout
@@ -317,18 +388,18 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_below="@+id/llDis"
-                android:layout_marginTop="10dp" >
+                android:layout_marginTop="10dp">
 
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
                     android:gravity="right"
-                    android:orientation="vertical" >
+                    android:orientation="vertical">
 
                     <LinearLayout
                         android:layout_width="match_parent"
-                        android:layout_height="wrap_content" >
+                        android:layout_height="wrap_content">
 
                         <TextView
                             android:layout_width="match_parent"
@@ -337,7 +408,7 @@
                             android:gravity="right"
                             android:text="@string/temp"
                             android:textColor="@color/text_color2"
-                            android:textSize="@dimen/level_5" />
+                            android:textSize="@dimen/level_5"/>
 
                         <TextView
                             android:id="@+id/tvTemp"
@@ -347,12 +418,12 @@
                             android:layout_weight="3"
                             android:text="--"
                             android:textColor="@color/text_color3"
-                            android:textSize="@dimen/level_5" />
+                            android:textSize="@dimen/level_5"/>
                     </LinearLayout>
 
                     <LinearLayout
                         android:layout_width="match_parent"
-                        android:layout_height="wrap_content" >
+                        android:layout_height="wrap_content">
 
                         <TextView
                             android:layout_width="match_parent"
@@ -361,7 +432,7 @@
                             android:gravity="right"
                             android:text="@string/jiangshui"
                             android:textColor="@color/text_color2"
-                            android:textSize="@dimen/level_5" />
+                            android:textSize="@dimen/level_5"/>
 
                         <TextView
                             android:id="@+id/tvJiangshui"
@@ -371,12 +442,12 @@
                             android:layout_weight="3"
                             android:text="--"
                             android:textColor="@color/text_color3"
-                            android:textSize="@dimen/level_5" />
+                            android:textSize="@dimen/level_5"/>
                     </LinearLayout>
 
                     <LinearLayout
                         android:layout_width="match_parent"
-                        android:layout_height="wrap_content" >
+                        android:layout_height="wrap_content">
 
                         <TextView
                             android:layout_width="match_parent"
@@ -385,7 +456,7 @@
                             android:gravity="right"
                             android:text="@string/humidity"
                             android:textColor="@color/text_color2"
-                            android:textSize="@dimen/level_5" />
+                            android:textSize="@dimen/level_5"/>
 
                         <TextView
                             android:id="@+id/tvShidu"
@@ -395,7 +466,7 @@
                             android:layout_weight="3"
                             android:text="--"
                             android:textColor="@color/text_color3"
-                            android:textSize="@dimen/level_5" />
+                            android:textSize="@dimen/level_5"/>
                     </LinearLayout>
                 </LinearLayout>
 
@@ -404,17 +475,17 @@
                     android:layout_height="match_parent"
                     android:layout_marginLeft="10dp"
                     android:layout_marginRight="10dp"
-                    android:background="@color/light_gray" />
+                    android:background="@color/light_gray"/>
 
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
-                    android:orientation="vertical" >
+                    android:orientation="vertical">
 
                     <LinearLayout
                         android:layout_width="match_parent"
-                        android:layout_height="wrap_content" >
+                        android:layout_height="wrap_content">
 
                         <TextView
                             android:layout_width="match_parent"
@@ -423,7 +494,7 @@
                             android:gravity="right"
                             android:text="@string/wind_speed"
                             android:textColor="@color/text_color2"
-                            android:textSize="@dimen/level_5" />
+                            android:textSize="@dimen/level_5"/>
 
                         <TextView
                             android:id="@+id/tvWind"
@@ -433,13 +504,13 @@
                             android:layout_weight="2"
                             android:text="--"
                             android:textColor="@color/text_color3"
-                            android:textSize="@dimen/level_5" />
+                            android:textSize="@dimen/level_5"/>
                     </LinearLayout>
 
                     <LinearLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:visibility="gone" >
+                        android:visibility="gone">
 
                         <TextView
                             android:layout_width="match_parent"
@@ -448,7 +519,7 @@
                             android:gravity="right"
                             android:text="@string/loudian"
                             android:textColor="@color/text_color2"
-                            android:textSize="@dimen/level_5" />
+                            android:textSize="@dimen/level_5"/>
 
                         <TextView
                             android:id="@+id/tvLoudian"
@@ -458,12 +529,12 @@
                             android:layout_weight="2"
                             android:text="--"
                             android:textColor="@color/text_color3"
-                            android:textSize="@dimen/level_5" />
+                            android:textSize="@dimen/level_5"/>
                     </LinearLayout>
 
                     <LinearLayout
                         android:layout_width="match_parent"
-                        android:layout_height="wrap_content" >
+                        android:layout_height="wrap_content">
 
                         <TextView
                             android:layout_width="match_parent"
@@ -472,7 +543,7 @@
                             android:gravity="right"
                             android:text="@string/visible"
                             android:textColor="@color/text_color2"
-                            android:textSize="@dimen/level_5" />
+                            android:textSize="@dimen/level_5"/>
 
                         <TextView
                             android:id="@+id/tvVisible"
@@ -482,12 +553,12 @@
                             android:layout_weight="2"
                             android:text="--"
                             android:textColor="@color/text_color3"
-                            android:textSize="@dimen/level_5" />
+                            android:textSize="@dimen/level_5"/>
                     </LinearLayout>
 
                     <LinearLayout
                         android:layout_width="match_parent"
-                        android:layout_height="wrap_content" >
+                        android:layout_height="wrap_content">
 
                         <TextView
                             android:layout_width="match_parent"
@@ -496,7 +567,7 @@
                             android:gravity="right"
                             android:text="@string/pressure"
                             android:textColor="@color/text_color2"
-                            android:textSize="@dimen/level_5" />
+                            android:textSize="@dimen/level_5"/>
 
                         <TextView
                             android:id="@+id/tvPressrue"
@@ -506,7 +577,7 @@
                             android:layout_weight="2"
                             android:text="--"
                             android:textColor="@color/text_color3"
-                            android:textSize="@dimen/level_5" />
+                            android:textSize="@dimen/level_5"/>
                     </LinearLayout>
                 </LinearLayout>
             </LinearLayout>
@@ -515,7 +586,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_below="@+id/llDetail"
-                android:layout_marginTop="10dp" >
+                android:layout_marginTop="10dp">
 
                 <TextView
                     android:id="@+id/tvCheckStation"
@@ -526,68 +597,121 @@
                     android:gravity="center"
                     android:text="@string/check_station"
                     android:textColor="#3097c5"
-                    android:textSize="@dimen/level_5" />
+                    android:textSize="@dimen/level_5"/>
             </RelativeLayout>
         </RelativeLayout>
     </RelativeLayout>
 
-    <LinearLayout
-        android:id="@+id/llRain"
-        android:layout_width="80dp"
+    <RelativeLayout
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_below="@+id/reTitle"
-        android:layout_marginLeft="10dp"
-        android:background="@drawable/bg_typhoon_marker_view"
-        android:gravity="center"
-        android:orientation="vertical"
-        android:paddingBottom="5dp"
-        android:paddingTop="5dp"
-        android:visibility="gone" >
+        android:layout_below="@+id/reTitle">
 
-        <TextView
-            android:id="@+id/tv1"
-            android:layout_width="wrap_content"
+        <LinearLayout
+            android:id="@+id/llRain"
+            android:layout_width="70dp"
             android:layout_height="wrap_content"
-            android:text="@string/pass_1"
-            android:textColor="#2d5a9d"
-            android:textSize="@dimen/level_4" />
+            android:background="@drawable/bg_typhoon_marker_view"
+            android:gravity="center"
+            android:orientation="vertical"
+            android:paddingBottom="5dp"
+            android:paddingTop="5dp"
+            android:visibility="invisible">
 
-        <TextView
-            android:id="@+id/tv2"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="3dp"
-            android:text="@string/pass_3"
-            android:textColor="@color/text_color4"
-            android:textSize="@dimen/level_4" />
+            <TextView
+                android:id="@+id/tv1"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/pass_1"
+                android:textColor="#2d5a9d"
+                android:textSize="@dimen/level_5"/>
 
-        <TextView
-            android:id="@+id/tv3"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="3dp"
-            android:text="@string/pass_6"
-            android:textColor="@color/text_color4"
-            android:textSize="@dimen/level_4" />
+            <TextView
+                android:id="@+id/tv2"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="3dp"
+                android:text="@string/pass_3"
+                android:textColor="@color/text_color4"
+                android:textSize="@dimen/level_5"/>
 
-        <TextView
-            android:id="@+id/tv4"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="3dp"
-            android:text="@string/pass_12"
-            android:textColor="@color/text_color4"
-            android:textSize="@dimen/level_4" />
+            <TextView
+                android:id="@+id/tv3"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="3dp"
+                android:text="@string/pass_6"
+                android:textColor="@color/text_color4"
+                android:textSize="@dimen/level_5"/>
 
-        <TextView
-            android:id="@+id/tv5"
-            android:layout_width="wrap_content"
+            <TextView
+                android:id="@+id/tv4"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="3dp"
+                android:text="@string/pass_12"
+                android:textColor="@color/text_color4"
+                android:textSize="@dimen/level_5"/>
+
+            <TextView
+                android:id="@+id/tv5"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="3dp"
+                android:text="@string/pass_24"
+                android:textColor="@color/text_color4"
+                android:textSize="@dimen/level_5"/>
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/llTemp"
+            android:layout_width="70dp"
             android:layout_height="wrap_content"
-            android:layout_marginTop="3dp"
-            android:text="@string/pass_24"
-            android:textColor="@color/text_color4"
-            android:textSize="@dimen/level_4" />
-    </LinearLayout>
+            android:background="@drawable/bg_typhoon_marker_view"
+            android:gravity="center"
+            android:orientation="vertical"
+            android:paddingBottom="5dp"
+            android:paddingTop="5dp"
+            android:visibility="invisible">
+
+            <TextView
+                android:id="@+id/tv21"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="过去1小时"
+                android:textColor="#2d5a9d"
+                android:textSize="@dimen/level_5"/>
+
+            <TextView
+                android:id="@+id/tv22"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="3dp"
+                android:text="最高气温"
+                android:textColor="@color/text_color4"
+                android:textSize="@dimen/level_5"/>
+
+            <TextView
+                android:id="@+id/tv23"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="3dp"
+                android:text="最低气温"
+                android:textColor="@color/text_color4"
+                android:textSize="@dimen/level_5"/>
+
+            <TextView
+                android:id="@+id/tv24"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="3dp"
+                android:text="变温实况"
+                android:textColor="@color/text_color4"
+                android:textSize="@dimen/level_5"/>
+
+        </LinearLayout>
+
+    </RelativeLayout>
 
     <ImageView
         android:id="@+id/ivGuide"

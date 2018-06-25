@@ -287,23 +287,14 @@
             android:name="com.china.activity.PointFactActivity"
             android:screenOrientation="portrait" />
 
-
-        <!-- umeng -->
-        <meta-data
-            android:name="UMENG_APPKEY"
-            android:value="57f06441e0f55a8930001bdb" />
-
-        <!-- 微信 -->
         <activity
-            android:name=".wxapi.WXEntryActivity"
-            android:configChanges="keyboardHidden|orientation|screenSize"
-            android:exported="true"
-            android:screenOrientation="portrait"
-            android:theme="@android:style/Theme.Translucent.NoTitleBar" />
+            android:name="com.china.activity.ComprehensiveForecastActivity"
+            android:screenOrientation="portrait" />
 
-        <!-- QQ -->
+
+        <!--umeng share-->
         <activity
-            android:name="com.umeng.qq.tencent.AuthActivity"
+            android:name="com.tencent.tauth.AuthActivity"
             android:launchMode="singleTask"
             android:noHistory="true" >
             <intent-filter>
@@ -312,15 +303,21 @@
                 <category android:name="android.intent.category.DEFAULT" />
                 <category android:name="android.intent.category.BROWSABLE" />
 
-                <data android:scheme="tencent1105801723" />
+                <data android:scheme="tencent1106871193" />
             </intent-filter>
         </activity>
         <activity
-            android:name="com.umeng.qq.tencent.AssistActivity"
-            android:configChanges="orientation|keyboardHidden|screenSize"
-            android:screenOrientation="portrait"
+            android:name="com.tencent.connect.common.AssistActivity"
+            android:theme="@android:style/Theme.Translucent.NoTitleBar"
+            android:configChanges="orientation|keyboardHidden|screenSize"/>
+
+        <activity
+            android:name=".wxapi.WXEntryActivity"
+            android:configChanges="keyboardHidden|orientation|screenSize"
+            android:exported="true"
             android:theme="@android:style/Theme.Translucent.NoTitleBar" />
-        <!-- umeng -->
+
+        <!--umeng-->
 
     </application>
 

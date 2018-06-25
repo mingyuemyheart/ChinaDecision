@@ -14,12 +14,8 @@ import okhttp3.Response;
 
 public class StationManager {
 	
-	public static String precipitation1hResult = null;
-	public static String precipitation3hResult = null;
-	public static String precipitation6hResult = null;
-	public static String precipitation12hResult = null;
-	public static String precipitation24hResult = null;
-	public static String balltempResult = null;
+	public static String precipitation1hResult,precipitation3hResult,precipitation6hResult,precipitation12hResult,precipitation24hResult;
+	public static String balltempResult, balltempMaxResult, balltempMinResult, balltempChangeResult;
 	public static String humidityResult = null;
 	public static String visibilityResult = null;
 	public static String airpressureResult = null;
@@ -174,7 +170,7 @@ public class StationManager {
 	 * 获取五中天气要素数据接口
 	 * @param url
 	 */
-	public static void asyncGetMapData2(final String url) {
+	public static void asyncGetMapData21(final String url) {
 		new Thread(new Runnable() {
 			@Override
 			public void run() {
@@ -192,6 +188,93 @@ public class StationManager {
 						String result = response.body().string();
 						if (!TextUtils.isEmpty(result)) {
 							balltempResult = result;
+						}
+					}
+				});
+			}
+		}).start();
+	}
+
+	/**
+	 * 获取五中天气要素数据接口
+	 * @param url
+	 */
+	public static void asyncGetMapData22(final String url) {
+		new Thread(new Runnable() {
+			@Override
+			public void run() {
+				OkHttpUtil.enqueue(new Request.Builder().url(url).build(), new Callback() {
+					@Override
+					public void onFailure(Call call, IOException e) {
+
+					}
+
+					@Override
+					public void onResponse(Call call, Response response) throws IOException {
+						if (!response.isSuccessful()) {
+							return;
+						}
+						String result = response.body().string();
+						if (!TextUtils.isEmpty(result)) {
+							balltempMaxResult = result;
+						}
+					}
+				});
+			}
+		}).start();
+	}
+
+	/**
+	 * 获取五中天气要素数据接口
+	 * @param url
+	 */
+	public static void asyncGetMapData23(final String url) {
+		new Thread(new Runnable() {
+			@Override
+			public void run() {
+				OkHttpUtil.enqueue(new Request.Builder().url(url).build(), new Callback() {
+					@Override
+					public void onFailure(Call call, IOException e) {
+
+					}
+
+					@Override
+					public void onResponse(Call call, Response response) throws IOException {
+						if (!response.isSuccessful()) {
+							return;
+						}
+						String result = response.body().string();
+						if (!TextUtils.isEmpty(result)) {
+							balltempMinResult = result;
+						}
+					}
+				});
+			}
+		}).start();
+	}
+
+	/**
+	 * 获取五中天气要素数据接口
+	 * @param url
+	 */
+	public static void asyncGetMapData24(final String url) {
+		new Thread(new Runnable() {
+			@Override
+			public void run() {
+				OkHttpUtil.enqueue(new Request.Builder().url(url).build(), new Callback() {
+					@Override
+					public void onFailure(Call call, IOException e) {
+
+					}
+
+					@Override
+					public void onResponse(Call call, Response response) throws IOException {
+						if (!response.isSuccessful()) {
+							return;
+						}
+						String result = response.body().string();
+						if (!TextUtils.isEmpty(result)) {
+							balltempChangeResult = result;
 						}
 					}
 				});

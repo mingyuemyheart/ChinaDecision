@@ -4,7 +4,6 @@ package com.china.view;
  * 实况监测游标
  */
 
-import android.annotation.SuppressLint;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -12,27 +11,17 @@ import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Paint.Style;
-import android.graphics.Path;
-import android.graphics.RectF;
 import android.graphics.Typeface;
 import android.media.ThumbnailUtils;
-import android.text.TextUtils;
 import android.util.AttributeSet;
 import android.view.View;
 
 import com.china.R;
-import com.china.dto.AqiDto;
 import com.china.utils.CommonUtil;
 
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.List;
-
-@SuppressLint({ "DrawAllocation", "SimpleDateFormat" })
 public class StationCursorView extends View{
 
-	private Context mContext = null;
+	private Context mContext;
 	private Paint lineP = null;//画线画笔
 	private Paint textP = null;
 	private Bitmap bitmapBound = null;//上下边界图标

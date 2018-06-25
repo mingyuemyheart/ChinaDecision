@@ -128,77 +128,83 @@ public class WarningStatisticListActivity extends BaseActivity implements View.O
      * 获取预警统计列表信息
      * @param url
      */
-    private void OkHttpStatisticList(String url) {
-        OkHttpUtil.enqueue(new Request.Builder().url(url).build(), new Callback() {
+    private void OkHttpStatisticList(final String url) {
+        new Thread(new Runnable() {
             @Override
-            public void onFailure(Call call, IOException e) {
+            public void run() {
+                OkHttpUtil.enqueue(new Request.Builder().url(url).build(), new Callback() {
+                    @Override
+                    public void onFailure(Call call, IOException e) {
 
-            }
+                    }
 
-            @Override
-            public void onResponse(Call call, Response response) throws IOException {
-                if (!response.isSuccessful()) {
-                    return;
-                }
-                String result = response.body().string();
-                if (!TextUtils.isEmpty(result)) {
-                    try {
-                        JSONObject object = new JSONObject(result);
-                        if (!object.isNull("data")) {
-                            JSONArray array = object.getJSONArray("data");
-                            for (int i = 0; i < array.length(); i++) {
-                                WarningDto dto = new WarningDto();
-                                JSONObject obj = array.getJSONObject(i);
-                                if (!obj.isNull("sendTime")) {
-                                    dto.time = obj.getString("sendTime");
-                                }
-                                if (!obj.isNull("caceltime")) {
-                                    dto.time2 = obj.getString("caceltime");
-                                }
-                                if (!obj.isNull("headline")) {
-                                    dto.name = obj.getString("headline");
-                                }
-                                if (!obj.isNull("severity")) {
-                                    dto.color = obj.getString("severity");
-                                }
-                                if (!obj.isNull("eventType")) {
-                                    dto.type = obj.getString("eventType");
-                                }
-                                if (!obj.isNull("description")) {
-                                    dto.content = obj.getString("description");
-                                }
-
-                                List<WarningDto> list = new ArrayList<>();
-                                list.clear();
-                                WarningDto d = new WarningDto();
-                                d.time = dto.time;
-                                d.time2 = dto.time2;
-                                d.name = dto.name;
-                                d.color = dto.color;
-                                d.type = dto.type;
-                                d.content = dto.content;
-                                list.add(d);
-                                childList.add(list);
-
-                                groupList.add(dto);
-                            }
+                    @Override
+                    public void onResponse(Call call, Response response) throws IOException {
+                        if (!response.isSuccessful()) {
+                            return;
                         }
-
+                        final String result = response.body().string();
                         runOnUiThread(new Runnable() {
                             @Override
                             public void run() {
-                                if (groupList.size() > 0 && mAdapter != null) {
-                                    mAdapter.notifyDataSetChanged();
+                                if (!TextUtils.isEmpty(result)) {
+                                    try {
+                                        JSONObject object = new JSONObject(result);
+                                        if (!object.isNull("data")) {
+                                            JSONArray array = object.getJSONArray("data");
+                                            for (int i = 0; i < array.length(); i++) {
+                                                WarningDto dto = new WarningDto();
+                                                JSONObject obj = array.getJSONObject(i);
+                                                if (!obj.isNull("sendTime")) {
+                                                    dto.time = obj.getString("sendTime");
+                                                }
+                                                if (!obj.isNull("caceltime")) {
+                                                    dto.time2 = obj.getString("caceltime");
+                                                }
+                                                if (!obj.isNull("headline")) {
+                                                    dto.name = obj.getString("headline");
+                                                }
+                                                if (!obj.isNull("severity")) {
+                                                    dto.color = obj.getString("severity");
+                                                }
+                                                if (!obj.isNull("eventType")) {
+                                                    dto.type = obj.getString("eventType");
+                                                }
+                                                if (!obj.isNull("description")) {
+                                                    dto.content = obj.getString("description");
+                                                }
+
+                                                List<WarningDto> list = new ArrayList<>();
+                                                list.clear();
+                                                WarningDto d = new WarningDto();
+                                                d.time = dto.time;
+                                                d.time2 = dto.time2;
+                                                d.name = dto.name;
+                                                d.color = dto.color;
+                                                d.type = dto.type;
+                                                d.content = dto.content;
+                                                list.add(d);
+                                                childList.add(list);
+
+                                                groupList.add(dto);
+                                            }
+                                        }
+
+                                        if (mAdapter != null) {
+                                            mAdapter.notifyDataSetChanged();
+                                        }
+                                        cancelDialog();
+
+                                    } catch (JSONException e) {
+                                        e.printStackTrace();
+                                    }
                                 }
-                                cancelDialog();
                             }
                         });
-                    } catch (JSONException e) {
-                        e.printStackTrace();
                     }
-                }
+                });
             }
-        });
+        }).start();
     }
 
     private void initGridView1() {

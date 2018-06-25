@@ -1,0 +1,211 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/white"
+    android:orientation="vertical" >
+
+    <include
+        android:id="@+id/reTitle"
+        layout="@layout/layout_title" />
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_below="@+id/reTitle"
+        android:background="@color/white"
+        android:orientation="vertical" >
+
+        <com.amap.api.maps.MapView
+            android:id="@+id/map"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent" />
+
+        <RelativeLayout
+            android:id="@+id/reShare"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="vertical" >
+
+            <TextView
+                android:layout_marginTop="5dp"
+                android:id="@+id/tvName"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textSize="@dimen/level_3"
+                android:textColor="@color/black"
+                android:layout_centerHorizontal="true"/>
+
+            <TextView
+                android:layout_below="@+id/tvName"
+                android:id="@+id/tvTime"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="3dp"
+                android:textSize="@dimen/level_5"
+                android:textColor="@color/black"
+                android:layout_centerHorizontal="true"/>
+
+            <ImageView
+                android:layout_below="@id/tvTime"
+                android:id="@+id/ivJiangshui"
+                android:layout_width="35dp"
+                android:layout_height="35dp"
+                android:layout_marginTop="5dp"
+                android:layout_alignParentRight="true"
+                android:src="@drawable/com_jiangshui_press"
+                android:layout_marginRight="10dp"/>
+
+            <ImageView
+                android:layout_below="@+id/ivJiangshui"
+                android:id="@+id/ivHighTemp"
+                android:layout_width="35dp"
+                android:layout_height="35dp"
+                android:layout_marginTop="5dp"
+                android:layout_alignParentRight="true"
+                android:src="@drawable/com_hightemp"
+                android:layout_marginRight="10dp"/>
+
+            <ImageView
+                android:layout_below="@+id/ivHighTemp"
+                android:id="@+id/ivLowTemp"
+                android:layout_width="35dp"
+                android:layout_height="35dp"
+                android:layout_marginTop="5dp"
+                android:layout_alignParentRight="true"
+                android:src="@drawable/com_lowtemp"
+                android:layout_marginRight="10dp"/>
+
+            <ImageView
+                android:layout_below="@+id/ivLowTemp"
+                android:id="@+id/ivWuran"
+                android:layout_width="35dp"
+                android:layout_height="35dp"
+                android:layout_marginTop="5dp"
+                android:layout_alignParentRight="true"
+                android:src="@drawable/com_wuran"
+                android:layout_marginRight="10dp"/>
+
+            <ImageView
+                android:layout_below="@+id/ivWuran"
+                android:id="@+id/ivMore"
+                android:layout_width="35dp"
+                android:layout_height="35dp"
+                android:layout_marginTop="5dp"
+                android:layout_alignParentRight="true"
+                android:src="@drawable/com_more"
+                android:layout_marginRight="10dp"/>
+
+            <RelativeLayout
+                android:visibility="gone"
+                android:id="@+id/reMore"
+                android:layout_width="150dp"
+                android:layout_height="80dp"
+                android:layout_marginTop="5dp"
+                android:padding="5dp"
+                android:background="@drawable/com_bg_more"
+                android:layout_toLeftOf="@+id/ivMore"
+                android:layout_below="@+id/ivWuran">
+
+                <ImageView
+                    android:id="@+id/ivShachen"
+                    android:layout_width="35dp"
+                    android:layout_height="35dp"
+                    android:src="@drawable/com_shachen"/>
+
+                <ImageView
+                    android:id="@+id/ivGaowen"
+                    android:layout_width="35dp"
+                    android:layout_height="35dp"
+                    android:layout_toRightOf="@+id/ivShachen"
+                    android:src="@drawable/com_gaowen"/>
+
+                <ImageView
+                    android:id="@+id/ivFog"
+                    android:layout_width="35dp"
+                    android:layout_height="35dp"
+                    android:layout_toRightOf="@+id/ivGaowen"
+                    android:src="@drawable/com_fog"/>
+
+                <ImageView
+                    android:id="@+id/ivDafeng"
+                    android:layout_width="35dp"
+                    android:layout_height="35dp"
+                    android:layout_toRightOf="@+id/ivFog"
+                    android:src="@drawable/com_dafeng"/>
+
+                <ImageView
+                    android:id="@+id/ivDizhi"
+                    android:layout_width="35dp"
+                    android:layout_height="35dp"
+                    android:layout_below="@+id/ivShachen"
+                    android:src="@drawable/com_dizhi"/>
+
+                <ImageView
+                    android:id="@+id/ivHaze"
+                    android:layout_width="35dp"
+                    android:layout_height="35dp"
+                    android:layout_below="@+id/ivGaowen"
+                    android:layout_toRightOf="@+id/ivDizhi"
+                    android:src="@drawable/com_haze"/>
+
+                <ImageView
+                    android:id="@+id/ivQiangduiliu"
+                    android:layout_width="35dp"
+                    android:layout_height="35dp"
+                    android:layout_below="@+id/ivGaowen"
+                    android:layout_toRightOf="@+id/ivHaze"
+                    android:src="@drawable/com_qiangduiliu"/>
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="0.5dp"
+                    android:layout_below="@+id/ivShachen"
+                    android:background="@color/light_gray"/>
+
+                <TextView
+                    android:layout_width="0.5dp"
+                    android:layout_height="match_parent"
+                    android:layout_toRightOf="@+id/ivShachen"
+                    android:background="@color/light_gray"/>
+
+                <TextView
+                    android:layout_width="0.5dp"
+                    android:layout_height="match_parent"
+                    android:layout_toRightOf="@+id/ivGaowen"
+                    android:background="@color/light_gray"/>
+
+                <TextView
+                    android:layout_width="0.5dp"
+                    android:layout_height="match_parent"
+                    android:layout_toRightOf="@+id/ivFog"
+                    android:background="@color/light_gray"/>
+
+            </RelativeLayout>
+
+            <LinearLayout
+                android:id="@+id/llLegend"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_alignParentBottom="true"
+                android:gravity="center_vertical"
+                android:paddingLeft="10dp">
+
+                <ImageView
+                    android:id="@+id/ivLegendPrompt"
+                    android:layout_width="35dp"
+                    android:layout_height="35dp"
+                    android:src="@drawable/iv_map_legend"/>
+
+                <ImageView
+                    android:id="@+id/ivLegend"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:adjustViewBounds="true"/>
+            </LinearLayout>
+
+        </RelativeLayout>
+
+    </RelativeLayout>
+
+</RelativeLayout>

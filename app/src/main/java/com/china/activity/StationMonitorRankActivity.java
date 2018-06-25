@@ -283,9 +283,9 @@ public class StationMonitorRankActivity extends BaseActivity implements OnClickL
 										}
 
 										JSONObject obj3 = array.getJSONObject(3);
-										if (!obj3.isNull("visibilitymax")) {
+										if (!obj3.isNull("visibilitymin")) {
 											vMaxList.clear();
-											JSONArray itemArray = obj3.getJSONArray("visibilitymax");
+											JSONArray itemArray = obj3.getJSONArray("visibilitymin");
 											for (int i = 0; i < itemArray.length(); i++) {
 												JSONObject itemObj = itemArray.getJSONObject(i);
 												StationMonitorDto dto = new StationMonitorDto();
@@ -452,9 +452,9 @@ public class StationMonitorRankActivity extends BaseActivity implements OnClickL
 											}
 										}
 
-										if (!obj.isNull("visibilitymax")) {
+										if (!obj.isNull("visibilitymin")) {
 											vMaxList.clear();
-											JSONArray itemArray = obj.getJSONArray("visibilitymax");
+											JSONArray itemArray = obj.getJSONArray("visibilitymin");
 											for (int i = 0; i < itemArray.length(); i++) {
 												JSONObject itemObj = itemArray.getJSONObject(i);
 												StationMonitorDto dto = new StationMonitorDto();

@@ -112,7 +112,10 @@
     <string name="layer_rain6">6小时降水量实况</string>
     <string name="layer_rain12">12小时降水量实况</string>
     <string name="layer_rain24">24小时降水量实况</string>
-    <string name="layer_temp">逐小时气温实况</string>
+    <string name="layer_temp21">逐小时气温实况</string>
+    <string name="layer_temp22">24小时最高气温实况</string>
+    <string name="layer_temp23">24小时最低气温实况</string>
+    <string name="layer_temp24">24小时变温实况</string>
     <string name="layer_humidity">逐小时相对湿度实况</string>
     <string name="layer_visible">逐小时能见度实况</string>
     <string name="layer_pressure">逐小时气压实况</string>

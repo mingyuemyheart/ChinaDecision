@@ -9,6 +9,7 @@ import android.provider.Settings;
 import com.github.nkzawa.socketio.client.IO;
 import com.github.nkzawa.socketio.client.Socket;
 import com.tendcloud.tenddata.TCAgent;
+import com.umeng.commonsdk.UMConfigure;
 import com.umeng.socialize.Config;
 import com.umeng.socialize.PlatformConfig;
 
@@ -18,6 +19,7 @@ import java.util.Random;
 
 public class MyApplication extends Application{
 
+	public static String appKey = "57f06441e0f55a8930001bdb";
 	public static boolean isShowNavigationBar = true;//是否显示导航栏
 	public static String computerInfo = "";
 	private static Socket mSocket;
@@ -39,10 +41,11 @@ public class MyApplication extends Application{
 		}
 
 		//umeng分享的平台注册
+		UMConfigure.init(this, appKey, "umeng", UMConfigure.DEVICE_TYPE_PHONE, "");
 		PlatformConfig.setWeixin("wx1fa67f698f7053ad", "f3fc51dcb4518eb80bff808acb10c409");
 		PlatformConfig.setQQZone("1105876438", "tH05WZYOjbInVhQq");
 		PlatformConfig.setDing("dingoaqfmkgk4d9lo7gbmq");
-		Config.DEBUG = false;
+		UMConfigure.setLogEnabled(false);
 
 		//TalkingData统计
 		String[] platforms = {"HuaWei Store", "XiaoMi Store", "Tencent Store", "OPPO Store", "VIVO Store", "LeShi Store", "ATest"};

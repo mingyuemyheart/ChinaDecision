@@ -22,7 +22,6 @@ import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.animation.Animation;
 import android.view.animation.TranslateAnimation;
-import android.widget.HorizontalScrollView;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
@@ -142,22 +141,14 @@ public class StationMonitorActivity extends BaseActivity implements OnClickListe
     private double locationLat = 0;
     private double locationLng = 0;
     private GeocodeSearch geocoderSearch = null;
-    private String precipitation1hLegend = null;
-    private String precipitation3hLegend = null;
-    private String precipitation6hLegend = null;
-    private String precipitation12hLegend = null;
-    private String precipitation24hLegend = null;
-    private String balltempLegend = null;
+    private String precipitation1hLegend,precipitation3hLegend,precipitation6hLegend,precipitation12hLegend,precipitation24hLegend;
+    private String balltempLegend, balltempMaxLegend, balltempMinLegend, balltempChangeLegend;
     private String humidityLegend = null;
     private String visibilityLegend = null;
     private String windspeedLegend = null;
     private String airpressureLegend = null;
-    private String precipitation1hJson = null;
-    private String precipitation3hJson = null;
-    private String precipitation6hJson = null;
-    private String precipitation12hJson = null;
-    private String precipitation24hJson = null;
-    private String balltempJson = null;
+    private String precipitation1hJson,precipitation3hJson,precipitation6hJson,precipitation12hJson,precipitation24hJson;
+    private String balltempJson, balltempMaxJson, balltempMinJson, balltempChangeJson;
     private String humidityJson = null;
     private String visibilityJson = null;
     private String windspeedJson = null;
@@ -170,9 +161,10 @@ public class StationMonitorActivity extends BaseActivity implements OnClickListe
     private int value = 1;//默认为降水
     private ImageView ivLegend = null;
     private ImageView ivLegendPrompt = null;
-    private HorizontalScrollView hScrollView = null;
     private LinearLayout llRain = null;
     private TextView tv1, tv2, tv3, tv4, tv5;
+    private LinearLayout llTemp;
+    private TextView tv21, tv22, tv23, tv24;
     private ImageView ivRank = null;//进入排序界面
     private RelativeLayout reShare = null;
     private ImageView ivShare = null;
@@ -197,6 +189,7 @@ public class StationMonitorActivity extends BaseActivity implements OnClickListe
     private LinearLayout llCursor = null;//游标
     private StationCursorView cursorView = null;
     private ImageView ivGuide = null;//引导页
+    private ImageView ivCursor, ivAdd, ivMinuse;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -228,8 +221,8 @@ public class StationMonitorActivity extends BaseActivity implements OnClickListe
 
     @Override
     public void onMapLoaded() {
-        OkHttpMapUrl("http://decision-171.tianqi.cn/weather/rgwst/JsonCatalogue?map=china&type=1");//获取中国地区五中天气现象数据
-        OkHttpLegend("http://decision-171.tianqi.cn/weather/rgwst/jsontuli");//获取图例
+        OkHttpMapUrl("http://decision-admin.tianqi.cn/Home/extra/decision_skjclayers");//获取中国地区五中天气现象数据
+        OkHttpLegend("http://decision-admin.tianqi.cn/Home/extra/decision_skjctuli");//获取图例
     }
 
     /**
@@ -255,7 +248,7 @@ public class StationMonitorActivity extends BaseActivity implements OnClickListe
                             try {
                                 JSONArray array = new JSONArray(result);
                                 if (array.length() == 0) {
-                                    hScrollView.setVisibility(View.GONE);
+                                    llScrollView.setVisibility(View.GONE);
                                     return;
                                 }
                                 JSONObject obj = array.getJSONObject(0);
@@ -276,6 +269,15 @@ public class StationMonitorActivity extends BaseActivity implements OnClickListe
                                 }
                                 if (!obj.isNull("balltemp")) {
                                     balltempJson = obj.getString("balltemp");
+                                }
+                                if (!obj.isNull("tempmax")) {
+                                    balltempMaxJson = obj.getString("tempmax");
+                                }
+                                if (!obj.isNull("tempmin")) {
+                                    balltempMinJson = obj.getString("tempmin");
+                                }
+                                if (!obj.isNull("tempchange")) {
+                                    balltempChangeJson = obj.getString("tempchange");
                                 }
                                 if (!obj.isNull("humidity")) {
                                     humidityJson = obj.getString("humidity");
@@ -305,7 +307,16 @@ public class StationMonitorActivity extends BaseActivity implements OnClickListe
                                     StationManager.asyncGetMapData24H(precipitation24hJson);
                                 }
                                 if (!TextUtils.isEmpty(balltempJson)) {
-                                    StationManager.asyncGetMapData2(balltempJson);
+                                    StationManager.asyncGetMapData21(balltempJson);
+                                }
+                                if (!TextUtils.isEmpty(balltempMaxJson)) {
+                                    StationManager.asyncGetMapData22(balltempMaxJson);
+                                }
+                                if (!TextUtils.isEmpty(balltempMinJson)) {
+                                    StationManager.asyncGetMapData23(balltempMinJson);
+                                }
+                                if (!TextUtils.isEmpty(balltempChangeJson)) {
+                                    StationManager.asyncGetMapData24(balltempChangeJson);
                                 }
                                 if (!TextUtils.isEmpty(humidityJson)) {
                                     StationManager.asyncGetMapData3(humidityJson);
@@ -347,120 +358,134 @@ public class StationMonitorActivity extends BaseActivity implements OnClickListe
                         if (!response.isSuccessful()) {
                             return;
                         }
-                        String result = response.body().string();
-                        if (result != null) {
-                            try {
-                                JSONObject obj = new JSONObject(result);
-                                if (!obj.isNull("jc_1xsjs")) {
-                                    precipitation1hLegend = obj.getString("jc_1xsjs");
-                                }
-                                if (!TextUtils.isEmpty(precipitation1hLegend)) {
-                                    FinalBitmap finalBitmap = FinalBitmap.create(mContext);
-                                    finalBitmap.display(ivLegend, precipitation1hLegend, null, 0);
-                                }
-                                if (!obj.isNull("jc_3xsjs")) {
-                                    precipitation3hLegend = obj.getString("jc_3xsjs");
-                                }
-                                if (!obj.isNull("jc_6xsjs")) {
-                                    precipitation6hLegend = obj.getString("jc_6xsjs");
-                                }
-                                if (!obj.isNull("jc_12xsjs")) {
-                                    precipitation12hLegend = obj.getString("jc_12xsjs");
-                                }
-                                if (!obj.isNull("jc_24xsjs")) {
-                                    precipitation24hLegend = obj.getString("jc_24xsjs");
-                                }
-                                if (!obj.isNull("jc_wdtl")) {
-                                    balltempLegend = obj.getString("jc_wdtl");
-                                }
-                                if (!obj.isNull("jc_xdsdtl")) {
-                                    humidityLegend = obj.getString("jc_xdsdtl");
-                                }
-                                if (!obj.isNull("jc_fltl")) {
-                                    windspeedLegend = obj.getString("jc_fltl");
-                                }
-                                if (!obj.isNull("jc_njdtl")) {
-                                    visibilityLegend = obj.getString("jc_njdtl");
-                                }
-                                if (!obj.isNull("jc_qytl")) {
-                                    airpressureLegend = obj.getString("jc_qytl");
-                                }
+                        final String result = response.body().string();
+                        runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                if (!TextUtils.isEmpty(result)) {
+                                    try {
+                                        JSONObject obj = new JSONObject(result);
+                                        if (!obj.isNull("jc_1xsjs")) {
+                                            precipitation1hLegend = obj.getString("jc_1xsjs");
+                                        }
+                                        if (!TextUtils.isEmpty(precipitation1hLegend)) {
+                                            FinalBitmap finalBitmap = FinalBitmap.create(mContext);
+                                            finalBitmap.display(ivLegend, precipitation1hLegend, null, 0);
+                                        }
+                                        if (!obj.isNull("jc_3xsjs")) {
+                                            precipitation3hLegend = obj.getString("jc_3xsjs");
+                                        }
+                                        if (!obj.isNull("jc_6xsjs")) {
+                                            precipitation6hLegend = obj.getString("jc_6xsjs");
+                                        }
+                                        if (!obj.isNull("jc_12xsjs")) {
+                                            precipitation12hLegend = obj.getString("jc_12xsjs");
+                                        }
+                                        if (!obj.isNull("jc_24xsjs")) {
+                                            precipitation24hLegend = obj.getString("jc_24xsjs");
+                                        }
+                                        if (!obj.isNull("jc_wdtl")) {
+                                            balltempLegend = obj.getString("jc_wdtl");
+                                        }
+                                        if (!obj.isNull("jc_maxqw")) {
+                                            balltempMaxLegend = obj.getString("jc_maxqw");
+                                        }
+                                        if (!obj.isNull("jc_minqw")) {
+                                            balltempMinLegend = obj.getString("jc_minqw");
+                                        }
+                                        if (!obj.isNull("jc_changeqw")) {
+                                            balltempChangeLegend = obj.getString("jc_changeqw");
+                                        }
+                                        if (!obj.isNull("jc_xdsdtl")) {
+                                            humidityLegend = obj.getString("jc_xdsdtl");
+                                        }
+                                        if (!obj.isNull("jc_fltl")) {
+                                            windspeedLegend = obj.getString("jc_fltl");
+                                        }
+                                        if (!obj.isNull("jc_njdtl")) {
+                                            visibilityLegend = obj.getString("jc_njdtl");
+                                        }
+                                        if (!obj.isNull("jc_qytl")) {
+                                            airpressureLegend = obj.getString("jc_qytl");
+                                        }
 
-                                if (!obj.isNull("jb_1xsjs")) {
-                                    precipitation1hColor.clear();
-                                    JSONArray array = obj.getJSONArray("jb_1xsjs");
-                                    for (int i = 0; i < array.length(); i++) {
-                                        precipitation1hColor.add(array.getString(i));
-                                    }
-                                }
-                                if (!obj.isNull("jb_3xsjs")) {
-                                    precipitation3hColor.clear();
-                                    JSONArray array = obj.getJSONArray("jb_3xsjs");
-                                    for (int i = 0; i < array.length(); i++) {
-                                        precipitation3hColor.add(array.getString(i));
-                                    }
-                                }
-                                if (!obj.isNull("jb_6xsjs")) {
-                                    precipitation6hColor.clear();
-                                    JSONArray array = obj.getJSONArray("jb_6xsjs");
-                                    for (int i = 0; i < array.length(); i++) {
-                                        precipitation6hColor.add(array.getString(i));
-                                    }
-                                }
-                                if (!obj.isNull("jb_12xsjs")) {
-                                    precipitation12hColor.clear();
-                                    JSONArray array = obj.getJSONArray("jb_12xsjs");
-                                    for (int i = 0; i < array.length(); i++) {
-                                        precipitation12hColor.add(array.getString(i));
-                                    }
-                                }
-                                if (!obj.isNull("jb_24xsjs")) {
-                                    precipitation24hColor.clear();
-                                    JSONArray array = obj.getJSONArray("jb_24xsjs");
-                                    for (int i = 0; i < array.length(); i++) {
-                                        precipitation24hColor.add(array.getString(i));
-                                    }
-                                }
-                                if (!obj.isNull("jb_fltl")) {
-                                    windspeedColor.clear();
-                                    JSONArray array = obj.getJSONArray("jb_fltl");
-                                    for (int i = 0; i < array.length(); i++) {
-                                        windspeedColor.add(array.getString(i));
-                                    }
-                                }
-                                if (!obj.isNull("jb_njdtl")) {
-                                    visibilityColor.clear();
-                                    JSONArray array = obj.getJSONArray("jb_njdtl");
-                                    for (int i = 0; i < array.length(); i++) {
-                                        visibilityColor.add(array.getString(i));
-                                    }
-                                }
-                                if (!obj.isNull("jb_qytl")) {
-                                    airpressureColor.clear();
-                                    JSONArray array = obj.getJSONArray("jb_qytl");
-                                    for (int i = 0; i < array.length(); i++) {
-                                        airpressureColor.add(array.getString(i));
-                                    }
-                                }
-                                if (!obj.isNull("jb_wdtl")) {
-                                    balltempColor.clear();
-                                    JSONArray array = obj.getJSONArray("jb_wdtl");
-                                    for (int i = 0; i < array.length(); i++) {
-                                        balltempColor.add(array.getString(i));
-                                    }
-                                }
-                                if (!obj.isNull("jb_xdsdtl")) {
-                                    humidityColor.clear();
-                                    JSONArray array = obj.getJSONArray("jb_xdsdtl");
-                                    for (int i = 0; i < array.length(); i++) {
-                                        humidityColor.add(array.getString(i));
-                                    }
-                                }
+                                        if (!obj.isNull("jb_1xsjs")) {
+                                            precipitation1hColor.clear();
+                                            JSONArray array = obj.getJSONArray("jb_1xsjs");
+                                            for (int i = 0; i < array.length(); i++) {
+                                                precipitation1hColor.add(array.getString(i));
+                                            }
+                                        }
+                                        if (!obj.isNull("jb_3xsjs")) {
+                                            precipitation3hColor.clear();
+                                            JSONArray array = obj.getJSONArray("jb_3xsjs");
+                                            for (int i = 0; i < array.length(); i++) {
+                                                precipitation3hColor.add(array.getString(i));
+                                            }
+                                        }
+                                        if (!obj.isNull("jb_6xsjs")) {
+                                            precipitation6hColor.clear();
+                                            JSONArray array = obj.getJSONArray("jb_6xsjs");
+                                            for (int i = 0; i < array.length(); i++) {
+                                                precipitation6hColor.add(array.getString(i));
+                                            }
+                                        }
+                                        if (!obj.isNull("jb_12xsjs")) {
+                                            precipitation12hColor.clear();
+                                            JSONArray array = obj.getJSONArray("jb_12xsjs");
+                                            for (int i = 0; i < array.length(); i++) {
+                                                precipitation12hColor.add(array.getString(i));
+                                            }
+                                        }
+                                        if (!obj.isNull("jb_24xsjs")) {
+                                            precipitation24hColor.clear();
+                                            JSONArray array = obj.getJSONArray("jb_24xsjs");
+                                            for (int i = 0; i < array.length(); i++) {
+                                                precipitation24hColor.add(array.getString(i));
+                                            }
+                                        }
+                                        if (!obj.isNull("jb_fltl")) {
+                                            windspeedColor.clear();
+                                            JSONArray array = obj.getJSONArray("jb_fltl");
+                                            for (int i = 0; i < array.length(); i++) {
+                                                windspeedColor.add(array.getString(i));
+                                            }
+                                        }
+                                        if (!obj.isNull("jb_njdtl")) {
+                                            visibilityColor.clear();
+                                            JSONArray array = obj.getJSONArray("jb_njdtl");
+                                            for (int i = 0; i < array.length(); i++) {
+                                                visibilityColor.add(array.getString(i));
+                                            }
+                                        }
+                                        if (!obj.isNull("jb_qytl")) {
+                                            airpressureColor.clear();
+                                            JSONArray array = obj.getJSONArray("jb_qytl");
+                                            for (int i = 0; i < array.length(); i++) {
+                                                airpressureColor.add(array.getString(i));
+                                            }
+                                        }
+                                        if (!obj.isNull("jb_wdtl")) {
+                                            balltempColor.clear();
+                                            JSONArray array = obj.getJSONArray("jb_wdtl");
+                                            for (int i = 0; i < array.length(); i++) {
+                                                balltempColor.add(array.getString(i));
+                                            }
+                                        }
+                                        if (!obj.isNull("jb_xdsdtl")) {
+                                            humidityColor.clear();
+                                            JSONArray array = obj.getJSONArray("jb_xdsdtl");
+                                            for (int i = 0; i < array.length(); i++) {
+                                                humidityColor.add(array.getString(i));
+                                            }
+                                        }
 
-                            } catch (JSONException e) {
-                                e.printStackTrace();
+                                    } catch (JSONException e) {
+                                        e.printStackTrace();
+                                    }
+                                }
                             }
-                        }
+                        });
                     }
                 });
             }
@@ -515,16 +540,18 @@ public class StationMonitorActivity extends BaseActivity implements OnClickListe
         setMapEmit(arg0.zoom, arg0.target.latitude, arg0.target.longitude);
 
         zoom = arg0.zoom;
-        if (cursorView != null) {
-            if (llCursor != null) {
-                llCursor.setVisibility(View.VISIBLE);
-            }
-            cursorView.refreshCursor(zoom);
-            delayedHandler.removeMessages(1000);
-            Message msg = delayedHandler.obtainMessage();
-            msg.what = 1000;
-            delayedHandler.sendMessageDelayed(msg, 3000);
-        }
+//        if (cursorView != null) {
+//            if (llCursor != null) {
+//                llCursor.setVisibility(View.VISIBLE);
+//            }
+//            cursorView.refreshCursor(zoom);
+//            delayedHandler.removeMessages(1000);
+//            Message msg = delayedHandler.obtainMessage();
+//            msg.what = 1000;
+//            delayedHandler.sendMessageDelayed(msg, 3000);
+//        }
+
+        moveCursor();
 
         //绘制图层
         delayedHandler.removeMessages(1001);
@@ -598,9 +625,18 @@ public class StationMonitorActivity extends BaseActivity implements OnClickListe
         } else if (value == 124) {
             result = StationManager.precipitation24hResult;
             type = getString(R.string.layer_rain24);
-        } else if (value == 2) {
+        } else if (value == 21) {
             result = StationManager.balltempResult;
-            type = getString(R.string.layer_temp);
+            type = getString(R.string.layer_temp21);
+        } else if (value == 22) {
+            result = StationManager.balltempMaxResult;
+            type = getString(R.string.layer_temp22);
+        } else if (value == 23) {
+            result = StationManager.balltempMinResult;
+            type = getString(R.string.layer_temp23);
+        } else if (value == 24) {
+            result = StationManager.balltempChangeResult;
+            type = getString(R.string.layer_temp24);
         } else if (value == 3) {
             result = StationManager.humidityResult;
             type = getString(R.string.layer_humidity);
@@ -686,9 +722,18 @@ public class StationMonitorActivity extends BaseActivity implements OnClickListe
         } else if (value == 124) {
             result = StationManager.precipitation24hResult;
             type = getString(R.string.layer_rain24);
-        } else if (value == 2) {
+        } else if (value == 21) {
             result = StationManager.balltempResult;
-            type = getString(R.string.layer_temp);
+            type = getString(R.string.layer_temp21);
+        } else if (value == 22) {
+            result = StationManager.balltempMaxResult;
+            type = getString(R.string.layer_temp22);
+        } else if (value == 23) {
+            result = StationManager.balltempMinResult;
+            type = getString(R.string.layer_temp23);
+        } else if (value == 24) {
+            result = StationManager.balltempChangeResult;
+            type = getString(R.string.layer_temp24);
         } else if (value == 3) {
             result = StationManager.humidityResult;
             type = getString(R.string.layer_humidity);
@@ -960,8 +1005,8 @@ public class StationMonitorActivity extends BaseActivity implements OnClickListe
         ivLegend = (ImageView) findViewById(R.id.ivLegend);
         ivLegendPrompt = (ImageView) findViewById(R.id.ivLegendPrompt);
         ivLegendPrompt.setOnClickListener(this);
-        hScrollView = (HorizontalScrollView) findViewById(R.id.hScrollView);
         llRain = (LinearLayout) findViewById(R.id.llRain);
+        llTemp = (LinearLayout) findViewById(R.id.llTemp);
         reShare = (RelativeLayout) findViewById(R.id.reShare);
         ivShare = (ImageView) findViewById(R.id.ivShare);
         ivShare.setOnClickListener(this);
@@ -976,6 +1021,14 @@ public class StationMonitorActivity extends BaseActivity implements OnClickListe
         tv4.setOnClickListener(this);
         tv5 = (TextView) findViewById(R.id.tv5);
         tv5.setOnClickListener(this);
+        tv21 = (TextView) findViewById(R.id.tv21);
+        tv21.setOnClickListener(this);
+        tv22 = (TextView) findViewById(R.id.tv22);
+        tv22.setOnClickListener(this);
+        tv23 = (TextView) findViewById(R.id.tv23);
+        tv23.setOnClickListener(this);
+        tv24 = (TextView) findViewById(R.id.tv24);
+        tv24.setOnClickListener(this);
         ivRank = (ImageView) findViewById(R.id.ivRank);
         ivRank.setOnClickListener(this);
         tvProName = (TextView) findViewById(R.id.tvProName);
@@ -983,6 +1036,11 @@ public class StationMonitorActivity extends BaseActivity implements OnClickListe
         ivProName = (ImageView) findViewById(R.id.ivProName);
         ivProName.setOnClickListener(this);
         llCursor = (LinearLayout) findViewById(R.id.llCursor);
+        ivCursor = (ImageView) findViewById(R.id.ivCursor);
+        ivAdd = (ImageView) findViewById(R.id.ivAdd);
+        ivAdd.setOnClickListener(this);
+        ivMinuse = (ImageView) findViewById(R.id.ivMinuse);
+        ivMinuse.setOnClickListener(this);
         ivGuide = (ImageView) findViewById(R.id.ivGuide);
         ivGuide.setOnClickListener(this);
         CommonUtil.showGuidePage(mContext, this.getClass().getName(), ivGuide);
@@ -1002,6 +1060,16 @@ public class StationMonitorActivity extends BaseActivity implements OnClickListe
         ivMapSearch = (ImageView) findViewById(R.id.ivMapSearch);
         ivMapSearch.setOnClickListener(this);
 
+        DisplayMetrics dm = new DisplayMetrics();
+        getWindowManager().getDefaultDisplay().getMetrics(dm);
+        int width = dm.widthPixels;
+        RelativeLayout.LayoutParams params1 = new RelativeLayout.LayoutParams((int)CommonUtil.dip2px(mContext, 70), LinearLayout.LayoutParams.WRAP_CONTENT);
+        params1.leftMargin = width/6/2-(int)CommonUtil.dip2px(mContext, 25);
+        llRain.setLayoutParams(params1);
+        RelativeLayout.LayoutParams params2 = new RelativeLayout.LayoutParams((int)CommonUtil.dip2px(mContext, 70), LinearLayout.LayoutParams.WRAP_CONTENT);
+        params2.leftMargin = width/6+width/6/2-(int)CommonUtil.dip2px(mContext, 30);
+        llTemp.setLayoutParams(params2);
+
         String title = getIntent().getStringExtra(CONST.ACTIVITY_NAME);
         if (title != null) {
             tvTitle.setText(title);
@@ -1018,6 +1086,39 @@ public class StationMonitorActivity extends BaseActivity implements OnClickListe
 
         String columnId = getIntent().getStringExtra(CONST.COLUMN_ID);
         CommonUtil.submitClickCount(columnId, title);
+    }
+
+    int scrollY;
+    /**
+     * 设置游标
+     */
+    private void moveCursor() {
+        int top = (int)CommonUtil.dip2px(mContext, 20);
+        int add = (int)CommonUtil.dip2px(mContext, 5);
+        if (zoom < 6.0f) {
+            setScrollBarPosition(scrollY, top*1+add);
+            scrollY = top*1+add;
+        } else if (zoom >= 6.0 && zoom < 8.0f)  {
+            setScrollBarPosition(scrollY, top*2+add);
+            scrollY = top*2+add;
+        } else if (zoom >= 8.0 && zoom < 10.0f)  {
+            setScrollBarPosition(scrollY, top*3+add);
+            scrollY = top*3+add;
+        } else  {
+            setScrollBarPosition(scrollY, top*4+add);
+            scrollY = top*4+add;
+        }
+        aMap.animateCamera(CameraUpdateFactory.zoomTo(zoom));
+    }
+
+    /**
+     * 设置游标位置动画
+     */
+    private void setScrollBarPosition(float fromYDelta, float toYDelta) {
+        TranslateAnimation anim = new TranslateAnimation(0,0,fromYDelta,toYDelta);
+        anim.setDuration(500);
+        anim.setFillAfter(true);
+        ivCursor.startAnimation(anim);
     }
 
     /**
@@ -1883,10 +1984,10 @@ public class StationMonitorActivity extends BaseActivity implements OnClickListe
                 break;
             case R.id.tv1:
                 setElementEmit("1", "0");
-                if (llRain.getVisibility() == View.GONE) {
+                if (llRain.getVisibility() == View.INVISIBLE) {
                     llRain.setVisibility(View.VISIBLE);
                 } else {
-                    llRain.setVisibility(View.GONE);
+                    llRain.setVisibility(View.INVISIBLE);
                 }
                 tv1.setTextColor(0xff2d5a9d);
                 tv2.setTextColor(getResources().getColor(R.color.text_color4));
@@ -1925,10 +2026,10 @@ public class StationMonitorActivity extends BaseActivity implements OnClickListe
                 break;
             case R.id.tv2:
                 setElementEmit("1", "1");
-                if (llRain.getVisibility() == View.GONE) {
+                if (llRain.getVisibility() == View.INVISIBLE) {
                     llRain.setVisibility(View.VISIBLE);
                 } else {
-                    llRain.setVisibility(View.GONE);
+                    llRain.setVisibility(View.INVISIBLE);
                 }
 
                 tv1.setTextColor(getResources().getColor(R.color.text_color4));
@@ -1968,10 +2069,10 @@ public class StationMonitorActivity extends BaseActivity implements OnClickListe
                 break;
             case R.id.tv3:
                 setElementEmit("1", "2");
-                if (llRain.getVisibility() == View.GONE) {
+                if (llRain.getVisibility() == View.INVISIBLE) {
                     llRain.setVisibility(View.VISIBLE);
                 } else {
-                    llRain.setVisibility(View.GONE);
+                    llRain.setVisibility(View.INVISIBLE);
                 }
 
                 tv1.setTextColor(getResources().getColor(R.color.text_color4));
@@ -2011,10 +2112,10 @@ public class StationMonitorActivity extends BaseActivity implements OnClickListe
                 break;
             case R.id.tv4:
                 setElementEmit("1", "3");
-                if (llRain.getVisibility() == View.GONE) {
+                if (llRain.getVisibility() == View.INVISIBLE) {
                     llRain.setVisibility(View.VISIBLE);
                 } else {
-                    llRain.setVisibility(View.GONE);
+                    llRain.setVisibility(View.INVISIBLE);
                 }
 
                 tv1.setTextColor(getResources().getColor(R.color.text_color4));
@@ -2054,10 +2155,10 @@ public class StationMonitorActivity extends BaseActivity implements OnClickListe
                 break;
             case R.id.tv5:
                 setElementEmit("1", "4");
-                if (llRain.getVisibility() == View.GONE) {
+                if (llRain.getVisibility() == View.INVISIBLE) {
                     llRain.setVisibility(View.VISIBLE);
                 } else {
-                    llRain.setVisibility(View.GONE);
+                    llRain.setVisibility(View.INVISIBLE);
                 }
 
                 tv1.setTextColor(getResources().getColor(R.color.text_color4));
@@ -2096,11 +2197,12 @@ public class StationMonitorActivity extends BaseActivity implements OnClickListe
                 }
                 break;
             case R.id.tvRain2:
-                if (llRain.getVisibility() == View.GONE) {
+                if (llRain.getVisibility() == View.INVISIBLE) {
                     llRain.setVisibility(View.VISIBLE);
                 } else {
-                    llRain.setVisibility(View.GONE);
+                    llRain.setVisibility(View.INVISIBLE);
                 }
+                llTemp.setVisibility(View.INVISIBLE);
 
                 tvRain2.setTextColor(0xff2d5a9d);
                 tvRain2.setBackgroundResource(R.drawable.bg_layer_button);
@@ -2115,10 +2217,18 @@ public class StationMonitorActivity extends BaseActivity implements OnClickListe
                 tvWindSpeed2.setTextColor(getResources().getColor(R.color.text_color4));
                 tvWindSpeed2.setBackgroundColor(getResources().getColor(R.color.transparent));
                 break;
-            case R.id.tvTemp2:
+            case R.id.tv21:
                 setElementEmit("0", "");
-                llRain.setVisibility(View.GONE);
+                if (llTemp.getVisibility() == View.INVISIBLE) {
+                    llTemp.setVisibility(View.VISIBLE);
+                } else {
+                    llTemp.setVisibility(View.INVISIBLE);
+                }
 
+                tv21.setTextColor(0xff2d5a9d);
+                tv22.setTextColor(getResources().getColor(R.color.text_color4));
+                tv23.setTextColor(getResources().getColor(R.color.text_color4));
+                tv24.setTextColor(getResources().getColor(R.color.text_color4));
                 tvRain2.setTextColor(getResources().getColor(R.color.text_color4));
                 tvRain2.setBackgroundColor(getResources().getColor(R.color.transparent));
                 tvTemp2.setTextColor(0xff2d5a9d);
@@ -2137,7 +2247,7 @@ public class StationMonitorActivity extends BaseActivity implements OnClickListe
                     finalBitmap.display(ivLegend, balltempLegend, null, 0);
                 }
                 pastTime = 60 * 60 * 1000;
-                value = 2;
+                value = 21;
                 if (tvProName.getVisibility() == View.VISIBLE) {
                     drawProvinceDataToMap(value, LOADTYPE3);
                 } else {
@@ -2149,9 +2259,158 @@ public class StationMonitorActivity extends BaseActivity implements OnClickListe
                     }, 100);
                 }
                 break;
+            case R.id.tv22:
+                setElementEmit("0", "");
+                if (llTemp.getVisibility() == View.INVISIBLE) {
+                    llTemp.setVisibility(View.VISIBLE);
+                } else {
+                    llTemp.setVisibility(View.INVISIBLE);
+                }
+
+                tv21.setTextColor(getResources().getColor(R.color.text_color4));
+                tv22.setTextColor(0xff2d5a9d);
+                tv23.setTextColor(getResources().getColor(R.color.text_color4));
+                tv24.setTextColor(getResources().getColor(R.color.text_color4));
+                tvRain2.setTextColor(getResources().getColor(R.color.text_color4));
+                tvRain2.setBackgroundColor(getResources().getColor(R.color.transparent));
+                tvTemp2.setTextColor(0xff2d5a9d);
+                tvTemp2.setBackgroundResource(R.drawable.bg_layer_button);
+                tvHumidity2.setTextColor(getResources().getColor(R.color.text_color4));
+                tvHumidity2.setBackgroundColor(getResources().getColor(R.color.transparent));
+                tvVisibility2.setTextColor(getResources().getColor(R.color.text_color4));
+                tvVisibility2.setBackgroundColor(getResources().getColor(R.color.transparent));
+                tvPressure2.setTextColor(getResources().getColor(R.color.text_color4));
+                tvPressure2.setBackgroundColor(getResources().getColor(R.color.transparent));
+                tvWindSpeed2.setTextColor(getResources().getColor(R.color.text_color4));
+                tvWindSpeed2.setBackgroundColor(getResources().getColor(R.color.transparent));
+
+                if (!TextUtils.isEmpty(balltempMaxLegend)) {
+                    FinalBitmap finalBitmap = FinalBitmap.create(mContext);
+                    finalBitmap.display(ivLegend, balltempMaxLegend, null, 0);
+                }
+                pastTime = 24 * 60 * 60 * 1000;
+                value = 22;
+                if (tvProName.getVisibility() == View.VISIBLE) {
+                    drawProvinceDataToMap(value, LOADTYPE3);
+                } else {
+                    new Handler().postDelayed(new Runnable() {
+                        @Override
+                        public void run() {
+                            drawNationDataToMap(value, LOADTYPE3);
+                        }
+                    }, 100);
+                }
+                break;
+            case R.id.tv23:
+                setElementEmit("0", "");
+                if (llTemp.getVisibility() == View.INVISIBLE) {
+                    llTemp.setVisibility(View.VISIBLE);
+                } else {
+                    llTemp.setVisibility(View.INVISIBLE);
+                }
+
+                tv21.setTextColor(getResources().getColor(R.color.text_color4));
+                tv22.setTextColor(getResources().getColor(R.color.text_color4));
+                tv23.setTextColor(0xff2d5a9d);
+                tv24.setTextColor(getResources().getColor(R.color.text_color4));
+                tvRain2.setTextColor(getResources().getColor(R.color.text_color4));
+                tvRain2.setBackgroundColor(getResources().getColor(R.color.transparent));
+                tvTemp2.setTextColor(0xff2d5a9d);
+                tvTemp2.setBackgroundResource(R.drawable.bg_layer_button);
+                tvHumidity2.setTextColor(getResources().getColor(R.color.text_color4));
+                tvHumidity2.setBackgroundColor(getResources().getColor(R.color.transparent));
+                tvVisibility2.setTextColor(getResources().getColor(R.color.text_color4));
+                tvVisibility2.setBackgroundColor(getResources().getColor(R.color.transparent));
+                tvPressure2.setTextColor(getResources().getColor(R.color.text_color4));
+                tvPressure2.setBackgroundColor(getResources().getColor(R.color.transparent));
+                tvWindSpeed2.setTextColor(getResources().getColor(R.color.text_color4));
+                tvWindSpeed2.setBackgroundColor(getResources().getColor(R.color.transparent));
+
+                if (!TextUtils.isEmpty(balltempMinLegend)) {
+                    FinalBitmap finalBitmap = FinalBitmap.create(mContext);
+                    finalBitmap.display(ivLegend, balltempMinLegend, null, 0);
+                }
+                pastTime = 24 * 60 * 60 * 1000;
+                value = 23;
+                if (tvProName.getVisibility() == View.VISIBLE) {
+                    drawProvinceDataToMap(value, LOADTYPE3);
+                } else {
+                    new Handler().postDelayed(new Runnable() {
+                        @Override
+                        public void run() {
+                            drawNationDataToMap(value, LOADTYPE3);
+                        }
+                    }, 100);
+                }
+                break;
+            case R.id.tv24:
+                setElementEmit("0", "");
+                if (llTemp.getVisibility() == View.INVISIBLE) {
+                    llTemp.setVisibility(View.VISIBLE);
+                } else {
+                    llTemp.setVisibility(View.INVISIBLE);
+                }
+
+                tv21.setTextColor(getResources().getColor(R.color.text_color4));
+                tv22.setTextColor(getResources().getColor(R.color.text_color4));
+                tv23.setTextColor(getResources().getColor(R.color.text_color4));
+                tv24.setTextColor(0xff2d5a9d);
+                tvRain2.setTextColor(getResources().getColor(R.color.text_color4));
+                tvRain2.setBackgroundColor(getResources().getColor(R.color.transparent));
+                tvTemp2.setTextColor(0xff2d5a9d);
+                tvTemp2.setBackgroundResource(R.drawable.bg_layer_button);
+                tvHumidity2.setTextColor(getResources().getColor(R.color.text_color4));
+                tvHumidity2.setBackgroundColor(getResources().getColor(R.color.transparent));
+                tvVisibility2.setTextColor(getResources().getColor(R.color.text_color4));
+                tvVisibility2.setBackgroundColor(getResources().getColor(R.color.transparent));
+                tvPressure2.setTextColor(getResources().getColor(R.color.text_color4));
+                tvPressure2.setBackgroundColor(getResources().getColor(R.color.transparent));
+                tvWindSpeed2.setTextColor(getResources().getColor(R.color.text_color4));
+                tvWindSpeed2.setBackgroundColor(getResources().getColor(R.color.transparent));
+
+                if (!TextUtils.isEmpty(balltempChangeLegend)) {
+                    FinalBitmap finalBitmap = FinalBitmap.create(mContext);
+                    finalBitmap.display(ivLegend, balltempChangeLegend, null, 0);
+                }
+                pastTime = 24 * 60 * 60 * 1000;
+                value = 24;
+                if (tvProName.getVisibility() == View.VISIBLE) {
+                    drawProvinceDataToMap(value, LOADTYPE3);
+                } else {
+                    new Handler().postDelayed(new Runnable() {
+                        @Override
+                        public void run() {
+                            drawNationDataToMap(value, LOADTYPE3);
+                        }
+                    }, 100);
+                }
+                break;
+            case R.id.tvTemp2:
+                setElementEmit("0", "");
+                if (llTemp.getVisibility() == View.INVISIBLE) {
+                    llTemp.setVisibility(View.VISIBLE);
+                } else {
+                    llTemp.setVisibility(View.INVISIBLE);
+                }
+                llRain.setVisibility(View.INVISIBLE);
+
+                tvRain2.setTextColor(getResources().getColor(R.color.text_color4));
+                tvRain2.setBackgroundColor(getResources().getColor(R.color.transparent));
+                tvTemp2.setTextColor(0xff2d5a9d);
+                tvTemp2.setBackgroundResource(R.drawable.bg_layer_button);
+                tvHumidity2.setTextColor(getResources().getColor(R.color.text_color4));
+                tvHumidity2.setBackgroundColor(getResources().getColor(R.color.transparent));
+                tvVisibility2.setTextColor(getResources().getColor(R.color.text_color4));
+                tvVisibility2.setBackgroundColor(getResources().getColor(R.color.transparent));
+                tvPressure2.setTextColor(getResources().getColor(R.color.text_color4));
+                tvPressure2.setBackgroundColor(getResources().getColor(R.color.transparent));
+                tvWindSpeed2.setTextColor(getResources().getColor(R.color.text_color4));
+                tvWindSpeed2.setBackgroundColor(getResources().getColor(R.color.transparent));
+                break;
             case R.id.tvHumidity2:
                 setElementEmit("3", "");
-                llRain.setVisibility(View.GONE);
+                llRain.setVisibility(View.INVISIBLE);
+                llTemp.setVisibility(View.INVISIBLE);
 
                 tvRain2.setTextColor(getResources().getColor(R.color.text_color4));
                 tvRain2.setBackgroundColor(getResources().getColor(R.color.transparent));
@@ -2185,7 +2444,8 @@ public class StationMonitorActivity extends BaseActivity implements OnClickListe
                 break;
             case R.id.tvVisibility2:
                 setElementEmit("4", "");
-                llRain.setVisibility(View.GONE);
+                llRain.setVisibility(View.INVISIBLE);
+                llTemp.setVisibility(View.INVISIBLE);
 
                 tvRain2.setTextColor(getResources().getColor(R.color.text_color4));
                 tvRain2.setBackgroundColor(getResources().getColor(R.color.transparent));
@@ -2219,7 +2479,8 @@ public class StationMonitorActivity extends BaseActivity implements OnClickListe
                 break;
             case R.id.tvPressure2:
                 setElementEmit("5", "");
-                llRain.setVisibility(View.GONE);
+                llRain.setVisibility(View.INVISIBLE);
+                llTemp.setVisibility(View.INVISIBLE);
 
                 tvRain2.setTextColor(getResources().getColor(R.color.text_color4));
                 tvRain2.setBackgroundColor(getResources().getColor(R.color.transparent));
@@ -2253,7 +2514,8 @@ public class StationMonitorActivity extends BaseActivity implements OnClickListe
                 break;
             case R.id.tvWindSpeed2:
                 setElementEmit("2", "");
-                llRain.setVisibility(View.GONE);
+                llRain.setVisibility(View.INVISIBLE);
+                llTemp.setVisibility(View.INVISIBLE);
 
                 tvRain2.setTextColor(getResources().getColor(R.color.text_color4));
                 tvRain2.setBackgroundColor(getResources().getColor(R.color.transparent));
@@ -2334,6 +2596,30 @@ public class StationMonitorActivity extends BaseActivity implements OnClickListe
             case R.id.ivGuide:
                 ivGuide.setVisibility(View.GONE);
                 CommonUtil.saveGuidePageState(mContext, this.getClass().getName());
+                break;
+            case R.id.ivAdd:
+                if (zoom < 6.0f) {
+                    zoom = 6.0f;
+                } else if (zoom >= 6.0 && zoom < 8.0f)  {
+                    zoom = 8.0f;
+                } else if (zoom >= 8.0 && zoom < 10.0f)  {
+                    zoom = 10.0f;
+                } else  {
+
+                }
+                moveCursor();
+                break;
+            case R.id.ivMinuse:
+                if (zoom < 6.0f) {
+
+                } else if (zoom >= 6.0 && zoom < 8.0f)  {
+                    zoom = 5.9f;
+                } else if (zoom >= 8.0 && zoom < 10.0f)  {
+                    zoom = 7.9f;
+                } else  {
+                    zoom = 9.9f;
+                }
+                moveCursor();
                 break;
 
             default:
