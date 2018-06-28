@@ -19,7 +19,6 @@ import com.china.utils.CommonUtil;
 import com.china.view.HumidityView;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
 
 /**
@@ -98,7 +97,7 @@ public class StationDetailHumidityFragment extends Fragment{
 		height = dm.heightPixels;
 		density = dm.density;
 		
-		data = (StationMonitorDto) getArguments().getSerializable("data");
+		data = (StationMonitorDto) getArguments().getParcelable("data");
 		if (data != null) {
 			if (!TextUtils.equals(data.currentHumidity, CONST.noValue)) {
 				tvCurrentHumidity.setText(data.currentHumidity);

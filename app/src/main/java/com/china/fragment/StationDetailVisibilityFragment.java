@@ -19,7 +19,6 @@ import com.china.utils.CommonUtil;
 import com.china.view.VisibleView;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
 
 public class StationDetailVisibilityFragment extends Fragment{
@@ -89,7 +88,7 @@ public class StationDetailVisibilityFragment extends Fragment{
 		height = dm.heightPixels;
 		density = dm.density;
 		
-		data = (StationMonitorDto) getArguments().getSerializable("data");
+		data = (StationMonitorDto) getArguments().getParcelable("data");
 		if (data != null) {
 			if (!TextUtils.equals(data.currentVisible, CONST.noValue)) {
 				tvCurrentVisible.setText(data.currentVisible);

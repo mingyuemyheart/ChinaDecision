@@ -19,7 +19,6 @@ import com.china.utils.CommonUtil;
 import com.china.view.RainView;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
 
 public class StationDetailRainFragment extends Fragment{
@@ -98,7 +97,7 @@ public class StationDetailRainFragment extends Fragment{
 		height = dm.heightPixels;
 		density = dm.density;
 		
-		data = (StationMonitorDto) getArguments().getSerializable("data");
+		data = (StationMonitorDto) getArguments().getParcelable("data");
 		if (data != null) {
 			if (!TextUtils.equals(data.current1hRain, CONST.noValue)) {
 				tvCurrent1hRain.setText(data.current1hRain);

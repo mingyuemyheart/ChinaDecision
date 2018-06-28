@@ -269,7 +269,7 @@ public class StationMonitorDetailActivity extends BaseActivity implements OnClic
 			}
 			if (fragment != null) {
 				Bundle bundle = new Bundle();
-				bundle.putSerializable("data", data);
+				bundle.putParcelable("data", data);
 				bundle.putParcelableArrayList("warningList", (ArrayList<? extends Parcelable>) warningList);
 				fragment.setArguments(bundle);
 				fragments.add(fragment);

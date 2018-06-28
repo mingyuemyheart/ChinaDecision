@@ -67,6 +67,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_below="@+id/re"
+            android:background="@color/title_bg"
             android:gravity="center_vertical"
             android:orientation="horizontal"
             android:paddingBottom="5dp"
@@ -193,13 +194,13 @@
                     android:layout_width="20dp"
                     android:layout_height="20dp"
                     android:layout_centerHorizontal="true"
+                    android:layout_alignBottom="@+id/tvCursorBar"
                     android:src="@drawable/cursor_add"/>
 
                 <ImageView
                     android:id="@+id/ivMinuse"
                     android:layout_width="20dp"
                     android:layout_height="20dp"
-                    android:layout_alignBottom="@+id/tvCursorBar"
                     android:layout_centerHorizontal="true"
                     android:src="@drawable/cursor_minuse"/>
 
@@ -665,7 +666,7 @@
 
         <LinearLayout
             android:id="@+id/llTemp"
-            android:layout_width="70dp"
+            android:layout_width="90dp"
             android:layout_height="wrap_content"
             android:background="@drawable/bg_typhoon_marker_view"
             android:gravity="center"
@@ -687,7 +688,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="3dp"
-                android:text="最高气温"
+                android:text="24小时最高气温"
                 android:textColor="@color/text_color4"
                 android:textSize="@dimen/level_5"/>
 
@@ -696,7 +697,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="3dp"
-                android:text="最低气温"
+                android:text="24小时最低气温"
                 android:textColor="@color/text_color4"
                 android:textSize="@dimen/level_5"/>
 
@@ -705,7 +706,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="3dp"
-                android:text="变温实况"
+                android:text="24小时变温"
                 android:textColor="@color/text_color4"
                 android:textSize="@dimen/level_5"/>
 

@@ -925,5 +925,43 @@ public class CommonUtil {
 
         return week;
     }
+
+	/**
+	 * 根据风速获取风向标
+	 * @param context
+	 * @param speed
+	 * @return
+	 */
+	public static Bitmap getWindMarker(Context context, double speed) {
+		Bitmap bitmap = null;
+		if (speed <= 0.2) {
+			bitmap = BitmapFactory.decodeResource(context.getResources(), R.drawable.iv_wind12);
+		}else if (speed > 0.2 && speed <= 1.5) {
+			bitmap = BitmapFactory.decodeResource(context.getResources(), R.drawable.iv_wind12);
+		}else if (speed > 1.5 && speed <= 3.3) {
+			bitmap = BitmapFactory.decodeResource(context.getResources(), R.drawable.iv_wind12);
+		}else if (speed > 3.3 && speed <= 5.4) {
+			bitmap = BitmapFactory.decodeResource(context.getResources(), R.drawable.iv_wind34);
+		}else if (speed > 5.4 && speed <= 7.9) {
+			bitmap = BitmapFactory.decodeResource(context.getResources(), R.drawable.iv_wind34);
+		}else if (speed > 7.9 && speed <= 10.7) {
+			bitmap = BitmapFactory.decodeResource(context.getResources(), R.drawable.iv_wind56);
+		}else if (speed > 10.7 && speed <= 13.8) {
+			bitmap = BitmapFactory.decodeResource(context.getResources(), R.drawable.iv_wind56);
+		}else if (speed > 13.8 && speed <= 17.1) {
+			bitmap = BitmapFactory.decodeResource(context.getResources(), R.drawable.iv_wind78);
+		}else if (speed > 17.1 && speed <= 20.7) {
+			bitmap = BitmapFactory.decodeResource(context.getResources(), R.drawable.iv_wind78);
+		}else if (speed > 20.7 && speed <= 24.4) {
+			bitmap = BitmapFactory.decodeResource(context.getResources(), R.drawable.iv_wind8s);
+		}else if (speed > 24.4 && speed <= 28.4) {
+			bitmap = BitmapFactory.decodeResource(context.getResources(), R.drawable.iv_wind8s);
+		}else if (speed > 28.4 && speed <= 32.6) {
+			bitmap = BitmapFactory.decodeResource(context.getResources(), R.drawable.iv_wind8s);
+		}else if (speed > 32.6 && speed < 99999.0) {
+			bitmap = BitmapFactory.decodeResource(context.getResources(), R.drawable.iv_wind8s);
+		}
+		return bitmap;
+	}
     
 }

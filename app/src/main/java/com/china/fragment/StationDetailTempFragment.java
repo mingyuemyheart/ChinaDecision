@@ -19,7 +19,6 @@ import com.china.utils.CommonUtil;
 import com.china.view.TemperatureView;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
 
 public class StationDetailTempFragment extends Fragment{
@@ -95,7 +94,7 @@ public class StationDetailTempFragment extends Fragment{
 		height = dm.heightPixels;
 		density = dm.density;
 		
-		data = (StationMonitorDto) getArguments().getSerializable("data");
+		data = (StationMonitorDto) getArguments().getParcelable("data");
 		if (data != null) {
 			if (!TextUtils.equals(data.currentTemp, CONST.noValue)) {
 				tvCurrentTemp.setText(data.currentTemp);

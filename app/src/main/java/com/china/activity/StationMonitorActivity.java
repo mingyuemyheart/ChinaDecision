@@ -8,7 +8,9 @@ import android.database.sqlite.SQLiteDatabase;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
+import android.graphics.Matrix;
 import android.graphics.Point;
+import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.GradientDrawable;
 import android.media.ThumbnailUtils;
 import android.os.Bundle;
@@ -181,6 +183,9 @@ public class StationMonitorActivity extends BaseActivity implements OnClickListe
     private List<String> precipitation12hColor = new ArrayList<>();
     private List<String> precipitation24hColor = new ArrayList<>();
     private List<String> balltempColor = new ArrayList<>();
+    private List<String> balltempMaxColor = new ArrayList<>();
+    private List<String> balltempMinColor = new ArrayList<>();
+    private List<String> balltempChangeColor = new ArrayList<>();
     private List<String> humidityColor = new ArrayList<>();
     private List<String> visibilityColor = new ArrayList<>();
     private List<String> windspeedColor = new ArrayList<>();
@@ -470,6 +475,27 @@ public class StationMonitorActivity extends BaseActivity implements OnClickListe
                                             JSONArray array = obj.getJSONArray("jb_wdtl");
                                             for (int i = 0; i < array.length(); i++) {
                                                 balltempColor.add(array.getString(i));
+                                            }
+                                        }
+                                        if (!obj.isNull("jb_maxqw")) {
+                                            balltempMaxColor.clear();
+                                            JSONArray array = obj.getJSONArray("jb_maxqw");
+                                            for (int i = 0; i < array.length(); i++) {
+                                                balltempMaxColor.add(array.getString(i));
+                                            }
+                                        }
+                                        if (!obj.isNull("jb_minqw")) {
+                                            balltempMinColor.clear();
+                                            JSONArray array = obj.getJSONArray("jb_minqw");
+                                            for (int i = 0; i < array.length(); i++) {
+                                                balltempMinColor.add(array.getString(i));
+                                            }
+                                        }
+                                        if (!obj.isNull("jb_changeqw")) {
+                                            balltempChangeColor.clear();
+                                            JSONArray array = obj.getJSONArray("jb_changeqw");
+                                            for (int i = 0; i < array.length(); i++) {
+                                                balltempChangeColor.add(array.getString(i));
                                             }
                                         }
                                         if (!obj.isNull("jb_xdsdtl")) {
@@ -1066,8 +1092,8 @@ public class StationMonitorActivity extends BaseActivity implements OnClickListe
         RelativeLayout.LayoutParams params1 = new RelativeLayout.LayoutParams((int)CommonUtil.dip2px(mContext, 70), LinearLayout.LayoutParams.WRAP_CONTENT);
         params1.leftMargin = width/6/2-(int)CommonUtil.dip2px(mContext, 25);
         llRain.setLayoutParams(params1);
-        RelativeLayout.LayoutParams params2 = new RelativeLayout.LayoutParams((int)CommonUtil.dip2px(mContext, 70), LinearLayout.LayoutParams.WRAP_CONTENT);
-        params2.leftMargin = width/6+width/6/2-(int)CommonUtil.dip2px(mContext, 30);
+        RelativeLayout.LayoutParams params2 = new RelativeLayout.LayoutParams((int)CommonUtil.dip2px(mContext, 90), LinearLayout.LayoutParams.WRAP_CONTENT);
+        params2.leftMargin = width/6+width/6/2-(int)CommonUtil.dip2px(mContext, 40);
         llTemp.setLayoutParams(params2);
 
         String title = getIntent().getStringExtra(CONST.ACTIVITY_NAME);
@@ -1393,6 +1419,69 @@ public class StationMonitorActivity extends BaseActivity implements OnClickListe
                                         dto.ballTemp = CONST.noValue;
                                     }
 
+                                    if (!obj.isNull("MaxWd")) {
+                                        String value = obj.getString("MaxWd");
+                                        if (!TextUtils.isEmpty(value)) {
+                                            if (value.length() >= 2 && value.contains(".")) {
+                                                if (value.equals(".0")) {
+                                                    dto.balltempMax = "0";
+                                                } else {
+                                                    if (TextUtils.equals(value.substring(value.length() - 2, value.length()), ".0")) {
+                                                        dto.balltempMax = value.substring(0, value.indexOf("."));
+                                                    } else {
+                                                        dto.balltempMax = value;
+                                                    }
+                                                }
+                                            }
+                                        } else {
+                                            dto.balltempMax = CONST.noValue;
+                                        }
+                                    } else {
+                                        dto.balltempMax = CONST.noValue;
+                                    }
+
+                                    if (!obj.isNull("MinWd")) {
+                                        String value = obj.getString("MinWd");
+                                        if (!TextUtils.isEmpty(value)) {
+                                            if (value.length() >= 2 && value.contains(".")) {
+                                                if (value.equals(".0")) {
+                                                    dto.balltempMin = "0";
+                                                } else {
+                                                    if (TextUtils.equals(value.substring(value.length() - 2, value.length()), ".0")) {
+                                                        dto.balltempMin = value.substring(0, value.indexOf("."));
+                                                    } else {
+                                                        dto.balltempMin = value;
+                                                    }
+                                                }
+                                            }
+                                        } else {
+                                            dto.balltempMin = CONST.noValue;
+                                        }
+                                    } else {
+                                        dto.balltempMin = CONST.noValue;
+                                    }
+
+                                    if (!obj.isNull("WDX")) {
+                                        String value = obj.getString("WDX");
+                                        if (!TextUtils.isEmpty(value)) {
+                                            if (value.length() >= 2 && value.contains(".")) {
+                                                if (value.equals(".0")) {
+                                                    dto.balltempChange = "0";
+                                                } else {
+                                                    if (TextUtils.equals(value.substring(value.length() - 2, value.length()), ".0")) {
+                                                        dto.balltempChange = value.substring(0, value.indexOf("."));
+                                                    } else {
+                                                        dto.balltempChange = value;
+                                                    }
+                                                }
+                                            }
+                                        } else {
+                                            dto.balltempChange = CONST.noValue;
+                                        }
+                                    } else {
+                                        dto.balltempChange = CONST.noValue;
+                                    }
+
                                     if (!obj.isNull("humidity")) {
                                         String value = obj.getString("humidity");
                                         if (!TextUtils.isEmpty(value)) {
@@ -1438,6 +1527,7 @@ public class StationMonitorActivity extends BaseActivity implements OnClickListe
                                     if (!obj.isNull("winddir")) {
                                         String dir = null;
                                         String value = obj.getString("winddir");
+                                        dto.wdir = Float.parseFloat(value);
                                         if (!TextUtils.isEmpty(value)) {
                                             if (value.length() >= 2 && value.contains(".")) {
                                                 if (value.equals(".0")) {
@@ -1601,28 +1691,7 @@ public class StationMonitorActivity extends BaseActivity implements OnClickListe
             options.snippet(dto.name);
             options.anchor(0.5f, 0.5f);
             options.position(new LatLng(lat, lng));
-            View markerView = null;
-            if (value == 1) {
-                markerView = getTextBitmap(value, dto.precipitation1h);
-            } else if (value == 13) {
-                markerView = getTextBitmap(value, dto.precipitation3h);
-            } else if (value == 16) {
-                markerView = getTextBitmap(value, dto.precipitation6h);
-            } else if (value == 112) {
-                markerView = getTextBitmap(value, dto.precipitation12h);
-            } else if (value == 124) {
-                markerView = getTextBitmap(value, dto.precipitation24h);
-            } else if (value == 2) {
-                markerView = getTextBitmap(value, dto.ballTemp);
-            } else if (value == 3) {
-                markerView = getTextBitmap(value, dto.humidity);
-            } else if (value == 4) {
-                markerView = getTextBitmap(value, dto.visibility);
-            } else if (value == 5) {
-                markerView = getTextBitmap(value, dto.airPressure);
-            } else if (value == 6) {
-                markerView = getTextBitmap(value, dto.windSpeed);
-            }
+            View markerView = getTextBitmap(value, dto);
             if (markerView != null && lat != 0 && lng != 0) {
                 options.icon(BitmapDescriptorFactory.fromView(markerView));
                 Marker m = aMap.addMarker(options);
@@ -1647,24 +1716,83 @@ public class StationMonitorActivity extends BaseActivity implements OnClickListe
 
     /**
      * 给marker添加文字
-     *
-     * @param number
      * @return
      */
-    private View getTextBitmap(int value, String number) {
-        if (TextUtils.isEmpty(number) || TextUtils.equals(number, CONST.noValue)) {
-            return null;
-        }
+    private View getTextBitmap(int value, StationMonitorDto dto) {
         LayoutInflater inflater = (LayoutInflater) getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         View view = inflater.inflate(R.layout.station_monitor_item, null);
+        if (value == 6) {
+            view = inflater.inflate(R.layout.station_monitor_item_wind, null);
+        }
         if (view == null) {
             return null;
         }
         ImageView ivMarker = (ImageView) view.findViewById(R.id.ivMarker);
+        TextView tvValue = (TextView) view.findViewById(R.id.tvValue);
+        ImageView ivWind = (ImageView) view.findViewById(R.id.ivWind);
+
+        String number = "";
+        if (value == 1) {
+            number = dto.precipitation1h;
+        } else if (value == 13) {
+            number = dto.precipitation3h;
+        } else if (value == 16) {
+            number = dto.precipitation6h;
+        } else if (value == 112) {
+            number = dto.precipitation12h;
+        } else if (value == 124) {
+            number = dto.precipitation24h;
+        } else if (value == 21) {
+            number = dto.ballTemp;
+        } else if (value == 22) {
+            number = dto.balltempMax;
+        } else if (value == 23) {
+            number = dto.balltempMin;
+        } else if (value == 24) {
+            number = dto.balltempChange;
+        } else if (value == 3) {
+            number = dto.humidity;
+        } else if (value == 4) {
+            number = dto.visibility;
+        } else if (value == 5) {
+            number = dto.airPressure;
+        } else if (value == 6) {
+            number = dto.windSpeed;
+        }
+
+        if (TextUtils.isEmpty(number) || TextUtils.equals(number, CONST.noValue)) {
+            return null;
+        }
+
         GradientDrawable gradientDrawable = (GradientDrawable) ivMarker.getBackground();
         gradientDrawable.setColor(pointColor(value, number));
-        TextView tvValue = (TextView) view.findViewById(R.id.tvValue);
         tvValue.setText(number);
+
+        if (value == 24) {//变温
+            float changeTemp = Float.parseFloat(number);
+            if (changeTemp >= 0) {
+                ivWind.setImageResource(R.drawable.iv_high_temp_logo);
+            }else {
+                ivWind.setImageResource(R.drawable.iv_low_temp_logo);
+            }
+            ivWind.setVisibility(View.VISIBLE);
+        } else if (value == 6) {//风向风速
+            if (dto.wdir != -1) {
+                float windSpeed = Float.parseFloat(number);
+                Bitmap b = CommonUtil.getWindMarker(mContext, windSpeed);
+                if (b != null) {
+                    Matrix matrix = new Matrix();
+                    matrix.postScale(1, 1);
+                    matrix.postRotate(dto.wdir);
+                    Bitmap bitmap = Bitmap.createBitmap(b, 0, 0, b.getWidth(), b.getHeight(), matrix, true);
+                    if (bitmap != null) {
+                        ivWind.setImageBitmap(bitmap);
+                        ivWind.setVisibility(View.VISIBLE);
+                    }
+                }
+            }
+        }
+
         return view;
     }
 
@@ -1705,9 +1833,30 @@ public class StationMonitorActivity extends BaseActivity implements OnClickListe
                     color = colorStr[2];
                 }
             }
-        } else if (value == 2) {
+        } else if (value == 21) {
             for (int i = 0; i < balltempColor.size(); i++) {
                 String[] colorStr = balltempColor.get(i).split(",");
+                if (Float.valueOf(number) >= Float.valueOf(colorStr[0]) && Float.valueOf(number) < Float.valueOf(colorStr[1])) {
+                    color = colorStr[2];
+                }
+            }
+        } else if (value == 22) {
+            for (int i = 0; i < balltempMaxColor.size(); i++) {
+                String[] colorStr = balltempMaxColor.get(i).split(",");
+                if (Float.valueOf(number) >= Float.valueOf(colorStr[0]) && Float.valueOf(number) < Float.valueOf(colorStr[1])) {
+                    color = colorStr[2];
+                }
+            }
+        } else if (value == 23) {
+            for (int i = 0; i < balltempMinColor.size(); i++) {
+                String[] colorStr = balltempMinColor.get(i).split(",");
+                if (Float.valueOf(number) >= Float.valueOf(colorStr[0]) && Float.valueOf(number) < Float.valueOf(colorStr[1])) {
+                    color = colorStr[2];
+                }
+            }
+        } else if (value == 24) {
+            for (int i = 0; i < balltempChangeColor.size(); i++) {
+                String[] colorStr = balltempChangeColor.get(i).split(",");
                 if (Float.valueOf(number) >= Float.valueOf(colorStr[0]) && Float.valueOf(number) < Float.valueOf(colorStr[1])) {
                     color = colorStr[2];
                 }
@@ -1763,7 +1912,6 @@ public class StationMonitorActivity extends BaseActivity implements OnClickListe
 
     @Override
     public void onGeocodeSearched(GeocodeResult arg0, int arg1) {
-        // TODO Auto-generated method stub
     }
 
     @Override
@@ -2613,11 +2761,11 @@ public class StationMonitorActivity extends BaseActivity implements OnClickListe
                 if (zoom < 6.0f) {
 
                 } else if (zoom >= 6.0 && zoom < 8.0f)  {
-                    zoom = 5.9f;
+                    zoom = 3.5f;
                 } else if (zoom >= 8.0 && zoom < 10.0f)  {
-                    zoom = 7.9f;
+                    zoom = 7.0f;
                 } else  {
-                    zoom = 9.9f;
+                    zoom = 9.0f;
                 }
                 moveCursor();
                 break;
