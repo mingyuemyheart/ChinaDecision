@@ -64,14 +64,11 @@ android {
 
 dependencies {
     compile fileTree(include: ['*.jar'], dir: 'libs')
-    compile 'com.android.support:appcompat-v7:26.+'
+    compile 'com.android.support:appcompat-v7:26.1.0'
     compile files('libs/exoplayer_lib.jar')
     compile files('libs/nineoldandroids-2.4.0.jar')
     compile files('libs/scene-final.jar')
-    provided 'com.squareup.okhttp3:okhttp:3.8.1'
-    compile 'com.squareup.okio:okio:1.13.0'
     compile files('libs/zxing.jar')
-    //    compile 'com.github.nkzawa:socket.io-client:0.6.0'
     compile('com.github.nkzawa:socket.io-client:0.6.0') {//解决重复引用json
         exclude group: 'org.json', module: 'json'
     }
@@ -89,4 +86,6 @@ dependencies {
     compile files('libs/libddshare.jar')
     compile files('libs/umeng-shareboard-widget-6.9.2.jar')
     compile files('libs/umeng-sharetool-6.9.2.jar')
+    compile 'com.squareup.okhttp3:okhttp:3.10.0'
+    compile 'com.squareup.okio:okio:1.14.1'
 }
