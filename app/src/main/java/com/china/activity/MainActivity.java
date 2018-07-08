@@ -181,12 +181,6 @@ public class MainActivity extends BaseActivity implements OnClickListener, AMapL
 		onLayoutMeasure();
 	}
 
-	@Override
-	protected void onResume() {
-		super.onResume();
-		onLayoutMeasure();
-	}
-
 	/**
 	 * 判断navigation是否显示，重新计算页面布局
 	 */
