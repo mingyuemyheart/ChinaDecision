@@ -360,8 +360,20 @@ public class WeatherUtil {
 			force = "10级";
 		}else if (speed > 28.4 && speed <= 32.6) {
 			force = "11级";
-		}else if (speed > 32.6 && speed < 99999.0) {
+		}else if (speed > 32.6 && speed < 37) {
 			force = "12级";
+		}else if (speed > 37 && speed < 41.5) {
+			force = "13级";
+		}else if (speed > 41.5 && speed < 46.2) {
+			force = "14级";
+		}else if (speed > 46.2 && speed < 51) {
+			force = "15级";
+		}else if (speed > 51 && speed < 56.1) {
+			force = "16级";
+		}else if (speed > 56.1 && speed < 61.3) {
+			force = "17级";
+		}else if (speed > 61.3) {
+			force = "17级以上";
 		}
 		return force;
 	}
