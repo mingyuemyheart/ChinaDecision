@@ -48,6 +48,7 @@
         android:layout_centerVertical="true"
         android:layout_marginLeft="10dp"
         android:layout_marginRight="10dp"
+        android:layout_toLeftOf="@+id/ivShare"
         android:layout_toRightOf="@+id/vertical_line"
         android:singleLine="true"
         android:textColor="@color/black"

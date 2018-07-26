@@ -22,18 +22,198 @@
             android:layout_height="match_parent" />
 
         <RelativeLayout
-            android:visibility="gone"
-            android:id="@+id/reLegend"
+            android:id="@+id/reShare"
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:orientation="vertical" >
+            android:layout_height="match_parent" >
 
-            <ImageView
+
+            <TextView
+                android:id="@+id/tvName"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_alignParentBottom="true"
+                android:layout_centerHorizontal="true"
+                android:layout_marginTop="5dp"
+                android:textColor="@color/black"
+                android:textSize="@dimen/level_4"/>
+
+            <ImageView
+                android:id="@+id/ivTemp"
+                android:layout_width="35dp"
+                android:layout_height="35dp"
                 android:layout_alignParentRight="true"
-                android:src="@drawable/iv_air_polution" />
+                android:layout_below="@+id/tvName"
+                android:layout_marginRight="10dp"
+                android:layout_marginTop="5dp"
+                android:src="@drawable/com_temp_press"/>
+
+            <ImageView
+                android:id="@+id/ivHumidity"
+                android:layout_width="35dp"
+                android:layout_height="35dp"
+                android:layout_alignParentRight="true"
+                android:layout_below="@+id/ivTemp"
+                android:layout_marginRight="10dp"
+                android:layout_marginTop="5dp"
+                android:src="@drawable/com_humidity"/>
+
+            <ImageView
+                android:id="@+id/ivWind"
+                android:layout_width="35dp"
+                android:layout_height="35dp"
+                android:layout_alignParentRight="true"
+                android:layout_below="@+id/ivHumidity"
+                android:layout_marginRight="10dp"
+                android:layout_marginTop="5dp"
+                android:src="@drawable/com_wind"/>
+
+            <ImageView
+                android:id="@+id/ivVisible"
+                android:layout_width="35dp"
+                android:layout_height="35dp"
+                android:layout_alignParentRight="true"
+                android:layout_below="@+id/ivWind"
+                android:layout_marginRight="10dp"
+                android:layout_marginTop="5dp"
+                android:src="@drawable/com_visible"/>
+
+            <ImageView
+                android:id="@+id/ivCloud"
+                android:layout_width="35dp"
+                android:layout_height="35dp"
+                android:layout_alignParentRight="true"
+                android:layout_below="@+id/ivVisible"
+                android:layout_marginRight="10dp"
+                android:layout_marginTop="5dp"
+                android:src="@drawable/com_cloud"/>
+
+            <RelativeLayout
+                android:id="@+id/reShowType"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_above="@+id/ivSwitch"
+                android:layout_marginLeft="10dp"
+                android:layout_marginBottom="5dp">
+
+                <LinearLayout
+                    android:id="@+id/llShowType"
+                    android:layout_width="wrap_content"
+                    android:layout_height="35dp"
+                    android:layout_centerVertical="true"
+                    android:layout_marginLeft="5dp"
+                    android:background="@drawable/corner_bg_analysis"
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal"
+                    android:paddingLeft="30dp"
+                    android:visibility="gone">
+
+                    <TextView
+                        android:id="@+id/tvShowType1"
+                        android:layout_width="wrap_content"
+                        android:layout_height="match_parent"
+                        android:gravity="center"
+                        android:paddingLeft="15dp"
+                        android:paddingRight="15dp"
+                        android:text="落区图"
+                        android:textColor="@color/blue"
+                        android:textSize="@dimen/level_4"/>
+
+                    <TextView
+                        android:id="@+id/tvShowType2"
+                        android:layout_width="wrap_content"
+                        android:layout_height="match_parent"
+                        android:gravity="center"
+                        android:paddingLeft="15dp"
+                        android:paddingRight="15dp"
+                        android:text="数值"
+                        android:textColor="@color/black"
+                        android:textSize="@dimen/level_5"/>
+
+                </LinearLayout>
+
+                <ImageView
+                    android:id="@+id/ivShowType"
+                    android:layout_width="35dp"
+                    android:layout_height="35dp"
+                    android:src="@drawable/com_show_type"/>
+
+            </RelativeLayout>
+
+
+            <ImageView
+                android:id="@+id/ivSwitch"
+                android:layout_width="35dp"
+                android:layout_height="35dp"
+                android:layout_above="@+id/reDataSource"
+                android:layout_marginLeft="10dp"
+                android:layout_marginBottom="5dp"
+                android:src="@drawable/com_switch_map"/>
+
+            <RelativeLayout
+                android:id="@+id/reDataSource"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_above="@+id/ivLocation"
+                android:layout_marginLeft="10dp"
+                android:layout_marginBottom="5dp"
+                android:layout_marginRight="10dp">
+
+                <TextView
+                    android:visibility="gone"
+                    android:id="@+id/tvDataSource"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="中国气象局陆面数据同化系统（CLDAS-V2.0）实时产品数据集"
+                    android:textSize="@dimen/level_5"
+                    android:textColor="@color/blue"
+                    android:layout_centerVertical="true"
+                    android:background="@drawable/corner_bg_analysis"
+                    android:gravity="center_vertical"
+                    android:paddingLeft="40dp"/>
+
+                <ImageView
+                    android:id="@+id/ivDataSource"
+                    android:layout_width="35dp"
+                    android:layout_height="35dp"
+                    android:gravity="center_vertical"
+                    android:src="@drawable/com_data_source"/>
+
+            </RelativeLayout>
+
+
+            <ImageView
+                android:id="@+id/ivLocation"
+                android:layout_width="35dp"
+                android:layout_height="35dp"
+                android:layout_above="@+id/llLegend"
+                android:layout_marginLeft="10dp"
+                android:layout_marginBottom="5dp"
+                android:src="@drawable/icon_locationoff"
+                android:visibility="gone"/>
+
+            <LinearLayout
+                android:id="@+id/llLegend"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_alignParentBottom="true"
+                android:gravity="center_vertical"
+                android:layout_marginBottom="5dp"
+                android:paddingLeft="10dp"
+                android:paddingRight="10dp">
+
+                <ImageView
+                    android:id="@+id/ivLegendPrompt"
+                    android:layout_width="35dp"
+                    android:layout_height="35dp"
+                    android:src="@drawable/iv_map_legend"/>
+
+                <ImageView
+                    android:id="@+id/ivLegend"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:adjustViewBounds="true"/>
+            </LinearLayout>
+
+
         </RelativeLayout>
 
     </RelativeLayout>

@@ -1,14 +1,24 @@
 package com.china.activity;
 
+import android.Manifest;
+import android.animation.IntEvaluator;
+import android.animation.ValueAnimator;
 import android.content.Context;
+import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.media.ThumbnailUtils;
+import android.os.Build;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
+import android.support.v4.app.ActivityCompat;
+import android.support.v4.content.ContextCompat;
 import android.text.TextUtils;
+import android.util.TypedValue;
 import android.view.View;
 import android.view.View.OnClickListener;
+import android.view.animation.LinearInterpolator;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
@@ -31,6 +41,7 @@ import com.amap.api.maps.model.Polygon;
 import com.amap.api.maps.model.PolygonOptions;
 import com.china.R;
 import com.china.common.CONST;
+import com.china.utils.AuthorityUtil;
 import com.china.utils.CommonUtil;
 import com.china.utils.OkHttpUtil;
 import com.tendcloud.tenddata.TCAgent;
@@ -42,10 +53,8 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.IOException;
-import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 
 import okhttp3.Call;
@@ -58,7 +67,6 @@ import okhttp3.Response;
  * @author shawn_sun
  *
  */
-
 public class ComprehensiveForecastActivity extends BaseActivity implements OnClickListener, AMapLocationListener, OnMapScreenShotListener, AMap.OnCameraChangeListener {
 	
 	private Context mContext = null;
@@ -69,12 +77,14 @@ public class ComprehensiveForecastActivity extends BaseActivity implements OnCli
 	private ImageView ivShare,ivLegendPrompt,ivLocation,ivLegend,ivJiangshui,ivHighTemp,ivLowTemp,ivWuran,ivShachen,ivGaowen,ivFog,ivDizhi,ivHaze,ivQiangduiliu,ivDafeng,ivMore;
 	private RelativeLayout reShare,reMore;
 	private SimpleDateFormat sdf1 = new SimpleDateFormat("yyyy.MM.dd HH:00");
-	private long start, end;
 	private float zoom = 3.5f;
 	private AMapLocationClientOption mLocationOption = null;//声明mLocationOption对象
 	private AMapLocationClient mLocationClient = null;//声明AMapLocationClient类对象
 	private double locationLat = 35.926628, locationLng = 105.178100;
 	private List<Polygon> polygons = new ArrayList<>();//图层数据
+	private int swithWidth = 0;
+	private LinearLayout llJiangshui,llHightemp,llLowtemp,llWuran;
+	private TextView tvJiangshui24,tvJiangshui48,tvJiangshui72,tvHightemp24,tvHightemp48,tvHightemp72,tvLowtemp24,tvLowtemp48,tvLowtemp72,tvWuran24,tvWuran48,tvWuran72;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -90,57 +100,122 @@ public class ComprehensiveForecastActivity extends BaseActivity implements OnCli
 	 * 初始化控件
 	 */
 	private void initWidget() {
-		llBack = (LinearLayout) findViewById(R.id.llBack);
+		llBack = findViewById(R.id.llBack);
 		llBack.setOnClickListener(this);
-		ivShare = (ImageView) findViewById(R.id.ivShare);
+		ivShare = findViewById(R.id.ivShare);
 		ivShare.setOnClickListener(this);
 		ivShare.setVisibility(View.VISIBLE);
-		ivLegendPrompt = (ImageView) findViewById(R.id.ivLegendPrompt);
+		ivLegendPrompt = findViewById(R.id.ivLegendPrompt);
 		ivLegendPrompt.setOnClickListener(this);
-		ivLegend = (ImageView) findViewById(R.id.ivLegend);
-		ivLocation = (ImageView) findViewById(R.id.ivLocation);
+		ivLegend = findViewById(R.id.ivLegend);
+		ivLocation = findViewById(R.id.ivLocation);
 		ivLocation.setOnClickListener(this);
-		tvTitle = (TextView) findViewById(R.id.tvTitle);
-		tvName = (TextView) findViewById(R.id.tvName);
-		tvTime = (TextView) findViewById(R.id.tvTime);
-		reShare = (RelativeLayout) findViewById(R.id.reShare);
-		reMore = (RelativeLayout) findViewById(R.id.reMore);
-		ivJiangshui = (ImageView) findViewById(R.id.ivJiangshui);
+		tvTitle = findViewById(R.id.tvTitle);
+		tvName = findViewById(R.id.tvName);
+		tvTime = findViewById(R.id.tvTime);
+		reShare = findViewById(R.id.reShare);
+		reMore = findViewById(R.id.reMore);
+		ivJiangshui = findViewById(R.id.ivJiangshui);
 		ivJiangshui.setOnClickListener(this);
-		ivHighTemp = (ImageView) findViewById(R.id.ivHighTemp);
+		ivHighTemp = findViewById(R.id.ivHighTemp);
 		ivHighTemp.setOnClickListener(this);
-		ivLowTemp = (ImageView) findViewById(R.id.ivLowTemp);
+		ivLowTemp = findViewById(R.id.ivLowTemp);
 		ivLowTemp.setOnClickListener(this);
-		ivWuran = (ImageView) findViewById(R.id.ivWuran);
+		ivWuran = findViewById(R.id.ivWuran);
 		ivWuran.setOnClickListener(this);
-		ivShachen = (ImageView) findViewById(R.id.ivShachen);
+		ivShachen = findViewById(R.id.ivShachen);
 		ivShachen.setOnClickListener(this);
-		ivGaowen = (ImageView) findViewById(R.id.ivGaowen);
+		ivGaowen = findViewById(R.id.ivGaowen);
 		ivGaowen.setOnClickListener(this);
-		ivFog = (ImageView) findViewById(R.id.ivFog);
+		ivFog = findViewById(R.id.ivFog);
 		ivFog.setOnClickListener(this);
-		ivDizhi = (ImageView) findViewById(R.id.ivDizhi);
+		ivDizhi = findViewById(R.id.ivDizhi);
 		ivDizhi.setOnClickListener(this);
-		ivHaze = (ImageView) findViewById(R.id.ivHaze);
+		ivHaze = findViewById(R.id.ivHaze);
 		ivHaze.setOnClickListener(this);
-		ivQiangduiliu = (ImageView) findViewById(R.id.ivQiangduiliu);
+		ivQiangduiliu = findViewById(R.id.ivQiangduiliu);
 		ivQiangduiliu.setOnClickListener(this);
-		ivDafeng = (ImageView) findViewById(R.id.ivDafeng);
+		ivDafeng = findViewById(R.id.ivDafeng);
 		ivDafeng.setOnClickListener(this);
-		ivMore = (ImageView) findViewById(R.id.ivMore);
+		ivMore = findViewById(R.id.ivMore);
 		ivMore.setOnClickListener(this);
+		llJiangshui = findViewById(R.id.llJiangshui);
+		llHightemp = findViewById(R.id.llHightemp);
+		llLowtemp = findViewById(R.id.llLowtemp);
+		llWuran = findViewById(R.id.llWuran);
+		tvJiangshui24 = findViewById(R.id.tvJiangshui24);
+		tvJiangshui24.setOnClickListener(this);
+		tvJiangshui48 = findViewById(R.id.tvJiangshui48);
+		tvJiangshui48.setOnClickListener(this);
+		tvJiangshui72 = findViewById(R.id.tvJiangshui72);
+		tvJiangshui72.setOnClickListener(this);
+		tvHightemp24 = findViewById(R.id.tvHightemp24);
+		tvHightemp24.setOnClickListener(this);
+		tvHightemp48 = findViewById(R.id.tvHightemp48);
+		tvHightemp48.setOnClickListener(this);
+		tvHightemp72 = findViewById(R.id.tvHightemp72);
+		tvHightemp72.setOnClickListener(this);
+		tvLowtemp24 = findViewById(R.id.tvLowtemp24);
+		tvLowtemp24.setOnClickListener(this);
+		tvLowtemp48 = findViewById(R.id.tvLowtemp48);
+		tvLowtemp48.setOnClickListener(this);
+		tvLowtemp72 = findViewById(R.id.tvLowtemp72);
+		tvLowtemp72.setOnClickListener(this);
+		tvWuran24 = findViewById(R.id.tvWuran24);
+		tvWuran24.setOnClickListener(this);
+		tvWuran48 = findViewById(R.id.tvWuran48);
+		tvWuran48.setOnClickListener(this);
+		tvWuran72 = findViewById(R.id.tvWuran72);
+		tvWuran72.setOnClickListener(this);
+
+		int w = View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED);
+		int h = View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED);
+		llJiangshui.measure(w, h);
+		swithWidth = llJiangshui.getMeasuredWidth();
 
 		String title = getIntent().getStringExtra(CONST.ACTIVITY_NAME);
 		if (title != null) {
 			tvTitle.setText(title);
 		}
 
-		startLocation();
+		checkAuthority();
 
 		OkHttpList("http://decision-admin.tianqi.cn/Home/extra/decision_zhyblayers");
 		
 		String columnId = getIntent().getStringExtra(CONST.COLUMN_ID);
 		CommonUtil.submitClickCount(columnId, title);
+	}
+
+	/**
+	 * 申请权限
+	 */
+	private void checkAuthority() {
+		if (Build.VERSION.SDK_INT < 23) {
+			startLocation();
+		}else {
+			if (ContextCompat.checkSelfPermission(mContext, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+				ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.ACCESS_COARSE_LOCATION}, AuthorityUtil.AUTHOR_LOCATION);
+			}else {
+				startLocation();
+			}
+		}
+	}
+
+	@Override
+	public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+		super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+		switch (requestCode) {
+			case AuthorityUtil.AUTHOR_LOCATION:
+				if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+					startLocation();
+				}else {
+					if (!ActivityCompat.shouldShowRequestPermissionRationale(this, Manifest.permission.ACCESS_COARSE_LOCATION)) {
+						AuthorityUtil.intentAuthorSetting(mContext, "\""+getString(R.string.app_name)+"\""+"需要使用定位权限，是否前往设置？");
+					}
+				}
+				break;
+
+		}
 	}
 
 	/**
@@ -186,7 +261,7 @@ public class ComprehensiveForecastActivity extends BaseActivity implements OnCli
 	 * 初始化地图
 	 */
 	private void initMap(Bundle bundle) {
-		mMapView = (MapView) findViewById(R.id.map);
+		mMapView = findViewById(R.id.map);
 		mMapView.onCreate(bundle);
 		if (aMap == null) {
 			aMap = mMapView.getMap();
@@ -236,11 +311,38 @@ public class ComprehensiveForecastActivity extends BaseActivity implements OnCli
                                                 String img = itemObj.getString("img");
                                                 String name = itemObj.getString("name");
                                                 String validhour = itemObj.getString("validhour");
-                                                ivJiangshui.setTag(dataurl+","+img+","+name+","+validhour);
-                                                OkHttpDetail(ivJiangshui, true);
+                                                String startaddhour = itemObj.getString("startaddhour");
+                                                tvJiangshui24.setTag(dataurl+","+img+","+name+","+validhour+","+startaddhour);
+                                                OkHttpDetail(tvJiangshui24, true);
                                             }else {
                                                 ivJiangshui.setAlpha(0.5f);
                                             }
+
+											if (!obj.isNull("fc_rain_48")) {
+												JSONObject itemObj = obj.getJSONObject("fc_rain_48");
+												String dataurl = itemObj.getString("dataurl");
+												String img = itemObj.getString("img");
+												String name = itemObj.getString("name");
+												String validhour = itemObj.getString("validhour");
+												String startaddhour = itemObj.getString("startaddhour");
+												tvJiangshui48.setTag(dataurl+","+img+","+name+","+validhour+","+startaddhour);
+												OkHttpDetail(tvJiangshui48, false);
+											}else {
+												ivJiangshui.setAlpha(0.5f);
+											}
+
+											if (!obj.isNull("fc_rain_72")) {
+												JSONObject itemObj = obj.getJSONObject("fc_rain_72");
+												String dataurl = itemObj.getString("dataurl");
+												String img = itemObj.getString("img");
+												String name = itemObj.getString("name");
+												String validhour = itemObj.getString("validhour");
+												String startaddhour = itemObj.getString("startaddhour");
+												tvJiangshui72.setTag(dataurl+","+img+","+name+","+validhour+","+startaddhour);
+												OkHttpDetail(tvJiangshui72, false);
+											}else {
+												ivJiangshui.setAlpha(0.5f);
+											}
 
                                             if (!obj.isNull("fc_max")) {
                                                 JSONObject itemObj = obj.getJSONObject("fc_max");
@@ -248,11 +350,38 @@ public class ComprehensiveForecastActivity extends BaseActivity implements OnCli
                                                 String img = itemObj.getString("img");
 												String name = itemObj.getString("name");
 												String validhour = itemObj.getString("validhour");
-                                                ivHighTemp.setTag(dataurl+","+img+","+name+","+validhour);
-                                                OkHttpHighLowTemp(ivHighTemp, false);
+												String startaddhour = itemObj.getString("startaddhour");
+                                                tvHightemp24.setTag(dataurl+","+img+","+name+","+validhour+","+startaddhour);
+                                                OkHttpHighLowTemp(tvHightemp24, false);
                                             }else {
                                                 ivHighTemp.setAlpha(0.5f);
                                             }
+
+											if (!obj.isNull("fc_max_48")) {
+												JSONObject itemObj = obj.getJSONObject("fc_max_48");
+												String dataurl = itemObj.getString("dataurl");
+												String img = itemObj.getString("img");
+												String name = itemObj.getString("name");
+												String validhour = itemObj.getString("validhour");
+												String startaddhour = itemObj.getString("startaddhour");
+												tvHightemp48.setTag(dataurl+","+img+","+name+","+validhour+","+startaddhour);
+												OkHttpHighLowTemp(tvHightemp48, false);
+											}else {
+												ivHighTemp.setAlpha(0.5f);
+											}
+
+											if (!obj.isNull("fc_max_72")) {
+												JSONObject itemObj = obj.getJSONObject("fc_max_72");
+												String dataurl = itemObj.getString("dataurl");
+												String img = itemObj.getString("img");
+												String name = itemObj.getString("name");
+												String validhour = itemObj.getString("validhour");
+												String startaddhour = itemObj.getString("startaddhour");
+												tvHightemp72.setTag(dataurl+","+img+","+name+","+validhour+","+startaddhour);
+												OkHttpHighLowTemp(tvHightemp72, false);
+											}else {
+												ivHighTemp.setAlpha(0.5f);
+											}
 
                                             if (!obj.isNull("fc_min")) {
                                                 JSONObject itemObj = obj.getJSONObject("fc_min");
@@ -260,23 +389,77 @@ public class ComprehensiveForecastActivity extends BaseActivity implements OnCli
                                                 String img = itemObj.getString("img");
 												String name = itemObj.getString("name");
 												String validhour = itemObj.getString("validhour");
-                                                ivLowTemp.setTag(dataurl+","+img+","+name+","+validhour);
-												OkHttpHighLowTemp(ivLowTemp, false);
+												String startaddhour = itemObj.getString("startaddhour");
+                                                tvLowtemp24.setTag(dataurl+","+img+","+name+","+validhour+","+startaddhour);
+												OkHttpHighLowTemp(tvLowtemp24, false);
                                             }else {
                                                 ivLowTemp.setAlpha(0.5f);
                                             }
 
-                                            if (!obj.isNull("fc_kqzl")) {
-                                                JSONObject itemObj = obj.getJSONObject("fc_kqzl");
-                                                String dataurl = itemObj.getString("dataurl");
-                                                String img = itemObj.getString("img");
+											if (!obj.isNull("fc_min_48")) {
+												JSONObject itemObj = obj.getJSONObject("fc_min_48");
+												String dataurl = itemObj.getString("dataurl");
+												String img = itemObj.getString("img");
 												String name = itemObj.getString("name");
 												String validhour = itemObj.getString("validhour");
-                                                ivWuran.setTag(dataurl+","+img+","+name+","+validhour);
-                                                OkHttpDetail(ivWuran, false);
-                                            }else {
-                                                ivWuran.setAlpha(0.5f);
-                                            }
+												String startaddhour = itemObj.getString("startaddhour");
+												tvLowtemp48.setTag(dataurl+","+img+","+name+","+validhour+","+startaddhour);
+												OkHttpHighLowTemp(tvLowtemp48, false);
+											}else {
+												ivLowTemp.setAlpha(0.5f);
+											}
+
+											if (!obj.isNull("fc_min_72")) {
+												JSONObject itemObj = obj.getJSONObject("fc_min_72");
+												String dataurl = itemObj.getString("dataurl");
+												String img = itemObj.getString("img");
+												String name = itemObj.getString("name");
+												String validhour = itemObj.getString("validhour");
+												String startaddhour = itemObj.getString("startaddhour");
+												tvLowtemp72.setTag(dataurl+","+img+","+name+","+validhour+","+startaddhour);
+												OkHttpHighLowTemp(tvLowtemp72, false);
+											}else {
+												ivLowTemp.setAlpha(0.5f);
+											}
+
+                                            if (!obj.isNull("fc_kqzl")) {
+												JSONObject itemObj = obj.getJSONObject("fc_kqzl");
+												String dataurl = itemObj.getString("dataurl");
+												String img = itemObj.getString("img");
+												String name = itemObj.getString("name");
+												String validhour = itemObj.getString("validhour");
+												String startaddhour = itemObj.getString("startaddhour");
+												tvWuran24.setTag(dataurl+","+img+","+name+","+validhour+","+startaddhour);
+												OkHttpDetail(tvWuran24, false);
+											}else {
+												ivWuran.setAlpha(0.5f);
+											}
+
+											if (!obj.isNull("fc_kqzl_48")) {
+												JSONObject itemObj = obj.getJSONObject("fc_kqzl_48");
+												String dataurl = itemObj.getString("dataurl");
+												String img = itemObj.getString("img");
+												String name = itemObj.getString("name");
+												String validhour = itemObj.getString("validhour");
+												String startaddhour = itemObj.getString("startaddhour");
+												tvWuran48.setTag(dataurl+","+img+","+name+","+validhour+","+startaddhour);
+												OkHttpDetail(tvWuran48, false);
+											}else {
+												ivWuran.setAlpha(0.5f);
+											}
+
+											if (!obj.isNull("fc_kqzl_72")) {
+												JSONObject itemObj = obj.getJSONObject("fc_kqzl_72");
+												String dataurl = itemObj.getString("dataurl");
+												String img = itemObj.getString("img");
+												String name = itemObj.getString("name");
+												String validhour = itemObj.getString("validhour");
+												String startaddhour = itemObj.getString("startaddhour");
+												tvWuran72.setTag(dataurl+","+img+","+name+","+validhour+","+startaddhour);
+												OkHttpDetail(tvWuran72, false);
+											}else {
+												ivWuran.setAlpha(0.5f);
+											}
 
                                             if (!obj.isNull("fc_sc")) {
                                                 JSONObject itemObj = obj.getJSONObject("fc_sc");
@@ -284,7 +467,8 @@ public class ComprehensiveForecastActivity extends BaseActivity implements OnCli
                                                 String img = itemObj.getString("img");
 												String name = itemObj.getString("name");
 												String validhour = itemObj.getString("validhour");
-                                                ivShachen.setTag(dataurl+","+img+","+name+","+validhour);
+												String startaddhour = itemObj.getString("startaddhour");
+                                                ivShachen.setTag(dataurl+","+img+","+name+","+validhour+","+startaddhour);
                                                 OkHttpDetail(ivShachen, false);
                                             }else {
                                                 ivShachen.setAlpha(0.5f);
@@ -296,7 +480,8 @@ public class ComprehensiveForecastActivity extends BaseActivity implements OnCli
                                                 String img = itemObj.getString("img");
 												String name = itemObj.getString("name");
 												String validhour = itemObj.getString("validhour");
-                                                ivGaowen.setTag(dataurl+","+img+","+name+","+validhour);
+												String startaddhour = itemObj.getString("startaddhour");
+                                                ivGaowen.setTag(dataurl+","+img+","+name+","+validhour+","+startaddhour);
                                                 OkHttpDetail(ivGaowen, false);
                                             }else {
                                                 ivGaowen.setAlpha(0.5f);
@@ -308,7 +493,8 @@ public class ComprehensiveForecastActivity extends BaseActivity implements OnCli
                                                 String img = itemObj.getString("img");
 												String name = itemObj.getString("name");
 												String validhour = itemObj.getString("validhour");
-                                                ivFog.setTag(dataurl+","+img+","+name+","+validhour);
+												String startaddhour = itemObj.getString("startaddhour");
+                                                ivFog.setTag(dataurl+","+img+","+name+","+validhour+","+startaddhour);
                                                 OkHttpDetail(ivFog, false);
                                             }else {
                                                 ivFog.setAlpha(0.5f);
@@ -320,7 +506,8 @@ public class ComprehensiveForecastActivity extends BaseActivity implements OnCli
                                                 String img = itemObj.getString("img");
 												String name = itemObj.getString("name");
 												String validhour = itemObj.getString("validhour");
-                                                ivDizhi.setTag(dataurl+","+img+","+name+","+validhour);
+												String startaddhour = itemObj.getString("startaddhour");
+                                                ivDizhi.setTag(dataurl+","+img+","+name+","+validhour+","+startaddhour);
                                                 OkHttpDetail(ivDizhi, false);
                                             }else {
                                                 ivDizhi.setAlpha(0.5f);
@@ -332,7 +519,8 @@ public class ComprehensiveForecastActivity extends BaseActivity implements OnCli
                                                 String img = itemObj.getString("img");
 												String name = itemObj.getString("name");
 												String validhour = itemObj.getString("validhour");
-                                                ivHaze.setTag(dataurl+","+img+","+name+","+validhour);
+												String startaddhour = itemObj.getString("startaddhour");
+                                                ivHaze.setTag(dataurl+","+img+","+name+","+validhour+","+startaddhour);
                                                 OkHttpDetail(ivHaze, false);
                                             }else {
                                                 ivHaze.setAlpha(0.5f);
@@ -344,7 +532,8 @@ public class ComprehensiveForecastActivity extends BaseActivity implements OnCli
                                                 String img = itemObj.getString("img");
 												String name = itemObj.getString("name");
 												String validhour = itemObj.getString("validhour");
-                                                ivQiangduiliu.setTag(dataurl+","+img+","+name+","+validhour);
+												String startaddhour = itemObj.getString("startaddhour");
+												ivQiangduiliu.setTag(dataurl+","+img+","+name+","+validhour+","+startaddhour);
                                                 OkHttpDetail(ivQiangduiliu, false);
                                             }else {
                                                 ivQiangduiliu.setAlpha(0.5f);
@@ -356,7 +545,8 @@ public class ComprehensiveForecastActivity extends BaseActivity implements OnCli
                                                 String img = itemObj.getString("img");
 												String name = itemObj.getString("name");
 												String validhour = itemObj.getString("validhour");
-                                                ivDafeng.setTag(dataurl+","+img+","+name+","+validhour);
+												String startaddhour = itemObj.getString("startaddhour");
+                                                ivDafeng.setTag(dataurl+","+img+","+name+","+validhour+","+startaddhour);
                                                 OkHttpDetail(ivDafeng, false);
                                             }else {
                                                 ivDafeng.setAlpha(0.5f);
@@ -387,13 +577,13 @@ public class ComprehensiveForecastActivity extends BaseActivity implements OnCli
 	 * 绘制单要素图层
 	 * @param draw 是否绘制图层
 	 */
-	private void OkHttpDetail(final ImageView imageView, final boolean draw) {
-		final String[] tags = String.valueOf(imageView.getTag()).split(",");
+	private void OkHttpDetail(final View view, final boolean draw) {
+		final String[] tags = String.valueOf(view.getTag()).split(",");
 		if (tags.length <= 0 || TextUtils.isEmpty(tags[0])) {
 			runOnUiThread(new Runnable() {
 				@Override
 				public void run() {
-					imageView.setAlpha(0.5f);
+					view.setAlpha(0.5f);
 				}
 			});
 			return;
@@ -424,18 +614,18 @@ public class ComprehensiveForecastActivity extends BaseActivity implements OnCli
 											JSONObject obj = arr.getJSONObject(0);
 
 											if (!obj.isNull("time")) {
-												start = obj.getLong("time");
+												long time = obj.getLong("time");
 												if (!TextUtils.isEmpty(tags[3])) {
-													int hour = Integer.parseInt(tags[3]);
-													end = start + 1000*60*60*hour;
-													tvTime.setText(sdf1.format(start)+" - "+sdf1.format(end));
+													int validhour = Integer.parseInt(tags[3])*1000*60*60;
+													int starthour = Integer.parseInt(tags[4])*1000*60*60;
+													tvTime.setText(sdf1.format(time+starthour)+" - "+sdf1.format(time+starthour+validhour));
 												}
 											}
 
 											if (!obj.isNull("areas")) {
 												JSONArray array = obj.getJSONArray("areas");
 												if (array.length() <= 0) {
-                                                    imageView.setAlpha(0.5f);
+													view.setAlpha(0.5f);
 												    return;
                                                 }
                                                 if (!draw) {
@@ -490,13 +680,13 @@ public class ComprehensiveForecastActivity extends BaseActivity implements OnCli
 	/**
 	 * 绘制单要素图层
 	 */
-	private void OkHttpHighLowTemp(final ImageView imageView, final boolean draw) {
-		final String[] tags = String .valueOf(imageView.getTag()).split(",");
+	private void OkHttpHighLowTemp(final View view, final boolean draw) {
+		final String[] tags = String .valueOf(view.getTag()).split(",");
 		if (tags.length <= 0 || TextUtils.isEmpty(tags[0])) {
 			runOnUiThread(new Runnable() {
 				@Override
 				public void run() {
-					imageView.setAlpha(0.5f);
+					view.setAlpha(0.5f);
 				}
 			});
 			return;
@@ -528,11 +718,11 @@ public class ComprehensiveForecastActivity extends BaseActivity implements OnCli
 									JSONObject obj = new JSONObject(result);
 
 									if (!obj.isNull("t")) {
-										start = obj.getLong("t");
+										long time = obj.getLong("t");
 										if (!TextUtils.isEmpty(tags[3])) {
-											int hour = Integer.parseInt(tags[3]);
-											end = start + 1000*60*60*hour;
-											tvTime.setText(sdf1.format(start)+" - "+sdf1.format(end));
+											int validhour = Integer.parseInt(tags[3])*1000*60*60;
+											int starthour = Integer.parseInt(tags[4])*1000*60*60;
+											tvTime.setText(sdf1.format(time+starthour)+" - "+sdf1.format(time+starthour+validhour));
 										}
 									}
 
@@ -545,11 +735,7 @@ public class ComprehensiveForecastActivity extends BaseActivity implements OnCli
 										if (!TextUtils.isEmpty(tags[2])) {
 											tvName.setText(tags[2]);
 										}
-										if (!TextUtils.isEmpty(tags[3])) {
-											int hour = Integer.parseInt(tags[3]);
-											end = start + 1000*60*60*hour;
-											tvTime.setText(sdf1.format(start)+" - "+sdf1.format(end));
-										}
+
 										if (!TextUtils.isEmpty(tags[1])) {
 											FinalBitmap finalBitmap = FinalBitmap.create(mContext);
 											finalBitmap.display(ivLegend, tags[1], null, 0);
@@ -628,6 +814,10 @@ public class ComprehensiveForecastActivity extends BaseActivity implements OnCli
 				}
 				break;
 			case R.id.ivMore:
+				llHightemp.setVisibility(View.GONE);
+				llLowtemp.setVisibility(View.GONE);
+				llJiangshui.setVisibility(View.GONE);
+				llWuran.setVisibility(View.GONE);
 				if (reMore.getVisibility() == View.VISIBLE) {
 					reMore.setVisibility(View.GONE);
 				}else {
@@ -654,7 +844,41 @@ public class ComprehensiveForecastActivity extends BaseActivity implements OnCli
 				ivHaze.setImageResource(R.drawable.com_haze);
 				ivQiangduiliu.setImageResource(R.drawable.com_qiangduiliu);
 
-				OkHttpHighLowTemp(ivHighTemp, true);
+				llLowtemp.setVisibility(View.GONE);
+				llJiangshui.setVisibility(View.GONE);
+				llWuran.setVisibility(View.GONE);
+				if (llHightemp.getVisibility() == View.VISIBLE) {
+					llHightemp.setVisibility(View.GONE);
+				}else {
+					llHightemp.setVisibility(View.VISIBLE);
+				}
+				break;
+			case R.id.tvHightemp24:
+				tvHightemp24.setTextColor(getResources().getColor(R.color.text_color3));
+				tvHightemp48.setTextColor(getResources().getColor(R.color.text_color4));
+				tvHightemp72.setTextColor(getResources().getColor(R.color.text_color4));
+				tvHightemp24.setTextSize(TypedValue.COMPLEX_UNIT_DIP, 14);
+				tvHightemp48.setTextSize(TypedValue.COMPLEX_UNIT_DIP, 12);
+				tvHightemp72.setTextSize(TypedValue.COMPLEX_UNIT_DIP, 12);
+				OkHttpHighLowTemp(tvHightemp24, true);
+				break;
+			case R.id.tvHightemp48:
+				tvHightemp24.setTextColor(getResources().getColor(R.color.text_color4));
+				tvHightemp48.setTextColor(getResources().getColor(R.color.text_color3));
+				tvHightemp72.setTextColor(getResources().getColor(R.color.text_color4));
+				tvHightemp24.setTextSize(TypedValue.COMPLEX_UNIT_DIP, 12);
+				tvHightemp48.setTextSize(TypedValue.COMPLEX_UNIT_DIP, 14);
+				tvHightemp72.setTextSize(TypedValue.COMPLEX_UNIT_DIP, 12);
+				OkHttpHighLowTemp(tvHightemp48, true);
+				break;
+			case R.id.tvHightemp72:
+				tvHightemp24.setTextColor(getResources().getColor(R.color.text_color4));
+				tvHightemp48.setTextColor(getResources().getColor(R.color.text_color4));
+				tvHightemp72.setTextColor(getResources().getColor(R.color.text_color3));
+				tvHightemp24.setTextSize(TypedValue.COMPLEX_UNIT_DIP, 12);
+				tvHightemp48.setTextSize(TypedValue.COMPLEX_UNIT_DIP, 12);
+				tvHightemp72.setTextSize(TypedValue.COMPLEX_UNIT_DIP, 14);
+				OkHttpHighLowTemp(tvHightemp72, true);
 				break;
 			case R.id.ivLowTemp:
 				ivHighTemp.setImageResource(R.drawable.com_hightemp);
@@ -669,7 +893,41 @@ public class ComprehensiveForecastActivity extends BaseActivity implements OnCli
 				ivHaze.setImageResource(R.drawable.com_haze);
 				ivQiangduiliu.setImageResource(R.drawable.com_qiangduiliu);
 
-				OkHttpHighLowTemp(ivLowTemp, true);
+				llHightemp.setVisibility(View.GONE);
+				llJiangshui.setVisibility(View.GONE);
+				llWuran.setVisibility(View.GONE);
+				if (llLowtemp.getVisibility() == View.VISIBLE) {
+					llLowtemp.setVisibility(View.GONE);
+				}else {
+					llLowtemp.setVisibility(View.VISIBLE);
+				}
+				break;
+			case R.id.tvLowtemp24:
+				tvLowtemp24.setTextColor(getResources().getColor(R.color.text_color3));
+				tvLowtemp48.setTextColor(getResources().getColor(R.color.text_color4));
+				tvLowtemp72.setTextColor(getResources().getColor(R.color.text_color4));
+				tvLowtemp24.setTextSize(TypedValue.COMPLEX_UNIT_DIP, 14);
+				tvLowtemp48.setTextSize(TypedValue.COMPLEX_UNIT_DIP, 12);
+				tvLowtemp72.setTextSize(TypedValue.COMPLEX_UNIT_DIP, 12);
+				OkHttpHighLowTemp(tvLowtemp24, true);
+				break;
+			case R.id.tvLowtemp48:
+				tvLowtemp24.setTextColor(getResources().getColor(R.color.text_color4));
+				tvLowtemp48.setTextColor(getResources().getColor(R.color.text_color3));
+				tvLowtemp72.setTextColor(getResources().getColor(R.color.text_color4));
+				tvLowtemp24.setTextSize(TypedValue.COMPLEX_UNIT_DIP, 12);
+				tvLowtemp48.setTextSize(TypedValue.COMPLEX_UNIT_DIP, 14);
+				tvLowtemp72.setTextSize(TypedValue.COMPLEX_UNIT_DIP, 12);
+				OkHttpHighLowTemp(tvLowtemp48, true);
+				break;
+			case R.id.tvLowtemp72:
+				tvLowtemp24.setTextColor(getResources().getColor(R.color.text_color4));
+				tvLowtemp48.setTextColor(getResources().getColor(R.color.text_color4));
+				tvLowtemp72.setTextColor(getResources().getColor(R.color.text_color3));
+				tvLowtemp24.setTextSize(TypedValue.COMPLEX_UNIT_DIP, 12);
+				tvLowtemp48.setTextSize(TypedValue.COMPLEX_UNIT_DIP, 12);
+				tvLowtemp72.setTextSize(TypedValue.COMPLEX_UNIT_DIP, 14);
+				OkHttpHighLowTemp(tvLowtemp72, true);
 				break;
 			case R.id.ivJiangshui:
 				ivHighTemp.setImageResource(R.drawable.com_hightemp);
@@ -684,7 +942,41 @@ public class ComprehensiveForecastActivity extends BaseActivity implements OnCli
 				ivHaze.setImageResource(R.drawable.com_haze);
 				ivQiangduiliu.setImageResource(R.drawable.com_qiangduiliu);
 
-				OkHttpDetail(ivJiangshui, true);
+				llHightemp.setVisibility(View.GONE);
+				llLowtemp.setVisibility(View.GONE);
+				llWuran.setVisibility(View.GONE);
+				if (llJiangshui.getVisibility() == View.VISIBLE) {
+					llJiangshui.setVisibility(View.GONE);
+				}else {
+                    llJiangshui.setVisibility(View.VISIBLE);
+				}
+				break;
+			case R.id.tvJiangshui24:
+				tvJiangshui24.setTextColor(getResources().getColor(R.color.text_color3));
+				tvJiangshui48.setTextColor(getResources().getColor(R.color.text_color4));
+				tvJiangshui72.setTextColor(getResources().getColor(R.color.text_color4));
+				tvJiangshui24.setTextSize(TypedValue.COMPLEX_UNIT_DIP, 14);
+				tvJiangshui48.setTextSize(TypedValue.COMPLEX_UNIT_DIP, 12);
+				tvJiangshui72.setTextSize(TypedValue.COMPLEX_UNIT_DIP, 12);
+				OkHttpDetail(tvJiangshui24, true);
+				break;
+			case R.id.tvJiangshui48:
+				tvJiangshui24.setTextColor(getResources().getColor(R.color.text_color4));
+				tvJiangshui48.setTextColor(getResources().getColor(R.color.text_color3));
+				tvJiangshui72.setTextColor(getResources().getColor(R.color.text_color4));
+				tvJiangshui24.setTextSize(TypedValue.COMPLEX_UNIT_DIP, 12);
+				tvJiangshui48.setTextSize(TypedValue.COMPLEX_UNIT_DIP, 14);
+				tvJiangshui72.setTextSize(TypedValue.COMPLEX_UNIT_DIP, 12);
+				OkHttpDetail(tvJiangshui48, true);
+				break;
+			case R.id.tvJiangshui72:
+				tvJiangshui24.setTextColor(getResources().getColor(R.color.text_color4));
+				tvJiangshui48.setTextColor(getResources().getColor(R.color.text_color4));
+				tvJiangshui72.setTextColor(getResources().getColor(R.color.text_color3));
+				tvJiangshui24.setTextSize(TypedValue.COMPLEX_UNIT_DIP, 12);
+				tvJiangshui48.setTextSize(TypedValue.COMPLEX_UNIT_DIP, 12);
+				tvJiangshui72.setTextSize(TypedValue.COMPLEX_UNIT_DIP, 14);
+				OkHttpDetail(tvJiangshui72, true);
 				break;
 			case R.id.ivWuran:
 				ivHighTemp.setImageResource(R.drawable.com_hightemp);
@@ -699,7 +991,41 @@ public class ComprehensiveForecastActivity extends BaseActivity implements OnCli
 				ivHaze.setImageResource(R.drawable.com_haze);
 				ivQiangduiliu.setImageResource(R.drawable.com_qiangduiliu);
 
-				OkHttpDetail(ivWuran, true);
+				llHightemp.setVisibility(View.GONE);
+				llLowtemp.setVisibility(View.GONE);
+				llJiangshui.setVisibility(View.GONE);
+				if (llWuran.getVisibility() == View.VISIBLE) {
+					llWuran.setVisibility(View.GONE);
+				}else {
+					llWuran.setVisibility(View.VISIBLE);
+				}
+				break;
+			case R.id.tvWuran24:
+				tvWuran24.setTextColor(getResources().getColor(R.color.text_color3));
+				tvWuran48.setTextColor(getResources().getColor(R.color.text_color4));
+				tvWuran72.setTextColor(getResources().getColor(R.color.text_color4));
+				tvWuran24.setTextSize(TypedValue.COMPLEX_UNIT_DIP, 14);
+				tvWuran48.setTextSize(TypedValue.COMPLEX_UNIT_DIP, 12);
+				tvWuran72.setTextSize(TypedValue.COMPLEX_UNIT_DIP, 12);
+				OkHttpDetail(tvWuran24, true);
+				break;
+			case R.id.tvWuran48:
+				tvWuran24.setTextColor(getResources().getColor(R.color.text_color4));
+				tvWuran48.setTextColor(getResources().getColor(R.color.text_color3));
+				tvWuran72.setTextColor(getResources().getColor(R.color.text_color4));
+				tvWuran24.setTextSize(TypedValue.COMPLEX_UNIT_DIP, 12);
+				tvWuran48.setTextSize(TypedValue.COMPLEX_UNIT_DIP, 14);
+				tvWuran72.setTextSize(TypedValue.COMPLEX_UNIT_DIP, 12);
+				OkHttpDetail(tvWuran48, true);
+				break;
+			case R.id.tvWuran72:
+				tvWuran24.setTextColor(getResources().getColor(R.color.text_color4));
+				tvWuran48.setTextColor(getResources().getColor(R.color.text_color4));
+				tvWuran72.setTextColor(getResources().getColor(R.color.text_color3));
+				tvWuran24.setTextSize(TypedValue.COMPLEX_UNIT_DIP, 12);
+				tvWuran48.setTextSize(TypedValue.COMPLEX_UNIT_DIP, 12);
+				tvWuran72.setTextSize(TypedValue.COMPLEX_UNIT_DIP, 14);
+				OkHttpDetail(tvWuran72, true);
 				break;
 			case R.id.ivShachen:
 				ivHighTemp.setImageResource(R.drawable.com_hightemp);

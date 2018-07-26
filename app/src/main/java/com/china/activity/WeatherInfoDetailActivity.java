@@ -149,8 +149,9 @@ public class WeatherInfoDetailActivity extends BaseActivity implements OnClickLi
 		webSettings.setJavaScriptEnabled(true); 
 		// 设置可以支持缩放 
 		webSettings.setSupportZoom(true); 
-		// 设置出现缩放工具 
+		// 设置出现缩放工具
 		webSettings.setBuiltInZoomControls(true);
+		webSettings.setDisplayZoomControls(false);
 		//扩大比例的缩放
 		webSettings.setUseWideViewPort(true);
 		//自适应屏幕

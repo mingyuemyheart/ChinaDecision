@@ -291,6 +291,14 @@
             android:name="com.china.activity.ComprehensiveForecastActivity"
             android:screenOrientation="portrait" />
 
+        <activity
+            android:name="com.china.activity.StreamFactActivity"
+            android:screenOrientation="portrait" />
+
+        <activity
+            android:name="com.china.activity.StreamFactListActivity"
+            android:screenOrientation="portrait" />
+
 
         <!--umeng share-->
         <activity

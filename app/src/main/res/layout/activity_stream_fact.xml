@@ -1,0 +1,186 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:background="@color/white"
+                android:orientation="vertical">
+
+    <include
+        android:id="@+id/reTitle"
+        layout="@layout/layout_title"/>
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_below="@+id/reTitle"
+        android:background="@color/white"
+        android:orientation="vertical">
+
+        <com.amap.api.maps.MapView
+            android:id="@+id/map"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"/>
+
+        <RelativeLayout
+            android:id="@+id/reShare"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+
+            <TextView
+                android:id="@+id/tvName"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_centerHorizontal="true"
+                android:layout_marginTop="5dp"
+                android:textColor="@color/black"
+                android:textSize="@dimen/level_4"/>
+
+            <ImageView
+                android:visibility="gone"
+                android:id="@+id/ivLighting"
+                android:layout_width="35dp"
+                android:layout_height="35dp"
+                android:layout_alignParentRight="true"
+                android:layout_below="@+id/tvName"
+                android:layout_marginRight="10dp"
+                android:layout_marginTop="5dp"
+                android:src="@drawable/fzj_butn_sd"/>
+
+            <ImageView
+                android:visibility="gone"
+                android:id="@+id/ivRain"
+                android:layout_width="35dp"
+                android:layout_height="35dp"
+                android:layout_alignParentRight="true"
+                android:layout_below="@+id/ivLighting"
+                android:layout_marginRight="10dp"
+                android:layout_marginTop="5dp"
+                android:src="@drawable/fzj_butn_rainoff"/>
+
+            <ImageView
+                android:visibility="gone"
+                android:id="@+id/ivWind"
+                android:layout_width="35dp"
+                android:layout_height="35dp"
+                android:layout_alignParentRight="true"
+                android:layout_below="@+id/ivRain"
+                android:layout_marginRight="10dp"
+                android:layout_marginTop="5dp"
+                android:src="@drawable/fzj_butn_windoff"/>
+
+            <ImageView
+                android:visibility="gone"
+                android:id="@+id/ivHail"
+                android:layout_width="35dp"
+                android:layout_height="35dp"
+                android:layout_alignParentRight="true"
+                android:layout_below="@+id/ivWind"
+                android:layout_marginRight="10dp"
+                android:layout_marginTop="5dp"
+                android:src="@drawable/fzj_butn_hailoff"/>
+
+            <ImageView
+                android:visibility="gone"
+                android:id="@+id/ivRadar"
+                android:layout_width="35dp"
+                android:layout_height="35dp"
+                android:layout_above="@+id/ivData"
+                android:layout_marginBottom="5dp"
+                android:layout_marginLeft="10dp"
+                android:src="@drawable/fzj_butn_ldoff"/>
+
+            <ImageView
+                android:id="@+id/ivData"
+                android:layout_width="35dp"
+                android:layout_height="35dp"
+                android:layout_above="@+id/ivLocation"
+                android:layout_marginBottom="5dp"
+                android:layout_marginLeft="10dp"
+                android:src="@drawable/fzj_butn_dataoff"/>
+
+            <ImageView
+                android:id="@+id/ivLocation"
+                android:layout_width="35dp"
+                android:layout_height="35dp"
+                android:layout_above="@+id/ivLegendPrompt"
+                android:layout_marginBottom="5dp"
+                android:layout_marginLeft="10dp"
+                android:src="@drawable/icon_locationoff"
+                android:visibility="gone"/>
+
+            <ImageView
+                android:layout_above="@+id/llSeekBar"
+                android:id="@+id/ivLegendPrompt"
+                android:layout_width="35dp"
+                android:layout_height="35dp"
+                android:layout_marginBottom="5dp"
+                android:layout_marginLeft="10dp"
+                android:src="@drawable/iv_map_legend"/>
+
+            <ImageView
+                android:layout_above="@+id/llSeekBar"
+                android:id="@+id/ivLegend"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:visibility="invisible"
+                android:layout_marginLeft="5dp"
+                android:layout_toRightOf="@+id/ivLegendPrompt"
+                android:adjustViewBounds="true"
+                android:src="@drawable/fzj_stream_legend"/>
+
+
+            <LinearLayout
+                android:visibility="invisible"
+                android:id="@+id/llSeekBar"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_alignParentBottom="true"
+                android:background="@color/translucent"
+                android:gravity="center_vertical"
+                android:orientation="horizontal" >
+
+                <ImageView
+                    android:id="@+id/ivPlay"
+                    android:layout_width="40dp"
+                    android:layout_height="40dp"
+                    android:background="#90000000"
+                    android:padding="5dp"
+                    android:src="@drawable/iv_play" />
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center_vertical"
+                    android:layout_marginLeft="10dp"
+                    android:layout_marginRight="10dp"
+                    android:orientation="vertical" >
+
+                    <SeekBar
+                        android:id="@+id/seekBar"
+                        android:layout_width="match_parent"
+                        android:layout_height="10dp"
+                        android:layout_marginTop="2dp"
+                        android:layout_marginLeft="10dp"
+                        android:layout_marginRight="10dp"
+                        android:maxHeight="2dp"
+                        android:minHeight="2dp"
+                        android:progressDrawable="@drawable/seekbar_drawable"
+                        android:thumb="@drawable/seekbar_thumb"
+                        android:thumbOffset="0dp" />
+
+                    <LinearLayout
+                        android:id="@+id/llContainer"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:gravity="center_vertical"
+                        android:orientation="horizontal" >
+                    </LinearLayout>
+                </LinearLayout>
+            </LinearLayout>
+
+
+        </RelativeLayout>
+
+    </RelativeLayout>
+
+</RelativeLayout>

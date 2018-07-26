@@ -25,7 +25,6 @@ import java.util.Map;
 /**
  * 应用推荐、周报统计
  */
-
 public class Url2Activity extends BaseActivity implements OnClickListener{
 	
 	private LinearLayout llBack = null;

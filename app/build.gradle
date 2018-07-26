@@ -13,8 +13,8 @@ android {
         applicationId "com.china"
         minSdkVersion 19
         targetSdkVersion 26
-        versionCode 111
-        versionName "3.3.0"
+        versionCode 114
+        versionName "3.3.2.2"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
 
         ndk {

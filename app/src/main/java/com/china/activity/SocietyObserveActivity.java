@@ -93,17 +93,17 @@ OnMapClickListener, InfoWindowAdapter, OnMapScreenShotListener{
 	}
 	
 	private void initWidget() {
-		llBack = (LinearLayout) findViewById(R.id.llBack);
+		llBack = findViewById(R.id.llBack);
 		llBack.setOnClickListener(this);
-		tvTitle = (TextView) findViewById(R.id.tvTitle);
-		ivPlay = (ImageView) findViewById(R.id.ivPlay);
+		tvTitle = findViewById(R.id.tvTitle);
+		ivPlay = findViewById(R.id.ivPlay);
 		ivPlay.setOnClickListener(this);
-		seekBar = (SeekBar) findViewById(R.id.seekBar);
+		seekBar = findViewById(R.id.seekBar);
 		seekBar.setOnSeekBarChangeListener(seekbarListener);
-		tvStartTime = (TextView) findViewById(R.id.tvStartTime);
-		tvEndTime = (TextView) findViewById(R.id.tvEndTime);
-		reSeekBar = (RelativeLayout) findViewById(R.id.reSeekBar);
-		ivShare = (ImageView) findViewById(R.id.ivShare);
+		tvStartTime = findViewById(R.id.tvStartTime);
+		tvEndTime = findViewById(R.id.tvEndTime);
+		reSeekBar = findViewById(R.id.reSeekBar);
+		ivShare = findViewById(R.id.ivShare);
 		ivShare.setOnClickListener(this);
 		ivShare.setVisibility(View.VISIBLE);
 		
@@ -137,7 +137,7 @@ OnMapClickListener, InfoWindowAdapter, OnMapScreenShotListener{
 	};
 	
 	private void initAmap(Bundle bundle) {
-		mapView = (MapView) findViewById(R.id.mapView);
+		mapView = findViewById(R.id.mapView);
 		mapView.onCreate(bundle);
 		if (aMap == null) {
 			aMap = mapView.getMap();
@@ -153,7 +153,7 @@ OnMapClickListener, InfoWindowAdapter, OnMapScreenShotListener{
 		long start = end - 4*60*60*1000;
 		tvStartTime.setText(sdf.format(new Date(start)));
 		tvEndTime.setText(sdf.format(new Date(end)));
-		String url = "http://dev2.rain.swarma.net/fcgi-bin/v1/user_feedback_admin.py?start="+start+"&end="+end+"&bounds=70,10,140,50&zoom=-999&source=all";
+		String url = String.format("http://decision-admin.tianqi.cn/Home/extra/getcy_user_feedback?start=%s&end=%s&bounds=70,10,140,50&zoom=-999&source=all", start, end);
 		OkHttpData(url);
 	}
 	
@@ -175,41 +175,43 @@ OnMapClickListener, InfoWindowAdapter, OnMapScreenShotListener{
 						if (!response.isSuccessful()) {
 							return;
 						}
-						String result = response.body().string();
-						if (!TextUtils.isEmpty(result)) {
-							try {
-								JSONObject obj = new JSONObject(result);
-								if (!obj.isNull("data")) {
-									mList.clear();
-									JSONArray array = obj.getJSONArray("data");
-									for (int i = 0; i < array.length(); i++) {
-										SocietyDto dto = new SocietyDto();
-										JSONObject itemObj = array.getJSONObject(i);
-										dto.lat = itemObj.getDouble("lat");
-										dto.lng = itemObj.getDouble("lon");
-										dto.time = itemObj.getLong("time");
-										dto.main = itemObj.getInt("main");
-										JSONObject subinfo = itemObj.getJSONObject("subinfo");
-										dto.type = subinfo.getInt("type");
-										dto.level = subinfo.getInt("level");
-										mList.add(dto);
-									}
-								}
+						final String result = response.body().string();
+						runOnUiThread(new Runnable() {
+							@Override
+							public void run() {
+								if (!TextUtils.isEmpty(result)) {
+									try {
+										JSONObject obj = new JSONObject(result);
+										if (!obj.isNull("data")) {
+											mList.clear();
+											JSONArray array = obj.getJSONArray("data");
+											for (int i = 0; i < array.length(); i++) {
+												SocietyDto dto = new SocietyDto();
+												JSONObject itemObj = array.getJSONObject(i);
+												dto.lat = itemObj.getDouble("lat");
+												dto.lng = itemObj.getDouble("lon");
+												dto.time = itemObj.getLong("time");
+												dto.main = itemObj.getInt("main");
+												JSONObject subinfo = itemObj.getJSONObject("subinfo");
+												dto.type = subinfo.getInt("type");
+												dto.level = subinfo.getInt("level");
+												mList.add(dto);
+											}
+										}
 
-								runOnUiThread(new Runnable() {
-									@Override
-									public void run() {
 										cancelDialog();
 										if (mList.size() > 0) {
 											reSeekBar.setVisibility(View.VISIBLE);
 										}
 										addMarker();
+
+									} catch (JSONException e) {
+										e.printStackTrace();
 									}
-								});
-							} catch (JSONException e) {
-								e.printStackTrace();
+								}
 							}
-						}
+						});
+
 					}
 				});
 			}

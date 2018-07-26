@@ -1,9 +1,5 @@
 package com.china.activity;
 
-/**
- * 等风来
- */
-
 import android.Manifest;
 import android.content.Context;
 import android.content.pm.PackageManager;
@@ -19,13 +15,16 @@ import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.text.TextUtils;
 import android.util.DisplayMetrics;
+import android.util.Log;
+import android.util.TypedValue;
 import android.view.KeyEvent;
-import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
+import android.view.animation.Animation;
+import android.view.animation.AnimationSet;
+import android.view.animation.TranslateAnimation;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
-import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
@@ -37,6 +36,7 @@ import com.amap.api.maps.AMap;
 import com.amap.api.maps.AMap.OnCameraChangeListener;
 import com.amap.api.maps.CameraUpdateFactory;
 import com.amap.api.maps.MapView;
+import com.amap.api.maps.model.BitmapDescriptor;
 import com.amap.api.maps.model.BitmapDescriptorFactory;
 import com.amap.api.maps.model.CameraPosition;
 import com.amap.api.maps.model.LatLng;
@@ -49,14 +49,15 @@ import com.amap.api.services.geocoder.RegeocodeQuery;
 import com.amap.api.services.geocoder.RegeocodeResult;
 import com.china.R;
 import com.china.common.CONST;
+import com.china.dto.TyphoonDto;
 import com.china.dto.WindData;
 import com.china.dto.WindDto;
 import com.china.utils.AuthorityUtil;
 import com.china.utils.CommonUtil;
 import com.china.utils.OkHttpUtil;
 import com.china.utils.SecretUrlUtil;
-import com.china.utils.WeatherUtil;
 import com.china.view.WaitWindView2;
+import com.china.view.WindForeView;
 import com.tendcloud.tenddata.TCAgent;
 
 import org.json.JSONArray;
@@ -64,7 +65,6 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.IOException;
-import java.math.BigDecimal;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -76,55 +76,45 @@ import okhttp3.Callback;
 import okhttp3.Request;
 import okhttp3.Response;
 
+/**
+ * 等风来
+ */
 public class WaitWindActivity extends BaseActivity implements OnClickListener, AMap.OnMapScreenShotListener, OnCameraChangeListener, AMap.OnMapClickListener,
-        GeocodeSearch.OnGeocodeSearchListener, AMapLocationListener, AMap.InfoWindowAdapter {
+        AMap.OnMarkerClickListener, GeocodeSearch.OnGeocodeSearchListener, AMapLocationListener {
 
-    private Context mContext = null;
-    private LinearLayout llBack = null;
-    private TextView tvTitle = null;
-    private ImageView ivShare = null;
-    private RelativeLayout reShare = null;
-    private MapView mapView = null;
-    private AMap aMap = null;
+    private Context mContext;
+    private LinearLayout llBack,llHeight,llContainer1;
+    private TextView tvTitle,tvFileTime,tvHeight200,tvHeight500,tvHeight1000,tvLocation;
+    private ImageView ivHeight,ivSwitch,ivLocation,ivClose,ivShare;
+    private RelativeLayout reDetail,reShare;
+    private MapView mapView;
+    private AMap aMap;
     private float zoom = 3.7f;
-    private TextView tvFileTime = null;
+    private SimpleDateFormat sdf1 = new SimpleDateFormat("yyyy");
     private SimpleDateFormat sdf2 = new SimpleDateFormat("yyyyMMddHH");
     private SimpleDateFormat sdf3 = new SimpleDateFormat("yyyy年MM月dd日HH时");
-    private RelativeLayout container = null;
-    public RelativeLayout container2 = null;
+    private RelativeLayout container;
+    public RelativeLayout container2;
     private int width = 0, height = 0;
-    private WaitWindView2 waitWindView = null;
-    private ImageView ivSwitch = null;
+    private WaitWindView2 waitWindView;
     private boolean isGfs = true;//默认为风场新数据
-    private WindData windData2 = null;//gfs
-    private WindData windData1 = null;//t639
-    private Bundle bundle = null;
-    private GeocodeSearch geocoderSearch = null;
-    private AMapLocationClientOption mLocationOption = null;//声明mLocationOption对象
-    private AMapLocationClient mLocationClient = null;//声明AMapLocationClient类对象
-    private Marker locationMarker = null;
-
-    //marker infowindow
-    private TextView tvPosition = null;
-    private TextView tvDes = null;
-    private TextView tvWind = null;
-    private TextView tvAqi = null;
-    private ProgressBar progressBar = null;
-    private LinearLayout llMarkView = null;
+    private WindData windDataGFS,windDataT639;
+    private GeocodeSearch geocoderSearch;
+    private AMapLocationClientOption mLocationOption;//声明mLocationOption对象
+    private AMapLocationClient mLocationClient;//声明AMapLocationClient类对象
+    private Marker locationMarker,selectMarker;
+    private double locationLat = 35.926628, locationLng = 105.178100;
+    private String dataHeight = "1000";
+    private List<TyphoonDto> typhoonList = new ArrayList<>();
+    private List<Marker> typhoonMarkers = new ArrayList<>();//台风markers
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_wait_wind);
-        bundle = savedInstanceState;
         mContext = this;
+        initAmap(savedInstanceState);
         checkAuthority();
-    }
-
-    private void init() {
-        showDialog();
-        initAmap(bundle);
-        initWidget();
     }
 
     //需要申请的所有权限
@@ -140,7 +130,7 @@ public class WaitWindActivity extends BaseActivity implements OnClickListener, A
      */
     private void checkAuthority() {
         if (Build.VERSION.SDK_INT < 23) {
-            init();
+            initWidget();
         }else {
             deniedList.clear();
             for (int i = 0; i < allPermissions.length; i++) {
@@ -149,7 +139,7 @@ public class WaitWindActivity extends BaseActivity implements OnClickListener, A
                 }
             }
             if (deniedList.isEmpty()) {//所有权限都授予
-                init();
+                initWidget();
             }else {
                 String[] permissions = deniedList.toArray(new String[deniedList.size()]);//将list转成数组
                 ActivityCompat.requestPermissions(WaitWindActivity.this, permissions, AuthorityUtil.AUTHOR_LOCATION);
@@ -171,7 +161,7 @@ public class WaitWindActivity extends BaseActivity implements OnClickListener, A
                         }
                     }
                     if (isAllGranted) {//所有权限都授予
-                        init();
+                        initWidget();
                     }else {//只要有一个没有授权，就提示进入设置界面设置
                         AuthorityUtil.intentAuthorSetting(mContext, "\""+getString(R.string.app_name)+"\""+"需要使用您的位置权限、存储权限，是否前往设置？");
                     }
@@ -188,18 +178,36 @@ public class WaitWindActivity extends BaseActivity implements OnClickListener, A
     }
 
     private void initWidget() {
-        llBack = (LinearLayout) findViewById(R.id.llBack);
+        showDialog();
+
+        llBack = findViewById(R.id.llBack);
         llBack.setOnClickListener(this);
-        tvTitle = (TextView) findViewById(R.id.tvTitle);
-        ivShare = (ImageView) findViewById(R.id.ivShare);
+        tvTitle = findViewById(R.id.tvTitle);
+        ivShare = findViewById(R.id.ivShare);
         ivShare.setOnClickListener(this);
         ivShare.setVisibility(View.VISIBLE);
-        reShare = (RelativeLayout) findViewById(R.id.reShare);
-        tvFileTime = (TextView) findViewById(R.id.tvFileTime);
-        container = (RelativeLayout) findViewById(R.id.container);
-        container2 = (RelativeLayout) findViewById(R.id.container2);
-        ivSwitch = (ImageView) findViewById(R.id.ivSwitch);
+        reShare = findViewById(R.id.reShare);
+        tvFileTime = findViewById(R.id.tvFileTime);
+        container = findViewById(R.id.container);
+        container2 = findViewById(R.id.container2);
+        ivSwitch = findViewById(R.id.ivSwitch);
         ivSwitch.setOnClickListener(this);
+        ivLocation = findViewById(R.id.ivLocation);
+        ivLocation.setOnClickListener(this);
+        ivHeight = findViewById(R.id.ivHeight);
+        ivHeight.setOnClickListener(this);
+        llHeight = findViewById(R.id.llHeight);
+        tvHeight200 = findViewById(R.id.tvHeight200);
+        tvHeight200.setOnClickListener(this);
+        tvHeight500 = findViewById(R.id.tvHeight500);
+        tvHeight500.setOnClickListener(this);
+        tvHeight1000 = findViewById(R.id.tvHeight1000);
+        tvHeight1000.setOnClickListener(this);
+        reDetail = findViewById(R.id.reDetail);
+        tvLocation = findViewById(R.id.tvLocation);
+        llContainer1 = findViewById(R.id.llContainer1);
+        ivClose = findViewById(R.id.ivClose);
+        ivClose.setOnClickListener(this);
 
         DisplayMetrics dm = new DisplayMetrics();
         getWindowManager().getDefaultDisplay().getMetrics(dm);
@@ -214,12 +222,15 @@ public class WaitWindActivity extends BaseActivity implements OnClickListener, A
         startLocation();
         OkHttpGFS();
 
+//        int currentYear = Integer.valueOf(sdf1.format(new Date()));
+//        OkHttpTyphoonList("http://decision-admin.tianqi.cn/Home/extra/gettyphoon/list/"+currentYear);
+
         String columnId = getIntent().getStringExtra(CONST.COLUMN_ID);
         CommonUtil.submitClickCount(columnId, title);
     }
 
     private void initAmap(Bundle bundle) {
-        mapView = (MapView) findViewById(R.id.mapView);
+        mapView = findViewById(R.id.mapView);
         mapView.onCreate(bundle);
         if (aMap == null) {
             aMap = mapView.getMap();
@@ -230,7 +241,7 @@ public class WaitWindActivity extends BaseActivity implements OnClickListener, A
         aMap.getUiSettings().setRotateGesturesEnabled(false);
         aMap.setOnCameraChangeListener(this);
         aMap.setOnMapClickListener(this);
-        aMap.setInfoWindowAdapter(this);
+        aMap.setOnMarkerClickListener(this);
 
         geocoderSearch = new GeocodeSearch(mContext);
         geocoderSearch.setOnGeocodeSearchListener(this);
@@ -256,14 +267,18 @@ public class WaitWindActivity extends BaseActivity implements OnClickListener, A
     @Override
     public void onLocationChanged(AMapLocation amapLocation) {
         if (amapLocation != null && amapLocation.getErrorCode() == 0) {
-            if (amapLocation.getLongitude() != 0 && amapLocation.getLatitude() != 0) {
-                addLocationMarker(new LatLng(amapLocation.getLatitude(), amapLocation.getLongitude()));
-            }
+            locationLat = amapLocation.getLatitude();
+            locationLng = amapLocation.getLongitude();
+            ivLocation.setVisibility(View.VISIBLE);
+            addLocationMarker(new LatLng(locationLat, locationLng));
         }
     }
 
     @Override
     public void onMapClick(LatLng arg0) {
+        if (selectMarker != null) {
+            selectMarker.hideInfoWindow();
+        }
         addLocationMarker(arg0);
     }
 
@@ -273,13 +288,13 @@ public class WaitWindActivity extends BaseActivity implements OnClickListener, A
         }
         MarkerOptions options = new MarkerOptions();
         options.position(latLng);
-        options.anchor(0.5f, 0.5f);
-        Bitmap bitmap = ThumbnailUtils.extractThumbnail(BitmapFactory.decodeResource(getResources(), R.drawable.iv_map_location),
-                (int)(CommonUtil.dip2px(mContext, 15)), (int)(CommonUtil.dip2px(mContext, 15)));
+        options.anchor(0.5f, 1.0f);
+        Bitmap bitmap = ThumbnailUtils.extractThumbnail(BitmapFactory.decodeResource(getResources(), R.drawable.iv_map_click_map),
+                (int)(CommonUtil.dip2px(mContext, 21)), (int)(CommonUtil.dip2px(mContext, 32)));
         if (bitmap != null) {
             options.icon(BitmapDescriptorFactory.fromBitmap(bitmap));
         }else {
-            options.icon(BitmapDescriptorFactory.fromResource(R.drawable.iv_map_location));
+            options.icon(BitmapDescriptorFactory.fromResource(R.drawable.iv_map_click_map));
         }
         if (locationMarker != null) {
             locationMarker.remove();
@@ -306,29 +321,23 @@ public class WaitWindActivity extends BaseActivity implements OnClickListener, A
     @Override
     public void onRegeocodeSearched(RegeocodeResult result, int rCode) {
         if (result != null && result.getRegeocodeAddress().getFormatAddress() != null) {
-            tvPosition.setText(result.getRegeocodeAddress().getFormatAddress());
+            tvLocation.setText(result.getRegeocodeAddress().getFormatAddress());
         }
     }
 
     @Override
-    public View getInfoContents(Marker arg0) {
-        LayoutInflater inflater = (LayoutInflater) mContext.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-        View view = inflater.inflate(R.layout.marker_info_waitwind, null);
-        tvPosition = (TextView) view.findViewById(R.id.tvPosition);
-        tvDes = (TextView) view.findViewById(R.id.tvDes);
-        tvWind = (TextView) view.findViewById(R.id.tvWind);
-        tvAqi = (TextView) view.findViewById(R.id.tvAqi);
-        progressBar = (ProgressBar) view.findViewById(R.id.progressBar);
-        llMarkView = (LinearLayout) view.findViewById(R.id.llMarkView);
-        return view;
+    public boolean onMarkerClick(Marker marker) {
+        if (marker != locationMarker) {
+            selectMarker = marker;
+            marker.showInfoWindow();
+        }
+        return true;
     }
 
     /**
      * 获取某点的风速信息
      */
     private void OkHttpDetail(final String url) {
-        progressBar.setVisibility(View.VISIBLE);
-        llMarkView.setVisibility(View.INVISIBLE);
         new Thread(new Runnable() {
             @Override
             public void run() {
@@ -350,59 +359,27 @@ public class WaitWindActivity extends BaseActivity implements OnClickListener, A
                                 if (!TextUtils.isEmpty(result)) {
                                     try {
                                         JSONObject obj = new JSONObject(result);
-                                        if (!obj.isNull("air")) {
-                                            JSONObject airObj = new JSONObject(obj.getString("air"));
-                                            if (!airObj.isNull("k")) {
-                                                JSONObject kObj = new JSONObject(airObj.getString("k"));
-                                                if (!kObj.isNull("k3")) {
-                                                    if (tvAqi != null) {
-                                                        String aqi = WeatherUtil.lastValue(kObj.getString("k3"));
-                                                        if (!TextUtils.isEmpty(aqi)) {
-                                                            tvAqi.setText(aqi + " " + WeatherUtil.getAqi(mContext, Integer.valueOf(aqi)));
-                                                            tvAqi.setBackgroundResource(getCornerBackground(Integer.valueOf(aqi)));
-                                                        }
-                                                    }
-                                                }
-                                            }
-                                        }
-
-                                        if (!obj.isNull("discript")) {
-                                            JSONObject disObj = new JSONObject(obj.getString("discript"));
-                                            String dis1 = disObj.getString("1");
-                                            String dis2 = disObj.getString("2");
-                                            String dis3 = disObj.getString("3");
-                                            if (dis1 != null && dis3 != null) {
-                                                tvDes.setText(dis1+"，"+dis2+"，"+dis3);
-                                            }
-                                        }
-
                                         if (!obj.isNull("forecast")) {
-                                            JSONArray foreArray = obj.getJSONArray("forecast");
-                                            if (foreArray.length() > 0) {
-                                                JSONObject foreObj = foreArray.getJSONObject(0);
-
-                                                String speed = "", force = "", dir = "";
-                                                if (!foreObj.isNull("speed")) {
-                                                    speed = foreObj.getString("speed");
-                                                    if (!TextUtils.isEmpty(speed)) {
-                                                        BigDecimal bd = new BigDecimal(Float.valueOf(speed));
-                                                        float value = bd.setScale(1, BigDecimal.ROUND_HALF_UP).floatValue();
-                                                        speed = value+"";
-                                                    }
+                                            List<WindDto> windList = new ArrayList<>();
+                                            JSONArray array = obj.getJSONArray("forecast");
+                                            for (int i = 0; i < array.length(); i+=3) {
+                                                JSONObject itemObj = array.getJSONObject(i);
+                                                WindDto dto = new WindDto();
+                                                if (!itemObj.isNull("speed")) {
+                                                    dto.speed = itemObj.getString("speed");
                                                 }
-                                                if (!foreObj.isNull("level")) {
-                                                    force = foreObj.getString("level");
+                                                if (!itemObj.isNull("date")) {
+                                                    dto.date = itemObj.getString("date");
                                                 }
-                                                if (!foreObj.isNull("dirdes")) {
-                                                    dir = foreObj.getString("dirdes");
-                                                }
-
-                                                tvWind.setText(speed+"m/s"+" "+force+"级"+"\n"+dir);
+                                                windList.add(dto);
                                             }
-                                        }
 
-                                        llMarkView.setVisibility(View.VISIBLE);
-                                        progressBar.setVisibility(View.GONE);
+                                            llContainer1.removeAllViews();
+                                            WindForeView cubicView = new WindForeView(mContext);
+                                            cubicView.setData(windList);
+                                            llContainer1.addView(cubicView, width, height/3);
+                                            legendAnimation(false, reDetail);
+                                        }
                                     } catch (JSONException e1) {
                                         e1.printStackTrace();
                                     }
@@ -415,42 +392,14 @@ public class WaitWindActivity extends BaseActivity implements OnClickListener, A
         }).start();
     }
 
-    /**
-     * 根据aqi数据获取相对应的背景图标
-     * @param value
-     * @return
-     */
-    private int getCornerBackground(int value) {
-        int drawable = -1;
-        if (value >= 0 && value <= 50) {
-            drawable = R.drawable.corner_aqi_one;
-        }else if (value >= 51 && value < 100) {
-            drawable = R.drawable.corner_aqi_two;
-        }else if (value >= 101 && value < 150) {
-            drawable = R.drawable.corner_aqi_three;
-        }else if (value >= 151 && value < 200) {
-            drawable = R.drawable.corner_aqi_four;
-        }else if (value >= 201 && value < 300) {
-            drawable = R.drawable.corner_aqi_five;
-        }else if (value >= 301) {
-            drawable = R.drawable.corner_aqi_six;
-        }
-        return drawable;
-    }
-
-    @Override
-    public View getInfoWindow(Marker arg0) {
-        return null;
-    }
-
     private void OkHttpGFS() {
-        if (windData2 != null) {
+        if (windDataGFS != null) {
             return;
         }
         new Thread(new Runnable() {
             @Override
             public void run() {
-                OkHttpUtil.enqueue(new Request.Builder().url(SecretUrlUtil.windGFS("1000")).build(), new Callback() {
+                OkHttpUtil.enqueue(new Request.Builder().url(SecretUrlUtil.windGFS(dataHeight)).build(), new Callback() {
                     @Override
                     public void onFailure(Call call, IOException e) {
 
@@ -465,52 +414,50 @@ public class WaitWindActivity extends BaseActivity implements OnClickListener, A
                         if (!TextUtils.isEmpty(result)) {
                             try {
                                 JSONObject obj = new JSONObject(result);
-                                if (windData2 == null) {
-                                    windData2 = new WindData();
+                                if (windDataGFS == null) {
+                                    windDataGFS = new WindData();
                                 }
-                                if (obj != null) {
-                                    if (!obj.isNull("gridHeight")) {
-                                        windData2.height = obj.getInt("gridHeight");
-                                    }
-                                    if (!obj.isNull("gridWidth")) {
-                                        windData2.width = obj.getInt("gridWidth");
-                                    }
-                                    if (!obj.isNull("x0")) {
-                                        windData2.x0 = obj.getDouble("x0");
-                                    }
-                                    if (!obj.isNull("y0")) {
-                                        windData2.y0 = obj.getDouble("y0");
-                                    }
-                                    if (!obj.isNull("x1")) {
-                                        windData2.x1 = obj.getDouble("x1");
-                                    }
-                                    if (!obj.isNull("y1")) {
-                                        windData2.y1 = obj.getDouble("y1");
-                                    }
-                                    if (!obj.isNull("filetime")) {
-                                        windData2.filetime = obj.getString("filetime");
-                                    }
-
-                                    if (!obj.isNull("field")) {
-                                        windData2.dataList.clear();
-                                        JSONArray array = new JSONArray(obj.getString("field"));
-                                        for (int i = 0; i < array.length(); i += 2) {
-                                            WindDto dto2 = new WindDto();
-                                            dto2.initX = (float) (array.optDouble(i));
-                                            dto2.initY = (float) (array.optDouble(i + 1));
-                                            windData2.dataList.add(dto2);
-                                        }
-                                    }
-
-                                    runOnUiThread(new Runnable() {
-                                        @Override
-                                        public void run() {
-                                            cancelDialog();
-                                            reloadWind(true);
-                                        }
-                                    });
-
+                                if (!obj.isNull("gridHeight")) {
+                                    windDataGFS.height = obj.getInt("gridHeight");
                                 }
+                                if (!obj.isNull("gridWidth")) {
+                                    windDataGFS.width = obj.getInt("gridWidth");
+                                }
+                                if (!obj.isNull("x0")) {
+                                    windDataGFS.x0 = obj.getDouble("x0");
+                                }
+                                if (!obj.isNull("y0")) {
+                                    windDataGFS.y0 = obj.getDouble("y0");
+                                }
+                                if (!obj.isNull("x1")) {
+                                    windDataGFS.x1 = obj.getDouble("x1");
+                                }
+                                if (!obj.isNull("y1")) {
+                                    windDataGFS.y1 = obj.getDouble("y1");
+                                }
+                                if (!obj.isNull("filetime")) {
+                                    windDataGFS.filetime = obj.getString("filetime");
+                                }
+
+                                if (!obj.isNull("field")) {
+                                    windDataGFS.dataList.clear();
+                                    JSONArray array = new JSONArray(obj.getString("field"));
+                                    for (int i = 0; i < array.length(); i += 2) {
+                                        WindDto dto2 = new WindDto();
+                                        dto2.initX = (float) (array.optDouble(i));
+                                        dto2.initY = (float) (array.optDouble(i + 1));
+                                        windDataGFS.dataList.add(dto2);
+                                    }
+                                }
+
+                                runOnUiThread(new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        cancelDialog();
+                                        reloadWind(true);
+                                    }
+                                });
+
                             } catch (JSONException e1) {
                                 e1.printStackTrace();
                             }
@@ -522,13 +469,13 @@ public class WaitWindActivity extends BaseActivity implements OnClickListener, A
     }
 
     private void OkHttpT639() {
-        if (windData1 != null) {
+        if (windDataT639 != null) {
             return;
         }
         new Thread(new Runnable() {
             @Override
             public void run() {
-                OkHttpUtil.enqueue(new Request.Builder().url(SecretUrlUtil.windT639("1000", "0")).build(), new Callback() {
+                OkHttpUtil.enqueue(new Request.Builder().url(SecretUrlUtil.windT639(dataHeight, "0")).build(), new Callback() {
                     @Override
                     public void onFailure(Call call, IOException e) {
 
@@ -543,52 +490,50 @@ public class WaitWindActivity extends BaseActivity implements OnClickListener, A
                         if (!TextUtils.isEmpty(result)) {
                             try {
                                 JSONObject obj = new JSONObject(result);
-                                if (windData1 == null) {
-                                    windData1 = new WindData();
+                                if (windDataT639 == null) {
+                                    windDataT639 = new WindData();
                                 }
-                                if (obj != null) {
-                                    if (!obj.isNull("gridHeight")) {
-                                        windData1.height = obj.getInt("gridHeight");
-                                    }
-                                    if (!obj.isNull("gridWidth")) {
-                                        windData1.width = obj.getInt("gridWidth");
-                                    }
-                                    if (!obj.isNull("x0")) {
-                                        windData1.x0 = obj.getDouble("x0");
-                                    }
-                                    if (!obj.isNull("y0")) {
-                                        windData1.y0 = obj.getDouble("y0");
-                                    }
-                                    if (!obj.isNull("x1")) {
-                                        windData1.x1 = obj.getDouble("x1");
-                                    }
-                                    if (!obj.isNull("y1")) {
-                                        windData1.y1 = obj.getDouble("y1");
-                                    }
-                                    if (!obj.isNull("filetime")) {
-                                        windData1.filetime = obj.getString("filetime");
-                                    }
-
-                                    if (!obj.isNull("field")) {
-                                        windData1.dataList.clear();
-                                        JSONArray array = new JSONArray(obj.getString("field"));
-                                        for (int i = 0; i < array.length(); i += 2) {
-                                            WindDto dto2 = new WindDto();
-                                            dto2.initX = (float) (array.optDouble(i));
-                                            dto2.initY = (float) (array.optDouble(i + 1));
-                                            windData1.dataList.add(dto2);
-                                        }
-                                    }
-
-                                    runOnUiThread(new Runnable() {
-                                        @Override
-                                        public void run() {
-                                            cancelDialog();
-                                            reloadWind(false);
-                                        }
-                                    });
-
+                                if (!obj.isNull("gridHeight")) {
+                                    windDataT639.height = obj.getInt("gridHeight");
                                 }
+                                if (!obj.isNull("gridWidth")) {
+                                    windDataT639.width = obj.getInt("gridWidth");
+                                }
+                                if (!obj.isNull("x0")) {
+                                    windDataT639.x0 = obj.getDouble("x0");
+                                }
+                                if (!obj.isNull("y0")) {
+                                    windDataT639.y0 = obj.getDouble("y0");
+                                }
+                                if (!obj.isNull("x1")) {
+                                    windDataT639.x1 = obj.getDouble("x1");
+                                }
+                                if (!obj.isNull("y1")) {
+                                    windDataT639.y1 = obj.getDouble("y1");
+                                }
+                                if (!obj.isNull("filetime")) {
+                                    windDataT639.filetime = obj.getString("filetime");
+                                }
+
+                                if (!obj.isNull("field")) {
+                                    windDataT639.dataList.clear();
+                                    JSONArray array = new JSONArray(obj.getString("field"));
+                                    for (int i = 0; i < array.length(); i += 2) {
+                                        WindDto dto2 = new WindDto();
+                                        dto2.initX = (float) (array.optDouble(i));
+                                        dto2.initY = (float) (array.optDouble(i + 1));
+                                        windDataT639.dataList.add(dto2);
+                                    }
+                                }
+
+                                runOnUiThread(new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        cancelDialog();
+                                        reloadWind(false);
+                                    }
+                                });
+
                             } catch (JSONException e1) {
                                 e1.printStackTrace();
                             }
@@ -629,27 +574,27 @@ public class WaitWindActivity extends BaseActivity implements OnClickListener, A
         LatLng latLngStart = aMap.getProjection().fromScreenLocation(new Point(0, 0));
         LatLng latLngEnd = aMap.getProjection().fromScreenLocation(new Point(width, height));
         if (isGfs) {
-            windData2.latLngStart = latLngStart;
-            windData2.latLngEnd = latLngEnd;
+            windDataGFS.latLngStart = latLngStart;
+            windDataGFS.latLngEnd = latLngEnd;
         }else {
-            windData1.latLngStart = latLngStart;
-            windData1.latLngEnd = latLngEnd;
+            windDataT639.latLngStart = latLngStart;
+            windDataT639.latLngEnd = latLngEnd;
         }
         if (waitWindView == null) {
             waitWindView = new WaitWindView2(mContext);
             waitWindView.init(WaitWindActivity.this);
             if (isGfs) {
-                waitWindView.setData(windData2);
+                waitWindView.setData(windDataGFS);
             }else {
-                waitWindView.setData(windData1);
+                waitWindView.setData(windDataT639);
             }
             waitWindView.start();
             waitWindView.invalidate();
         }else {
             if (isGfs) {
-                waitWindView.setData(windData2);
+                waitWindView.setData(windDataGFS);
             }else {
-                waitWindView.setData(windData1);
+                waitWindView.setData(windDataT639);
             }
         }
 
@@ -657,9 +602,9 @@ public class WaitWindActivity extends BaseActivity implements OnClickListener, A
         container.removeAllViews();
         container.addView(waitWindView);
         tvFileTime.setVisibility(View.VISIBLE);
-        String time = "";
+        String time;
         if (isGfs) {
-            time = windData2.filetime;
+            time = windDataGFS.filetime;
             if (!TextUtils.isEmpty(time)) {
                 try {
                     tvFileTime.setText("GFS "+sdf3.format(sdf2.parse(time)) + "风场预报");
@@ -668,7 +613,7 @@ public class WaitWindActivity extends BaseActivity implements OnClickListener, A
                 }
             }
         }else {
-            time = windData1.filetime;
+            time = windDataT639.filetime;
             if (!TextUtils.isEmpty(time)) {
                 try {
                     tvFileTime.setText("T639 "+sdf3.format(sdf2.parse(time)) + "风场预报");
@@ -680,11 +625,48 @@ public class WaitWindActivity extends BaseActivity implements OnClickListener, A
 
     }
 
+    private void legendAnimation(final boolean flag, final View view) {
+        AnimationSet animationSet = new AnimationSet(true);
+        TranslateAnimation animation;
+        if (flag == false) {
+            animation = new TranslateAnimation(
+                    Animation.RELATIVE_TO_SELF, 0,
+                    Animation.RELATIVE_TO_SELF, 0,
+                    Animation.RELATIVE_TO_SELF, -1f,
+                    Animation.RELATIVE_TO_SELF, 0);
+        }else {
+            animation = new TranslateAnimation(
+                    Animation.RELATIVE_TO_SELF,0f,
+                    Animation.RELATIVE_TO_SELF,0f,
+                    Animation.RELATIVE_TO_SELF,0f,
+                    Animation.RELATIVE_TO_SELF,-1.0f);
+        }
+        animation.setDuration(400);
+        animationSet.addAnimation(animation);
+        animationSet.setFillAfter(true);
+        view.startAnimation(animationSet);
+        animationSet.setAnimationListener(new Animation.AnimationListener() {
+            @Override
+            public void onAnimationStart(Animation arg0) {
+            }
+            @Override
+            public void onAnimationRepeat(Animation arg0) {
+            }
+            @Override
+            public void onAnimationEnd(Animation arg0) {
+                view.clearAnimation();
+                if (!flag) {
+                    view.setVisibility(View.VISIBLE);
+                }else {
+                    view.setVisibility(View.GONE);
+                }
+            }
+        });
+    }
+
     @Override
     public void onMapScreenShot(final Bitmap bitmap1) {//bitmap1为地图截屏
-        //bitmap2为覆盖再地图上的view
         Bitmap bitmap2 = CommonUtil.captureView(reShare);
-        //bitmap3为bitmap1+bitmap2覆盖叠加在一起的view
         Bitmap bitmap3 = CommonUtil.mergeBitmap(WaitWindActivity.this, bitmap1, bitmap2, true);
         CommonUtil.clearBitmap(bitmap1);
         CommonUtil.clearBitmap(bitmap2);
@@ -721,19 +703,89 @@ public class WaitWindActivity extends BaseActivity implements OnClickListener, A
                 break;
             case R.id.ivSwitch:
                 if (isGfs) {
-                    if (windData1 == null) {
-                        OkHttpT639();
-                    }else {
-                        reloadWind(false);
-                    }
-                    isGfs = false;
+                    ivSwitch.setImageResource(R.drawable.icon_switch_data);
+                    windDataT639 = null;
+                    OkHttpT639();
                 }else {
-                    if (windData2 == null) {
-                        OkHttpGFS();
-                    }else {
-                        reloadWind(true);
-                    }
-                    isGfs = true;
+                    ivSwitch.setImageResource(R.drawable.icon_switch_dataoff);
+                    windDataGFS = null;
+                    OkHttpGFS();
+                }
+                isGfs = !isGfs;
+                break;
+            case R.id.ivLocation:
+                if (zoom >= 12.f) {
+                    ivLocation.setImageResource(R.drawable.icon_locationoff);
+                    zoom = 3.7f;
+                    aMap.animateCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(locationLat, locationLng), zoom));
+                }else {
+                    ivLocation.setImageResource(R.drawable.icon_location);
+                    zoom = 12.0f;
+                    aMap.animateCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(locationLat, locationLng), zoom));
+                }
+                break;
+            case R.id.ivHeight:
+                if (llHeight.getVisibility() == View.VISIBLE) {
+                    llHeight.setVisibility(View.GONE);
+                    ivHeight.setImageResource(R.drawable.icon_wind_heightoff);
+                }else {
+                    llHeight.setVisibility(View.VISIBLE);
+                    ivHeight.setImageResource(R.drawable.icon_wind_height);
+                }
+                break;
+            case R.id.tvHeight200:
+                tvHeight200.setTextColor(getResources().getColor(R.color.blue));
+                tvHeight500.setTextColor(getResources().getColor(R.color.text_color4));
+                tvHeight1000.setTextColor(getResources().getColor(R.color.text_color4));
+                tvHeight200.setTextSize(TypedValue.COMPLEX_UNIT_DIP, 14);
+                tvHeight500.setTextSize(TypedValue.COMPLEX_UNIT_DIP, 12);
+                tvHeight1000.setTextSize(TypedValue.COMPLEX_UNIT_DIP, 12);
+                dataHeight = "200";
+                if (isGfs) {
+                    windDataGFS = null;
+                    OkHttpGFS();
+                }else {
+                    windDataT639 = null;
+                    OkHttpT639();
+                }
+                break;
+            case R.id.tvHeight500:
+                tvHeight200.setTextColor(getResources().getColor(R.color.text_color4));
+                tvHeight500.setTextColor(getResources().getColor(R.color.blue));
+                tvHeight1000.setTextColor(getResources().getColor(R.color.text_color4));
+                tvHeight200.setTextSize(TypedValue.COMPLEX_UNIT_DIP, 12);
+                tvHeight500.setTextSize(TypedValue.COMPLEX_UNIT_DIP, 14);
+                tvHeight1000.setTextSize(TypedValue.COMPLEX_UNIT_DIP, 12);
+                dataHeight = "500";
+                if (isGfs) {
+                    windDataGFS = null;
+                    OkHttpGFS();
+                }else {
+                    windDataT639 = null;
+                    OkHttpT639();
+                }
+                break;
+            case R.id.tvHeight1000:
+                tvHeight200.setTextColor(getResources().getColor(R.color.text_color4));
+                tvHeight500.setTextColor(getResources().getColor(R.color.text_color4));
+                tvHeight1000.setTextColor(getResources().getColor(R.color.blue));
+                tvHeight200.setTextSize(TypedValue.COMPLEX_UNIT_DIP, 12);
+                tvHeight500.setTextSize(TypedValue.COMPLEX_UNIT_DIP, 12);
+                tvHeight1000.setTextSize(TypedValue.COMPLEX_UNIT_DIP, 14);
+                dataHeight = "1000";
+                if (isGfs) {
+                    windDataGFS = null;
+                    OkHttpGFS();
+                }else {
+                    windDataT639 = null;
+                    OkHttpT639();
+                }
+                break;
+            case R.id.ivClose:
+                if (reDetail.getVisibility() == View.GONE) {
+                    legendAnimation(false, reDetail);
+                }else {
+                    legendAnimation(true, reDetail);
                 }
                 break;
 
@@ -790,6 +842,228 @@ public class WaitWindActivity extends BaseActivity implements OnClickListener, A
         if (mapView != null) {
             mapView.onDestroy();
         }
+    }
+
+    /**
+     * 获取当年的台风列表信息
+     */
+    private void OkHttpTyphoonList(final String url) {
+        if (TextUtils.isEmpty(url)) {
+            return;
+        }
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                OkHttpUtil.enqueue(new Request.Builder().url(url).build(), new Callback() {
+                    @Override
+                    public void onFailure(Call call, IOException e) {
+
+                    }
+
+                    @Override
+                    public void onResponse(Call call, Response response) throws IOException {
+                        if (!response.isSuccessful()) {
+                            return;
+                        }
+                        final String requestResult = response.body().string();
+                        runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                if (!TextUtils.isEmpty(requestResult)) {
+                                    String c = "(";
+                                    String c2 = "})";
+                                    String result = requestResult.substring(requestResult.indexOf(c)+c.length(), requestResult.indexOf(c2)+1);
+                                    if (!TextUtils.isEmpty(result)) {
+                                        try {
+                                            JSONObject obj = new JSONObject(result);
+                                            if (!obj.isNull("typhoonList")) {
+                                                typhoonList.clear();
+                                                JSONArray array = obj.getJSONArray("typhoonList");
+                                                for (int i = 0; i < array.length(); i++) {
+                                                    JSONArray itemArray = array.getJSONArray(i);
+                                                    TyphoonDto dto = new TyphoonDto();
+                                                    dto.id = itemArray.getString(0);
+                                                    dto.enName = itemArray.getString(1);
+                                                    dto.name = itemArray.getString(2);
+                                                    dto.code = itemArray.getString(4);
+                                                    dto.status = itemArray.getString(7);
+                                                    //把活跃台风过滤出来存放
+                                                    if (TextUtils.equals(dto.status, "start")) {
+                                                        typhoonList.add(dto);
+                                                        if (TextUtils.isEmpty(dto.id)) {
+                                                            return;
+                                                        }
+                                                        String name;
+                                                        if (TextUtils.equals(dto.enName, "nameless")) {
+                                                            name = dto.code + " " + dto.enName;
+                                                        }else {
+                                                            name = dto.code + " " + dto.name + " " + dto.enName;
+                                                        }
+                                                        OkHttpTyphoonDetail("http://decision-admin.tianqi.cn/Home/extra/gettyphoon/view/"+dto.id, name);
+                                                    }
+                                                }
+
+                                            }
+                                        } catch (JSONException e) {
+                                            e.printStackTrace();
+                                        }
+
+                                    }
+                                }
+                            }
+                        });
+                    }
+                });
+            }
+        }).start();
+    }
+
+    /**
+     * 获取台风详情
+     */
+    private void OkHttpTyphoonDetail(final String url, final String name) {
+        if (TextUtils.isEmpty(url)) {
+            return;
+        }
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                OkHttpUtil.enqueue(new Request.Builder().url(url).build(), new Callback() {
+                    @Override
+                    public void onFailure(Call call, IOException e) {
+
+                    }
+
+                    @Override
+                    public void onResponse(Call call, Response response) throws IOException {
+                        if (!response.isSuccessful()) {
+                            return;
+                        }
+                        final String requestResult = response.body().string();
+                        runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                if (!TextUtils.isEmpty(requestResult)) {
+                                    String c = "(";
+                                    String result = requestResult.substring(requestResult.indexOf(c)+c.length(), requestResult.indexOf(")"));
+                                    if (!TextUtils.isEmpty(result)) {
+                                        try {
+                                            JSONObject obj = new JSONObject(result);
+                                            if (!obj.isNull("typhoon")) {
+                                                JSONArray array = obj.getJSONArray("typhoon");
+                                                JSONArray itemArray = array.getJSONArray(8);
+                                                if (itemArray.length() > 0) {
+                                                    JSONArray itemArray2 = itemArray.getJSONArray(itemArray.length()-1);
+                                                    TyphoonDto dto = new TyphoonDto();
+                                                    if (!TextUtils.isEmpty(name)) {
+                                                        dto.name = name;
+                                                    }
+                                                    long longTime = itemArray2.getLong(2);
+                                                    String time = sdf2.format(new Date(longTime));
+                                                    dto.time = time;
+//									String time = itemArray2.getString(1);
+                                                    String str_year = time.substring(0, 4);
+                                                    if(!TextUtils.isEmpty(str_year)){
+                                                        dto.year = Integer.parseInt(str_year);
+                                                    }
+                                                    String str_month = time.substring(4, 6);
+                                                    if(!TextUtils.isEmpty(str_month)){
+                                                        dto.month = Integer.parseInt(str_month);
+                                                    }
+                                                    String str_day = time.substring(6, 8);
+                                                    if(!TextUtils.isEmpty(str_day)){
+                                                        dto.day = Integer.parseInt(str_day);
+                                                    }
+                                                    String str_hour = time.substring(8, 10);
+                                                    if(!TextUtils.isEmpty(str_hour)){
+                                                        dto.hour = Integer.parseInt(str_hour);
+                                                    }
+
+                                                    dto.lng = itemArray2.getDouble(4);
+                                                    dto.lat = itemArray2.getDouble(5);
+                                                    dto.pressure = itemArray2.getString(6);
+                                                    dto.max_wind_speed = itemArray2.getString(7);
+                                                    dto.move_speed = itemArray2.getString(9);
+                                                    String fx_string = itemArray2.getString(8);
+                                                    if( !TextUtils.isEmpty(fx_string)){
+                                                        String windDir = "";
+                                                        for (int i = 0; i < fx_string.length(); i++) {
+                                                            String item = fx_string.substring(i, i+1);
+                                                            if (TextUtils.equals(item, "N")) {
+                                                                item = "北";
+                                                            }else if (TextUtils.equals(item, "S")) {
+                                                                item = "南";
+                                                            }else if (TextUtils.equals(item, "W")) {
+                                                                item = "西";
+                                                            }else if (TextUtils.equals(item, "E")) {
+                                                                item = "东";
+                                                            }
+                                                            windDir = windDir+item;
+                                                        }
+                                                        dto.wind_dir = windDir;
+                                                    }
+
+                                                    String type = itemArray2.getString(3);
+                                                    if (TextUtils.equals(type, "TD")) {//热带低压
+                                                        type = "1";
+                                                    }else if (TextUtils.equals(type, "TS")) {//热带风暴
+                                                        type = "2";
+                                                    }else if (TextUtils.equals(type, "STS")) {//强热带风暴
+                                                        type = "3";
+                                                    }else if (TextUtils.equals(type, "TY")) {//台风
+                                                        type = "4";
+                                                    }else if (TextUtils.equals(type, "STY")) {//强台风
+                                                        type = "5";
+                                                    }else if (TextUtils.equals(type, "SuperTY")) {//超强台风
+                                                        type = "6";
+                                                    }
+                                                    dto.type = type;
+                                                    dto.isFactPoint = true;
+
+                                                    JSONArray array10 = itemArray2.getJSONArray(10);
+                                                    for (int m = 0; m < array10.length(); m++) {
+                                                        JSONArray itemArray10 = array10.getJSONArray(m);
+                                                        if (m == 0) {
+                                                            dto.radius_7 = itemArray10.getString(1);
+                                                            dto.en_radius_7 = itemArray10.getString(1);
+                                                            dto.es_radius_7 = itemArray10.getString(2);
+                                                            dto.wn_radius_7 = itemArray10.getString(3);
+                                                            dto.ws_radius_7 = itemArray10.getString(4);
+                                                        }else if (m == 1) {
+                                                            dto.radius_10 = itemArray10.getString(1);
+                                                            dto.en_radius_10 = itemArray10.getString(1);
+                                                            dto.es_radius_10 = itemArray10.getString(2);
+                                                            dto.wn_radius_10 = itemArray10.getString(3);
+                                                            dto.ws_radius_10 = itemArray10.getString(4);
+                                                        }
+                                                    }
+//									points.add(dto);
+
+                                                    MarkerOptions tOption = new MarkerOptions();
+                                                    tOption.title(name+"|"+dto.content(mContext));
+                                                    tOption.position(new LatLng(dto.lat, dto.lng));
+                                                    tOption.anchor(0.5f, 0.5f);
+                                                    ArrayList<BitmapDescriptor> iconList = new ArrayList<>();
+                                                    for (int i = 1; i <= 9; i++) {
+                                                        iconList.add(BitmapDescriptorFactory.fromAsset("typhoon/typhoon_icon"+i+".png"));
+                                                    }
+                                                    tOption.icons(iconList);
+                                                    tOption.period(2);
+                                                    Marker marker = aMap.addMarker(tOption);
+                                                    typhoonMarkers.add(marker);
+                                                }
+                                            }
+                                        } catch (JSONException e) {
+                                            e.printStackTrace();
+                                        }
+                                    }
+                                }
+                            }
+                        });
+                    }
+                });
+            }
+        }).start();
     }
 
 }

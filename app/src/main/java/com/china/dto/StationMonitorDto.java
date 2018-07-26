@@ -6,7 +6,6 @@ import android.os.Parcelable;
 import java.util.ArrayList;
 import java.util.List;
 
-
 public class StationMonitorDto implements Parcelable{
 
 	public String stationId;//站点号
@@ -31,6 +30,7 @@ public class StationMonitorDto implements Parcelable{
 	public String distance;//距离
 	public String pointTemp;//露点温度
 	public String visibility;//能见度
+	public String cloud;//云量
 	public String value;
 
 	public String partition;
@@ -96,6 +96,7 @@ public class StationMonitorDto implements Parcelable{
 		dest.writeString(this.distance);
 		dest.writeString(this.pointTemp);
 		dest.writeString(this.visibility);
+		dest.writeString(this.cloud);
 		dest.writeString(this.value);
 		dest.writeString(this.partition);
 		dest.writeString(this.provinceName);
@@ -150,6 +151,7 @@ public class StationMonitorDto implements Parcelable{
 		this.distance = in.readString();
 		this.pointTemp = in.readString();
 		this.visibility = in.readString();
+		this.cloud = in.readString();
 		this.value = in.readString();
 		this.partition = in.readString();
 		this.provinceName = in.readString();

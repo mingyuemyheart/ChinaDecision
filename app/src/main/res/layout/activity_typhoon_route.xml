@@ -127,7 +127,7 @@
                 android:layout_height="35dp"
                 android:layout_marginLeft="10dp"
                 android:layout_marginBottom="10dp"
-                android:src="@drawable/tf_icon_wz" />
+                android:src="@drawable/icon_locationoff" />
 
             <ImageView
                 android:id="@+id/ivTyphoonPlay"

@@ -298,7 +298,7 @@
             android:layout_above="@+id/llLegend"
             android:layout_marginLeft="10dp"
             android:layout_marginTop="10dp"
-            android:src="@drawable/tf_icon_wz"
+            android:src="@drawable/icon_locationoff"
             android:visibility="gone"/>
 
         <LinearLayout

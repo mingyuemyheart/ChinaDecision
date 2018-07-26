@@ -35,7 +35,7 @@ public class MyApplication extends Application{
 	public void onCreate() {
 		super.onCreate();
 
-		//判断地图导航栏是否显示
+		//判断底部导航栏是否显示
 		if (checkDeviceHasNavigationBar(this)) {
 			registerNavigationBar();
 		}
