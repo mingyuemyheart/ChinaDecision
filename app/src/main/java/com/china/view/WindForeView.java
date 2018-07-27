@@ -165,13 +165,13 @@ public class WindForeView extends View{
 			canvas.drawPath(pathLow, lineP);
 		}
 		
-		for (int i = 0; i < size; i++) {
+		for (int i = 0; i < size; i+=3) {
 			WindDto dto = tempList.get(i);
 			
-			//绘制曲线上每个时间点marker
-			lineP.setColor(getResources().getColor(R.color.blue));
-			lineP.setStrokeWidth(CommonUtil.dip2px(mContext, 5));
-			canvas.drawPoint(dto.x, dto.y, lineP);
+//			//绘制曲线上每个时间点marker
+//			lineP.setColor(getResources().getColor(R.color.blue));
+//			lineP.setStrokeWidth(CommonUtil.dip2px(mContext, 5));
+//			canvas.drawPoint(dto.x, dto.y, lineP);
 			
 //			//绘制曲线上每个时间点的温度值
 //			textP.setColor(getResources().getColor(R.color.title_bg));
@@ -205,7 +205,7 @@ public class WindForeView extends View{
 		}
 		if (clickX != 0 && clickY != 0) {
 			lineP.setColor(getResources().getColor(R.color.blue));
-			lineP.setStrokeWidth(CommonUtil.dip2px(mContext, 10));
+			lineP.setStrokeWidth(CommonUtil.dip2px(mContext, 6));
 			canvas.drawPoint(clickX, clickY, lineP);
 			
 			textP.setColor(getResources().getColor(R.color.white));

@@ -362,7 +362,7 @@ public class WaitWindActivity extends BaseActivity implements OnClickListener, A
                                         if (!obj.isNull("forecast")) {
                                             List<WindDto> windList = new ArrayList<>();
                                             JSONArray array = obj.getJSONArray("forecast");
-                                            for (int i = 0; i < array.length(); i+=3) {
+                                            for (int i = 0; i < array.length(); i++) {
                                                 JSONObject itemObj = array.getJSONObject(i);
                                                 WindDto dto = new WindDto();
                                                 if (!itemObj.isNull("speed")) {
@@ -573,6 +573,7 @@ public class WaitWindActivity extends BaseActivity implements OnClickListener, A
 
         LatLng latLngStart = aMap.getProjection().fromScreenLocation(new Point(0, 0));
         LatLng latLngEnd = aMap.getProjection().fromScreenLocation(new Point(width, height));
+        Log.e("latLng", latLngStart.latitude+","+latLngStart.longitude+"\n"+latLngEnd.latitude+","+latLngEnd.longitude);
         if (isGfs) {
             windDataGFS.latLngStart = latLngStart;
             windDataGFS.latLngEnd = latLngEnd;
