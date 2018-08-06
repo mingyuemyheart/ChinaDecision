@@ -732,8 +732,8 @@ public class StaticsActivity extends BaseActivity implements OnClickListener, On
 											builder.setSpan(builderSpan2, 29+highTemp.length()+6, 29+highTemp.length()+6+lowTemp.length(), Spannable.SPAN_INCLUSIVE_INCLUSIVE);
 											builder.setSpan(builderSpan3, 29+highTemp.length()+6+lowTemp.length()+6, 29+highTemp.length()+6+lowTemp.length()+6+highWind.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
 											builder.setSpan(builderSpan4, 29+highTemp.length()+6+lowTemp.length()+6+highWind.length()+7, 29+highTemp.length()+6+lowTemp.length()+6+highWind.length()+7+highRain.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
-											builder.setSpan(builderSpan5, 29+highTemp.length()+6+lowTemp.length()+6+highWind.length()+7+highRain.length()+8, 29+highTemp.length()+6+lowTemp.length()+6+highWind.length()+7+highRain.length()+8+no_rain_lx.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
-											builder.setSpan(builderSpan6, 29+highTemp.length()+6+lowTemp.length()+6+highWind.length()+7+highRain.length()+8+no_rain_lx.length()+7, 29+highTemp.length()+6+lowTemp.length()+6+highWind.length()+7+highRain.length()+8+no_rain_lx.length()+7+lxGaowen.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+											builder.setSpan(builderSpan5, 29+highTemp.length()+6+lowTemp.length()+6+highWind.length()+7+highRain.length()+10, 29+highTemp.length()+6+lowTemp.length()+6+highWind.length()+7+highRain.length()+10+no_rain_lx.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+											builder.setSpan(builderSpan6, 29+highTemp.length()+6+lowTemp.length()+6+highWind.length()+7+highRain.length()+10+no_rain_lx.length()+9, 29+highTemp.length()+6+lowTemp.length()+6+highWind.length()+7+highRain.length()+10+no_rain_lx.length()+9+lxGaowen.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
 											tvDetail.setText(builder);
 
 										}

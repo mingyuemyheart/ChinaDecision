@@ -117,7 +117,7 @@ public class StreamFactActivity extends BaseActivity implements OnClickListener,
 
 	//彩云
 	private List<MinuteFallDto> caiyunList = new ArrayList<>();
-	private GroundOverlay mOverlay;
+	private GroundOverlay radarOverlay;
 	private CaiyunManager caiyunManager;
 	private CaiyunThread caiyunThread;
 	private static final int HANDLER_SHOW_RADAR = 1;
@@ -386,9 +386,9 @@ public class StreamFactActivity extends BaseActivity implements OnClickListener,
 					}
 				}else {
 					ivRadar.setImageResource(R.drawable.fzj_butn_ldoff);
-					if (mOverlay != null) {
-						mOverlay.remove();
-						mOverlay = null;
+					if (radarOverlay != null) {
+						radarOverlay.remove();
+						radarOverlay = null;
 					}
 
 					if (caiyunThread != null) {
@@ -1371,16 +1371,16 @@ public class StreamFactActivity extends BaseActivity implements OnClickListener,
 				.include(new LatLng(p1, p4))
 				.build();
 
-		if (mOverlay == null) {
-			mOverlay = aMap.addGroundOverlay(new GroundOverlayOptions()
+		if (radarOverlay == null) {
+			radarOverlay = aMap.addGroundOverlay(new GroundOverlayOptions()
 					.anchor(0.5f, 0.5f)
 					.positionFromBounds(bounds)
 					.image(fromView)
 					.transparency(0.0f));
 		} else {
-			mOverlay.setImage(null);
-			mOverlay.setPositionFromBounds(bounds);
-			mOverlay.setImage(fromView);
+			radarOverlay.setImage(null);
+			radarOverlay.setPositionFromBounds(bounds);
+			radarOverlay.setImage(fromView);
 		}
 		aMap.runOnDrawFrame();
 	}
