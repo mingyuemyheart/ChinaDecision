@@ -27,8 +27,6 @@ public class StreamFactListAdapter extends BaseAdapter {
 		TextView tvStationName,tvProvince,tvStationId,tvValue;
 	}
 
-	private ViewHolder mHolder = null;
-
 	public StreamFactListAdapter(Context context, List<StreamFactDto> mArrayList) {
 		mContext = context;
 		this.mArrayList = mArrayList;
@@ -52,6 +50,7 @@ public class StreamFactListAdapter extends BaseAdapter {
 
 	@Override
 	public View getView(int position, View convertView, ViewGroup parent) {
+		ViewHolder mHolder;
 		if (convertView == null) {
 			convertView = mInflater.inflate(R.layout.adapter_stream_fact_list, null);
 			mHolder = new ViewHolder();
@@ -66,55 +65,53 @@ public class StreamFactListAdapter extends BaseAdapter {
 
 		StreamFactDto dto = mArrayList.get(position);
 
-		if (!TextUtils.isEmpty(dto.stationName)) {
-			mHolder.tvStationName.setText(dto.stationName);
-		}
-
-		if (!TextUtils.isEmpty(dto.province)) {
-			mHolder.tvProvince.setText(dto.province+dto.city+dto.dis);
-		}
-
-		if (!TextUtils.isEmpty(dto.stationId)) {
-			mHolder.tvStationId.setText(dto.stationId);
-		}
-
 		if (!TextUtils.isEmpty(columnName)) {
-			if (columnName.contains("降水")) {
-				if (!TextUtils.isEmpty(dto.pre1h)) {
-					mHolder.tvValue.setText(dto.pre1h);
-				}
-			}else if (columnName.contains("大风")) {
-				if (!TextUtils.isEmpty(dto.windS)) {
-					float fx = Float.parseFloat(dto.windD);
-					String wind_dir;
-					if(fx >= 22.5 && fx < 67.5){
-						wind_dir = "东北风";
-					}else if(fx >= 67.5 && fx < 112.5){
-						wind_dir = "东风";
-					}else if(fx >= 112.5 && fx < 157.5){
-						wind_dir = "东南风";
-					}else if(fx >= 157.5 && fx < 202.5){
-						wind_dir = "南风";
-					}else if(fx >= 202.5 && fx < 247.5){
-						wind_dir = "西南风";
-					}else if(fx >= 247.5 && fx < 292.5){
-						wind_dir = "西风";
-					}else if(fx >= 292.5 && fx < 337.5){
-						wind_dir = "西北风";
-					}else {
-						wind_dir = "北风";
-					}
-					mHolder.tvValue.setText(wind_dir+" "+dto.windS);
-				}
-			}else if (columnName.contains("冰雹")) {
-				if (!TextUtils.isEmpty(dto.hail)) {
-					mHolder.tvValue.setText(dto.hail);
-				}
-			}else {
+			if (columnName.contains("闪电")){
+				mHolder.tvStationName.setText(dto.province);
+				mHolder.tvProvince.setText(dto.city);
+				mHolder.tvStationId.setText(dto.dis);
 				if (!TextUtils.isEmpty(dto.lighting)) {
 					mHolder.tvValue.setText(dto.lighting);
 				}
+			}else {
+				if (columnName.contains("降水")) {
+					if (!TextUtils.isEmpty(dto.pre1h)) {
+						mHolder.tvValue.setText(dto.pre1h);
+					}
+				}else if (columnName.contains("大风")) {
+					if (!TextUtils.isEmpty(dto.windS)) {
+						float fx = Float.parseFloat(dto.windD);
+						String wind_dir;
+						if(fx >= 22.5 && fx < 67.5){
+							wind_dir = "东北风";
+						}else if(fx >= 67.5 && fx < 112.5){
+							wind_dir = "东风";
+						}else if(fx >= 112.5 && fx < 157.5){
+							wind_dir = "东南风";
+						}else if(fx >= 157.5 && fx < 202.5){
+							wind_dir = "南风";
+						}else if(fx >= 202.5 && fx < 247.5){
+							wind_dir = "西南风";
+						}else if(fx >= 247.5 && fx < 292.5){
+							wind_dir = "西风";
+						}else if(fx >= 292.5 && fx < 337.5){
+							wind_dir = "西北风";
+						}else {
+							wind_dir = "北风";
+						}
+						mHolder.tvValue.setText(wind_dir+" "+dto.windS);
+					}
+				}else if (columnName.contains("冰雹")) {
+					if (!TextUtils.isEmpty(dto.hail)) {
+						mHolder.tvValue.setText(dto.hail);
+					}
+				}
+
+				mHolder.tvStationName.setText(dto.stationName);
+				mHolder.tvProvince.setText(dto.province+dto.city+dto.dis);
+				mHolder.tvStationId.setText(dto.stationId);
 			}
+
 		}
 
 		if (position%2 == 0) {

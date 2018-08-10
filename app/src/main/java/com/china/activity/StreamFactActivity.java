@@ -516,6 +516,7 @@ public class StreamFactActivity extends BaseActivity implements OnClickListener,
 	 */
 	private void OkHttpList() {
 		final String url = String.format("http://scapi.weather.com.cn/weather/getServerWeather?time=%s&test=ncg", sdf2.format(new Date()));
+		Log.e("url", url);
 		new Thread(new Runnable() {
 			@Override
 			public void run() {
