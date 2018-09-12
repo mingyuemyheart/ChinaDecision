@@ -6,7 +6,7 @@
 
     <include
         android:id="@+id/reTitle"
-        layout="@layout/layout_title"/>
+        layout="@layout/shawn_layout_title"/>
 
     <com.amap.api.maps.MapView
         android:id="@+id/map"
@@ -62,7 +62,7 @@
                     android:id="@+id/ivRank"
                     android:layout_width="35dp"
                     android:layout_height="35dp"
-                    android:src="@drawable/iv_map_legend" />
+                    android:src="@drawable/shawn_icon_map_legend_off" />
 
                 <ImageView
                     android:id="@+id/ivLegend"

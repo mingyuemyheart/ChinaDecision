@@ -7,7 +7,7 @@
 
     <include
         android:id="@+id/reTitle"
-        layout="@layout/layout_title"/>
+        layout="@layout/shawn_layout_title"/>
 
     <RelativeLayout
         android:layout_width="match_parent"
@@ -414,7 +414,7 @@
                 android:layout_above="@+id/llLegend"
                 android:layout_marginLeft="10dp"
                 android:layout_marginBottom="5dp"
-                android:src="@drawable/icon_locationoff"
+                android:src="@drawable/shawn_icon_location_off"
                 android:visibility="gone"/>
 
             <LinearLayout
@@ -429,7 +429,7 @@
                     android:id="@+id/ivLegendPrompt"
                     android:layout_width="35dp"
                     android:layout_height="35dp"
-                    android:src="@drawable/iv_map_legend"/>
+                    android:src="@drawable/shawn_icon_map_legend_off"/>
 
                 <ImageView
                     android:id="@+id/ivLegend"

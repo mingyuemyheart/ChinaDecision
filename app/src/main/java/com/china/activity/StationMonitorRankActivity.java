@@ -1245,7 +1245,7 @@ public class StationMonitorRankActivity extends BaseActivity implements OnClickL
 			Bitmap bitmap7 = CommonUtil.mergeBitmap(StationMonitorRankActivity.this, bitmap5, bitmap6, false);
 			CommonUtil.clearBitmap(bitmap5);
 			CommonUtil.clearBitmap(bitmap6);
-			Bitmap bitmap8 = BitmapFactory.decodeResource(getResources(), R.drawable.iv_share_bottom);
+			Bitmap bitmap8 = BitmapFactory.decodeResource(getResources(), R.drawable.shawn_legend_share_portrait);
 //			Bitmap bitmap8 = BitmapFactory.decodeStream(getClass().getResourceAsStream("/res/drawable-hdpi/iv_share_bottom.png"));
 			Bitmap bitmap = CommonUtil.mergeBitmap(StationMonitorRankActivity.this, bitmap7, bitmap8, false);
 			CommonUtil.clearBitmap(bitmap7);

@@ -7,6 +7,13 @@
         <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
         <item name="colorAccent">@color/colorAccent</item>
     </style>
+
+    <style name="SplashTheme" parent="@android:style/Theme.Light.NoTitleBar.Fullscreen">
+        <!-- 欢迎页背景引用刚才写好的 -->
+        <item name="android:windowBackground">@drawable/bg_welcome</item>
+        <item name="android:windowFullscreen">true</item>
+        <!-- <item name="android:windowIsTranslucent">true</item> --> <!-- 透明背景不要了 -->
+    </style>
     
      <style name="CustomProgressDialog" parent="@android:style/Theme.Dialog">
         <item name="android:windowFrame">@null</item>

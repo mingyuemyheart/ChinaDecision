@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
-    <color name="colorPrimary">#EFEFEF</color>
-    <color name="colorPrimaryDark">#EFEFEF</color>
-    <color name="colorAccent">#d9d9d9</color>
+    <color name="colorPrimary">#ebebeb</color>
+    <color name="colorPrimaryDark">#ebebeb</color>
+    <color name="colorAccent">#FF4081</color>
 
     <color name="text_color1">#CBCBCB</color>
     <color name="text_color2">#A3A7AC</color>
@@ -33,7 +33,7 @@
     <color name="sure_color">#01548b</color>
     <color name="selected_color">#2D5A9D</color>
     <color name="station_color1">#ECEFF4</color>
-    <color name="title_bg">#EFEFEF</color>
+    <color name="title_bg">#ebebeb</color>
     <color name="red">#FF0033</color>
     <color name="typhoon_bg">#f3758c97</color>
     <color name="cell_pressed">#353C48</color>

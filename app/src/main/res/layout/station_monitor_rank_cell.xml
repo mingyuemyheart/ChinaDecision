@@ -51,7 +51,7 @@
             android:layout_height="20dp"
             android:layout_alignParentRight="true"
             android:layout_centerVertical="true"
-            android:src="@drawable/iv_arrow" />
+            android:src="@drawable/shawn_icon_arrow_right" />
     </RelativeLayout>
 
 </LinearLayout>

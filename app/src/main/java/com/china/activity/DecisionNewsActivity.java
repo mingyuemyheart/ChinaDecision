@@ -116,7 +116,7 @@ public class DecisionNewsActivity extends BaseActivity implements OnClickListene
 			@Override
 			public void onItemClick(AdapterView<?> arg0, View arg1, int arg2, long arg3) {
 				DisasterDto dto = mList.get(arg2);
-				Intent intent = new Intent(mContext, PDFActivity.class);
+				Intent intent = new Intent(mContext, ShawnPDFActivity.class);
 				intent.putExtra(CONST.ACTIVITY_NAME, dto.title);
 				intent.putExtra(CONST.WEB_URL, dto.url);
 				startActivity(intent);

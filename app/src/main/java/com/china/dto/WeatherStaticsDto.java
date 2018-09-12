@@ -6,6 +6,6 @@ public class WeatherStaticsDto {
 	public String name;
 	public String stationId;
 	public String level;
-	public String latitude;
-	public String longitude;
+	public double lat;
+	public double lng;
 }

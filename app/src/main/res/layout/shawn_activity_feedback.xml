@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/white"
+    android:orientation="vertical" >
+
+    <include
+        android:id="@+id/reTitle"
+        layout="@layout/shawn_layout_title" />
+
+    <EditText
+        android:layout_below="@+id/reTitle"
+        android:id="@+id/etContent"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="5dp"
+        android:background="@color/transparent"
+        android:gravity="top"
+        android:hint="您的建议是我们源源不断的动力..."
+        android:textColorHint="@color/text_color2"
+        android:minLines="10"
+        android:padding="10dp"
+        android:lineSpacingExtra="3dp"
+        android:textColor="@color/text_color3"
+        android:textSize="@dimen/level_4" />
+
+    <com.wang.avi.AVLoadingIndicatorView
+        xmlns:app="http://schemas.android.com/apk/res-auto"
+        android:id="@+id/loadingView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerInParent="true"
+        android:visibility="gone"
+        app:indicator="LineScalePulseOutRapid"
+        app:indicator_color="@color/blue"/>
+
+</RelativeLayout>

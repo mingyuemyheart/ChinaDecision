@@ -13,7 +13,6 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
-import android.os.Parcelable;
 import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
@@ -306,7 +305,7 @@ public class StreamFactActivity extends BaseActivity implements OnClickListener,
 
 	@Override
 	public void onMapScreenShot(final Bitmap bitmap1) {//bitmap1为地图截屏
-		Bitmap bitmap8 = BitmapFactory.decodeResource(getResources(), R.drawable.iv_share_bottom);
+		Bitmap bitmap8 = BitmapFactory.decodeResource(getResources(), R.drawable.shawn_legend_share_portrait);
 		Bitmap bitmap2 = CommonUtil.captureView(reShare);
 		Bitmap bitmap3 = CommonUtil.mergeBitmap(mContext, bitmap1, bitmap2, true);
 		CommonUtil.clearBitmap(bitmap1);
@@ -425,10 +424,10 @@ public class StreamFactActivity extends BaseActivity implements OnClickListener,
 			case R.id.ivPlay:
 				if (seekbarThread != null && seekbarThread.getCurrentState() == SeekbarThread.STATE_PLAYING) {
 					seekbarThread.pause();
-					ivPlay.setImageResource(R.drawable.iv_play);
+					ivPlay.setImageResource(R.drawable.shawn_icon_play);
 				} else if (seekbarThread != null && seekbarThread.getCurrentState() == SeekbarThread.STATE_PAUSE) {
 					seekbarThread.play();
-					ivPlay.setImageResource(R.drawable.iv_pause);
+					ivPlay.setImageResource(R.drawable.shawn_icon_pause);
 				} else {
 					if (seekbarThread != null) {
 						seekbarThread.cancel();
@@ -437,7 +436,7 @@ public class StreamFactActivity extends BaseActivity implements OnClickListener,
 					if (llContainer.getChildCount() > 0) {
 						seekbarThread = new SeekbarThread();
 						seekbarThread.start();
-						ivPlay.setImageResource(R.drawable.iv_pause);
+						ivPlay.setImageResource(R.drawable.shawn_icon_pause);
 					}
 				}
 				break;
@@ -1014,7 +1013,7 @@ public class StreamFactActivity extends BaseActivity implements OnClickListener,
 					runOnUiThread(new Runnable() {
 						@Override
 						public void run() {
-							ivPlay.setImageResource(R.drawable.iv_play);
+							ivPlay.setImageResource(R.drawable.shawn_icon_play);
 						}
 					});
 				}

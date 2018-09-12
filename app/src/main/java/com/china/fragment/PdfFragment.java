@@ -12,7 +12,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.china.R;
-import com.china.activity.PDFActivity;
+import com.china.activity.ShawnPDFActivity;
 import com.china.common.CONST;
 import com.china.dto.NewsDto;
 
@@ -66,7 +66,7 @@ public class PdfFragment extends Fragment implements View.OnClickListener{
         switch (v.getId()) {
             case R.id.imageView:
             case R.id.tvTitle:
-                Intent intent = new Intent(getActivity(), PDFActivity.class);
+                Intent intent = new Intent(getActivity(), ShawnPDFActivity.class);
                 intent.putExtra(CONST.ACTIVITY_NAME, data.title);
                 intent.putExtra(CONST.WEB_URL, data.detailUrl);
                 startActivity(intent);

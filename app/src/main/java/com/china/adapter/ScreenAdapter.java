@@ -77,7 +77,7 @@ public class ScreenAdapter extends BaseAdapter{
 			FinalBitmap finalBitmap = FinalBitmap.create(mContext);
 			finalBitmap.display(mHolder.icon, dto.icon, null, 0);
 		}else {
-			mHolder.icon.setImageResource(R.drawable.iv_default_news);
+			mHolder.icon.setImageResource(R.drawable.shawn_icon_seat_bitmap);
 		}
 
 		return convertView;

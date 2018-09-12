@@ -260,14 +260,8 @@
     <string name="last_page">已经是最后一页</string>
     
     <!-- 意见反馈 -->
-    <string name="write_feedback">欢迎写下您宝贵的建议...</string>
     <string name="submit">提交</string>
     <string name="submit_success">提交成功，感谢您的宝贵建议！</string>
-    
-    <!-- 预警 -->
-    <string name="warning_guide">预警指南：\n</string>
-    <string name="no_warning">暂无预警信息发布</string>
-    <string name="tiao">条</string>
     
     <!-- 台风路径 -->
     <string name="chart_hour">时</string>
@@ -290,7 +284,7 @@
     <string name="chart_yidong_speed">移动速度：</string>
     <string name="chart_speed2">公里/小时\n</string>
     <string name="chart_radius1">7级风圈半径：</string>
-    <string name="chart_kilometer">公里\n</string>
+    <string name="chart_kilometer">公里</string>
     <string name="chart_radius2">10级风圈半径：</string>
     <string name="chart_di">第</string>
     <string name="chart_haotaifeng">号台风</string>

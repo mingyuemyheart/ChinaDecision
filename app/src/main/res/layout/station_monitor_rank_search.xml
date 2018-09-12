@@ -7,7 +7,7 @@
 
     <include
         android:id="@+id/reTitle"
-        layout="@layout/layout_title" />
+        layout="@layout/shawn_layout_title" />
 
     <LinearLayout
         android:id="@+id/llTime"
@@ -23,7 +23,7 @@
         <ImageView
             android:layout_width="30dp"
             android:layout_height="30dp"
-            android:src="@drawable/ss_pic_xzdq"/>
+            android:src="@drawable/shawn_icon_date"/>
 
         <TextView
             android:layout_width="wrap_content"
@@ -44,7 +44,7 @@
             android:layout_marginLeft="30dp"
             android:layout_marginRight="30dp"
             android:layout_marginBottom="10dp"
-            android:background="@drawable/corner_edittext2"
+            android:background="@drawable/shawn_bg_corner_edittext2"
             android:gravity="center_vertical"
             android:paddingLeft="10dp"
             android:textColor="@color/text_color4"
@@ -58,7 +58,7 @@
             android:layout_weight="1"
             android:layout_marginLeft="30dp"
             android:layout_marginRight="30dp"
-            android:background="@drawable/corner_edittext2"
+            android:background="@drawable/shawn_bg_corner_edittext2"
             android:gravity="center_vertical"
             android:paddingLeft="10dp"
             android:textColor="@color/text_color4"
@@ -78,7 +78,7 @@
         <ImageView
             android:layout_width="30dp"
             android:layout_height="30dp"
-            android:src="@drawable/ss_pic_xzrq"/>
+            android:src="@drawable/shawn_icon_area"/>
 
         <TextView
             android:layout_width="wrap_content"
@@ -99,7 +99,7 @@
         android:layout_below="@+id/llArea"
         android:layout_marginLeft="30dp"
         android:layout_marginRight="30dp"
-        android:background="@drawable/corner_edittext2"
+        android:background="@drawable/shawn_bg_corner_edittext2"
         android:gravity="center_vertical"
         android:text="@string/nation"
         android:paddingLeft="10dp"
@@ -118,7 +118,7 @@
             android:layout_marginLeft="30dp"
             android:layout_marginRight="30dp"
             android:layout_marginTop="30dp"
-            android:background="@drawable/bg_check_rank"
+            android:background="@drawable/shawn_bg_warning_selected"
             android:gravity="center"
             android:paddingLeft="10dp"
             android:text="@string/check"

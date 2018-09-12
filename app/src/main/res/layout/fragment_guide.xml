@@ -3,7 +3,7 @@
     android:id="@+id/reMain"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@drawable/guide_01"
+    android:background="@drawable/bg_guide_01"
     android:orientation="vertical" >
 
 </RelativeLayout>

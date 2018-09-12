@@ -5,6 +5,6 @@
 
     <include
         android:id="@+id/reTitle"
-        layout="@layout/layout_title" />
+        layout="@layout/shawn_layout_title" />
 
 </RelativeLayout>

@@ -28,8 +28,6 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.IOException;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -40,8 +38,6 @@ import okhttp3.Response;
 
 /**
  * 灾情专报
- * @author shawn_sun
- *
  */
 public class DisasterSpecialActivity extends BaseActivity implements OnClickListener{
 	
@@ -112,7 +108,7 @@ public class DisasterSpecialActivity extends BaseActivity implements OnClickList
 			@Override
 			public void onItemClick(AdapterView<?> arg0, View arg1, int arg2, long arg3) {
 				DisasterDto dto = mList.get(arg2);
-				Intent intent = new Intent(mContext, PDFActivity.class);
+				Intent intent = new Intent(mContext, ShawnPDFActivity.class);
 				intent.putExtra(CONST.ACTIVITY_NAME, dto.title);
 				intent.putExtra(CONST.WEB_URL, dto.url);
 				startActivity(intent);

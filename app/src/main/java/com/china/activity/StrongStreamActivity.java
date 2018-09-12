@@ -716,7 +716,7 @@ public class StrongStreamActivity extends BaseActivity implements OnClickListene
 	@Override
 	public void onMapScreenShot(final Bitmap bitmap1) {//bitmap1为地图截屏
 		//bitmap2为覆盖再地图上的view
-		Bitmap bitmap2 = BitmapFactory.decodeResource(getResources(), R.drawable.iv_share_bottom);
+		Bitmap bitmap2 = BitmapFactory.decodeResource(getResources(), R.drawable.shawn_legend_share_portrait);
 		Bitmap bitmap = CommonUtil.mergeBitmap(mContext, bitmap1, bitmap2, false);
 		CommonUtil.clearBitmap(bitmap1);
 		CommonUtil.clearBitmap(bitmap2);

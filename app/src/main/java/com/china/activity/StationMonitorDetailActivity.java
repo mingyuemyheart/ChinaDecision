@@ -220,7 +220,7 @@ public class StationMonitorDetailActivity extends BaseActivity implements OnClic
 										for (int i = 0; i < jsonArray.length(); i++) {
 											JSONArray tempArray = jsonArray.getJSONArray(i);
 											WarningDto dto = new WarningDto();
-											dto.html = tempArray.optString(1);
+											dto.html = tempArray.getString(1);
 											String[] array = dto.html.split("-");
 											String item0 = array[0];
 											String item1 = array[1];
@@ -230,9 +230,9 @@ public class StationMonitorDetailActivity extends BaseActivity implements OnClic
 											dto.type = item2.substring(0, 5);
 											dto.color = item2.substring(5, 7);
 											dto.time = item1;
-											dto.lng = tempArray.optString(2);
-											dto.lat = tempArray.optString(3);
-											dto.name = tempArray.optString(0);
+											dto.lng = tempArray.getDouble(2);
+											dto.lat = tempArray.getDouble(3);
+											dto.name = tempArray.getString(0);
 
 											warningList.add(dto);
 										}
@@ -1117,7 +1117,7 @@ public class StationMonitorDetailActivity extends BaseActivity implements OnClic
 			Bitmap bitmap3 = CommonUtil.mergeBitmap(StationMonitorDetailActivity.this, bitmap1, bitmap2, false);
 			CommonUtil.clearBitmap(bitmap1);
 			CommonUtil.clearBitmap(bitmap2);
-			Bitmap bitmap4 = BitmapFactory.decodeResource(getResources(), R.drawable.iv_share_bottom_landscape);
+			Bitmap bitmap4 = BitmapFactory.decodeResource(getResources(), R.drawable.shawn_legend_share_landscape);
 //			Bitmap bitmap4 = BitmapFactory.decodeStream(getClass().getResourceAsStream("/res/drawable-hdpi/iv_share_bottom_landscape.png"));
 			Bitmap bitmap = CommonUtil.mergeBitmap(StationMonitorDetailActivity.this, bitmap3, bitmap4, false);
 			CommonUtil.clearBitmap(bitmap3);

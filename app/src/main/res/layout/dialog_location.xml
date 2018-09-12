@@ -8,7 +8,7 @@
     <LinearLayout
         android:layout_width="240dp"
         android:layout_height="wrap_content"
-        android:background="@drawable/corner_top_white"
+        android:background="@drawable/shawn_bg_corner_top_white"
         android:orientation="vertical"
         android:padding="10dp" >
 

@@ -7,7 +7,7 @@
 
     <include
         android:id="@+id/reTitle"
-        layout="@layout/layout_title" />
+        layout="@layout/shawn_layout_title" />
 
     <RelativeLayout
         android:id="@+id/reSearch"
@@ -15,7 +15,7 @@
         android:layout_height="wrap_content"
         android:layout_below="@+id/reTitle"
         android:layout_margin="10dp"
-        android:background="@drawable/corner_edittext2"
+        android:background="@drawable/shawn_bg_corner_edittext2"
         android:paddingLeft="10dp"
         android:paddingRight="10dp" >
 
@@ -24,7 +24,7 @@
             android:layout_width="20dp"
             android:layout_height="20dp"
             android:layout_centerVertical="true"
-            android:src="@drawable/iv_search" />
+            android:src="@drawable/shawn_icon_search" />
 
         <EditText
             android:id="@+id/etSearch"

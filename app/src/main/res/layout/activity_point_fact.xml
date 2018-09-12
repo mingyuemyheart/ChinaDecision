@@ -7,7 +7,7 @@
 
     <include
         android:id="@+id/reTitle"
-        layout="@layout/layout_title" />
+        layout="@layout/shawn_layout_title" />
 
     <RelativeLayout
         android:layout_width="match_parent"
@@ -100,7 +100,7 @@
                     android:layout_height="35dp"
                     android:layout_centerVertical="true"
                     android:layout_marginLeft="5dp"
-                    android:background="@drawable/corner_bg_analysis"
+                    android:background="@drawable/shawn_bg_corner_switch_height"
                     android:gravity="center_vertical"
                     android:orientation="horizontal"
                     android:paddingLeft="30dp"
@@ -166,7 +166,7 @@
                     android:textSize="@dimen/level_5"
                     android:textColor="@color/blue"
                     android:layout_centerVertical="true"
-                    android:background="@drawable/corner_bg_analysis"
+                    android:background="@drawable/shawn_bg_corner_switch_height"
                     android:gravity="center_vertical"
                     android:paddingLeft="40dp"/>
 
@@ -187,7 +187,7 @@
                 android:layout_above="@+id/llLegend"
                 android:layout_marginLeft="10dp"
                 android:layout_marginBottom="5dp"
-                android:src="@drawable/icon_locationoff"
+                android:src="@drawable/shawn_icon_location_off"
                 android:visibility="gone"/>
 
             <LinearLayout
@@ -204,7 +204,7 @@
                     android:id="@+id/ivLegendPrompt"
                     android:layout_width="35dp"
                     android:layout_height="35dp"
-                    android:src="@drawable/iv_map_legend"/>
+                    android:src="@drawable/shawn_icon_map_legend_off"/>
 
                 <ImageView
                     android:id="@+id/ivLegend"

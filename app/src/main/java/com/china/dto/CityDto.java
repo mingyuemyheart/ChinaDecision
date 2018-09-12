@@ -16,8 +16,8 @@ public class CityDto implements Parcelable{
 	public String areaName = null;
 	public double lng = 0;//经度
 	public double lat = 0;//维度
-	public int lowPheCode;
-	public int highPheCode;
+	public int lowPheCode = -1;
+	public int highPheCode = -1;
 	public String lowTemp;
 	public String highTemp;
 	public String areaId;//行政区划id

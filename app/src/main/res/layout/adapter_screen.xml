@@ -4,7 +4,7 @@
     android:layout_height="match_parent"
     android:orientation="vertical"
     android:gravity="center|center_horizontal"
-    android:background="@drawable/selector_item2"
+    android:background="@drawable/shawn_selector_item_main"
     android:paddingTop="10dp"
     android:paddingBottom="5dp" >
 

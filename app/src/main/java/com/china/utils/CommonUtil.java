@@ -38,6 +38,7 @@ import android.widget.ScrollView;
 
 import com.china.R;
 import com.china.common.CONST;
+import com.china.common.MyApplication;
 import com.umeng.socialize.ShareAction;
 import com.umeng.socialize.bean.SHARE_MEDIA;
 import com.umeng.socialize.media.UMImage;
@@ -66,6 +67,7 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
+import java.util.Locale;
 
 import javax.crypto.Mac;
 import javax.crypto.spec.SecretKeySpec;
@@ -569,7 +571,7 @@ public class CommonUtil {
 	            if (!TextUtils.isEmpty(imgUrl)) {
 	            	web.setThumb(new UMImage(activity, imgUrl));  //缩略图
 				}else {
-					web.setThumb(new UMImage(activity, R.drawable.iv_icon));
+					web.setThumb(new UMImage(activity, R.drawable.shawn_icon_round_icon));
 				}
 	            web.setDescription(content);
 	            sAction.withMedia(web);
@@ -603,26 +605,19 @@ public class CommonUtil {
 		if (TextUtils.isEmpty(columnId) || TextUtils.isEmpty(name)) {
 			return;
 		}
+		SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMddHH", Locale.CHINA);
+		String addtime = sdf.format(new Date());
+		final String clickUrl = String.format("http://decision-admin.tianqi.cn/Home/Count/clickCount?addtime=%s&appid=%s&eventid=menuClick_%s&eventname=%s&userid=%s&username=%s",
+				addtime, CONST.APPID, columnId, name, MyApplication.UID, MyApplication.USERNAME);
 		new Thread(new Runnable() {
 			@Override
 			public void run() {
-				SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMddHH");
-				String addtime = sdf.format(new Date());
-				String clickUrl = String.format("http://decision-admin.tianqi.cn/Home/Count/clickCount?addtime=%s&appid=%s&eventid=menuClick_%s&eventname=%s&userid=%s&username=%s",
-						addtime, CONST.APPID, columnId, name, CONST.UID, CONST.USERNAME);
-
 				OkHttpUtil.enqueue(new Request.Builder().url(clickUrl).build(), new Callback() {
 					@Override
 					public void onFailure(Call call, IOException e) {
-
 					}
-
 					@Override
 					public void onResponse(Call call, Response response) throws IOException {
-						if (!response.isSuccessful()) {
-							return;
-						}
-						String result = response.body().string();
 					}
 				});
 			}

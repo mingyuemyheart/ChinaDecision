@@ -33,30 +33,13 @@ public class CONST {
 	public static final int color3 = android.R.color.holo_blue_bright;
 	public static final int color4 = android.R.color.holo_blue_light;
 	
-	//本地保存用户信息参数
-	public static String USERINFO = "userInfo";//userInfo sharedPreferance名称
-	public static class UserInfo {
-		public static final String uId = "uId";
-		public static final String userName = "uName";
-		public static final String passWord = "pwd";
-		public static final String userGroup = "userGroup";
-	}
-	
-	public static String UID = null;//用户id
-	public static String USERNAME = null;//用户名
-	public static String PASSWORD = null;//用户密码
-	public static String USERGROUP = null;//用户组
-	
-	public static String COUNTURL = null;//周报统计链接
-	public static String RECOMMENDURL = null;//应用推荐链接
+	public static String COUNTURL;//周报统计链接
+	public static String RECOMMENDURL;//应用推荐链接
 	
 	//预警颜色对应规则
 	public static String[] blue = {"01", "_blue"};
 	public static String[] yellow = {"02", "_yellow"};
 	public static String[] orange = {"03", "_orange"};
 	public static String[] red = {"04", "_red"};
-	
-	//贵州接口
-	public static String INTERFACE_LOGIN = "http://decision-admin.tianqi.cn/home/Work/login";//登录
-	public static String INTERFACE_FEEDBACK = "http://decision-admin.tianqi.cn/home/Work/request";//意见反馈
+
 }

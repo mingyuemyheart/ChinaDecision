@@ -70,7 +70,7 @@ public class StationMonitorRankSearchAdapter extends BaseAdapter{
 		mHolder.tvName.setText(dto.provinceName);
 		if (isSelected.get(position) == true) {
 			mHolder.tvName.setTextColor(mContext.getResources().getColor(R.color.white));
-			mHolder.tvName.setBackgroundResource(R.drawable.bg_warning_selected);
+			mHolder.tvName.setBackgroundResource(R.drawable.shawn_bg_warning_selected);
 		}else {
 			mHolder.tvName.setTextColor(mContext.getResources().getColor(R.color.text_color4));
 			mHolder.tvName.setBackgroundColor(mContext.getResources().getColor(R.color.white));

@@ -8,7 +8,6 @@ import android.net.Uri;
 import android.provider.Settings;
 import android.view.LayoutInflater;
 import android.view.View;
-import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.china.R;
@@ -46,28 +45,27 @@ public class AuthorityUtil {
 
     /**
      * 前往权限设置界面
-     * @param message
+     * @param content
      */
-    public static void intentAuthorSetting(final Context context, String message) {
+    public static void intentAuthorSetting(final Context context, String content) {
         LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-        View view = inflater.inflate(R.layout.dialog_author_settring, null);
-        TextView tvMessage = (TextView) view.findViewById(R.id.tvMessage);
-        LinearLayout llNegative = (LinearLayout) view.findViewById(R.id.llNegative);
-        LinearLayout llPositive = (LinearLayout) view.findViewById(R.id.llPositive);
+        View view = inflater.inflate(R.layout.shawn_dialog_cache, null);
+        TextView tvContent = view.findViewById(R.id.tvContent);
+        TextView tvNegtive = view.findViewById(R.id.tvNegtive);
+        TextView tvPositive = view.findViewById(R.id.tvPositive);
 
         final Dialog dialog = new Dialog(context, R.style.CustomProgressDialog);
         dialog.setContentView(view);
         dialog.show();
 
-        tvMessage.setText(message);
-        llNegative.setOnClickListener(new View.OnClickListener() {
+        tvContent.setText(content);
+        tvNegtive.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View arg0) {
                 dialog.dismiss();
             }
         });
-
-        llPositive.setOnClickListener(new View.OnClickListener() {
+        tvPositive.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View arg0) {
                 dialog.dismiss();

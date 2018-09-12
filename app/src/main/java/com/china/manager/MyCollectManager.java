@@ -1,9 +1,5 @@
 package com.china.manager;
 
-/**
- * 我的收藏管理器，获取、保存数据
- */
-
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
@@ -12,6 +8,9 @@ import com.china.dto.NewsDto;
 
 import java.util.List;
 
+/**
+ * 我的收藏管理器，获取、保存数据
+ */
 public class MyCollectManager {
 
 	public static int readCollect(Context context, List<NewsDto> list) {
@@ -47,12 +46,12 @@ public class MyCollectManager {
 			editor.putString("time"+i, list.get(i).time);
 			editor.putString("imgUrl"+i, list.get(i).imgUrl);
 		}
-		editor.commit();
+		editor.apply();
 	}
 	
 	public static void clearCollectData(Context context) {
 		SharedPreferences sp = context.getSharedPreferences("COLLECT", Context.MODE_PRIVATE);
-		sp.edit().clear().commit();
+		sp.edit().clear().apply();
 	}
 	
 }

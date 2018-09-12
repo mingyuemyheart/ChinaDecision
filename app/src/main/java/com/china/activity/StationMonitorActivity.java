@@ -10,7 +10,6 @@ import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.graphics.Matrix;
 import android.graphics.Point;
-import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.GradientDrawable;
 import android.media.ThumbnailUtils;
 import android.os.Bundle;
@@ -2095,7 +2094,7 @@ public class StationMonitorActivity extends BaseActivity implements OnClickListe
         Bitmap bitmap3 = CommonUtil.mergeBitmap(StationMonitorActivity.this, bitmap1, bitmap2, true);
         CommonUtil.clearBitmap(bitmap1);
         CommonUtil.clearBitmap(bitmap2);
-        Bitmap bitmap4 = BitmapFactory.decodeResource(getResources(), R.drawable.iv_share_bottom);
+        Bitmap bitmap4 = BitmapFactory.decodeResource(getResources(), R.drawable.shawn_legend_share_portrait);
 //		Bitmap bitmap4 = BitmapFactory.decodeStream(getClass().getResourceAsStream("/res/drawable-hdpi/iv_share_bottom.png"));
         Bitmap bitmap5 = CommonUtil.mergeBitmap(mContext, bitmap3, bitmap4, false);
         CommonUtil.clearBitmap(bitmap3);

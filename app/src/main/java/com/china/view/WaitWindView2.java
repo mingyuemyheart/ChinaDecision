@@ -16,7 +16,7 @@ import android.view.ViewGroup.LayoutParams;
 import android.widget.ImageView;
 
 import com.amap.api.maps.model.LatLng;
-import com.china.activity.WaitWindActivity;
+import com.china.activity.ShawnWaitWindActivity;
 import com.china.dto.WindData;
 import com.china.dto.WindDto;
 
@@ -31,16 +31,16 @@ import java.util.List;
 
 public class WaitWindView2 extends View {
 
-	private Paint paint = null;
+	private Paint paint;
 	private int width = 0, height = 0;//手机屏幕宽高
 	private List<WindDto> particles = new ArrayList<>();//存放随机点的list
 	private int time = 60;//ms,刷新画布时间
 	private int maxLife = 100;//长度，粒子的最大生命周期
-	private Bitmap bitmap = null;//每一帧图像承载对象
-	private Canvas tempCanvas = null;
-	private WindThread mThread = null;
-	private WaitWindActivity activity = null;
-	private WindData windData = null;
+	private Bitmap bitmap;//每一帧图像承载对象
+	private Canvas tempCanvas;
+	private WindThread mThread;
+	private ShawnWaitWindActivity activity;
+	private WindData windData;
 	private List<ImageView> images = new ArrayList<>();//存放位图的list
 
 	//高配
@@ -60,7 +60,7 @@ public class WaitWindView2 extends View {
 		super(context, attrs, defStyleAttr);
 	}
 
-	public void init(WaitWindActivity activity) {
+	public void init(ShawnWaitWindActivity activity) {
 		this.activity = activity;
 
 		DisplayMetrics dm = new DisplayMetrics();
@@ -69,43 +69,44 @@ public class WaitWindView2 extends View {
 		height = dm.heightPixels;
 
 		paint = new Paint();
-		paint.setColor(0xa088C8F6);
+		paint.setColor(Color.WHITE);
 		paint.setAntiAlias(true);
 		paint.setStrokeWidth(4f);
 
-//		float totalMemory = getTotalMemorySize()/1024/1024;//手机内存大小(G)
-//		if (totalMemory <= 2.0) {//内存小于等于2G
+		float totalMemory = getTotalMemorySize()/1024/1024;//手机内存大小(G)
+		if (totalMemory <= 3.0) {//内存小于等于2G
+			partileCount = 800;//绘制粒子个数
+			frameCount = 8;//帧数
+			speedRate = 1.5f;//离子运动速度系数
+		}else if (totalMemory > 3.0 && totalMemory <= 4.0) {//内存小于等于3G
+			partileCount = 1000;//绘制粒子个数
+			frameCount = 10;//帧数
+			speedRate = 1.0f;//离子运动速度系数
+		}else if (totalMemory > 4.0) {//内存大于3G
+			partileCount = 1200;//绘制粒子个数
+			frameCount = 10;//帧数
+			speedRate = 1.0f;//离子运动速度系数
+		}
+
+//		float curFreq = Float.parseFloat(getMaxCpuFreq());
+//		if (curFreq <= 1000000) {
 //			partileCount = 400;//绘制粒子个数
 //			frameCount = 6;//帧数
 //			speedRate = 1.8f;//离子运动速度系数
-//		}else if (totalMemory > 2.0 && totalMemory <= 3.0) {//内存小于等于3G
+//		}else if (curFreq > 1000000 && curFreq <= 1200000) {
 //			partileCount = 600;//绘制粒子个数
 //			frameCount = 8;//帧数
 //			speedRate = 1.5f;//离子运动速度系数
-//		}else if (totalMemory > 3.0) {//内存大于3G
+//		}else if (curFreq > 1200000 && curFreq <= 1500000) {
+//			partileCount = 1000;//绘制粒子个数
+//			frameCount = 8;//帧数
+//			speedRate = 1.2f;//离子运动速度系数
+//		}else if (curFreq > 1500000) {
 //			partileCount = 1500;//绘制粒子个数
 //			frameCount = 10;//帧数
 //			speedRate = 1.0f;//离子运动速度系数
 //		}
-
-		float curFreq = Float.parseFloat(getMaxCpuFreq());
-		if (curFreq <= 1000000) {
-			partileCount = 400;//绘制粒子个数
-			frameCount = 6;//帧数
-			speedRate = 1.8f;//离子运动速度系数
-		}else if (curFreq > 1000000 && curFreq <= 1200000) {
-			partileCount = 600;//绘制粒子个数
-			frameCount = 8;//帧数
-			speedRate = 1.5f;//离子运动速度系数
-		}else if (curFreq > 1200000 && curFreq <= 1500000) {
-			partileCount = 1000;//绘制粒子个数
-			frameCount = 8;//帧数
-			speedRate = 1.2f;//离子运动速度系数
-		}else if (curFreq > 1500000) {
-			partileCount = 1500;//绘制粒子个数
-			frameCount = 10;//帧数
-			speedRate = 1.0f;//离子运动速度系数
-		}
+//		Log.e("curFreq", curFreq+"");
 
 		getParticleInfo();
 	}
@@ -119,110 +120,12 @@ public class WaitWindView2 extends View {
 	}
 
 	/**
-	 * 判断是否为华为P9
-	 * @return
-	 */
-	private boolean isHuaWeiP9() {
-		String brand = android.os.Build.BRAND; //手机品牌
-		String model = android.os.Build.MODEL; // 手机型号
-		if (TextUtils.equals("HUAWEI", brand) && TextUtils.equals("VIE-AL10", model)) {
-			return true;
-		}
-		return false;
-	}
-
-	/**
-	 * 获取系统总内存
-	 *
-	 * @return 总内存大单位为kB。
-	 */
-	public static float getTotalMemorySize() {
-		String dir = "/proc/meminfo";
-		try {
-			FileReader fr = new FileReader(dir);
-			BufferedReader br = new BufferedReader(fr, 2048);
-			String memoryLine = br.readLine();
-			String subMemoryLine = memoryLine.substring(memoryLine.indexOf("MemTotal:"));
-			br.close();
-			return Float.parseFloat(subMemoryLine.replaceAll("\\D+", ""));
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-		return 0;
-	}
-
-	/**
-	 * 实时获取CPU当前频率（单位KHZ）
-	 * @return
-	 */
-	public static float getCurCpuFreq() {
-		float result = 0;
-		try {
-			FileReader fr = new FileReader("/sys/devices/system/cpu/cpu0/cpufreq/scaling_cur_freq");
-			BufferedReader br = new BufferedReader(fr);
-			String text = br.readLine();
-			if (!TextUtils.isEmpty(text)) {
-				result = Float.valueOf(text.trim());
-			}
-		} catch (FileNotFoundException e) {
-			e.printStackTrace();
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-		return result;
-	}
-
-	// 获取CPU最大频率（单位KHZ）
-	public static String getMaxCpuFreq() {
-		String result = "";
-		ProcessBuilder cmd;
-		try {
-			String[] args = { "/system/bin/cat", "/sys/devices/system/cpu/cpu0/cpufreq/cpuinfo_max_freq" };
-			cmd = new ProcessBuilder(args);
-			Process process = cmd.start();
-			InputStream in = process.getInputStream();
-			byte[] re = new byte[24];
-			while (in.read(re) != -1) {
-				result = result + new String(re);
-			}
-			in.close();
-		} catch (IOException ex) {
-			ex.printStackTrace();
-			result = "N/A";
-		}
-		return result.trim();
-	}
-
-	// 获取CPU最小频率（单位KHZ）
-	public static String getMinCpuFreq() {
-		String result = "";
-		ProcessBuilder cmd;
-		try {
-			String[] args = { "/system/bin/cat", "/sys/devices/system/cpu/cpu0/cpufreq/cpuinfo_min_freq" };
-			cmd = new ProcessBuilder(args);
-			Process process = cmd.start();
-			InputStream in = process.getInputStream();
-			byte[] re = new byte[24];
-			while (in.read(re) != -1) {
-				result = result + new String(re);
-			}
-			in.close();
-		} catch (IOException ex) {
-			ex.printStackTrace();
-			result = "N/A";
-		}
-		return result.trim();
-	}
-
-	/**
 	 * 获取随机里的坐标信息
 	 */
 	private void getParticleInfo() {
 		particles.clear();
 		for (int i = 0; i < partileCount; i++) {
-			WindDto dto = new WindDto();
-			dto.life = 0;
-			particles.add(dto);
+			particles.add(new WindDto());
 		}
 	}
 
@@ -435,7 +338,103 @@ public class WaitWindView2 extends View {
 					}
 				}
 			}
-		}
+		};
 	};
+
+	/**
+	 * 判断是否为华为P9
+	 * @return
+	 */
+	private boolean isHuaWeiP9() {
+		String brand = android.os.Build.BRAND; //手机品牌
+		String model = android.os.Build.MODEL; // 手机型号
+		if (TextUtils.equals("HUAWEI", brand) && TextUtils.equals("VIE-AL10", model)) {
+			return true;
+		}
+		return false;
+	}
+
+	/**
+	 * 获取系统总内存
+	 *
+	 * @return 总内存大单位为kB。
+	 */
+	public static float getTotalMemorySize() {
+		String dir = "/proc/meminfo";
+		try {
+			FileReader fr = new FileReader(dir);
+			BufferedReader br = new BufferedReader(fr, 2048);
+			String memoryLine = br.readLine();
+			String subMemoryLine = memoryLine.substring(memoryLine.indexOf("MemTotal:"));
+			br.close();
+			return Float.parseFloat(subMemoryLine.replaceAll("\\D+", ""));
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		return 0;
+	}
+
+	/**
+	 * 实时获取CPU当前频率（单位KHZ）
+	 * @return
+	 */
+	public static float getCurCpuFreq() {
+		float result = 0;
+		try {
+			FileReader fr = new FileReader("/sys/devices/system/cpu/cpu0/cpufreq/scaling_cur_freq");
+			BufferedReader br = new BufferedReader(fr);
+			String text = br.readLine();
+			if (!TextUtils.isEmpty(text)) {
+				result = Float.valueOf(text.trim());
+			}
+		} catch (FileNotFoundException e) {
+			e.printStackTrace();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		return result;
+	}
+
+	// 获取CPU最大频率（单位KHZ）
+	public static String getMaxCpuFreq() {
+		String result = "";
+		ProcessBuilder cmd;
+		try {
+			String[] args = { "/system/bin/cat", "/sys/devices/system/cpu/cpu0/cpufreq/cpuinfo_max_freq" };
+			cmd = new ProcessBuilder(args);
+			Process process = cmd.start();
+			InputStream in = process.getInputStream();
+			byte[] re = new byte[24];
+			while (in.read(re) != -1) {
+				result = result + new String(re);
+			}
+			in.close();
+		} catch (IOException ex) {
+			ex.printStackTrace();
+			result = "N/A";
+		}
+		return result.trim();
+	}
+
+	// 获取CPU最小频率（单位KHZ）
+	public static String getMinCpuFreq() {
+		String result = "";
+		ProcessBuilder cmd;
+		try {
+			String[] args = { "/system/bin/cat", "/sys/devices/system/cpu/cpu0/cpufreq/cpuinfo_min_freq" };
+			cmd = new ProcessBuilder(args);
+			Process process = cmd.start();
+			InputStream in = process.getInputStream();
+			byte[] re = new byte[24];
+			while (in.read(re) != -1) {
+				result = result + new String(re);
+			}
+			in.close();
+		} catch (IOException ex) {
+			ex.printStackTrace();
+			result = "N/A";
+		}
+		return result.trim();
+	}
 
 }

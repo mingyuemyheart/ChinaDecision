@@ -9,7 +9,7 @@
         android:id="@+id/tvTitle"
         android:layout_width="240dp"
         android:layout_height="45dp"
-        android:background="@drawable/corner_top_white"
+        android:background="@drawable/shawn_bg_corner_top_white"
         android:gravity="center"
         android:text="@string/auto_update"
         android:textColor="#1e90ff"

@@ -30,7 +30,7 @@
                 <ImageView
                     android:layout_width="@dimen/level_2"
                     android:layout_height="@dimen/level_2"
-                    android:src="@drawable/iv_back"/>
+                    android:src="@drawable/shawn_icon_back"/>
 
                 <TextView
                     android:layout_width="wrap_content"
@@ -59,7 +59,7 @@
                 android:layout_centerVertical="true"
                 android:layout_marginRight="5dp"
                 android:padding="10dp"
-                android:src="@drawable/iv_share_black"/>
+                android:src="@drawable/shawn_icon_share_black"/>
         </RelativeLayout>
 
         <LinearLayout
@@ -298,7 +298,7 @@
             android:layout_above="@+id/llLegend"
             android:layout_marginLeft="10dp"
             android:layout_marginTop="10dp"
-            android:src="@drawable/icon_locationoff"
+            android:src="@drawable/shawn_icon_location_off"
             android:visibility="gone"/>
 
         <LinearLayout
@@ -313,7 +313,7 @@
                 android:id="@+id/ivLegendPrompt"
                 android:layout_width="35dp"
                 android:layout_height="35dp"
-                android:src="@drawable/iv_map_legend"
+                android:src="@drawable/shawn_icon_map_legend_off"
                 android:visibility="visible"/>
 
             <ImageView
@@ -339,7 +339,7 @@
                 android:layout_height="40dp"
                 android:layout_alignParentRight="true"
                 android:padding="10dp"
-                android:src="@drawable/iv_delete_black"/>
+                android:src="@drawable/shawn_icon_delete_black"/>
 
             <TextView
                 android:id="@+id/tvName"

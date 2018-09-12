@@ -1,9 +1,5 @@
 package com.china.view;
 
-/**
- * 风场曲线图
- */
-
 import android.content.Context;
 import android.graphics.Canvas;
 import android.graphics.Color;
@@ -21,22 +17,26 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 
+/**
+ * 风场曲线图
+ */
 public class WindForeView extends View{
 	
 	private Context mContext;
-	private SimpleDateFormat sdf0 = new SimpleDateFormat("yyyyMMddHH");
-	private SimpleDateFormat sdf1 = new SimpleDateFormat("HH");
-	private SimpleDateFormat sdf2 = new SimpleDateFormat("MM月dd日");
+	private SimpleDateFormat sdf0 = new SimpleDateFormat("yyyyMMddHH", Locale.CHINA);
+	private SimpleDateFormat sdf1 = new SimpleDateFormat("HH", Locale.CHINA);
+	private SimpleDateFormat sdf2 = new SimpleDateFormat("MM月dd日", Locale.CHINA);
 	private List<WindDto> tempList = new ArrayList<>();
 	private float maxValue,minValue;
 	private Paint lineP,textP;
 	private float totalDivider = 0;
 	private int itemDivider = 1;
 
-	private float clickX,clickY;
-	private String speed;//选择点的风速
-	private boolean isFirst = true;//判断是否为第一次绘制
+//	private float clickX,clickY;
+//	private String speed;//选择点的风速
+//	private boolean isFirst = true;//判断是否为第一次绘制
 
 	public WindForeView(Context context) {
 		super(context);
@@ -101,9 +101,9 @@ public class WindForeView extends View{
 		canvas.drawColor(Color.TRANSPARENT);
 		float w = canvas.getWidth();
 		float h = canvas.getHeight();
-		float chartW = w-CommonUtil.dip2px(mContext, 50);
+		float chartW = w-CommonUtil.dip2px(mContext, 40);
 		float chartH = h-CommonUtil.dip2px(mContext, 50);
-		float leftMargin = CommonUtil.dip2px(mContext, 30);
+		float leftMargin = CommonUtil.dip2px(mContext, 20);
 		float rightMargin = CommonUtil.dip2px(mContext, 20);
 		float topMargin = CommonUtil.dip2px(mContext, 20);
 		float bottomMargin = CommonUtil.dip2px(mContext, 30);
@@ -123,8 +123,8 @@ public class WindForeView extends View{
 		//绘制x、y轴
 		lineP.setColor(0xff868686);
 		lineP.setStrokeWidth(CommonUtil.dip2px(mContext, 1));
-		canvas.drawLine(CommonUtil.dip2px(mContext, 20), topMargin, CommonUtil.dip2px(mContext, 20), h-bottomMargin, lineP);
-		canvas.drawLine(CommonUtil.dip2px(mContext, 20), h-bottomMargin, w-rightMargin, h-bottomMargin, lineP);
+		canvas.drawLine(leftMargin, topMargin, leftMargin, h-bottomMargin, lineP);
+		canvas.drawLine(leftMargin, h-bottomMargin, w-rightMargin, h-bottomMargin, lineP);
 		
 		for (int i = 0; i <= totalDivider; i+=itemDivider) {
 			float dividerY = chartH - chartH*Math.abs(i)/(Math.abs(maxValue)+Math.abs(minValue)) + topMargin;
@@ -132,7 +132,7 @@ public class WindForeView extends View{
 			//绘制横向分割线
 			lineP.setColor(0xff868686);
 			lineP.setStrokeWidth(CommonUtil.dip2px(mContext, 0.2f));
-			canvas.drawLine(CommonUtil.dip2px(mContext, 20), dividerY, w-rightMargin, dividerY, lineP);
+			canvas.drawLine(leftMargin, dividerY, w-rightMargin, dividerY, lineP);
 
 			//刻度
 			textP.setColor(0xff868686);
@@ -158,29 +158,15 @@ public class WindForeView extends View{
 			float y4 = y2;
 			
 			lineP.setColor(Color.WHITE);
-			lineP.setStrokeWidth(CommonUtil.dip2px(mContext, 4));
+			lineP.setStrokeWidth(CommonUtil.dip2px(mContext, 2));
 			Path pathLow = new Path();
 			pathLow.moveTo(x1, y1);
 			pathLow.cubicTo(x3, y3, x4, y4, x2, y2);
 			canvas.drawPath(pathLow, lineP);
 		}
 		
-		for (int i = 0; i < size; i+=3) {
+		for (int i = 0; i < size; i++) {
 			WindDto dto = tempList.get(i);
-			
-//			//绘制曲线上每个时间点marker
-//			lineP.setColor(getResources().getColor(R.color.blue));
-//			lineP.setStrokeWidth(CommonUtil.dip2px(mContext, 5));
-//			canvas.drawPoint(dto.x, dto.y, lineP);
-			
-//			//绘制曲线上每个时间点的温度值
-//			textP.setColor(getResources().getColor(R.color.title_bg));
-//			textP.setTextSize(CommonUtil.dip2px(mContext, 12));
-//			BigDecimal bd = new BigDecimal(Float.valueOf(tempList.get(i).speed));
-//			float value = bd.setScale(1, BigDecimal.ROUND_HALF_UP).floatValue();
-//			float tempWidth = textP.measureText(String.valueOf(value));
-//			canvas.drawText(String.valueOf(value), dto.x-tempWidth/2, dto.y-CommonUtil.dip2px(mContext, 5f), textP);
-			
 			//绘制每个时间点上的时间值
 			textP.setColor(0xff868686);
 			textP.setTextSize(CommonUtil.dip2px(mContext, 10));
@@ -197,49 +183,49 @@ public class WindForeView extends View{
 			}
 		}
 		
-		if (isFirst) {
-			clickX = tempList.get(0).x;
-			clickY = tempList.get(0).y;
-			speed = tempList.get(0).speed;
-			isFirst = false;
-		}
-		if (clickX != 0 && clickY != 0) {
-			lineP.setColor(getResources().getColor(R.color.blue));
-			lineP.setStrokeWidth(CommonUtil.dip2px(mContext, 6));
-			canvas.drawPoint(clickX, clickY, lineP);
-			
-			textP.setColor(getResources().getColor(R.color.white));
-			textP.setTextSize(CommonUtil.dip2px(mContext, 12));
-			float tempWidth = textP.measureText(speed+getResources().getString(R.string.unit_speed));
-			canvas.drawText(speed+getResources().getString(R.string.unit_speed), clickX-tempWidth/2, clickY-CommonUtil.dip2px(mContext, 10), textP);
-		}
+//		if (isFirst) {
+//			clickX = tempList.get(0).x;
+//			clickY = tempList.get(0).y;
+//			speed = tempList.get(0).speed;
+//			isFirst = false;
+//		}
+//		if (clickX != 0 && clickY != 0) {
+//			lineP.setColor(getResources().getColor(R.color.blue));
+//			lineP.setStrokeWidth(CommonUtil.dip2px(mContext, 6));
+//			canvas.drawPoint(clickX, clickY, lineP);
+//
+//			textP.setColor(getResources().getColor(R.color.white));
+//			textP.setTextSize(CommonUtil.dip2px(mContext, 12));
+//			float tempWidth = textP.measureText(speed+getResources().getString(R.string.unit_speed));
+//			canvas.drawText(speed+getResources().getString(R.string.unit_speed), clickX-tempWidth/2, clickY-CommonUtil.dip2px(mContext, 10), textP);
+//		}
 	}
 	
-	@Override
-	public boolean onTouchEvent(MotionEvent event) {
-		switch (event.getAction()) {
-		case MotionEvent.ACTION_DOWN:
-			float x = event.getX();
-			float y = event.getY();
-			for (int i = 0; i < tempList.size(); i++) {
-				WindDto dto = tempList.get(i);
-				if (x > dto.x-50 && x < dto.x+50 && y > dto.y-50 && y < dto.y+50) {
-					clickX = dto.x;
-					clickY = dto.y;
-					speed = dto.speed;
-					postInvalidate();
-					break;
-				}
-			}
-			break;
-		case MotionEvent.ACTION_UP:
-			
-			break;
-
-		default:
-			break;
-		}
-		return super.onTouchEvent(event);
-	}
+//	@Override
+//	public boolean onTouchEvent(MotionEvent event) {
+//		switch (event.getAction()) {
+//		case MotionEvent.ACTION_DOWN:
+//			float x = event.getX();
+//			float y = event.getY();
+//			for (int i = 0; i < tempList.size(); i++) {
+//				WindDto dto = tempList.get(i);
+//				if (x > dto.x-50 && x < dto.x+50 && y > dto.y-50 && y < dto.y+50) {
+//					clickX = dto.x;
+//					clickY = dto.y;
+//					speed = dto.speed;
+//					postInvalidate();
+//					break;
+//				}
+//			}
+//			break;
+//		case MotionEvent.ACTION_UP:
+//
+//			break;
+//
+//		default:
+//			break;
+//		}
+//		return super.onTouchEvent(event);
+//	}
 
 }

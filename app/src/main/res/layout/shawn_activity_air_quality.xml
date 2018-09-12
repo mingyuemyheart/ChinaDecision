@@ -1,0 +1,273 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:background="@color/white"
+                android:orientation="vertical">
+
+    <include
+        android:id="@+id/reTitle"
+        layout="@layout/shawn_layout_title"/>
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_below="@+id/reTitle"
+        android:background="@color/white"
+        android:orientation="vertical">
+
+        <com.amap.api.maps.MapView
+            android:id="@+id/mapView"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"/>
+
+        <RelativeLayout
+            android:id="@+id/reLegend"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="vertical">
+
+            <ImageView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentBottom="true"
+                android:layout_alignParentEnd="true"
+                android:src="@drawable/shawn_legend_air_quality"/>
+        </RelativeLayout>
+
+        <RelativeLayout
+            android:id="@+id/reContent"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="vertical"
+            android:visibility="gone">
+
+            <RelativeLayout
+                android:id="@+id/reTop"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_above="@+id/hScrollView"
+                android:background="@color/white"
+                android:clickable="true"
+                android:focusable="true"
+                android:paddingTop="5dp"
+                android:paddingBottom="5dp"
+                android:paddingStart="10dp"
+                android:paddingEnd="10dp"
+                android:orientation="vertical">
+
+                <ImageView
+                    android:id="@+id/ivIcon"
+                    android:layout_width="20dp"
+                    android:layout_height="20dp"
+                    android:src="@drawable/iv_location"/>
+
+                <TextView
+                    android:id="@+id/tvName"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_toEndOf="@+id/ivIcon"
+                    android:textColor="@color/black"
+                    android:textSize="@dimen/level_4"/>
+
+                <TextView
+                    android:id="@+id/tvTime"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_alignParentEnd="true"
+                    android:textColor="@color/text_color4"
+                    android:textSize="@dimen/level_5"/>
+
+
+                <TextView
+                    android:id="@+id/tvAqiCount"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_below="@+id/tvName"
+                    android:layout_centerVertical="true"
+                    android:textColor="@color/black"
+                    android:textSize="50dp"/>
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_above="@+id/tvAqi"
+                    android:layout_marginStart="5dp"
+                    android:layout_toEndOf="@+id/tvAqiCount"
+                    android:text="AQI"
+                    android:textColor="@color/text_color4"
+                    android:textSize="@dimen/level_5"/>
+
+                <TextView
+                    android:id="@+id/tvAqi"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_alignBottom="@+id/tvAqiCount"
+                    android:layout_marginBottom="15dp"
+                    android:layout_marginStart="5dp"
+                    android:layout_marginTop="3dp"
+                    android:layout_toEndOf="@+id/tvAqiCount"
+                    android:gravity="center"
+                    android:paddingLeft="5dp"
+                    android:paddingRight="5dp"
+                    android:textColor="@color/black"
+                    android:textSize="@dimen/level_4"/>
+
+                <LinearLayout
+                    android:id="@+id/llCircle"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_alignParentEnd="true"
+                    android:layout_below="@+id/tvName"
+                    android:layout_centerVertical="true">
+
+                    <LinearLayout
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:gravity="center_horizontal"
+                        android:orientation="vertical">
+
+                        <TextView
+                            android:id="@+id/tvRank"
+                            android:layout_width="45dp"
+                            android:layout_height="45dp"
+                            android:gravity="center"
+                            android:textColor="@color/text_color4"
+                            android:textSize="@dimen/level_5"/>
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="2dp"
+                            android:text="@string/aqi_rank"
+                            android:textColor="@color/text_color4"
+                            android:textSize="@dimen/level_5"/>
+                    </LinearLayout>
+
+                    <LinearLayout
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:gravity="center_horizontal"
+                        android:orientation="vertical">
+
+                        <TextView
+                            android:id="@+id/tvPm2_5"
+                            android:layout_width="45dp"
+                            android:layout_height="45dp"
+                            android:gravity="center"
+                            android:textColor="@color/text_color4"
+                            android:textSize="@dimen/level_5"/>
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="2dp"
+                            android:text="PM2.5"
+                            android:textColor="@color/text_color4"
+                            android:textSize="@dimen/level_5"/>
+                    </LinearLayout>
+
+                    <LinearLayout
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="10dp"
+                        android:gravity="center_horizontal"
+                        android:orientation="vertical">
+
+                        <TextView
+                            android:id="@+id/tvPm10"
+                            android:layout_width="45dp"
+                            android:layout_height="45dp"
+                            android:gravity="center"
+                            android:textColor="@color/text_color4"
+                            android:textSize="@dimen/level_5"/>
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="2dp"
+                            android:text="PM10"
+                            android:textColor="@color/text_color4"
+                            android:textSize="@dimen/level_5"/>
+
+                    </LinearLayout>
+                </LinearLayout>
+
+                <TextView
+                    android:id="@+id/tvPrompt"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_below="@+id/llCircle"
+                    android:lineSpacingExtra="3dp"
+                    android:textColor="@color/text_color4"
+                    android:textSize="@dimen/level_5"/>
+            </RelativeLayout>
+
+            <LinearLayout
+                android:id="@+id/llCity"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@color/white"
+                android:gravity="center_horizontal"
+                android:orientation="vertical"
+                android:paddingTop="3dp"
+                android:visibility="gone">
+
+                <TextView
+                    android:id="@+id/tvCity"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textColor="@color/text_color3"
+                    android:textSize="@dimen/level_4"/>
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="3dp"
+                    android:text="实况（过去24小时）和预报（未来24小时）"
+                    android:textColor="@color/text_color3"
+                    android:textSize="@dimen/level_5"/>
+            </LinearLayout>
+
+            <HorizontalScrollView
+                android:id="@+id/hScrollView"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentBottom="true"
+                android:layout_below="@+id/llCity"
+                android:overScrollMode="never"
+                android:scrollbars="none">
+
+                <LinearLayout
+                    android:id="@+id/llContainer"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:background="@color/white"
+                    android:orientation="horizontal"/>
+            </HorizontalScrollView>
+
+            <ImageView
+                android:id="@+id/ivExpand"
+                android:layout_width="30dp"
+                android:layout_height="30dp"
+                android:layout_alignParentBottom="true"
+                android:layout_alignParentEnd="true"
+                android:layout_marginBottom="30dp"
+                android:layout_marginEnd="15dp"
+                android:src="@drawable/shawn_icon_expand"
+                android:visibility="gone"/>
+        </RelativeLayout>
+
+    </RelativeLayout>
+
+    <com.wang.avi.AVLoadingIndicatorView
+        xmlns:app="http://schemas.android.com/apk/res-auto"
+        android:id="@+id/loadingView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerInParent="true"
+        android:visibility="visible"
+        app:indicator="LineScalePulseOutRapid"
+        app:indicator_color="@color/blue"/>
+
+</RelativeLayout>

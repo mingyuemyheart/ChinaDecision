@@ -30,7 +30,7 @@
                 <ImageView
                     android:layout_width="25dp"
                     android:layout_height="25dp"
-                    android:src="@drawable/iv_delete_black"/>
+                    android:src="@drawable/shawn_icon_delete_black"/>
             </LinearLayout>
 
             <TextView
@@ -50,7 +50,7 @@
                 android:layout_centerVertical="true"
                 android:layout_toLeftOf="@+id/ivShare"
                 android:padding="10dp"
-                android:src="@drawable/iv_search"/>
+                android:src="@drawable/shawn_icon_search"/>
 
             <ImageView
                 android:id="@+id/ivShare"
@@ -60,7 +60,7 @@
                 android:layout_centerVertical="true"
                 android:layout_marginRight="5dp"
                 android:padding="10dp"
-                android:src="@drawable/iv_share_black"/>
+                android:src="@drawable/shawn_icon_share_black"/>
         </RelativeLayout>
 
 

@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical" >
+
+    <include
+        android:id="@+id/reTitle"
+        layout="@layout/shawn_layout_title" />
+
+    <com.amap.api.maps.MapView
+        android:id="@+id/mapView"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_below="@+id/reTitle" />
+
+    <RelativeLayout
+        android:id="@+id/reSeekBar"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_below="@+id/reTitle"
+        android:visibility="gone" >
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="40dp"
+            android:layout_alignParentBottom="true"
+            android:layout_margin="10dp"
+            android:background="@drawable/shawn_bg_cornor_seekbar_bg"
+            android:clickable="true"
+            android:focusable="true"
+            android:gravity="center_vertical" >
+
+            <ImageView
+                android:id="@+id/ivPlay"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:src="@drawable/shawn_icon_play" />
+
+            <TextView
+                android:id="@+id/tvStartTime"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="10dp"
+                android:layout_marginEnd="10dp"
+                android:textColor="@color/white"
+                android:textSize="@dimen/level_5" />
+
+            <SeekBar
+                android:id="@+id/seekBar"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:maxHeight="2dp"
+                android:minHeight="2dp"
+                android:progress="0"
+                android:thumbOffset="0dp"
+                android:progressDrawable="@drawable/shawn_seekbar_drawable"
+                android:thumb="@drawable/shawn_seekbar_thumb" />
+
+            <TextView
+                android:id="@+id/tvEndTime"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="10dp"
+                android:layout_marginEnd="10dp"
+                android:textColor="@color/white"
+                android:textSize="@dimen/level_5" />
+        </LinearLayout>
+    </RelativeLayout>
+
+    <com.wang.avi.AVLoadingIndicatorView
+        xmlns:app="http://schemas.android.com/apk/res-auto"
+        android:id="@+id/loadingView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerInParent="true"
+        android:visibility="visible"
+        app:indicator="LineScalePulseOutRapid"
+        app:indicator_color="@color/blue"/>
+
+</RelativeLayout>

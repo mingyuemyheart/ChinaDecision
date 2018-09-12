@@ -581,7 +581,7 @@ public class PointFactActivity extends BaseActivity implements OnClickListener, 
 	@Override
 	public void onMapScreenShot(final Bitmap bitmap1) {//bitmap1为地图截屏
 		Bitmap bitmap;
-		Bitmap bitmap8 = BitmapFactory.decodeResource(getResources(), R.drawable.iv_share_bottom);
+		Bitmap bitmap8 = BitmapFactory.decodeResource(getResources(), R.drawable.shawn_legend_share_portrait);
 		Bitmap bitmap2 = CommonUtil.captureView(reShare);
 		Bitmap bitmap3 = CommonUtil.mergeBitmap(mContext, bitmap1, bitmap2, true);
 		CommonUtil.clearBitmap(bitmap1);
@@ -706,7 +706,7 @@ public class PointFactActivity extends BaseActivity implements OnClickListener, 
 				}
 				break;
 			case R.id.tvDataSource:
-				Intent intent = new Intent(mContext, WeatherInfoDetailActivity.class);
+				Intent intent = new Intent(mContext, ShawnNewsDetailActivity.class);
 				intent.putExtra(CONST.ACTIVITY_NAME, "中国气象局陆面数据同化系统（CLDAS-V2.0）实时产品数据集");
 				intent.putExtra(CONST.WEB_URL, "http://data.cma.cn/data/detail/dataCode/NAFP_CLDAS2.0_RT.html");
 				startActivity(intent);

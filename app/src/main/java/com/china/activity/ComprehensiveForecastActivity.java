@@ -1,8 +1,6 @@
 package com.china.activity;
 
 import android.Manifest;
-import android.animation.IntEvaluator;
-import android.animation.ValueAnimator;
 import android.content.Context;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
@@ -18,7 +16,6 @@ import android.text.TextUtils;
 import android.util.TypedValue;
 import android.view.View;
 import android.view.View.OnClickListener;
-import android.view.animation.LinearInterpolator;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
@@ -782,7 +779,7 @@ public class ComprehensiveForecastActivity extends BaseActivity implements OnCli
 	@Override
 	public void onMapScreenShot(final Bitmap bitmap1) {//bitmap1为地图截屏
 		Bitmap bitmap;
-		Bitmap bitmap8 = BitmapFactory.decodeResource(getResources(), R.drawable.iv_share_bottom);
+		Bitmap bitmap8 = BitmapFactory.decodeResource(getResources(), R.drawable.shawn_legend_share_portrait);
 		Bitmap bitmap2 = CommonUtil.captureView(reShare);
 		Bitmap bitmap3 = CommonUtil.mergeBitmap(mContext, bitmap1, bitmap2, true);
 		CommonUtil.clearBitmap(bitmap1);

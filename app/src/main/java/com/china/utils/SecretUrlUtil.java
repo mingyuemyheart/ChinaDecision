@@ -6,8 +6,8 @@ import android.util.Log;
 
 import java.net.URLEncoder;
 import java.text.SimpleDateFormat;
-import java.util.Calendar;
 import java.util.Date;
+import java.util.Locale;
 
 import javax.crypto.Mac;
 import javax.crypto.spec.SecretKeySpec;
@@ -15,7 +15,6 @@ import javax.crypto.spec.SecretKeySpec;
 /**
  * 加密访问接口地址工具类
  */
-
 public class SecretUrlUtil {
 
     private static final String APPID = "6f688d62594549a2";//机密需要用到的AppId
@@ -27,9 +26,9 @@ public class SecretUrlUtil {
      * @param lat 维度
      * @return
      */
-    public static final String geo(double lng, double lat) {
+    public static String geo(double lng, double lat) {
         String URL = "http://geoload.tianqi.cn/ag9/";
-        SimpleDateFormat sdf1 = new SimpleDateFormat("yyyyMMddHHmm");
+        SimpleDateFormat sdf1 = new SimpleDateFormat("yyyyMMddHHmm", Locale.CHINA);
         String sysdate = sdf1.format(new Date());
         StringBuffer buffer = new StringBuffer();
         buffer.append(URL);
@@ -57,9 +56,9 @@ public class SecretUrlUtil {
      * 空气污染
      * @return
      */
-    public static final String airpollution() {
+    public static String airpollution() {
         String URL = "http://scapi.weather.com.cn/weather/getaqiobserve";
-        SimpleDateFormat sdf1 = new SimpleDateFormat("yyyyMMddHHmm");
+        SimpleDateFormat sdf1 = new SimpleDateFormat("yyyyMMddHHmm", Locale.CHINA);
         String sysdate = sdf1.format(new Date());
         StringBuffer buffer = new StringBuffer();
         buffer.append(URL);
@@ -84,7 +83,7 @@ public class SecretUrlUtil {
      */
     public static String statistic() {
         String URL = "http://scapi.weather.com.cn/weather/stationinfo";
-        SimpleDateFormat sdf1 = new SimpleDateFormat("yyyyMMddHHmm");
+        SimpleDateFormat sdf1 = new SimpleDateFormat("yyyyMMddHHmm", Locale.CHINA);
         String sysdate = sdf1.format(new Date());
         StringBuffer buffer = new StringBuffer();
         buffer.append(URL);
@@ -110,7 +109,7 @@ public class SecretUrlUtil {
      */
     public static String statisticDetail(String stationid) {
         String URL = "http://scapi.weather.com.cn/weather/historycount";
-        SimpleDateFormat sdf1 = new SimpleDateFormat("yyyyMMddHHmm");
+        SimpleDateFormat sdf1 = new SimpleDateFormat("yyyyMMddHHmm", Locale.CHINA);
         String sysdate = sdf1.format(new Date());
         StringBuffer buffer = new StringBuffer();
         buffer.append(URL);
@@ -139,7 +138,7 @@ public class SecretUrlUtil {
      */
     public static String stationsInfo(String stationIds) {
         String URL = "http://decision-171.tianqi.cn/weather/rgwst/NewestDataNew";
-        SimpleDateFormat sdf1 = new SimpleDateFormat("yyyyMMddHHmmss");
+        SimpleDateFormat sdf1 = new SimpleDateFormat("yyyyMMddHHmmss", Locale.CHINA);
         String sysdate = sdf1.format(new Date());
         StringBuffer buffer = new StringBuffer();
         buffer.append(URL);
@@ -161,6 +160,37 @@ public class SecretUrlUtil {
         return result;
     }
 
+    /**
+     * 获取雷达详情数据
+     * @param areaid
+     * @param type
+     * @return
+     */
+    public static String radarDetail(String areaid, String type) {
+        String url = "http://hfapi.tianqi.cn/data/";
+        SimpleDateFormat sdf1 = new SimpleDateFormat("yyyyMMddHHmm", Locale.CHINA);
+        String sysdate = sdf1.format(new Date());
+        StringBuffer buffer = new StringBuffer();
+        buffer.append(url);
+        buffer.append("?");
+        buffer.append("areaid=").append(areaid);
+        buffer.append("&");
+        buffer.append("type=").append(type);
+        buffer.append("&");
+        buffer.append("date=").append(sysdate);
+        buffer.append("&");
+        buffer.append("appid=").append("fec60dca880595d7");
+
+        String key = getKey("leid_data", buffer.toString());
+        buffer.delete(buffer.lastIndexOf("&"), buffer.length());
+
+        buffer.append("&");
+        buffer.append("appid=").append("fec60dca880595d7".subSequence(0, 6));
+        buffer.append("&");
+        buffer.append("key=").append(key.substring(0, key.length()-3));
+        String result = buffer.toString();
+        return result;
+    }
 
     /**
      * 等风T639
@@ -170,7 +200,7 @@ public class SecretUrlUtil {
      */
     public static String windT639(String type, String index) {
         String URL = "http://scapi.weather.com.cn/weather/micaps/windfile";
-        SimpleDateFormat sdf1 = new SimpleDateFormat("yyyyMMddHH");
+        SimpleDateFormat sdf1 = new SimpleDateFormat("yyyyMMddHH", Locale.CHINA);
         String sysdate = sdf1.format(new Date());
         StringBuffer buffer = new StringBuffer();
         buffer.append(URL);
@@ -201,7 +231,7 @@ public class SecretUrlUtil {
      */
     public static String windGFS(String type) {
         String URL = "http://scapi.weather.com.cn/weather/getwindmincas";
-        SimpleDateFormat sdf1 = new SimpleDateFormat("yyyyMMddHH");
+        SimpleDateFormat sdf1 = new SimpleDateFormat("yyyyMMddHH", Locale.CHINA);
         String sysdate = sdf1.format(new Date());
         StringBuffer buffer = new StringBuffer();
         buffer.append(URL);
@@ -226,9 +256,9 @@ public class SecretUrlUtil {
     /**
      * 风场某点详情
      */
-    public static final String windDetail(double lng, double lat) {
+    public static String windDetail(double lng, double lat) {
         String URL = "http://scapi.weather.com.cn/weather/getBase_WindD";
-        SimpleDateFormat sdf1 = new SimpleDateFormat("yyyyMMddHH");
+        SimpleDateFormat sdf1 = new SimpleDateFormat("yyyyMMddHH", Locale.CHINA);
         String sysdate = sdf1.format(new Date());
         StringBuffer buffer = new StringBuffer();
         buffer.append(URL);
@@ -261,7 +291,7 @@ public class SecretUrlUtil {
         if (TextUtils.equals(interfaceType, "newOneDay")) {
             URL = "http://decision-171.tianqi.cn/weather/rgwst/newOneDayStatistics";
         }
-        SimpleDateFormat sdf1 = new SimpleDateFormat("yyyyMMddHHmmss");
+        SimpleDateFormat sdf1 = new SimpleDateFormat("yyyyMMddHHmmss", Locale.CHINA);
         String sysdate = sdf1.format(new Date());
         StringBuffer buffer = new StringBuffer();
         buffer.append(URL);
@@ -290,7 +320,7 @@ public class SecretUrlUtil {
      */
     public static String warningLayer(String type) {
         String URL = "https://scapi.tianqi.cn/weather/yjtc";
-        SimpleDateFormat sdf1 = new SimpleDateFormat("yyyyMMddHHmm");
+        SimpleDateFormat sdf1 = new SimpleDateFormat("yyyyMMddHHmm", Locale.CHINA);
         String sysdate = sdf1.format(new Date());
         StringBuffer buffer = new StringBuffer();
         buffer.append(URL);
@@ -320,11 +350,11 @@ public class SecretUrlUtil {
      * 获取空气质量24小时曲线预报
      * @return
      */
-    public static final String airForecast(double lng, double lat) {
+    public static String airForecast(double lng, double lat) {
         final String appid = "182e7b37a63445558b05fbcce2b3d6e7";//机密需要用到的AppId
         final String keyName = "9d0232248739420fa4ff19593c731c11";//加密秘钥名称
         String URL = "http://openapi.mlogcn.com:8000/api/aqi/fc/coor/";
-        SimpleDateFormat sdf1 = new SimpleDateFormat("yyyyMMddHH");
+        SimpleDateFormat sdf1 = new SimpleDateFormat("yyyyMMddHH", Locale.CHINA);
         long timestamp = new Date().getTime();
         String start = sdf1.format(timestamp);
         String end = sdf1.format(timestamp+1000*60*60*24);
@@ -354,7 +384,7 @@ public class SecretUrlUtil {
      * @param src
      * @return
      */
-    public static final String getKey(String key, String src) {
+    private static String getKey(String key, String src) {
         try{
             byte[] rawHmac;
             byte[] keyBytes = key.getBytes("UTF-8");

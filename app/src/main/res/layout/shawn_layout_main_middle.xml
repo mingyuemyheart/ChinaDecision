@@ -1,0 +1,283 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+              android:layout_width="match_parent"
+              android:layout_height="match_parent"
+              android:background="@color/white"
+              android:orientation="vertical">
+
+    <RelativeLayout
+        android:id="@+id/reTitle"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@color/title_bg"
+        android:orientation="vertical">
+
+        <ImageView
+            android:id="@+id/ivAdd"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:layout_centerVertical="true"
+            android:paddingBottom="6dp"
+            android:paddingLeft="8dp"
+            android:paddingRight="8dp"
+            android:paddingTop="10dp"
+            android:background="@drawable/shawn_selector_btn_back"
+            android:src="@drawable/shawn_icon_add"/>
+
+        <ImageView
+            android:layout_width="wrap_content"
+            android:layout_height="25dp"
+            android:layout_centerInParent="true"
+            android:src="@drawable/shawn_icon_logo"/>
+
+        <ImageView
+            android:id="@+id/ivSetting"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:background="@drawable/shawn_selector_btn_back"
+            android:layout_alignParentEnd="true"
+            android:layout_centerVertical="true"
+            android:paddingBottom="8dp"
+            android:paddingLeft="10dp"
+            android:paddingRight="10dp"
+            android:paddingTop="12dp"
+            android:src="@drawable/shawn_icon_setting"/>
+    </RelativeLayout>
+
+    <com.china.view.VerticalSwipeRefreshLayout
+        android:id="@+id/refreshLayout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
+
+        <ScrollView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:overScrollMode="never"
+            android:scrollbars="none">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical">
+
+                <RelativeLayout
+                    android:id="@+id/reFact"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:background="@drawable/shawn_bg_weather"
+                    android:paddingTop="10dp"
+                    android:visibility="invisible">
+
+                    <ImageView
+                        android:id="@+id/ivLocation"
+                        android:layout_width="18dp"
+                        android:layout_height="18dp"
+                        android:layout_marginStart="10dp"
+                        android:src="@drawable/shawn_icon_location_white"/>
+
+                    <TextView
+                        android:id="@+id/tvLocation"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_toEndOf="@+id/ivLocation"
+                        android:text="@string/is_locating"
+                        android:textColor="@color/white"
+                        android:textSize="@dimen/level_4"/>
+
+                    <TextView
+                        android:id="@+id/tvTime"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_below="@+id/tvLocation"
+                        android:layout_toEndOf="@+id/ivLocation"
+                        android:textColor="#60ffffff"
+                        android:textSize="@dimen/level_5"/>
+
+                    <LinearLayout
+                        android:id="@+id/llWarning"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_alignParentEnd="true"
+                        android:layout_marginEnd="10dp"
+                        android:gravity="center_horizontal"
+                        android:orientation="vertical"
+                        android:visibility="invisible" />
+
+                    <LinearLayout
+                        android:id="@+id/llTemp"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_below="@+id/tvTime"
+                        android:layout_centerHorizontal="true"
+                        android:gravity="center|bottom">
+
+                        <TextView
+                            android:id="@+id/tvTemperature"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:includeFontPadding="false"
+                            android:textColor="@color/white"
+                            android:textSize="60dp"/>
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginStart="5dp"
+                            android:text="℃"
+                            android:textColor="@color/white"
+                            android:textSize="@dimen/level_4"/>
+                    </LinearLayout>
+
+                    <LinearLayout
+                        android:id="@+id/llHumidity"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_below="@+id/llTemp"
+                        android:gravity="center_vertical|center">
+
+                        <TextView
+                            android:id="@+id/tvHumidity"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:textColor="@color/white"
+                            android:textSize="@dimen/level_4"/>
+
+                        <TextView
+                            android:id="@+id/tvWind"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginStart="10dp"
+                            android:textColor="@color/white"
+                            android:textSize="@dimen/level_4"/>
+
+                        <TextView
+                            android:id="@+id/tvQuality"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginStart="10dp"
+                            android:textColor="@color/white"
+                            android:textSize="@dimen/level_4"/>
+
+                        <ImageView
+                            android:id="@+id/ivAqi"
+                            android:layout_width="15dp"
+                            android:layout_height="15dp"
+                            android:layout_marginStart="5dp"/>
+                    </LinearLayout>
+
+                    <LinearLayout
+                        android:id="@+id/llWeather"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:background="@drawable/shawn_bg_corner_weather"
+                        android:orientation="horizontal"
+                        android:layout_below="@+id/llHumidity"
+                        android:layout_centerHorizontal="true"
+                        android:layout_marginTop="5dp"
+                        android:paddingStart="10dp"
+                        android:paddingEnd="10dp"
+                        android:gravity="center_vertical|center">
+
+                        <TextView
+                            android:id="@+id/tvFifteen"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="15天预报"
+                            android:textColor="@color/white"
+                            android:textSize="@dimen/level_5"/>
+
+                        <TextView
+                            android:layout_width="0.5dp"
+                            android:layout_height="10dp"
+                            android:layout_marginStart="5dp"
+                            android:layout_marginEnd="5dp"
+                            android:background="@color/white"/>
+
+                        <TextView
+                            android:id="@+id/tvHour"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="24时预报"
+                            android:textColor="#60ffffff"
+                            android:textSize="@dimen/level_5"/>
+
+                    </LinearLayout>
+
+                    <RelativeLayout
+                        android:id="@+id/reScrollView"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_below="@+id/llWeather"
+                        android:visibility="gone">
+
+                        <com.china.view.MyHorizontalScrollView
+                            android:id="@+id/hScrollView1"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:overScrollMode="never"
+                            android:scrollbars="none">
+
+                            <LinearLayout
+                                android:id="@+id/llContainer1"
+                                android:layout_width="match_parent"
+                                android:layout_height="100dp"
+                                android:orientation="horizontal">
+                            </LinearLayout>
+                        </com.china.view.MyHorizontalScrollView>
+
+                        <LinearLayout
+                            android:id="@+id/llContainer3"
+                            android:layout_width="match_parent"
+                            android:layout_height="100dp"
+                            android:orientation="horizontal">
+                        </LinearLayout>
+                    </RelativeLayout>
+
+                    <com.china.view.MyHorizontalScrollView
+                        android:id="@+id/hScrollView2"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_below="@+id/llWeather"
+                        android:overScrollMode="never"
+                        android:scrollbars="none">
+
+                        <LinearLayout
+                            android:id="@+id/llContainer2"
+                            android:layout_width="wrap_content"
+                            android:layout_height="100dp"
+                            android:orientation="horizontal">
+                        </LinearLayout>
+                    </com.china.view.MyHorizontalScrollView>
+
+                </RelativeLayout>
+
+                <com.china.view.MainViewPager
+                    android:id="@+id/viewPager"
+                    android:layout_width="match_parent"
+                    android:layout_height="30dp"
+                    android:layout_gravity="center"/>
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="0.5dp"
+                    android:background="@color/light_gray"/>
+
+                <com.china.view.ScrollviewGridview
+                    android:id="@+id/gridView"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:cacheColorHint="@color/transparent"
+                    android:fadingEdge="none"
+                    android:gravity="center"
+                    android:horizontalSpacing="0.5dp"
+                    android:listSelector="@color/transparent"
+                    android:numColumns="3"
+                    android:overScrollMode="never"
+                    android:scrollbars="none"
+                    android:stretchMode="columnWidth"
+                    android:verticalSpacing="0.5dp"/>
+            </LinearLayout>
+        </ScrollView>
+    </com.china.view.VerticalSwipeRefreshLayout>
+
+</LinearLayout>
