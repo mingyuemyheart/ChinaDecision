@@ -898,7 +898,7 @@ public class ShawnTyhpoonActivity extends BaseActivity implements OnClickListene
 									}
 									points.add(dto);
 
-									if (!itemArray2.get(11).equals("null")) {
+									if (!itemArray2.get(11).equals("null") && !itemArray2.get(11).equals(null)) {
 										JSONObject obj11 = itemArray2.getJSONObject(11);
 										JSONArray array11 = obj11.getJSONArray("BABJ");
 										if (array11.length() > 0) {
