@@ -795,13 +795,9 @@ OnMapClickListener, AMap.OnMarkerClickListener, OnGeocodeSearchListener, OnMapSc
 			case R.id.ivSwitch:
 				if (aMap.getMapType() == AMap.MAP_TYPE_NORMAL) {
 					aMap.setMapType(AMap.MAP_TYPE_SATELLITE);
-					tvAddr.setTextColor(Color.WHITE);
-					tvRain.setTextColor(Color.WHITE);
 					ivSwitch.setImageResource(R.drawable.shawn_icon_switch_map_on);
 				} else {
 					aMap.setMapType(AMap.MAP_TYPE_NORMAL);
-					tvAddr.setTextColor(Color.BLACK);
-					tvRain.setTextColor(Color.BLACK);
 					ivSwitch.setImageResource(R.drawable.shawn_icon_switch_map_off);
 				}
 				break;

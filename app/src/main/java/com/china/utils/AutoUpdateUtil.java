@@ -9,7 +9,6 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.content.SharedPreferences;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.net.Uri;
@@ -46,8 +45,8 @@ import okhttp3.Response;
 
 public class AutoUpdateUtil {
 
-	private static Context mContext = null;
-	private static String appName = null;
+	private static Context mContext;
+	private static String appName;
 	private static boolean flag = true;
 	
 	/**
@@ -86,9 +85,7 @@ public class AutoUpdateUtil {
 		OkHttpUtil.enqueue(new okhttp3.Request.Builder().post(body).url(url).build(), new Callback() {
 			@Override
 			public void onFailure(Call call, IOException e) {
-
 			}
-
 			@Override
 			public void onResponse(Call call, Response response) throws IOException {
 				if (!response.isSuccessful()) {
@@ -119,7 +116,7 @@ public class AutoUpdateUtil {
 							msg.obj = dto;
 							handler.sendMessage(msg);
 						}else {
-							if (flag == false) {
+							if (!flag) {
 								activity.runOnUiThread(new Runnable() {
 									@Override
 									public void run() {
@@ -160,12 +157,12 @@ public class AutoUpdateUtil {
 
 	private static void updateDialog(final UpdateDto dto) {
 		LayoutInflater inflater = (LayoutInflater) mContext.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-		View view = inflater.inflate(R.layout.auto_update_dialog, null);
-		TextView tvTitle = (TextView) view.findViewById(R.id.tvTitle);
-		TextView tvVersion = (TextView) view.findViewById(R.id.tvVersion);
-		TextView tvContent = (TextView) view.findViewById(R.id.tvContent);
-		LinearLayout llNegative = (LinearLayout) view.findViewById(R.id.llNegative);
-		LinearLayout llPositive = (LinearLayout) view.findViewById(R.id.llPositive);
+		View view = inflater.inflate(R.layout.shawn_dialog_update, null);
+		TextView tvTitle = view.findViewById(R.id.tvTitle);
+		TextView tvVersion = view.findViewById(R.id.tvVersion);
+		TextView tvContent = view.findViewById(R.id.tvContent);
+		LinearLayout llNegative = view.findViewById(R.id.llNegative);
+		LinearLayout llPositive = view.findViewById(R.id.llPositive);
 
 		final Dialog dialog = new Dialog(mContext, R.style.CustomProgressDialog);
 		dialog.setContentView(view);

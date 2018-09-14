@@ -1687,8 +1687,12 @@ public class ShawnTyhpoonActivity extends BaseActivity implements OnClickListene
                 drawWindCircle(title[2], title[3], marker.getPosition());
             }
 
-            marker.showInfoWindow();
-            clickMarker = marker;
+			clickMarker = marker;
+            if (clickMarker.isInfoWindowShown()) {
+            	clickMarker.hideInfoWindow();
+			}else {
+				marker.showInfoWindow();
+			}
 
         }
         return true;
@@ -1711,7 +1715,6 @@ public class ShawnTyhpoonActivity extends BaseActivity implements OnClickListene
         if (clickMarker != null && clickMarker.isInfoWindowShown()) {
             clickMarker.hideInfoWindow();
         }
-        removeWindCircle();
     }
 
 	@Override

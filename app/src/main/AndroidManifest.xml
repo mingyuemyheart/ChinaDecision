@@ -146,11 +146,11 @@
             android:configChanges="orientation|keyboard|keyboardHidden|screenSize" />
 
         <activity
-            android:name="com.china.activity.ShawnWeatherStaticsActivity"
+            android:name="com.china.activity.StationMonitorActivity"
             android:screenOrientation="portrait" />
 
         <activity
-            android:name="com.china.activity.StationMonitorActivity"
+            android:name="com.china.activity.ShawnWeatherStaticsActivity"
             android:screenOrientation="portrait" />
 
         <activity
@@ -328,7 +328,6 @@
             android:configChanges="keyboardHidden|orientation|screenSize"
             android:exported="true"
             android:theme="@android:style/Theme.Translucent.NoTitleBar" />
-
         <!--umeng-->
 
     </application>

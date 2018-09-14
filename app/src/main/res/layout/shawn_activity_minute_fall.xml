@@ -19,7 +19,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_below="@+id/reTitle"
-        android:background="@color/white"
+        android:background="#deffffff"
         android:clickable="true"
         android:focusable="true"
         android:gravity="center_horizontal"
@@ -29,7 +29,7 @@
             android:id="@+id/reRain"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:background="@color/white"
+            android:background="#deffffff"
             android:paddingTop="5dp">
 
             <TextView
@@ -58,7 +58,7 @@
             android:layout_width="match_parent"
             android:layout_height="120dp"
             android:visibility="gone"
-            android:background="@color/white"
+            android:background="#deffffff"
             android:orientation="horizontal"/>
 
         <ImageView
