@@ -375,7 +375,7 @@ OnMarkerClickListener, InfoWindowAdapter, OnCameraChangeListener, OnMapScreenSho
 													dto.lat = tempArray.getDouble(3);
 													dto.name = tempArray.getString(0);
 
-													if (!dto.name.contains("解除")) {
+													if (!dto.name.contains("解除") && !TextUtils.equals(item0, "000000")) {
 														warningList.add(dto);
 													}
 

@@ -263,33 +263,6 @@
     <string name="submit">提交</string>
     <string name="submit_success">提交成功，感谢您的宝贵建议！</string>
     
-    <!-- 台风路径 -->
-    <string name="chart_hour">时</string>
-    <string name="chart_north">北</string>
-    <string name="chart_north_east">东北</string>
-    <string name="chart_east">东</string>
-    <string name="chart_south_east">东南</string>
-    <string name="chart_south">南</string>
-    <string name="chart_south_west">西南</string>
-    <string name="chart_west">西</string>
-    <string name="chart_north_west">西北</string>
-    <string name="chart_china_forecast"> 中国预报\n</string>
-    <string name="chart_time1">yyyy年MM月dd日 kk时</string>
-    <string name="chart_time11111">时间：</string>
-    <string name="chart_biggest_speed">最大风速：</string>
-    <string name="chart_speed1">米/秒\n</string>
-    <string name="chart_center_pressure">中心气压：</string>
-    <string name="chart_baipa">百帕\n</string>
-    <string name="chart_yidong_direct">移动方向：</string>
-    <string name="chart_yidong_speed">移动速度：</string>
-    <string name="chart_speed2">公里/小时\n</string>
-    <string name="chart_radius1">7级风圈半径：</string>
-    <string name="chart_kilometer">公里</string>
-    <string name="chart_radius2">10级风圈半径：</string>
-    <string name="chart_di">第</string>
-    <string name="chart_haotaifeng">号台风</string>
-    <string name="chart_propt">提示</string>
-    
     <!-- 单位符号 -->
     <string name="unit_percent">%</string>
     <string name="unit_mm">mm</string>

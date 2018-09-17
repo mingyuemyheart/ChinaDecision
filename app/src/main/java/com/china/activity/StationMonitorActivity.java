@@ -1543,21 +1543,21 @@ public class StationMonitorActivity extends BaseActivity implements OnClickListe
                                             float fx = Float.valueOf(dir);
                                             String wind_dir = null;
                                             if (fx == 0 || fx == 360) {
-                                                wind_dir = mContext.getString(R.string.chart_north);
+                                                wind_dir = "北";
                                             } else if (fx > 0 && fx < 90) {
-                                                wind_dir = mContext.getString(R.string.chart_north_east);
+                                                wind_dir = "东北";
                                             } else if (fx == 90) {
-                                                wind_dir = mContext.getString(R.string.chart_east);
+                                                wind_dir = "东";
                                             } else if (fx > 90 && fx < 180) {
-                                                wind_dir = mContext.getString(R.string.chart_south_east);
+                                                wind_dir = "东南";
                                             } else if (fx == 180) {
-                                                wind_dir = mContext.getString(R.string.chart_south);
+                                                wind_dir = "南";
                                             } else if (fx > 180 && fx < 270) {
-                                                wind_dir = mContext.getString(R.string.chart_south_west);
+                                                wind_dir = "西南";
                                             } else if (fx == 270) {
-                                                wind_dir = mContext.getString(R.string.chart_west);
+                                                wind_dir = "西";
                                             } else if (fx > 270) {
-                                                wind_dir = mContext.getString(R.string.chart_north_west);
+                                                wind_dir = "西北";
                                             }
                                             dto.windDir = wind_dir;
                                         } else {

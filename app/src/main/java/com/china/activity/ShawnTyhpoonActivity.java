@@ -914,7 +914,7 @@ public class ShawnTyhpoonActivity extends BaseActivity implements OnClickListene
 												data.lng = itemArray11.getDouble(2);
 												data.lat = itemArray11.getDouble(3);
 												data.pressure = itemArray11.getString(4);
-												data.move_speed = itemArray11.getString(5);
+												data.max_wind_speed = itemArray11.getString(5);
 
 												long t2 = itemArray11.getLong(0)*3600*1000;
 												long ttt = longTime+t2;

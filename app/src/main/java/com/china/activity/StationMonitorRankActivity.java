@@ -310,22 +310,22 @@ public class StationMonitorRankActivity extends BaseActivity implements OnClickL
 
 												float fx = Float.valueOf(itemObj.getString("winddir"));
 												String wind_dir = null;
-												if(fx == 0 || fx == 360){
-													wind_dir = mContext.getString(R.string.chart_north);
-												}else if(fx > 0 && fx < 90){
-													wind_dir = mContext.getString(R.string.chart_north_east);
-												}else if(fx == 90){
-													wind_dir = mContext.getString(R.string.chart_east);
-												}else if(fx > 90 && fx< 180){
-													wind_dir = mContext.getString(R.string.chart_south_east);
-												}else if(fx == 180){
-													wind_dir = mContext.getString(R.string.chart_south);
-												}else if(fx > 180 && fx < 270){
-													wind_dir = mContext.getString(R.string.chart_south_west);
-												}else if(fx == 270){
-													wind_dir = mContext.getString(R.string.chart_west);
-												}else if(fx > 270){
-													wind_dir = mContext.getString(R.string.chart_north_west);
+												if (fx == 0 || fx == 360) {
+													wind_dir = "北";
+												} else if (fx > 0 && fx < 90) {
+													wind_dir = "东北";
+												} else if (fx == 90) {
+													wind_dir = "东";
+												} else if (fx > 90 && fx < 180) {
+													wind_dir = "东南";
+												} else if (fx == 180) {
+													wind_dir = "南";
+												} else if (fx > 180 && fx < 270) {
+													wind_dir = "西南";
+												} else if (fx == 270) {
+													wind_dir = "西";
+												} else if (fx > 270) {
+													wind_dir = "西北";
 												}
 												dto.windDir = wind_dir;
 												dto.windSpeed = itemObj.getString("windspeed");
@@ -478,22 +478,22 @@ public class StationMonitorRankActivity extends BaseActivity implements OnClickL
 
 												float fx = Float.valueOf(itemObj.getString("winddir"));
 												String wind_dir = null;
-												if(fx == 0 || fx == 360){
-													wind_dir = mContext.getString(R.string.chart_north);
-												}else if(fx > 0 && fx < 90){
-													wind_dir = mContext.getString(R.string.chart_north_east);
-												}else if(fx == 90){
-													wind_dir = mContext.getString(R.string.chart_east);
-												}else if(fx > 90 && fx< 180){
-													wind_dir = mContext.getString(R.string.chart_south_east);
-												}else if(fx == 180){
-													wind_dir = mContext.getString(R.string.chart_south);
-												}else if(fx > 180 && fx < 270){
-													wind_dir = mContext.getString(R.string.chart_south_west);
-												}else if(fx == 270){
-													wind_dir = mContext.getString(R.string.chart_west);
-												}else if(fx > 270){
-													wind_dir = mContext.getString(R.string.chart_north_west);
+												if (fx == 0 || fx == 360) {
+													wind_dir = "北";
+												} else if (fx > 0 && fx < 90) {
+													wind_dir = "东北";
+												} else if (fx == 90) {
+													wind_dir = "东";
+												} else if (fx > 90 && fx < 180) {
+													wind_dir = "东南";
+												} else if (fx == 180) {
+													wind_dir = "南";
+												} else if (fx > 180 && fx < 270) {
+													wind_dir = "西南";
+												} else if (fx == 270) {
+													wind_dir = "西";
+												} else if (fx > 270) {
+													wind_dir = "西北";
 												}
 												dto.windDir = wind_dir;
 												dto.windSpeed = itemObj.getString("windspeed");
