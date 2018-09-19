@@ -2541,7 +2541,7 @@ public class ShawnFactActivity extends BaseActivity implements OnClickListener, 
                 }
                 break;
             case R.id.tvCheckStation:
-                Intent intent = new Intent(mContext, StationMonitorDetailActivity.class);
+                Intent intent = new Intent(mContext, ShawnFactRankDetailActivity.class);
                 intent.putExtra(CONST.ACTIVITY_NAME, stationName);
                 intent.putExtra("stationId", stationId);
                 intent.putExtra("interface", "oneDay");
@@ -2584,7 +2584,7 @@ public class ShawnFactActivity extends BaseActivity implements OnClickListener, 
                 }
                 break;
             case R.id.ivRank:
-                startActivity(new Intent(mContext, StationMonitorRankActivity.class));
+                startActivity(new Intent(mContext, ShawnFactRankActivity.class));
                 break;
             case R.id.ivGuide:
                 ivGuide.setVisibility(View.GONE);

@@ -38,6 +38,7 @@ import com.china.utils.CommonUtil;
 import com.china.utils.OkHttpUtil;
 import com.china.utils.SecretUrlUtil;
 import com.china.view.MainViewPager;
+import com.wang.avi.AVLoadingIndicatorView;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -56,29 +57,26 @@ import okhttp3.Response;
 /**
  * 实况监测详情
  */
-
-public class StationMonitorDetailActivity extends BaseActivity implements OnClickListener{
+public class ShawnFactRankDetailActivity extends BaseActivity implements OnClickListener{
 	
 	private Context mContext = null;
 	private LinearLayout llBack = null;
-	private TextView tvTitle = null;
 	private MainViewPager viewPager;
 	private List<Fragment> fragments = new ArrayList<>();
 	private LinearLayout ll1, ll2, ll3, ll4, ll5, ll6;
 	private ImageView iv1, iv2, iv3, iv4, iv5, iv6;
 	private TextView tv1, tv2, tv3, tv4, tv5, tv6;
 	private LinearLayout llMain = null;
-	private String warningUrl = "http://decision-admin.tianqi.cn/Home/extra/getwarns?order=0&areaid=";//预警地址
 	private List<WarningDto> warningList = new ArrayList<>();//该站点对应的预警信息
 	private ImageView ivShare = null;
 	private RelativeLayout reTitle = null;
+	private AVLoadingIndicatorView loadingView;
 	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		setContentView(R.layout.activity_station_monitor_detail);
+		setContentView(R.layout.shawn_activity_fact_rank_detail);
 		mContext = this;
-		showDialog();
 		initWidget();
 	}
 	
@@ -93,38 +91,39 @@ public class StationMonitorDetailActivity extends BaseActivity implements OnClic
 	}
 	
 	private void initWidget() {
-		llBack = (LinearLayout) findViewById(R.id.llBack);
+		loadingView = findViewById(R.id.loadingView);
+		llBack = findViewById(R.id.llBack);
 		llBack.setOnClickListener(this);
-		tvTitle = (TextView) findViewById(R.id.tvTitle);
-		ll1 = (LinearLayout) findViewById(R.id.ll1);
+		TextView tvTitle = findViewById(R.id.tvTitle);
+		ll1 = findViewById(R.id.ll1);
 		ll1.setOnClickListener(new MyOnClickListener(0));
-		ll2 = (LinearLayout) findViewById(R.id.ll2);
+		ll2 = findViewById(R.id.ll2);
 		ll2.setOnClickListener(new MyOnClickListener(1));
-		ll3 = (LinearLayout) findViewById(R.id.ll3);
+		ll3 = findViewById(R.id.ll3);
 		ll3.setOnClickListener(new MyOnClickListener(2));
-		ll4 = (LinearLayout) findViewById(R.id.ll4);
+		ll4 = findViewById(R.id.ll4);
 		ll4.setOnClickListener(new MyOnClickListener(3));
-		ll5 = (LinearLayout) findViewById(R.id.ll5);
+		ll5 = findViewById(R.id.ll5);
 		ll5.setOnClickListener(new MyOnClickListener(4));
-		ll6 = (LinearLayout) findViewById(R.id.ll6);
+		ll6 = findViewById(R.id.ll6);
 		ll6.setOnClickListener(new MyOnClickListener(5));
-		iv1 = (ImageView) findViewById(R.id.iv1);
-		iv2 = (ImageView) findViewById(R.id.iv2);
-		iv3 = (ImageView) findViewById(R.id.iv3);
-		iv4 = (ImageView) findViewById(R.id.iv4);
-		iv5 = (ImageView) findViewById(R.id.iv5);
-		iv6 = (ImageView) findViewById(R.id.iv6);
-		tv1 = (TextView) findViewById(R.id.tv1);
-		tv2 = (TextView) findViewById(R.id.tv2);
-		tv3 = (TextView) findViewById(R.id.tv3);
-		tv4 = (TextView) findViewById(R.id.tv4);
-		tv5 = (TextView) findViewById(R.id.tv5);
-		tv6 = (TextView) findViewById(R.id.tv6);
-		llMain = (LinearLayout) findViewById(R.id.llMain);
+		iv1 = findViewById(R.id.iv1);
+		iv2 = findViewById(R.id.iv2);
+		iv3 = findViewById(R.id.iv3);
+		iv4 = findViewById(R.id.iv4);
+		iv5 = findViewById(R.id.iv5);
+		iv6 = findViewById(R.id.iv6);
+		tv1 = findViewById(R.id.tv1);
+		tv2 = findViewById(R.id.tv2);
+		tv3 = findViewById(R.id.tv3);
+		tv4 = findViewById(R.id.tv4);
+		tv5 = findViewById(R.id.tv5);
+		tv6 = findViewById(R.id.tv6);
+		llMain = findViewById(R.id.llMain);
 		llMain.setOnClickListener(this);
-		ivShare = (ImageView) findViewById(R.id.ivShare);
+		ivShare = findViewById(R.id.ivShare);
 		ivShare.setOnClickListener(this);
-		reTitle = (RelativeLayout) findViewById(R.id.reTitle);
+		reTitle = findViewById(R.id.reTitle);
 
 		DisplayMetrics dm = new DisplayMetrics();
 		getWindowManager().getDefaultDisplay().getMetrics(dm);
@@ -150,7 +149,7 @@ public class StationMonitorDetailActivity extends BaseActivity implements OnClic
 			
 			String warningId = queryWarningIdByStationId(stationId);
 			if (!TextUtils.isEmpty(warningId)) {
-				OkHttpWarning(warningUrl+warningId);
+				OkHttpWarning("http://decision-admin.tianqi.cn/Home/extra/getwarns?order=0&areaid="+warningId);
 			}
 		}
 	}
@@ -184,7 +183,6 @@ public class StationMonitorDetailActivity extends BaseActivity implements OnClic
 					warningId = cursor.getString(cursor.getColumnIndex("WARNID"));
 				}
 				cursor.close();
-				cursor = null;
 				dbManager.closeDatabase();
 			}
 		} catch (Exception e) {
@@ -203,9 +201,7 @@ public class StationMonitorDetailActivity extends BaseActivity implements OnClic
 				OkHttpUtil.enqueue(new Request.Builder().url(url).build(), new Callback() {
 					@Override
 					public void onFailure(Call call, IOException e) {
-
 					}
-
 					@Override
 					public void onResponse(Call call, Response response) throws IOException {
 						if (!response.isSuccessful()) {return;}
@@ -213,27 +209,27 @@ public class StationMonitorDetailActivity extends BaseActivity implements OnClic
 						if (!TextUtils.isEmpty(result)) {
 							try {
 								JSONObject object = new JSONObject(result);
-								if (object != null) {
-									if (!object.isNull("data")) {
-										warningList.clear();
-										JSONArray jsonArray = object.getJSONArray("data");
-										for (int i = 0; i < jsonArray.length(); i++) {
-											JSONArray tempArray = jsonArray.getJSONArray(i);
-											WarningDto dto = new WarningDto();
-											dto.html = tempArray.getString(1);
-											String[] array = dto.html.split("-");
-											String item0 = array[0];
-											String item1 = array[1];
-											String item2 = array[2];
+								if (!object.isNull("data")) {
+									warningList.clear();
+									JSONArray jsonArray = object.getJSONArray("data");
+									for (int i = 0; i < jsonArray.length(); i++) {
+										JSONArray tempArray = jsonArray.getJSONArray(i);
+										WarningDto dto = new WarningDto();
+										dto.html = tempArray.getString(1);
+										String[] array = dto.html.split("-");
+										String item0 = array[0];
+										String item1 = array[1];
+										String item2 = array[2];
 
-											dto.provinceId = item0.substring(0, 2);
-											dto.type = item2.substring(0, 5);
-											dto.color = item2.substring(5, 7);
-											dto.time = item1;
-											dto.lng = tempArray.getDouble(2);
-											dto.lat = tempArray.getDouble(3);
-											dto.name = tempArray.getString(0);
+										dto.provinceId = item0.substring(0, 2);
+										dto.type = item2.substring(0, 5);
+										dto.color = item2.substring(5, 7);
+										dto.time = item1;
+										dto.lng = tempArray.getDouble(2);
+										dto.lat = tempArray.getDouble(3);
+										dto.name = tempArray.getString(0);
 
+										if (!dto.name.contains("解除")) {
 											warningList.add(dto);
 										}
 									}
@@ -267,16 +263,14 @@ public class StationMonitorDetailActivity extends BaseActivity implements OnClic
 			}else if (i == 5) {
 				fragment = new StationDetailPressureFragment();
 			}
-			if (fragment != null) {
-				Bundle bundle = new Bundle();
-				bundle.putParcelable("data", data);
-				bundle.putParcelableArrayList("warningList", (ArrayList<? extends Parcelable>) warningList);
-				fragment.setArguments(bundle);
-				fragments.add(fragment);
-			}
+			Bundle bundle = new Bundle();
+			bundle.putParcelable("data", data);
+			bundle.putParcelableArrayList("warningList", (ArrayList<? extends Parcelable>) warningList);
+			fragment.setArguments(bundle);
+			fragments.add(fragment);
 		}
 			
-		viewPager = (MainViewPager) findViewById(R.id.viewPager);
+		viewPager = findViewById(R.id.viewPager);
 		viewPager.setSlipping(true);//设置ViewPager是否可以滑动
 		viewPager.setOffscreenPageLimit(fragments.size());
 		viewPager.setOnPageChangeListener(new MyOnPageChangeListener());
@@ -490,9 +484,7 @@ public class StationMonitorDetailActivity extends BaseActivity implements OnClic
 				OkHttpUtil.enqueue(new Request.Builder().url(SecretUrlUtil.stationDetail(stationids, interfaceType)).build(), new Callback() {
 					@Override
 					public void onFailure(Call call, IOException e) {
-
 					}
-
 					@Override
 					public void onResponse(Call call, Response response) throws IOException {
 
@@ -1092,7 +1084,7 @@ public class StationMonitorDetailActivity extends BaseActivity implements OnClic
 									@Override
 									public void run() {
 										initViewPager(dto);
-										cancelDialog();
+										loadingView.setVisibility(View.GONE);
 									}
 								});
 							} catch (JSONException e) {
@@ -1114,15 +1106,14 @@ public class StationMonitorDetailActivity extends BaseActivity implements OnClic
 		case R.id.ivShare:
 			Bitmap bitmap1 = CommonUtil.captureView(reTitle);
 			Bitmap bitmap2 = CommonUtil.captureMyView(viewPager);
-			Bitmap bitmap3 = CommonUtil.mergeBitmap(StationMonitorDetailActivity.this, bitmap1, bitmap2, false);
+			Bitmap bitmap3 = CommonUtil.mergeBitmap(ShawnFactRankDetailActivity.this, bitmap1, bitmap2, false);
 			CommonUtil.clearBitmap(bitmap1);
 			CommonUtil.clearBitmap(bitmap2);
 			Bitmap bitmap4 = BitmapFactory.decodeResource(getResources(), R.drawable.shawn_legend_share_landscape);
-//			Bitmap bitmap4 = BitmapFactory.decodeStream(getClass().getResourceAsStream("/res/drawable-hdpi/iv_share_bottom_landscape.png"));
-			Bitmap bitmap = CommonUtil.mergeBitmap(StationMonitorDetailActivity.this, bitmap3, bitmap4, false);
+			Bitmap bitmap = CommonUtil.mergeBitmap(ShawnFactRankDetailActivity.this, bitmap3, bitmap4, false);
 			CommonUtil.clearBitmap(bitmap3);
 			CommonUtil.clearBitmap(bitmap4);
-			CommonUtil.share(StationMonitorDetailActivity.this, bitmap);
+			CommonUtil.share(ShawnFactRankDetailActivity.this, bitmap);
 			break;
 
 		default:

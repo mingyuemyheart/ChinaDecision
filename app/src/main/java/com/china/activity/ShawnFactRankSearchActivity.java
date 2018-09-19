@@ -35,48 +35,31 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
+import java.util.Locale;
 
 /**
  * 站点排行搜索
- * @author shawn_sun
- *
  */
-public class StationMonitorRankSearchActivity extends BaseActivity implements OnClickListener{
+public class ShawnFactRankSearchActivity extends BaseActivity implements OnClickListener{
 	
-	private Context mContext = null;
-	private LinearLayout llBack = null;
-	private TextView tvTitle = null;
-	private TextView tvStartTime = null;
-	private TextView tvEndTime = null;
-	private TextView tvArea = null;
-	private TextView tvCheck = null;
-	
-	private WheelView year;
-	private WheelView month;
-	private WheelView day;
-	private WheelView hour;
-	private WheelView minute;
-	private SimpleDateFormat sdf3 = new SimpleDateFormat("yyyyMMddHH");
-	private SimpleDateFormat sdf4 = new SimpleDateFormat("yyyy年MM月dd日 HH时");
-	private SimpleDateFormat sdf5 = new SimpleDateFormat("MM月dd日 HH时");
-	private String startTime, endTime;
-	private TextView tvNegtive = null;
-	private TextView tvPositive = null;
-	private TextView tvContent = null;
-	private RelativeLayout reLayout = null;
+	private Context mContext;
+	private TextView tvStartTime,tvEndTime,tvArea,tvContent;
+	private WheelView year,month,day,hour,minute;
+	private SimpleDateFormat sdf3 = new SimpleDateFormat("yyyyMMddHH", Locale.CHINA);
+	private SimpleDateFormat sdf4 = new SimpleDateFormat("yyyy年MM月dd日 HH时", Locale.CHINA);
+	private SimpleDateFormat sdf5 = new SimpleDateFormat("MM月dd日 HH时", Locale.CHINA);
+	private String startTime, endTime,provinceName;
+	private RelativeLayout reLayout;
 	private boolean startOrEnd = true;//true为start
-	
-	private GridView gridView1 = null;
-	private StationMonitorRankSearchAdapter proAdapter = null;
+	private StationMonitorRankSearchAdapter proAdapter;
 	private List<StationMonitorDto> proList = new ArrayList<>();
-	private String provinceName = null;
-	private LinearLayout llContainer1 = null;
-	private ImageView ivGuide = null;//引导页
+	private LinearLayout llContainer1;
+	private ImageView ivGuide;//引导页
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		setContentView(R.layout.station_monitor_rank_search);
+		setContentView(R.layout.shawn_activity_fact_rank_search);
 		mContext = this;
 		initWidget();
 		initWheelView();
@@ -84,27 +67,27 @@ public class StationMonitorRankSearchActivity extends BaseActivity implements On
 	}
 	
 	private void initWidget() {
-		llBack = (LinearLayout) findViewById(R.id.llBack);
+		LinearLayout llBack = findViewById(R.id.llBack);
 		llBack.setOnClickListener(this);
-		tvTitle = (TextView) findViewById(R.id.tvTitle);
+		TextView tvTitle = findViewById(R.id.tvTitle);
 		tvTitle.setText("实况查询");
-		tvStartTime = (TextView) findViewById(R.id.tvStartTime);
+		tvStartTime = findViewById(R.id.tvStartTime);
 		tvStartTime.setOnClickListener(this);
-		tvEndTime = (TextView) findViewById(R.id.tvEndTime);
+		tvEndTime = findViewById(R.id.tvEndTime);
 		tvEndTime.setOnClickListener(this);
-		tvArea = (TextView) findViewById(R.id.tvArea);
+		tvArea = findViewById(R.id.tvArea);
 		tvArea.setOnClickListener(this);
-		tvCheck = (TextView) findViewById(R.id.tvCheck);
+		TextView tvCheck = findViewById(R.id.tvCheck);
 		tvCheck.setOnClickListener(this);
-		llContainer1 = (LinearLayout) findViewById(R.id.llContainer1);
-		tvNegtive = (TextView) findViewById(R.id.tvNegtive);
+		llContainer1 = findViewById(R.id.llContainer1);
+		TextView tvNegtive = findViewById(R.id.tvNegtive);
 		tvNegtive.setOnClickListener(this);
-		tvPositive = (TextView) findViewById(R.id.tvPositive);
+		TextView tvPositive = findViewById(R.id.tvPositive);
 		tvPositive.setOnClickListener(this);
-		tvContent = (TextView) findViewById(R.id.tvContent);
-		reLayout = (RelativeLayout) findViewById(R.id.reLayout);
+		tvContent = findViewById(R.id.tvContent);
+		reLayout = findViewById(R.id.reLayout);
 		reLayout.setOnClickListener(this);
-		ivGuide = (ImageView) findViewById(R.id.ivGuide);
+		ivGuide = findViewById(R.id.ivGuide);
 		ivGuide.setOnClickListener(this);
 		CommonUtil.showGuidePage(mContext, this.getClass().getName(), ivGuide);
 		
@@ -127,32 +110,32 @@ public class StationMonitorRankSearchActivity extends BaseActivity implements On
 		int curHour = c.get(Calendar.HOUR_OF_DAY);
 		int curMinute = c.get(Calendar.MINUTE);
 		
-		year = (WheelView) findViewById(R.id.year);
+		year = findViewById(R.id.year);
 		NumericWheelAdapter numericWheelAdapter1=new NumericWheelAdapter(this,1950, curYear); 
 		numericWheelAdapter1.setLabel(getString(R.string.year));
 		year.setViewAdapter(numericWheelAdapter1);
 		year.setCyclic(false);//是否可循环滑动
 		year.addScrollingListener(scrollListener);
 		
-		month = (WheelView) findViewById(R.id.month);
+		month = findViewById(R.id.month);
 		NumericWheelAdapter numericWheelAdapter2=new NumericWheelAdapter(this,1, 12, "%02d"); 
 		numericWheelAdapter2.setLabel(getString(R.string.month));
 		month.setViewAdapter(numericWheelAdapter2);
 		month.setCyclic(false);
 		month.addScrollingListener(scrollListener);
 		
-		day = (WheelView) findViewById(R.id.day);
+		day = findViewById(R.id.day);
 		initDay(curYear,curMonth);
 		day.setCyclic(false);
 		
-		hour = (WheelView) findViewById(R.id.hour);
+		hour = findViewById(R.id.hour);
 		NumericWheelAdapter numericWheelAdapter3=new NumericWheelAdapter(this,1, 23, "%02d"); 
 		numericWheelAdapter3.setLabel(getString(R.string.hour));
 		hour.setViewAdapter(numericWheelAdapter3);
 		hour.setCyclic(false);
 		hour.addScrollingListener(scrollListener);
 		
-		minute = (WheelView) findViewById(R.id.minute);
+		minute = findViewById(R.id.minute);
 		NumericWheelAdapter numericWheelAdapter4=new NumericWheelAdapter(this,1, 59, "%02d"); 
 		numericWheelAdapter4.setLabel(getString(R.string.minute));
 		minute.setViewAdapter(numericWheelAdapter4);
@@ -342,7 +325,7 @@ public class StationMonitorRankSearchActivity extends BaseActivity implements On
 		dto.provinceName = getString(R.string.nation);
 		proList.add(dto);
 		queryProvince(proList);
-		gridView1 = (GridView) findViewById(R.id.gridView1);
+		GridView gridView1 = findViewById(R.id.gridView1);
 		proAdapter = new StationMonitorRankSearchAdapter(mContext, proList);
 		gridView1.setAdapter(proAdapter);
 		gridView1.setOnItemClickListener(new OnItemClickListener() {
@@ -385,8 +368,8 @@ public class StationMonitorRankSearchActivity extends BaseActivity implements On
 	private void startAnimation(boolean flag, final LinearLayout view) {
 		//列表动画
 		AnimationSet animationSet = new AnimationSet(true);
-		TranslateAnimation animation = null;
-		if (flag == false) {
+		TranslateAnimation animation;
+		if (!flag) {
 			animation = new TranslateAnimation(
 					Animation.RELATIVE_TO_SELF,0f,
 					Animation.RELATIVE_TO_SELF,0f,

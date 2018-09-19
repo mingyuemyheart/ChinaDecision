@@ -17,11 +17,12 @@ import android.widget.ListView;
 import android.widget.TextView;
 
 import com.china.R;
-import com.china.adapter.StationMonitorRankAdapter;
+import com.china.adapter.ShawnFactRankAdapter;
 import com.china.common.CONST;
 import com.china.dto.StationMonitorDto;
 import com.china.utils.CommonUtil;
 import com.china.utils.OkHttpUtil;
+import com.wang.avi.AVLoadingIndicatorView;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -33,6 +34,7 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Locale;
 
 import okhttp3.Call;
 import okhttp3.Callback;
@@ -41,51 +43,17 @@ import okhttp3.Response;
 
 /**
  * 站点排序
- * @author shawn_sun
- *
  */
-
-public class StationMonitorRankActivity extends BaseActivity implements OnClickListener{
+public class ShawnFactRankActivity extends BaseActivity implements OnClickListener{
 	
-	private Context mContext = null;
-	private LinearLayout llBack = null;
-	private TextView tvTitle = null;
-	private ImageView ivSearch = null;
-	private TextView tvTemp2 = null;
-	private TextView tvRain2 = null;
-	private TextView tvHumidity2 = null;
-	private TextView tvVisibility2 = null;
-	private TextView tvPressure2 = null;
-	private TextView tvWindSpeed2 = null;
-	
-	private LinearLayout llRain = null;
-	private TextView tv11 = null;
-	private TextView tv12 = null;
-	private TextView tv13 = null;
-	private TextView tv14 = null;
-	private LinearLayout llTemp = null;
-	private TextView tv21 = null;
-	private TextView tv22 = null;
-	private TextView tv23 = null;
-	private TextView tv24 = null;
-	private TextView tv25 = null;
-	private TextView tv26 = null;
-	private LinearLayout llHumidity = null;
-	private TextView tv31 = null;
-	private TextView tv32 = null;
-	private LinearLayout llWind = null;
-	private TextView tv41 = null;
-	private TextView tv42 = null;
-	private LinearLayout llVisible = null;
-	private TextView tv51 = null;
-	private TextView tv52 = null;
-	private LinearLayout llPressure = null;
-	private TextView tv61 = null;
-	private TextView tv62 = null;
-	private ImageView ivGuide = null;//引导页
-	
-	private ListView mListView = null;
-	private StationMonitorRankAdapter mAdapter = null;
+	private Context mContext;
+	private TextView tvTemp2,tvRain2,tvHumidity2,tvVisibility2,tvPressure2,tvWindSpeed2,tvArea, tvTime;
+	private LinearLayout llRain,llTemp,llHumidity,llWind,llVisible,llPressure,llScrollView,llPrompt,llScroll;
+	private TextView tv11,tv12,tv13,tv14,tv21,tv22,tv23,tv24,tv25,tv26,tv31,tv32,tv41,tv42,tv51,tv52,tv61,tv62;
+	private String startTime,endTime,provinceName = "";
+	private ImageView ivGuide;//引导页
+	private ListView mListView;
+	private ShawnFactRankAdapter mAdapter;
 	private List<StationMonitorDto> mList = new ArrayList<>();
 	private List<StationMonitorDto> ttList = new ArrayList<>();//高温温度
 	private List<StationMonitorDto> ltList = new ArrayList<>();//低温温度
@@ -94,27 +62,18 @@ public class StationMonitorRankActivity extends BaseActivity implements OnClickL
 	private List<StationMonitorDto> vMaxList = new ArrayList<>();//能见度
 	private List<StationMonitorDto> wList = new ArrayList<>();//风速
 	private List<StationMonitorDto> rList = new ArrayList<>();//降水
-	private SimpleDateFormat sdf1 = new SimpleDateFormat("yyyyMMddHH40");
-	private SimpleDateFormat sdf2 = new SimpleDateFormat("yyyyMMddHHmm");
-	private SimpleDateFormat sdf3 = new SimpleDateFormat("yyyyMMddHH");
-	private SimpleDateFormat sdf4 = new SimpleDateFormat("MM月dd日 HH时");
-	private SimpleDateFormat sdf5 = new SimpleDateFormat("yyyyMMdd08");
-	private SimpleDateFormat sdf6 = new SimpleDateFormat("yyyyMMdd20");
-	private SimpleDateFormat sdf7 = new SimpleDateFormat("yyyyMMdd02");
-	private SimpleDateFormat sdf8 = new SimpleDateFormat("yyyyMMdd14");
-	private TextView tvArea, tvTime;
-	private String startTime = null;
-	private String endTime = null;
-	private String provinceName = "";
-	private ImageView ivShare = null;
-	private LinearLayout llScrollView = null;
-	private LinearLayout llPrompt = null;
-	private LinearLayout llScroll = null;
+	private SimpleDateFormat sdf3 = new SimpleDateFormat("yyyyMMddHH", Locale.CHINA);
+	private SimpleDateFormat sdf4 = new SimpleDateFormat("MM月dd日 HH时", Locale.CHINA);
+	private SimpleDateFormat sdf5 = new SimpleDateFormat("yyyyMMdd08", Locale.CHINA);
+	private SimpleDateFormat sdf6 = new SimpleDateFormat("yyyyMMdd20", Locale.CHINA);
+	private SimpleDateFormat sdf7 = new SimpleDateFormat("yyyyMMdd02", Locale.CHINA);
+	private SimpleDateFormat sdf8 = new SimpleDateFormat("yyyyMMdd14", Locale.CHINA);
+	private AVLoadingIndicatorView loadingView;
 	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		setContentView(R.layout.activity_station_monitor_rank);
+		setContentView(R.layout.shawn_activity_fact_rank);
 		mContext = this;
 		initWidget();
 		initListView();
@@ -124,74 +83,77 @@ public class StationMonitorRankActivity extends BaseActivity implements OnClickL
 	 * 初始化控件
 	 */
 	private void initWidget() {
-		llBack = (LinearLayout) findViewById(R.id.llBack);
+		loadingView = findViewById(R.id.loadingView);
+		LinearLayout llBack = findViewById(R.id.llBack);
 		llBack.setOnClickListener(this);
-		tvTitle = (TextView) findViewById(R.id.tvTitle);
-		tvTitle.setText(getString(R.string.monitor_rank));
-		tvTemp2 = (TextView) findViewById(R.id.tvTemp2);
+		TextView tvTitle = findViewById(R.id.tvTitle);
+		tvTitle.setText("实况排名");
+		tvTemp2 = findViewById(R.id.tvTemp2);
 		tvTemp2.setOnClickListener(this);
-		tvRain2 = (TextView) findViewById(R.id.tvRain2);
+		tvRain2 = findViewById(R.id.tvRain2);
 		tvRain2.setOnClickListener(this);
-		tvHumidity2 = (TextView) findViewById(R.id.tvHumidity2);
+		tvHumidity2 = findViewById(R.id.tvHumidity2);
 		tvHumidity2.setOnClickListener(this);
-		tvVisibility2 = (TextView) findViewById(R.id.tvVisibility2);
+		tvVisibility2 = findViewById(R.id.tvVisibility2);
 		tvVisibility2.setOnClickListener(this);
-		tvPressure2 = (TextView) findViewById(R.id.tvPressure2);
+		tvPressure2 = findViewById(R.id.tvPressure2);
 		tvPressure2.setOnClickListener(this);
-		tvWindSpeed2 = (TextView) findViewById(R.id.tvWindSpeed2);
+		tvWindSpeed2 = findViewById(R.id.tvWindSpeed2);
 		tvWindSpeed2.setOnClickListener(this);
-		ivSearch = (ImageView) findViewById(R.id.ivSearch);
-		ivSearch.setOnClickListener(this);
-		tvArea = (TextView) findViewById(R.id.tvArea);
-		tvTime = (TextView) findViewById(R.id.tvTime);
-		llRain = (LinearLayout) findViewById(R.id.llRain);
-		llTemp = (LinearLayout) findViewById(R.id.llTemp);
-		llHumidity = (LinearLayout) findViewById(R.id.llHumidity);
-		llWind = (LinearLayout) findViewById(R.id.llWind);
-		llVisible = (LinearLayout) findViewById(R.id.llVisible);
-		llPressure = (LinearLayout) findViewById(R.id.llPressure);
-		ivShare = (ImageView) findViewById(R.id.ivShare);
+		ImageView ivMapSearch = findViewById(R.id.ivMapSearch);
+		ivMapSearch.setOnClickListener(this);
+		ivMapSearch.setVisibility(View.VISIBLE);
+		tvArea = findViewById(R.id.tvArea);
+		tvTime = findViewById(R.id.tvTime);
+		llRain = findViewById(R.id.llRain);
+		llTemp = findViewById(R.id.llTemp);
+		llHumidity = findViewById(R.id.llHumidity);
+		llWind = findViewById(R.id.llWind);
+		llVisible = findViewById(R.id.llVisible);
+		llPressure = findViewById(R.id.llPressure);
+		ImageView ivShare = findViewById(R.id.ivShare);
 		ivShare.setOnClickListener(this);
-		llScrollView = (LinearLayout) findViewById(R.id.llScrollView);
-		llPrompt = (LinearLayout) findViewById(R.id.llPrompt);
-		llScroll = (LinearLayout) findViewById(R.id.llScroll);
-		tv11 = (TextView) findViewById(R.id.tv11);
+		ivShare.setVisibility(View.VISIBLE);
+		llScrollView = findViewById(R.id.llScrollView);
+		llPrompt = findViewById(R.id.llPrompt);
+		llScroll = findViewById(R.id.llScroll);
+		tv11 = findViewById(R.id.tv11);
 		tv11.setOnClickListener(this);
-		tv12 = (TextView) findViewById(R.id.tv12);
+		tv12 = findViewById(R.id.tv12);
 		tv12.setOnClickListener(this);
-		tv13 = (TextView) findViewById(R.id.tv13);
+		tv13 = findViewById(R.id.tv13);
 		tv13.setOnClickListener(this);
-		tv14 = (TextView) findViewById(R.id.tv14);
+		tv14 = findViewById(R.id.tv14);
 		tv14.setOnClickListener(this);
-		tv21 = (TextView) findViewById(R.id.tv21);
+		tv21 = findViewById(R.id.tv21);
 		tv21.setOnClickListener(this);
-		tv22 = (TextView) findViewById(R.id.tv22);
+		tv22 = findViewById(R.id.tv22);
 		tv22.setOnClickListener(this);
-		tv23 = (TextView) findViewById(R.id.tv23);
+		tv23 = findViewById(R.id.tv23);
 		tv23.setOnClickListener(this);
-		tv24 = (TextView) findViewById(R.id.tv24);
+		tv24 = findViewById(R.id.tv24);
 		tv24.setOnClickListener(this);
-		tv25 = (TextView) findViewById(R.id.tv25);
+		tv25 = findViewById(R.id.tv25);
 		tv25.setOnClickListener(this);
-		tv26 = (TextView) findViewById(R.id.tv26);
+		tv26 = findViewById(R.id.tv26);
 		tv26.setOnClickListener(this);
-		tv31 = (TextView) findViewById(R.id.tv31);
+		tv31 = findViewById(R.id.tv31);
 		tv31.setOnClickListener(this);
-		tv32 = (TextView) findViewById(R.id.tv32);
+		tv32 = findViewById(R.id.tv32);
 		tv32.setOnClickListener(this);
-		tv41 = (TextView) findViewById(R.id.tv41);
+		tv41 = findViewById(R.id.tv41);
 		tv41.setOnClickListener(this);
-		tv42 = (TextView) findViewById(R.id.tv42);
+		tv42 = findViewById(R.id.tv42);
 		tv42.setOnClickListener(this);
-		tv51 = (TextView) findViewById(R.id.tv51);
+		tv51 = findViewById(R.id.tv51);
 		tv51.setOnClickListener(this);
-		tv52 = (TextView) findViewById(R.id.tv52);
+		tv52 = findViewById(R.id.tv52);
 		tv52.setOnClickListener(this);
-		tv61 = (TextView) findViewById(R.id.tv61);
+		tv61 = findViewById(R.id.tv61);
 		tv61.setOnClickListener(this);
-		tv62 = (TextView) findViewById(R.id.tv62);
+		tv62 = findViewById(R.id.tv62);
 		tv62.setOnClickListener(this);
-		ivGuide = (ImageView) findViewById(R.id.ivGuide);
+		ivGuide = findViewById(R.id.ivGuide);
 		ivGuide.setOnClickListener(this);
 		CommonUtil.showGuidePage(mContext, this.getClass().getName(), ivGuide);
 		
@@ -212,16 +174,14 @@ public class StationMonitorRankActivity extends BaseActivity implements OnClickL
 	}
 	
 	private void OkHttpList(final String url) {
-		showDialog();
+		loadingView.setVisibility(View.VISIBLE);
 		new Thread(new Runnable() {
 			@Override
 			public void run() {
 				OkHttpUtil.enqueue(new Request.Builder().url(url).build(), new Callback() {
 					@Override
 					public void onFailure(Call call, IOException e) {
-
 					}
-
 					@Override
 					public void onResponse(Call call, Response response) throws IOException {
 						if (!response.isSuccessful()) {
@@ -351,7 +311,7 @@ public class StationMonitorRankActivity extends BaseActivity implements OnClickL
 											}
 										}
 										setListData(rList);
-										cancelDialog();
+										loadingView.setVisibility(View.GONE);
 									} catch (JSONException e) {
 										e.printStackTrace();
 									}
@@ -370,16 +330,14 @@ public class StationMonitorRankActivity extends BaseActivity implements OnClickL
 	 * @param url
 	 */
 	private void OkHttpSingle(final String url, final int type) {
-		showDialog();
+		loadingView.setVisibility(View.VISIBLE);
 		new Thread(new Runnable() {
 			@Override
 			public void run() {
 				OkHttpUtil.enqueue(new Request.Builder().url(url).build(), new Callback() {
 					@Override
 					public void onFailure(Call call, IOException e) {
-
 					}
-
 					@Override
 					public void onResponse(Call call, Response response) throws IOException {
 						if (!response.isSuccessful()) {
@@ -533,7 +491,7 @@ public class StationMonitorRankActivity extends BaseActivity implements OnClickL
 										}else if (type == 6) {
 											setListData(pMaxList);
 										}
-										cancelDialog();
+										loadingView.setVisibility(View.GONE);
 									} catch (JSONException e) {
 										e.printStackTrace();
 									}
@@ -547,14 +505,14 @@ public class StationMonitorRankActivity extends BaseActivity implements OnClickL
 	}
 	
 	private void initListView() {
-		mListView = (ListView) findViewById(R.id.listView);
-		mAdapter = new StationMonitorRankAdapter(mContext, mList);
+		mListView = findViewById(R.id.listView);
+		mAdapter = new ShawnFactRankAdapter(mContext, mList);
 		mListView.setAdapter(mAdapter);
 		mListView.setOnItemClickListener(new OnItemClickListener() {
 			@Override
 			public void onItemClick(AdapterView<?> arg0, View arg1, int arg2, long arg3) {
 				StationMonitorDto dto = mList.get(arg2);
-				Intent intent = new Intent(mContext, StationMonitorDetailActivity.class);
+				Intent intent = new Intent(mContext, ShawnFactRankDetailActivity.class);
 				intent.putExtra(CONST.ACTIVITY_NAME, dto.name);
 				intent.putExtra("stationId", dto.stationId);
 				intent.putExtra("interface", "newOneDay");
@@ -1224,33 +1182,28 @@ public class StationMonitorRankActivity extends BaseActivity implements OnClickL
 				e.printStackTrace();
 			}
 			break;
-		case R.id.ivSearch:
-			Intent intent = new Intent(mContext, StationMonitorRankSearchActivity.class);
+		case R.id.ivMapSearch:
+			Intent intent = new Intent(mContext, ShawnFactRankSearchActivity.class);
 			intent.putExtra("startTime", startTime);
 			intent.putExtra("endTime", endTime);
 			intent.putExtra("provinceName", tvArea.getText().toString());
 			startActivityForResult(intent, 0);
 			break;
 		case R.id.ivShare:
-			Bitmap bitmap1 = CommonUtil.captureView(llScrollView);
-			Bitmap bitmap2 = CommonUtil.captureView(llPrompt);
-			Bitmap bitmap3 = CommonUtil.mergeBitmap(StationMonitorRankActivity.this, bitmap1, bitmap2, false);
+			Bitmap bitmap1 = CommonUtil.captureView(llPrompt);
+			Bitmap bitmap2 = CommonUtil.captureView(mListView);
+			Bitmap bitmap3 = CommonUtil.mergeBitmap(ShawnFactRankActivity.this, bitmap1, bitmap2, false);
 			CommonUtil.clearBitmap(bitmap1);
 			CommonUtil.clearBitmap(bitmap2);
-			Bitmap bitmap4 = CommonUtil.captureListView(mListView);
-			Bitmap bitmap5 = CommonUtil.mergeBitmap(StationMonitorRankActivity.this, bitmap3, bitmap4, false);
+			Bitmap bitmap4 = CommonUtil.captureView(llScroll);
+			Bitmap bitmap5 = CommonUtil.mergeBitmap(ShawnFactRankActivity.this, bitmap3, bitmap4, false);
 			CommonUtil.clearBitmap(bitmap3);
 			CommonUtil.clearBitmap(bitmap4);
-			Bitmap bitmap6 = CommonUtil.captureView(llScroll);
-			Bitmap bitmap7 = CommonUtil.mergeBitmap(StationMonitorRankActivity.this, bitmap5, bitmap6, false);
+			Bitmap bitmap6 = BitmapFactory.decodeResource(getResources(), R.drawable.shawn_legend_share_portrait);
+			Bitmap bitmap = CommonUtil.mergeBitmap(ShawnFactRankActivity.this, bitmap5, bitmap6, false);
 			CommonUtil.clearBitmap(bitmap5);
 			CommonUtil.clearBitmap(bitmap6);
-			Bitmap bitmap8 = BitmapFactory.decodeResource(getResources(), R.drawable.shawn_legend_share_portrait);
-//			Bitmap bitmap8 = BitmapFactory.decodeStream(getClass().getResourceAsStream("/res/drawable-hdpi/iv_share_bottom.png"));
-			Bitmap bitmap = CommonUtil.mergeBitmap(StationMonitorRankActivity.this, bitmap7, bitmap8, false);
-			CommonUtil.clearBitmap(bitmap7);
-			CommonUtil.clearBitmap(bitmap8);
-			CommonUtil.share(StationMonitorRankActivity.this, bitmap);
+			CommonUtil.share(ShawnFactRankActivity.this, bitmap);
 			break;
 
 		default:

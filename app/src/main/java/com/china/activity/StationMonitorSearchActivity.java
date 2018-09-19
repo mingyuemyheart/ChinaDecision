@@ -157,7 +157,7 @@ public class StationMonitorSearchActivity extends BaseActivity implements OnClic
 			@Override
 			public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
 				StationMonitorDto dto = searchList.get(position);
-				Intent intent = new Intent(mContext, StationMonitorDetailActivity.class);
+				Intent intent = new Intent(mContext, ShawnFactRankDetailActivity.class);
 				intent.putExtra(CONST.ACTIVITY_NAME, dto.addr+"监测站");
 				intent.putExtra("stationId", dto.stationId);
 				intent.putExtra("interface", "oneDay");

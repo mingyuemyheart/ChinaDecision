@@ -5,145 +5,90 @@
                 android:background="@color/white"
                 android:orientation="vertical">
 
-    <RelativeLayout
+    <include
         android:id="@+id/reTitle"
+        layout="@layout/shawn_layout_title"/>
+
+    <LinearLayout
+        android:id="@+id/llScrollView"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_below="@+id/reTitle"
         android:background="@color/title_bg"
-        android:orientation="vertical">
+        android:gravity="center_vertical"
+        android:orientation="horizontal"
+        android:paddingBottom="5dp"
+        android:paddingLeft="10dp"
+        android:paddingRight="10dp"
+        android:paddingTop="5dp">
 
-        <RelativeLayout
-            android:id="@+id/re"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content">
-
-            <LinearLayout
-                android:id="@+id/llBack"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_centerVertical="true"
-                android:paddingBottom="7dp"
-                android:paddingLeft="10dp"
-                android:paddingRight="10dp"
-                android:paddingTop="7dp">
-
-                <ImageView
-                    android:layout_width="25dp"
-                    android:layout_height="25dp"
-                    android:src="@drawable/shawn_icon_delete_black"/>
-            </LinearLayout>
-
-            <TextView
-                android:id="@+id/tvTitle"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_centerInParent="true"
-                android:gravity="center"
-                android:padding="10dp"
-                android:textColor="@color/black"
-                android:textSize="@dimen/level_3"/>
-
-            <ImageView
-                android:id="@+id/ivSearch"
-                android:layout_width="43dp"
-                android:layout_height="43dp"
-                android:layout_centerVertical="true"
-                android:layout_toLeftOf="@+id/ivShare"
-                android:padding="10dp"
-                android:src="@drawable/shawn_icon_search"/>
-
-            <ImageView
-                android:id="@+id/ivShare"
-                android:layout_width="38dp"
-                android:layout_height="38dp"
-                android:layout_alignParentRight="true"
-                android:layout_centerVertical="true"
-                android:layout_marginRight="5dp"
-                android:padding="10dp"
-                android:src="@drawable/shawn_icon_share_black"/>
-        </RelativeLayout>
-
-
-        <LinearLayout
-            android:id="@+id/llScrollView"
+        <TextView
+            android:id="@+id/tvRain2"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_below="@+id/re"
-            android:gravity="center_vertical"
-            android:orientation="horizontal"
-            android:paddingBottom="5dp"
-            android:paddingLeft="10dp"
-            android:paddingRight="10dp"
-            android:paddingTop="5dp">
+            android:layout_weight="1"
+            android:background="@drawable/bg_layer_button"
+            android:gravity="center"
+            android:text="降水"
+            android:textColor="@color/text_color4"
+            android:textSize="@dimen/level_5"/>
 
-            <TextView
-                android:id="@+id/tvRain2"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:background="@drawable/bg_layer_button"
-                android:gravity="center"
-                android:text="@string/rainfall"
-                android:textColor="@color/text_color4"
-                android:textSize="@dimen/level_4"/>
+        <TextView
+            android:id="@+id/tvTemp2"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:gravity="center"
+            android:text="气温"
+            android:textColor="@color/text_color4"
+            android:textSize="@dimen/level_5"/>
 
-            <TextView
-                android:id="@+id/tvTemp2"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:gravity="center"
-                android:text="@string/temp"
-                android:textColor="@color/text_color4"
-                android:textSize="@dimen/level_4"/>
+        <TextView
+            android:id="@+id/tvHumidity2"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:gravity="center"
+            android:text="湿度"
+            android:textColor="@color/text_color4"
+            android:textSize="@dimen/level_5"/>
 
-            <TextView
-                android:id="@+id/tvHumidity2"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:gravity="center"
-                android:text="湿度"
-                android:textColor="@color/text_color4"
-                android:textSize="@dimen/level_4"/>
+        <TextView
+            android:id="@+id/tvWindSpeed2"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:gravity="center"
+            android:text="风速"
+            android:textColor="@color/text_color4"
+            android:textSize="@dimen/level_5"/>
 
-            <TextView
-                android:id="@+id/tvWindSpeed2"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:gravity="center"
-                android:text="风速"
-                android:textColor="@color/text_color4"
-                android:textSize="@dimen/level_4"/>
+        <TextView
+            android:id="@+id/tvVisibility2"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:gravity="center"
+            android:text="能见度"
+            android:textColor="@color/text_color4"
+            android:textSize="@dimen/level_5"/>
 
-            <TextView
-                android:id="@+id/tvVisibility2"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:gravity="center"
-                android:text="@string/visible"
-                android:textColor="@color/text_color4"
-                android:textSize="@dimen/level_4"/>
-
-            <TextView
-                android:id="@+id/tvPressure2"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:gravity="center"
-                android:text="@string/pressure"
-                android:textColor="@color/text_color4"
-                android:textSize="@dimen/level_4"/>
-        </LinearLayout>
-    </RelativeLayout>
+        <TextView
+            android:id="@+id/tvPressure2"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:gravity="center"
+            android:text="气压"
+            android:textColor="@color/text_color4"
+            android:textSize="@dimen/level_5"/>
+    </LinearLayout>
 
     <LinearLayout
         android:id="@+id/llPrompt"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_below="@+id/reTitle"
+        android:layout_below="@+id/llScrollView"
         android:background="@color/white"
         android:gravity="center"
         android:orientation="horizontal"
@@ -153,15 +98,15 @@
             android:id="@+id/tvArea"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:textColor="@color/text_color1"
+            android:textColor="@color/text_color2"
             android:textSize="@dimen/level_5"/>
 
         <TextView
             android:id="@+id/tvTime"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginLeft="10dp"
-            android:textColor="@color/text_color1"
+            android:layout_marginStart="10dp"
+            android:textColor="@color/text_color2"
             android:textSize="@dimen/level_5"/>
     </LinearLayout>
 
@@ -180,7 +125,7 @@
         android:layout_below="@+id/divider"
         android:cacheColorHint="@color/transparent"
         android:divider="@color/light_gray"
-        android:dividerHeight="0.5dip"
+        android:dividerHeight="0.5dp"
         android:listSelector="@color/transparent"
         android:overScrollMode="never"
         android:scrollbars="none"/>
@@ -197,26 +142,25 @@
             android:layout_height="1dp"
             android:background="@color/gray"/>
 
-        <HorizontalScrollView
+        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:overScrollMode="never"
-            android:scrollbarStyle="outsideOverlay"
-            android:scrollbarThumbHorizontal="@drawable/scrollbar_horizontal_line">
+            android:background="@color/white"
+            android:orientation="vertical">
 
             <LinearLayout
                 android:id="@+id/llTemp"
-                android:layout_width="wrap_content"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:background="@color/white"
                 android:gravity="center_vertical"
                 android:orientation="horizontal"
                 android:visibility="gone">
 
                 <TextView
                     android:id="@+id/tv21"
-                    android:layout_width="wrap_content"
-                    android:layout_height="40dp"
+                    android:layout_width="match_parent"
+                    android:layout_height="30dp"
+                    android:layout_weight="1"
                     android:background="#2d5a9d"
                     android:gravity="center"
                     android:paddingLeft="10dp"
@@ -227,8 +171,9 @@
 
                 <TextView
                     android:id="@+id/tv22"
-                    android:layout_width="wrap_content"
-                    android:layout_height="40dp"
+                    android:layout_width="match_parent"
+                    android:layout_height="30dp"
+                    android:layout_weight="1"
                     android:gravity="center"
                     android:paddingLeft="10dp"
                     android:paddingRight="10dp"
@@ -239,8 +184,9 @@
 
                 <TextView
                     android:id="@+id/tv23"
-                    android:layout_width="wrap_content"
-                    android:layout_height="40dp"
+                    android:layout_width="match_parent"
+                    android:layout_height="30dp"
+                    android:layout_weight="1"
                     android:gravity="center"
                     android:paddingLeft="10dp"
                     android:paddingRight="10dp"
@@ -250,8 +196,9 @@
 
                 <TextView
                     android:id="@+id/tv24"
-                    android:layout_width="wrap_content"
-                    android:layout_height="40dp"
+                    android:layout_width="match_parent"
+                    android:layout_height="30dp"
+                    android:layout_weight="1"
                     android:gravity="center"
                     android:paddingLeft="10dp"
                     android:paddingRight="10dp"
@@ -261,8 +208,9 @@
 
                 <TextView
                     android:id="@+id/tv25"
-                    android:layout_width="wrap_content"
-                    android:layout_height="40dp"
+                    android:layout_width="match_parent"
+                    android:layout_height="30dp"
+                    android:layout_weight="1"
                     android:gravity="center"
                     android:paddingLeft="10dp"
                     android:paddingRight="10dp"
@@ -273,8 +221,9 @@
 
                 <TextView
                     android:id="@+id/tv26"
-                    android:layout_width="wrap_content"
-                    android:layout_height="40dp"
+                    android:layout_width="match_parent"
+                    android:layout_height="30dp"
+                    android:layout_weight="1"
                     android:gravity="center"
                     android:paddingLeft="10dp"
                     android:paddingRight="10dp"
@@ -282,13 +231,6 @@
                     android:textColor="@color/text_color4"
                     android:textSize="@dimen/level_5"/>
             </LinearLayout>
-        </HorizontalScrollView>
-
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:background="@color/white"
-            android:orientation="vertical">
 
             <LinearLayout
                 android:id="@+id/llRain"
@@ -301,7 +243,7 @@
                 <TextView
                     android:id="@+id/tv11"
                     android:layout_width="match_parent"
-                    android:layout_height="40dp"
+                    android:layout_height="30dp"
                     android:layout_weight="1"
                     android:background="#2d5a9d"
                     android:gravity="center"
@@ -312,7 +254,7 @@
                 <TextView
                     android:id="@+id/tv12"
                     android:layout_width="match_parent"
-                    android:layout_height="40dp"
+                    android:layout_height="30dp"
                     android:layout_weight="1"
                     android:gravity="center"
                     android:text="@string/rank_rain_2"
@@ -322,7 +264,7 @@
                 <TextView
                     android:id="@+id/tv13"
                     android:layout_width="match_parent"
-                    android:layout_height="40dp"
+                    android:layout_height="30dp"
                     android:layout_weight="1"
                     android:gravity="center"
                     android:text="@string/rank_rain_3"
@@ -332,7 +274,7 @@
                 <TextView
                     android:id="@+id/tv14"
                     android:layout_width="match_parent"
-                    android:layout_height="40dp"
+                    android:layout_height="30dp"
                     android:layout_weight="1"
                     android:gravity="center"
                     android:text="@string/rank_rain_4"
@@ -351,7 +293,7 @@
                 <TextView
                     android:id="@+id/tv31"
                     android:layout_width="match_parent"
-                    android:layout_height="40dp"
+                    android:layout_height="30dp"
                     android:layout_weight="1"
                     android:background="#2d5a9d"
                     android:gravity="center"
@@ -362,7 +304,7 @@
                 <TextView
                     android:id="@+id/tv32"
                     android:layout_width="match_parent"
-                    android:layout_height="40dp"
+                    android:layout_height="30dp"
                     android:layout_weight="1"
                     android:gravity="center"
                     android:text="@string/rank_rain_2"
@@ -381,7 +323,7 @@
                 <TextView
                     android:id="@+id/tv41"
                     android:layout_width="match_parent"
-                    android:layout_height="40dp"
+                    android:layout_height="30dp"
                     android:layout_weight="1"
                     android:background="#2d5a9d"
                     android:gravity="center"
@@ -392,7 +334,7 @@
                 <TextView
                     android:id="@+id/tv42"
                     android:layout_width="match_parent"
-                    android:layout_height="40dp"
+                    android:layout_height="30dp"
                     android:layout_weight="1"
                     android:gravity="center"
                     android:text="@string/rank_rain_2"
@@ -411,7 +353,7 @@
                 <TextView
                     android:id="@+id/tv51"
                     android:layout_width="match_parent"
-                    android:layout_height="40dp"
+                    android:layout_height="30dp"
                     android:layout_weight="1"
                     android:background="#2d5a9d"
                     android:gravity="center"
@@ -422,7 +364,7 @@
                 <TextView
                     android:id="@+id/tv52"
                     android:layout_width="match_parent"
-                    android:layout_height="40dp"
+                    android:layout_height="30dp"
                     android:layout_weight="1"
                     android:gravity="center"
                     android:text="@string/rank_rain_2"
@@ -441,7 +383,7 @@
                 <TextView
                     android:id="@+id/tv61"
                     android:layout_width="match_parent"
-                    android:layout_height="40dp"
+                    android:layout_height="30dp"
                     android:layout_weight="1"
                     android:background="#2d5a9d"
                     android:gravity="center"
@@ -452,7 +394,7 @@
                 <TextView
                     android:id="@+id/tv62"
                     android:layout_width="match_parent"
-                    android:layout_height="40dp"
+                    android:layout_height="30dp"
                     android:layout_weight="1"
                     android:gravity="center"
                     android:text="@string/rank_rain_2"
@@ -462,10 +404,20 @@
         </LinearLayout>
     </LinearLayout>
 
+    <com.wang.avi.AVLoadingIndicatorView
+        xmlns:app="http://schemas.android.com/apk/res-auto"
+        android:id="@+id/loadingView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerInParent="true"
+        android:visibility="visible"
+        app:indicator="LineScalePulseOutRapid"
+        app:indicator_color="@color/blue"/>
+
     <ImageView
         android:id="@+id/ivGuide"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:background="@drawable/skjc_rank"/>
+        android:background="@drawable/shawn_fact_bg_rank"/>
 
 </RelativeLayout>

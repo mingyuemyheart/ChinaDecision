@@ -154,7 +154,7 @@
             android:screenOrientation="portrait" />
 
         <activity
-            android:name="com.china.activity.StationMonitorDetailActivity"
+            android:name="com.china.activity.ShawnFactRankDetailActivity"
             android:screenOrientation="sensor"
             android:configChanges="orientation|keyboard|keyboardHidden|screenSize" />
 
@@ -184,11 +184,11 @@
             android:screenOrientation="portrait" />
 
         <activity
-            android:name="com.china.activity.StationMonitorRankActivity"
+            android:name="com.china.activity.ShawnFactRankActivity"
             android:screenOrientation="portrait" />
 
         <activity
-            android:name="com.china.activity.StationMonitorRankSearchActivity"
+            android:name="com.china.activity.ShawnFactRankSearchActivity"
             android:screenOrientation="portrait" />
 
         <activity
