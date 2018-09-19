@@ -1,8 +1,10 @@
 package com.china.activity;
 
 import android.annotation.SuppressLint;
+import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.graphics.Bitmap;
@@ -10,6 +12,7 @@ import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.graphics.Matrix;
 import android.graphics.Point;
+import android.graphics.drawable.Drawable;
 import android.graphics.drawable.GradientDrawable;
 import android.media.ThumbnailUtils;
 import android.os.Bundle;
@@ -34,15 +37,18 @@ import com.amap.api.location.AMapLocationClientOption;
 import com.amap.api.location.AMapLocationClientOption.AMapLocationMode;
 import com.amap.api.location.AMapLocationListener;
 import com.amap.api.maps.AMap;
-import com.amap.api.maps.AMap.InfoWindowAdapter;
 import com.amap.api.maps.AMap.OnCameraChangeListener;
 import com.amap.api.maps.AMap.OnMapClickListener;
 import com.amap.api.maps.AMap.OnMapScreenShotListener;
 import com.amap.api.maps.AMap.OnMarkerClickListener;
+import com.amap.api.maps.AMapUtils;
 import com.amap.api.maps.CameraUpdateFactory;
 import com.amap.api.maps.MapView;
+import com.amap.api.maps.model.BitmapDescriptor;
 import com.amap.api.maps.model.BitmapDescriptorFactory;
 import com.amap.api.maps.model.CameraPosition;
+import com.amap.api.maps.model.GroundOverlay;
+import com.amap.api.maps.model.GroundOverlayOptions;
 import com.amap.api.maps.model.LatLng;
 import com.amap.api.maps.model.LatLngBounds;
 import com.amap.api.maps.model.Marker;
@@ -67,16 +73,19 @@ import com.amap.api.services.geocoder.RegeocodeResult;
 import com.china.R;
 import com.china.common.CONST;
 import com.china.common.MyApplication;
+import com.china.dto.MinuteFallDto;
 import com.china.dto.StationMonitorDto;
+import com.china.manager.CaiyunManager;
 import com.china.manager.DBManager;
-import com.china.manager.StationManager;
+import com.china.manager.FactManager;
 import com.china.utils.CommonUtil;
 import com.china.utils.OkHttpUtil;
 import com.china.utils.SecretUrlUtil;
 import com.china.view.StationCursorView;
+import com.squareup.picasso.Picasso;
+import com.squareup.picasso.Target;
 import com.tendcloud.tenddata.TCAgent;
-
-import net.tsz.afinal.FinalBitmap;
+import com.wang.avi.AVLoadingIndicatorView;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -87,6 +96,7 @@ import java.math.BigDecimal;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 
 import okhttp3.Call;
 import okhttp3.Callback;
@@ -97,118 +107,86 @@ import okhttp3.Response;
 
 /**
  * 站点监测
- *
- * @author shawn_sun
  */
+public class ShawnFactActivity extends BaseActivity implements OnClickListener, AMapLocationListener, OnMarkerClickListener,
+        OnMapClickListener, OnGeocodeSearchListener, OnCameraChangeListener, OnMapScreenShotListener,DistrictSearch.OnDistrictSearchListener {
 
-public class StationMonitorActivity extends BaseActivity implements OnClickListener, AMapLocationListener, OnMarkerClickListener,
-        InfoWindowAdapter, OnMapClickListener, OnGeocodeSearchListener, OnCameraChangeListener, OnMapScreenShotListener,
-        AMap.OnMapLoadedListener, DistrictSearch.OnDistrictSearchListener {
-
-    private Context mContext = null;
-    private LinearLayout llBack = null;
-    private TextView tvTitle = null;
-    private MapView mMapView = null;
-    private AMap aMap = null;
+    private Context mContext;
+    private MapView mMapView;
+    private AMap aMap;
+    private TextView tvTemp2,tvRain2,tvHumidity2,tvVisibility2,tvPressure2,tvWindSpeed2,tvLayerName,tvProName;
+    private TextView tvTitle,tvName,tvStationId,tvTemp,tvDistance,tvJiangshui,tvShidu,tvWind,tvVisible,tvPressrue;
     private List<StationMonitorDto> stationList = new ArrayList<>();
-    private TextView tvName = null;
-    private TextView tvStationId = null;
-    private TextView tvTemp = null;
-    private TextView tvDistance = null;
-    private TextView tvJiangshui = null;
-    private TextView tvShidu = null;
-    private TextView tvWind = null;
-    private TextView tvLoudian = null;
-    private TextView tvVisible = null;
-    private TextView tvPressrue = null;
-    private TextView tvCheckStation = null;
-    private SimpleDateFormat sdf1 = new SimpleDateFormat("HH时");
+    private SimpleDateFormat sdf1 = new SimpleDateFormat("HH时", Locale.CHINA);
     private long pastTime = 60 * 60 * 1000;
-    private RelativeLayout reContent = null;
-    private ImageView ivDelete = null;
+    private RelativeLayout reContent,reShare;
     private float zoom = 3.5f;
-    private AMapLocationClientOption mLocationOption = null;//声明mLocationOption对象
-    private AMapLocationClient mLocationClient = null;//声明AMapLocationClient类对象
-    private String stationName = null;
-    private String stationId = null;
-    private TextView tvTemp2 = null;
-    private TextView tvRain2 = null;
-    private TextView tvHumidity2 = null;
-    private TextView tvVisibility2 = null;
-    private TextView tvPressure2 = null;
-    private TextView tvWindSpeed2 = null;
+    private Marker clickMarker;
+    private String layerName = "全国",stationName,stationId;
     private List<Marker> markerList = new ArrayList<>();//10个站点的marker
-    private ImageView ivMapSearch = null;//省市县筛选站点
-    private double locationLat = 0;
-    private double locationLng = 0;
-    private GeocodeSearch geocoderSearch = null;
-    private String precipitation1hLegend,precipitation3hLegend,precipitation6hLegend,precipitation12hLegend,precipitation24hLegend;
-    private String balltempLegend, balltempMaxLegend, balltempMinLegend, balltempChangeLegend;
-    private String humidityLegend = null;
-    private String visibilityLegend = null;
-    private String windspeedLegend = null;
-    private String airpressureLegend = null;
-    private String precipitation1hJson,precipitation3hJson,precipitation6hJson,precipitation12hJson,precipitation24hJson;
-    private String balltempJson, balltempMaxJson, balltempMinJson, balltempChangeJson;
-    private String humidityJson = null;
-    private String visibilityJson = null;
-    private String windspeedJson = null;
-    private String airpressureJson = null;
+    private LatLng locationLatLng = new LatLng(39.904030, 116.407526);
+    private GeocodeSearch geocoderSearch;
     private List<Polygon> polygons = new ArrayList<>();
     private List<Text> texts = new ArrayList<>();//等值线
-    private ImageView ivLocation = null;//定位按钮
-    private TextView tvLayerName = null;//图层名称
-    private String layerName = "全国";
+    private ImageView ivLegend,ivProName,ivGuide,ivCursor,ivTyphoonRadar,ivTyphoonCloud;
     private int value = 1;//默认为降水
-    private ImageView ivLegend = null;
-    private ImageView ivLegendPrompt = null;
-    private LinearLayout llRain = null;
-    private TextView tv1, tv2, tv3, tv4, tv5;
-    private LinearLayout llTemp;
-    private TextView tv21, tv22, tv23, tv24;
-    private ImageView ivRank = null;//进入排序界面
-    private RelativeLayout reShare = null;
-    private ImageView ivShare = null;
-    private LinearLayout llScrollView = null;
-    private TextView tvProName = null;
-    private ImageView ivProName = null;
-    private final String LOADTYPE1 = "default";//默认加载图层数据方式
-    private final String LOADTYPE2 = "move";//地图缩放、移动等
-    private final String LOADTYPE3 = "click";//天气6要素按钮点击切换
-    private LatLng leftlatlng = null, rightLatlng = null;//可视区域左上右下对应的经纬度
-    private List<String> precipitation1hColor = new ArrayList<>();
-    private List<String> precipitation3hColor = new ArrayList<>();
-    private List<String> precipitation6hColor = new ArrayList<>();
-    private List<String> precipitation12hColor = new ArrayList<>();
-    private List<String> precipitation24hColor = new ArrayList<>();
-    private List<String> balltempColor = new ArrayList<>();
-    private List<String> balltempMaxColor = new ArrayList<>();
-    private List<String> balltempMinColor = new ArrayList<>();
-    private List<String> balltempChangeColor = new ArrayList<>();
-    private List<String> humidityColor = new ArrayList<>();
-    private List<String> visibilityColor = new ArrayList<>();
-    private List<String> windspeedColor = new ArrayList<>();
-    private List<String> airpressureColor = new ArrayList<>();
+    private LinearLayout llRain,llTemp,llCursor;
+    private TextView tv1, tv2, tv3, tv4, tv5, tv21, tv22, tv23, tv24;
+    private final String LOADTYPE1 = "default",LOADTYPE2 = "move",LOADTYPE3 = "click";//默认加载图层数据方式,地图缩放、移动等,天气6要素按钮点击切换
+    private LatLng leftlatlng = new LatLng(-16.305714763804854,75.13831436634065);
+    private LatLng rightLatlng = new LatLng(63.681687310440864,135.21788656711578);
+    private final int typeRain1 = 1,typeRain3 = 13,typeRain6 = 16,typeRain12 = 112,typeRain24 = 124,typeTemp1 = 21,typeTemp24Max = 22,
+            typeTemp24Min = 23,typeTemp24Change = 24,typeHumidity = 3,typeVisible = 4,typePressure = 5,typeWind = 6;
     private List<Polyline> boundLines = new ArrayList<>();//省份边界
-    private LinearLayout llCursor = null;//游标
-    private StationCursorView cursorView = null;
-    private ImageView ivGuide = null;//引导页
-    private ImageView ivCursor, ivAdd, ivMinuse;
+    private MyBroadCastReceiver mReceiver;
+    private AVLoadingIndicatorView loadingView;
+
+    //云图雷达图
+    private boolean isRadarOn = false,isCloudOn = false;
+    private CaiyunManager mRadarManager;
+    private List<MinuteFallDto> radarList = new ArrayList<>();
+    private RadarThread mRadarThread;
+    private static final int HANDLER_SHOW_RADAR = 1;
+    private static final int HANDLER_LOAD_FINISHED = 3;
+    private GroundOverlay radarOverlay,cloudOverlay;
+    private Bitmap cloudBitmap;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_station_monitor);
+        setContentView(R.layout.shawn_activity_fact);
         mContext = this;
+        initBroadCast();
         initMap(savedInstanceState);
         initWidget();
+    }
+    
+    private void initBroadCast() {
+        mReceiver = new MyBroadCastReceiver();
+        IntentFilter intentFilter = new IntentFilter();
+        intentFilter.addAction(FactManager.BROAD_RAIN1_COMPLETE);
+        intentFilter.addAction(FactManager.BROAD_RAIN1_LEGEND_COMPLETE);
+        registerReceiver(mReceiver, intentFilter);
+    }
+    
+    private class MyBroadCastReceiver extends BroadcastReceiver {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            if (TextUtils.equals(intent.getAction(), FactManager.BROAD_RAIN1_COMPLETE)) {
+                drawNationDataToMap(value, LOADTYPE1);
+            }else if (TextUtils.equals(intent.getAction(), FactManager.BROAD_RAIN1_LEGEND_COMPLETE)) {
+                if (!TextUtils.isEmpty(FactManager.precipitation1hLegend)) {
+                    Picasso.get().load(FactManager.precipitation1hLegend).into(ivLegend);
+                }
+            }
+        }
     }
 
     /**
      * 初始化地图
      */
     private void initMap(Bundle bundle) {
-        mMapView = (MapView) findViewById(R.id.map);
+        mMapView = findViewById(R.id.mapView);
         mMapView.onCreate(bundle);
         if (aMap == null) {
             aMap = mMapView.getMap();
@@ -218,334 +196,13 @@ public class StationMonitorActivity extends BaseActivity implements OnClickListe
         aMap.getUiSettings().setRotateGesturesEnabled(false);
         aMap.setOnMarkerClickListener(this);
         aMap.setOnMapClickListener(this);
-        aMap.setInfoWindowAdapter(this);
         aMap.setOnCameraChangeListener(this);
-        aMap.setOnMapLoadedListener(this);
-    }
-
-    @Override
-    public void onMapLoaded() {
-        OkHttpMapUrl("http://decision-admin.tianqi.cn/Home/extra/decision_skjclayers");//获取中国地区五中天气现象数据
-        OkHttpLegend("http://decision-admin.tianqi.cn/Home/extra/decision_skjctuli");//获取图例
-    }
-
-    /**
-     * 获取五种天气要素的json地址
-     */
-    private void OkHttpMapUrl(final String url) {
-        new Thread(new Runnable() {
+        aMap.setOnMapLoadedListener(new AMap.OnMapLoadedListener() {
             @Override
-            public void run() {
-                OkHttpUtil.enqueue(new Request.Builder().url(url).build(), new Callback() {
-                    @Override
-                    public void onFailure(Call call, IOException e) {
-
-                    }
-
-                    @Override
-                    public void onResponse(Call call, Response response) throws IOException {
-                        if (!response.isSuccessful()) {
-                            return;
-                        }
-                        String result = response.body().string();
-                        if (result != null) {
-                            try {
-                                JSONArray array = new JSONArray(result);
-                                if (array.length() == 0) {
-                                    llScrollView.setVisibility(View.GONE);
-                                    return;
-                                }
-                                JSONObject obj = array.getJSONObject(0);
-                                if (!obj.isNull("precipitation1h")) {
-                                    precipitation1hJson = obj.getString("precipitation1h");
-                                }
-                                if (!obj.isNull("rainfall3")) {
-                                    precipitation3hJson = obj.getString("rainfall3");
-                                }
-                                if (!obj.isNull("rainfall6")) {
-                                    precipitation6hJson = obj.getString("rainfall6");
-                                }
-                                if (!obj.isNull("rainfall12")) {
-                                    precipitation12hJson = obj.getString("rainfall12");
-                                }
-                                if (!obj.isNull("rainfall24")) {
-                                    precipitation24hJson = obj.getString("rainfall24");
-                                }
-                                if (!obj.isNull("balltemp")) {
-                                    balltempJson = obj.getString("balltemp");
-                                }
-                                if (!obj.isNull("tempmax")) {
-                                    balltempMaxJson = obj.getString("tempmax");
-                                }
-                                if (!obj.isNull("tempmin")) {
-                                    balltempMinJson = obj.getString("tempmin");
-                                }
-                                if (!obj.isNull("tempchange")) {
-                                    balltempChangeJson = obj.getString("tempchange");
-                                }
-                                if (!obj.isNull("humidity")) {
-                                    humidityJson = obj.getString("humidity");
-                                }
-                                if (!obj.isNull("windspeed")) {
-                                    windspeedJson = obj.getString("windspeed");
-                                }
-                                if (!obj.isNull("visibility")) {
-                                    visibilityJson = obj.getString("visibility");
-                                }
-                                if (!obj.isNull("airpressure")) {
-                                    airpressureJson = obj.getString("airpressure");
-                                }
-                                if (!TextUtils.isEmpty(precipitation1hJson)) {
-                                    asyncGetMapData(precipitation1hJson);
-                                }
-                                if (!TextUtils.isEmpty(precipitation3hJson)) {
-                                    StationManager.asyncGetMapData3H(precipitation3hJson);
-                                }
-                                if (!TextUtils.isEmpty(precipitation6hJson)) {
-                                    StationManager.asyncGetMapData6H(precipitation6hJson);
-                                }
-                                if (!TextUtils.isEmpty(precipitation12hJson)) {
-                                    StationManager.asyncGetMapData12H(precipitation12hJson);
-                                }
-                                if (!TextUtils.isEmpty(precipitation24hJson)) {
-                                    StationManager.asyncGetMapData24H(precipitation24hJson);
-                                }
-                                if (!TextUtils.isEmpty(balltempJson)) {
-                                    StationManager.asyncGetMapData21(balltempJson);
-                                }
-                                if (!TextUtils.isEmpty(balltempMaxJson)) {
-                                    StationManager.asyncGetMapData22(balltempMaxJson);
-                                }
-                                if (!TextUtils.isEmpty(balltempMinJson)) {
-                                    StationManager.asyncGetMapData23(balltempMinJson);
-                                }
-                                if (!TextUtils.isEmpty(balltempChangeJson)) {
-                                    StationManager.asyncGetMapData24(balltempChangeJson);
-                                }
-                                if (!TextUtils.isEmpty(humidityJson)) {
-                                    StationManager.asyncGetMapData3(humidityJson);
-                                }
-                                if (!TextUtils.isEmpty(visibilityJson)) {
-                                    StationManager.asyncGetMapData4(visibilityJson);
-                                }
-                                if (!TextUtils.isEmpty(airpressureJson)) {
-                                    StationManager.asyncGetMapData5(airpressureJson);
-                                }
-                                if (!TextUtils.isEmpty(windspeedJson)) {
-                                    StationManager.asyncGetMapData6(windspeedJson);
-                                }
-                            } catch (JSONException e) {
-                                e.printStackTrace();
-                            }
-                        }
-                    }
-                });
+            public void onMapLoaded() {
+                FactManager factManager = new FactManager(mContext);
             }
-        }).start();
-    }
-
-    /**
-     * 获取图例
-     */
-    private void OkHttpLegend(final String url) {
-        new Thread(new Runnable() {
-            @Override
-            public void run() {
-                OkHttpUtil.enqueue(new Request.Builder().url(url).build(), new Callback() {
-                    @Override
-                    public void onFailure(Call call, IOException e) {
-
-                    }
-
-                    @Override
-                    public void onResponse(Call call, Response response) throws IOException {
-                        if (!response.isSuccessful()) {
-                            return;
-                        }
-                        final String result = response.body().string();
-                        runOnUiThread(new Runnable() {
-                            @Override
-                            public void run() {
-                                if (!TextUtils.isEmpty(result)) {
-                                    try {
-                                        JSONObject obj = new JSONObject(result);
-                                        if (!obj.isNull("jc_1xsjs")) {
-                                            precipitation1hLegend = obj.getString("jc_1xsjs");
-                                        }
-                                        if (!TextUtils.isEmpty(precipitation1hLegend)) {
-                                            FinalBitmap finalBitmap = FinalBitmap.create(mContext);
-                                            finalBitmap.display(ivLegend, precipitation1hLegend, null, 0);
-                                        }
-                                        if (!obj.isNull("jc_3xsjs")) {
-                                            precipitation3hLegend = obj.getString("jc_3xsjs");
-                                        }
-                                        if (!obj.isNull("jc_6xsjs")) {
-                                            precipitation6hLegend = obj.getString("jc_6xsjs");
-                                        }
-                                        if (!obj.isNull("jc_12xsjs")) {
-                                            precipitation12hLegend = obj.getString("jc_12xsjs");
-                                        }
-                                        if (!obj.isNull("jc_24xsjs")) {
-                                            precipitation24hLegend = obj.getString("jc_24xsjs");
-                                        }
-                                        if (!obj.isNull("jc_wdtl")) {
-                                            balltempLegend = obj.getString("jc_wdtl");
-                                        }
-                                        if (!obj.isNull("jc_maxqw")) {
-                                            balltempMaxLegend = obj.getString("jc_maxqw");
-                                        }
-                                        if (!obj.isNull("jc_minqw")) {
-                                            balltempMinLegend = obj.getString("jc_minqw");
-                                        }
-                                        if (!obj.isNull("jc_changeqw")) {
-                                            balltempChangeLegend = obj.getString("jc_changeqw");
-                                        }
-                                        if (!obj.isNull("jc_xdsdtl")) {
-                                            humidityLegend = obj.getString("jc_xdsdtl");
-                                        }
-                                        if (!obj.isNull("jc_fltl")) {
-                                            windspeedLegend = obj.getString("jc_fltl");
-                                        }
-                                        if (!obj.isNull("jc_njdtl")) {
-                                            visibilityLegend = obj.getString("jc_njdtl");
-                                        }
-                                        if (!obj.isNull("jc_qytl")) {
-                                            airpressureLegend = obj.getString("jc_qytl");
-                                        }
-
-                                        if (!obj.isNull("jb_1xsjs")) {
-                                            precipitation1hColor.clear();
-                                            JSONArray array = obj.getJSONArray("jb_1xsjs");
-                                            for (int i = 0; i < array.length(); i++) {
-                                                precipitation1hColor.add(array.getString(i));
-                                            }
-                                        }
-                                        if (!obj.isNull("jb_3xsjs")) {
-                                            precipitation3hColor.clear();
-                                            JSONArray array = obj.getJSONArray("jb_3xsjs");
-                                            for (int i = 0; i < array.length(); i++) {
-                                                precipitation3hColor.add(array.getString(i));
-                                            }
-                                        }
-                                        if (!obj.isNull("jb_6xsjs")) {
-                                            precipitation6hColor.clear();
-                                            JSONArray array = obj.getJSONArray("jb_6xsjs");
-                                            for (int i = 0; i < array.length(); i++) {
-                                                precipitation6hColor.add(array.getString(i));
-                                            }
-                                        }
-                                        if (!obj.isNull("jb_12xsjs")) {
-                                            precipitation12hColor.clear();
-                                            JSONArray array = obj.getJSONArray("jb_12xsjs");
-                                            for (int i = 0; i < array.length(); i++) {
-                                                precipitation12hColor.add(array.getString(i));
-                                            }
-                                        }
-                                        if (!obj.isNull("jb_24xsjs")) {
-                                            precipitation24hColor.clear();
-                                            JSONArray array = obj.getJSONArray("jb_24xsjs");
-                                            for (int i = 0; i < array.length(); i++) {
-                                                precipitation24hColor.add(array.getString(i));
-                                            }
-                                        }
-                                        if (!obj.isNull("jb_fltl")) {
-                                            windspeedColor.clear();
-                                            JSONArray array = obj.getJSONArray("jb_fltl");
-                                            for (int i = 0; i < array.length(); i++) {
-                                                windspeedColor.add(array.getString(i));
-                                            }
-                                        }
-                                        if (!obj.isNull("jb_njdtl")) {
-                                            visibilityColor.clear();
-                                            JSONArray array = obj.getJSONArray("jb_njdtl");
-                                            for (int i = 0; i < array.length(); i++) {
-                                                visibilityColor.add(array.getString(i));
-                                            }
-                                        }
-                                        if (!obj.isNull("jb_qytl")) {
-                                            airpressureColor.clear();
-                                            JSONArray array = obj.getJSONArray("jb_qytl");
-                                            for (int i = 0; i < array.length(); i++) {
-                                                airpressureColor.add(array.getString(i));
-                                            }
-                                        }
-                                        if (!obj.isNull("jb_wdtl")) {
-                                            balltempColor.clear();
-                                            JSONArray array = obj.getJSONArray("jb_wdtl");
-                                            for (int i = 0; i < array.length(); i++) {
-                                                balltempColor.add(array.getString(i));
-                                            }
-                                        }
-                                        if (!obj.isNull("jb_maxqw")) {
-                                            balltempMaxColor.clear();
-                                            JSONArray array = obj.getJSONArray("jb_maxqw");
-                                            for (int i = 0; i < array.length(); i++) {
-                                                balltempMaxColor.add(array.getString(i));
-                                            }
-                                        }
-                                        if (!obj.isNull("jb_minqw")) {
-                                            balltempMinColor.clear();
-                                            JSONArray array = obj.getJSONArray("jb_minqw");
-                                            for (int i = 0; i < array.length(); i++) {
-                                                balltempMinColor.add(array.getString(i));
-                                            }
-                                        }
-                                        if (!obj.isNull("jb_changeqw")) {
-                                            balltempChangeColor.clear();
-                                            JSONArray array = obj.getJSONArray("jb_changeqw");
-                                            for (int i = 0; i < array.length(); i++) {
-                                                balltempChangeColor.add(array.getString(i));
-                                            }
-                                        }
-                                        if (!obj.isNull("jb_xdsdtl")) {
-                                            humidityColor.clear();
-                                            JSONArray array = obj.getJSONArray("jb_xdsdtl");
-                                            for (int i = 0; i < array.length(); i++) {
-                                                humidityColor.add(array.getString(i));
-                                            }
-                                        }
-
-                                    } catch (JSONException e) {
-                                        e.printStackTrace();
-                                    }
-                                }
-                            }
-                        });
-                    }
-                });
-            }
-        }).start();
-    }
-
-    /**
-     * 获取五中天气要素数据接口
-     *
-     * @param url
-     */
-    private void asyncGetMapData(final String url) {
-        new Thread(new Runnable() {
-            @Override
-            public void run() {
-                OkHttpUtil.enqueue(new Request.Builder().url(url).build(), new Callback() {
-                    @Override
-                    public void onFailure(Call call, IOException e) {
-
-                    }
-
-                    @Override
-                    public void onResponse(Call call, Response response) throws IOException {
-                        if (!response.isSuccessful()) {
-                            return;
-                        }
-                        String result = response.body().string();
-                        if (result != null) {
-                            StationManager.precipitation1hResult = result;
-                            drawNationDataToMap(value, LOADTYPE1);
-                        }
-                    }
-                });
-            }
-        }).start();
+        });
     }
 
     @Override
@@ -561,20 +218,7 @@ public class StationMonitorActivity extends BaseActivity implements OnClickListe
         Point rightPoint = new Point(dm.widthPixels, 0);
         leftlatlng = aMap.getProjection().fromScreenLocation(leftPoint);
         rightLatlng = aMap.getProjection().fromScreenLocation(rightPoint);
-
-        setMapEmit(arg0.zoom, arg0.target.latitude, arg0.target.longitude);
-
         zoom = arg0.zoom;
-//        if (cursorView != null) {
-//            if (llCursor != null) {
-//                llCursor.setVisibility(View.VISIBLE);
-//            }
-//            cursorView.refreshCursor(zoom);
-//            delayedHandler.removeMessages(1000);
-//            Message msg = delayedHandler.obtainMessage();
-//            msg.what = 1000;
-//            delayedHandler.sendMessageDelayed(msg, 3000);
-//        }
 
         moveCursor();
 
@@ -583,6 +227,8 @@ public class StationMonitorActivity extends BaseActivity implements OnClickListe
         Message msg = delayedHandler.obtainMessage();
         msg.what = 1001;
         delayedHandler.sendMessageDelayed(msg, 1500);
+
+        setMapEmit(arg0.zoom, arg0.target.latitude, arg0.target.longitude);
     }
 
     @SuppressLint("HandlerLeak")
@@ -608,72 +254,65 @@ public class StationMonitorActivity extends BaseActivity implements OnClickListe
     };
 
     /**
-     * 清除图层
-     */
-    private void removeWeatherLayer() {
-        for (int i = 0; i < polygons.size(); i++) {
-            polygons.get(i).remove();
-        }
-        polygons.clear();
-    }
-
-    /**
-     * 清除等值线
-     */
-    private void removeValueLine() {
-        for (int i = 0; i < texts.size(); i++) {
-            texts.get(i).remove();
-        }
-        texts.clear();
-    }
-
-    /**
      * 绘制全国区域
-     *
      * @param value 判断降水、气温、气压等类型
      */
     private void drawNationDataToMap(int value, String loadType) {
         String result = "";
         String type = "";
-        if (value == 1) {
-            result = StationManager.precipitation1hResult;
-            type = getString(R.string.layer_rain1);
-        } else if (value == 13) {
-            result = StationManager.precipitation3hResult;
-            type = getString(R.string.layer_rain3);
-        } else if (value == 16) {
-            result = StationManager.precipitation6hResult;
-            type = getString(R.string.layer_rain6);
-        } else if (value == 112) {
-            result = StationManager.precipitation12hResult;
-            type = getString(R.string.layer_rain12);
-        } else if (value == 124) {
-            result = StationManager.precipitation24hResult;
-            type = getString(R.string.layer_rain24);
-        } else if (value == 21) {
-            result = StationManager.balltempResult;
-            type = getString(R.string.layer_temp21);
-        } else if (value == 22) {
-            result = StationManager.balltempMaxResult;
-            type = getString(R.string.layer_temp22);
-        } else if (value == 23) {
-            result = StationManager.balltempMinResult;
-            type = getString(R.string.layer_temp23);
-        } else if (value == 24) {
-            result = StationManager.balltempChangeResult;
-            type = getString(R.string.layer_temp24);
-        } else if (value == 3) {
-            result = StationManager.humidityResult;
-            type = getString(R.string.layer_humidity);
-        } else if (value == 4) {
-            result = StationManager.visibilityResult;
-            type = getString(R.string.layer_visible);
-        } else if (value == 5) {
-            result = StationManager.airpressureResult;
-            type = getString(R.string.layer_pressure);
-        } else if (value == 6) {
-            result = StationManager.windspeedResult;
-            type = getString(R.string.layer_wind);
+        switch (value) {
+            case typeRain1:
+                result = FactManager.precipitation1hResult;
+                type = getString(R.string.layer_rain1);
+                break;
+            case typeRain3:
+                result = FactManager.precipitation3hResult;
+                type = getString(R.string.layer_rain3);
+                break;
+            case typeRain6:
+                result = FactManager.precipitation6hResult;
+                type = getString(R.string.layer_rain6);
+                break;
+            case typeRain12:
+                result = FactManager.precipitation12hResult;
+                type = getString(R.string.layer_rain12);
+                break;
+            case typeRain24:
+                result = FactManager.precipitation24hResult;
+                type = getString(R.string.layer_rain24);
+                break;
+            case typeTemp1:
+                result = FactManager.balltempResult;
+                type = getString(R.string.layer_temp21);
+                break;
+            case typeTemp24Max:
+                result = FactManager.balltempMaxResult;
+                type = getString(R.string.layer_temp22);
+                break;
+            case typeTemp24Min:
+                result = FactManager.balltempMinResult;
+                type = getString(R.string.layer_temp23);
+                break;
+            case typeTemp24Change:
+                result = FactManager.balltempChangeResult;
+                type = getString(R.string.layer_temp24);
+                break;
+            case typeHumidity:
+                result = FactManager.humidityResult;
+                type = getString(R.string.layer_humidity);
+                break;
+            case typeVisible:
+                result = FactManager.visibilityResult;
+                type = getString(R.string.layer_visible);
+                break;
+            case typePressure:
+                result = FactManager.airpressureResult;
+                type = getString(R.string.layer_pressure);
+                break;
+            case typeWind:
+                result = FactManager.windspeedResult;
+                type = getString(R.string.layer_wind);
+                break;
         }
 
         if (TextUtils.equals(loadType, LOADTYPE1)) {//默认只加载图层数据、图层名称
@@ -732,45 +371,59 @@ public class StationMonitorActivity extends BaseActivity implements OnClickListe
     private void drawProvinceDataToMap(int value, String loadType) {
         String result = "";
         String type = "";
-        if (value == 1) {
-            result = StationManager.precipitation1hResult;
-            type = getString(R.string.layer_rain1);
-        } else if (value == 13) {
-            result = StationManager.precipitation3hResult;
-            type = getString(R.string.layer_rain3);
-        } else if (value == 16) {
-            result = StationManager.precipitation6hResult;
-            type = getString(R.string.layer_rain6);
-        } else if (value == 112) {
-            result = StationManager.precipitation12hResult;
-            type = getString(R.string.layer_rain12);
-        } else if (value == 124) {
-            result = StationManager.precipitation24hResult;
-            type = getString(R.string.layer_rain24);
-        } else if (value == 21) {
-            result = StationManager.balltempResult;
-            type = getString(R.string.layer_temp21);
-        } else if (value == 22) {
-            result = StationManager.balltempMaxResult;
-            type = getString(R.string.layer_temp22);
-        } else if (value == 23) {
-            result = StationManager.balltempMinResult;
-            type = getString(R.string.layer_temp23);
-        } else if (value == 24) {
-            result = StationManager.balltempChangeResult;
-            type = getString(R.string.layer_temp24);
-        } else if (value == 3) {
-            result = StationManager.humidityResult;
-            type = getString(R.string.layer_humidity);
-        } else if (value == 4) {
-            result = StationManager.visibilityResult;
-            type = getString(R.string.layer_visible);
-        } else if (value == 5) {
-            result = StationManager.airpressureResult;
-            type = getString(R.string.layer_pressure);
-        } else if (value == 6) {
-            result = StationManager.windspeedResult;
-            type = getString(R.string.layer_wind);
+        switch (value) {
+            case typeRain1:
+                result = FactManager.precipitation1hResult;
+                type = getString(R.string.layer_rain1);
+                break;
+            case typeRain3:
+                result = FactManager.precipitation3hResult;
+                type = getString(R.string.layer_rain3);
+                break;
+            case typeRain6:
+                result = FactManager.precipitation6hResult;
+                type = getString(R.string.layer_rain6);
+                break;
+            case typeRain12:
+                result = FactManager.precipitation12hResult;
+                type = getString(R.string.layer_rain12);
+                break;
+            case typeRain24:
+                result = FactManager.precipitation24hResult;
+                type = getString(R.string.layer_rain24);
+                break;
+            case typeTemp1:
+                result = FactManager.balltempResult;
+                type = getString(R.string.layer_temp21);
+                break;
+            case typeTemp24Max:
+                result = FactManager.balltempMaxResult;
+                type = getString(R.string.layer_temp22);
+                break;
+            case typeTemp24Min:
+                result = FactManager.balltempMinResult;
+                type = getString(R.string.layer_temp23);
+                break;
+            case typeTemp24Change:
+                result = FactManager.balltempChangeResult;
+                type = getString(R.string.layer_temp24);
+                break;
+            case typeHumidity:
+                result = FactManager.humidityResult;
+                type = getString(R.string.layer_humidity);
+                break;
+            case typeVisible:
+                result = FactManager.visibilityResult;
+                type = getString(R.string.layer_visible);
+                break;
+            case typePressure:
+                result = FactManager.airpressureResult;
+                type = getString(R.string.layer_pressure);
+                break;
+            case typeWind:
+                result = FactManager.windspeedResult;
+                type = getString(R.string.layer_wind);
+                break;
         }
 
         if (TextUtils.equals(loadType, LOADTYPE1)) {//默认只加载图层数据、图层名称
@@ -792,45 +445,49 @@ public class StationMonitorActivity extends BaseActivity implements OnClickListe
 
     /**
      * 绘制图层名称
-     *
      * @param result
      * @param type
      */
-    private void drawWeatherLayerName(String result, String type) {
+    private void drawWeatherLayerName(final String result, final String type) {
         if (TextUtils.isEmpty(result) || TextUtils.isEmpty(type)) {
             return;
         }
-        try {
-            JSONObject obj = new JSONObject(result);
-            if (!obj.isNull("t")) {
-                long time1 = obj.getLong("t") - pastTime;
-                long time2 = obj.getLong("t");
-                String time = "(" + sdf1.format(time1) + "-" + sdf1.format(time2) + ")";
-                final String name = type + time;
-                runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        String unit = "";
-                        if (name.contains("降水")) {
-                            unit = "[单位:mm]";
-                        } else if (name.contains("气温")) {
-                            unit = "[单位:℃]";
-                        } else if (name.contains("湿度")) {
-                            unit = "[单位:%]";
-                        } else if (name.contains("风速")) {
-                            unit = "[单位:级]";
-                        } else if (name.contains("能见度")) {
-                            unit = "[单位:km]";
-                        } else if (name.contains("气压")) {
-                            unit = "[单位:hPa]";
-                        }
-                        tvLayerName.setText(layerName + name + unit);
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    JSONObject obj = new JSONObject(result);
+                    if (!obj.isNull("t")) {
+                        long time1 = obj.getLong("t") - pastTime;
+                        long time2 = obj.getLong("t");
+                        String time = "(" + sdf1.format(time1) + "-" + sdf1.format(time2) + ")";
+                        final String name = type + time;
+                        runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                String unit = "";
+                                if (name.contains("降水")) {
+                                    unit = "[单位:mm]";
+                                } else if (name.contains("气温")) {
+                                    unit = "[单位:℃]";
+                                } else if (name.contains("湿度")) {
+                                    unit = "[单位:%]";
+                                } else if (name.contains("风速")) {
+                                    unit = "[单位:级]";
+                                } else if (name.contains("能见度")) {
+                                    unit = "[单位:km]";
+                                } else if (name.contains("气压")) {
+                                    unit = "[单位:hPa]";
+                                }
+                                tvLayerName.setText(layerName + name + unit);
+                            }
+                        });
                     }
-                });
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
             }
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
+        }).start();
     }
 
     /**
@@ -862,8 +519,8 @@ public class StationMonitorActivity extends BaseActivity implements OnClickListe
                                 PolygonOptions polylineOption = new PolygonOptions();
                                 polylineOption.fillColor(Color.argb(a, r, g, b));
                                 polylineOption.strokeColor(Color.TRANSPARENT);
-                                for (int j = 0; j < points.length; j++) {
-                                    String[] latLng = points[j].split(",");
+                                for (String point : points) {
+                                    String[] latLng = point.split(",");
                                     double lat = Double.valueOf(latLng[1]);
                                     double lng = Double.valueOf(latLng[0]);
                                     polylineOption.add(new LatLng(lat, lng));
@@ -882,7 +539,6 @@ public class StationMonitorActivity extends BaseActivity implements OnClickListe
 
     /**
      * 绘制等值线
-     *
      * @param result
      */
     private void drawValueLine(final String result) {
@@ -936,6 +592,26 @@ public class StationMonitorActivity extends BaseActivity implements OnClickListe
     }
 
     /**
+     * 清除图层
+     */
+    private void removeWeatherLayer() {
+        for (int i = 0; i < polygons.size(); i++) {
+            polygons.get(i).remove();
+        }
+        polygons.clear();
+    }
+
+    /**
+     * 清除等值线
+     */
+    private void removeValueLine() {
+        for (int i = 0; i < texts.size(); i++) {
+            texts.get(i).remove();
+        }
+        texts.clear();
+    }
+
+    /**
      * 清除省份边界
      */
     private void removeProvinceBounds() {
@@ -956,11 +632,10 @@ public class StationMonitorActivity extends BaseActivity implements OnClickListe
         DistrictSearch search = new DistrictSearch(mContext);
         DistrictSearchQuery query = new DistrictSearchQuery();
         query.setKeywords(keywords);//传入关键字
-//		query.setKeywordsLevel(DistrictSearchQuery.KEYWORDS_CITY);
         query.setShowBoundary(true);//是否返回边界值
         search.setQuery(query);
         search.setOnDistrictSearchListener(this);//绑定监听器
-        search.searchDistrictAnsy();//开始搜索
+        search.searchDistrictAsyn();//开始搜索
     }
 
     @Override
@@ -1003,87 +678,91 @@ public class StationMonitorActivity extends BaseActivity implements OnClickListe
      * 初始化控件
      */
     private void initWidget() {
-        columnId = getIntent().getStringExtra(CONST.COLUMN_ID);//栏目id
-
-        llBack = (LinearLayout) findViewById(R.id.llBack);
+        loadingView = findViewById(R.id.loadingView);
+        LinearLayout llBack = findViewById(R.id.llBack);
         llBack.setOnClickListener(this);
-        tvTitle = (TextView) findViewById(R.id.tvTitle);
-        tvName = (TextView) findViewById(R.id.tvName);
-        tvStationId = (TextView) findViewById(R.id.tvStationId);
-        tvTemp = (TextView) findViewById(R.id.tvTemp);
-        tvDistance = (TextView) findViewById(R.id.tvDistance);
-        tvJiangshui = (TextView) findViewById(R.id.tvJiangshui);
-        tvWind = (TextView) findViewById(R.id.tvWind);
-        tvShidu = (TextView) findViewById(R.id.tvShidu);
-        tvLoudian = (TextView) findViewById(R.id.tvLoudian);
-        tvVisible = (TextView) findViewById(R.id.tvVisible);
-        tvPressrue = (TextView) findViewById(R.id.tvPressrue);
-        tvCheckStation = (TextView) findViewById(R.id.tvCheckStation);
+        tvTitle = findViewById(R.id.tvTitle);
+        tvName = findViewById(R.id.tvName);
+        tvStationId = findViewById(R.id.tvStationId);
+        tvTemp = findViewById(R.id.tvTemp);
+        tvDistance = findViewById(R.id.tvDistance);
+        tvJiangshui = findViewById(R.id.tvJiangshui);
+        tvWind = findViewById(R.id.tvWind);
+        tvShidu = findViewById(R.id.tvShidu);
+        tvVisible = findViewById(R.id.tvVisible);
+        tvPressrue = findViewById(R.id.tvPressrue);
+        TextView tvCheckStation = findViewById(R.id.tvCheckStation);
         tvCheckStation.setOnClickListener(this);
-        reContent = (RelativeLayout) findViewById(R.id.reContent);
+        reContent = findViewById(R.id.reContent);
         reContent.setOnClickListener(this);
-        ivDelete = (ImageView) findViewById(R.id.ivDelete);
+        ImageView ivDelete = findViewById(R.id.ivDelete);
         ivDelete.setOnClickListener(this);
-        ivLocation = (ImageView) findViewById(R.id.ivLocation);
+        ImageView ivLocation = findViewById(R.id.ivLocation);
         ivLocation.setOnClickListener(this);
-        tvLayerName = (TextView) findViewById(R.id.tvLayerName);
-        ivLegend = (ImageView) findViewById(R.id.ivLegend);
-        ivLegendPrompt = (ImageView) findViewById(R.id.ivLegendPrompt);
+        tvLayerName = findViewById(R.id.tvLayerName);
+        ivLegend = findViewById(R.id.ivLegend);
+        ImageView ivLegendPrompt = findViewById(R.id.ivLegendPrompt);
         ivLegendPrompt.setOnClickListener(this);
-        llRain = (LinearLayout) findViewById(R.id.llRain);
-        llTemp = (LinearLayout) findViewById(R.id.llTemp);
-        reShare = (RelativeLayout) findViewById(R.id.reShare);
-        ivShare = (ImageView) findViewById(R.id.ivShare);
+        llRain = findViewById(R.id.llRain);
+        llTemp = findViewById(R.id.llTemp);
+        reShare = findViewById(R.id.reShare);
+        ImageView ivShare = findViewById(R.id.ivShare);
         ivShare.setOnClickListener(this);
-        llScrollView = (LinearLayout) findViewById(R.id.llScrollView);
-        tv1 = (TextView) findViewById(R.id.tv1);
+        ivShare.setVisibility(View.VISIBLE);
+        tv1 = findViewById(R.id.tv1);
         tv1.setOnClickListener(this);
-        tv2 = (TextView) findViewById(R.id.tv2);
+        tv2 = findViewById(R.id.tv2);
         tv2.setOnClickListener(this);
-        tv3 = (TextView) findViewById(R.id.tv3);
+        tv3 = findViewById(R.id.tv3);
         tv3.setOnClickListener(this);
-        tv4 = (TextView) findViewById(R.id.tv4);
+        tv4 = findViewById(R.id.tv4);
         tv4.setOnClickListener(this);
-        tv5 = (TextView) findViewById(R.id.tv5);
+        tv5 = findViewById(R.id.tv5);
         tv5.setOnClickListener(this);
-        tv21 = (TextView) findViewById(R.id.tv21);
+        tv21 = findViewById(R.id.tv21);
         tv21.setOnClickListener(this);
-        tv22 = (TextView) findViewById(R.id.tv22);
+        tv22 = findViewById(R.id.tv22);
         tv22.setOnClickListener(this);
-        tv23 = (TextView) findViewById(R.id.tv23);
+        tv23 = findViewById(R.id.tv23);
         tv23.setOnClickListener(this);
-        tv24 = (TextView) findViewById(R.id.tv24);
+        tv24 = findViewById(R.id.tv24);
         tv24.setOnClickListener(this);
-        ivRank = (ImageView) findViewById(R.id.ivRank);
+        ImageView ivRank = findViewById(R.id.ivRank);
         ivRank.setOnClickListener(this);
-        tvProName = (TextView) findViewById(R.id.tvProName);
+        tvProName = findViewById(R.id.tvProName);
         tvProName.setOnClickListener(this);
-        ivProName = (ImageView) findViewById(R.id.ivProName);
+        ivProName = findViewById(R.id.ivProName);
         ivProName.setOnClickListener(this);
-        llCursor = (LinearLayout) findViewById(R.id.llCursor);
-        ivCursor = (ImageView) findViewById(R.id.ivCursor);
-        ivAdd = (ImageView) findViewById(R.id.ivAdd);
+        llCursor = findViewById(R.id.llCursor);
+        ivCursor = findViewById(R.id.ivCursor);
+        ImageView ivAdd = findViewById(R.id.ivAdd);
         ivAdd.setOnClickListener(this);
-        ivMinuse = (ImageView) findViewById(R.id.ivMinuse);
+        ImageView ivMinuse = findViewById(R.id.ivMinuse);
         ivMinuse.setOnClickListener(this);
-        ivGuide = (ImageView) findViewById(R.id.ivGuide);
+        ivGuide = findViewById(R.id.ivGuide);
         ivGuide.setOnClickListener(this);
-        CommonUtil.showGuidePage(mContext, this.getClass().getName(), ivGuide);
-
-        tvTemp2 = (TextView) findViewById(R.id.tvTemp2);
+        tvTemp2 = findViewById(R.id.tvTemp2);
         tvTemp2.setOnClickListener(this);
-        tvRain2 = (TextView) findViewById(R.id.tvRain2);
+        tvRain2 = findViewById(R.id.tvRain2);
         tvRain2.setOnClickListener(this);
-        tvHumidity2 = (TextView) findViewById(R.id.tvHumidity2);
+        tvHumidity2 = findViewById(R.id.tvHumidity2);
         tvHumidity2.setOnClickListener(this);
-        tvVisibility2 = (TextView) findViewById(R.id.tvVisibility2);
+        tvVisibility2 = findViewById(R.id.tvVisibility2);
         tvVisibility2.setOnClickListener(this);
-        tvPressure2 = (TextView) findViewById(R.id.tvPressure2);
+        tvPressure2 = findViewById(R.id.tvPressure2);
         tvPressure2.setOnClickListener(this);
-        tvWindSpeed2 = (TextView) findViewById(R.id.tvWindSpeed2);
+        tvWindSpeed2 = findViewById(R.id.tvWindSpeed2);
         tvWindSpeed2.setOnClickListener(this);
-        ivMapSearch = (ImageView) findViewById(R.id.ivMapSearch);
-        ivMapSearch.setOnClickListener(this);
+        ImageView ivArea = findViewById(R.id.ivArea);
+        ivArea.setOnClickListener(this);
+        ivTyphoonRadar = findViewById(R.id.ivTyphoonRadar);
+        ivTyphoonRadar.setOnClickListener(this);
+        ivTyphoonCloud = findViewById(R.id.ivTyphoonCloud);
+        ivTyphoonCloud.setOnClickListener(this);
+
+        mRadarManager = new CaiyunManager(mContext);
+        columnId = getIntent().getStringExtra(CONST.COLUMN_ID);//栏目id
+        CommonUtil.showGuidePage(mContext, this.getClass().getName(), ivGuide);
 
         DisplayMetrics dm = new DisplayMetrics();
         getWindowManager().getDefaultDisplay().getMetrics(dm);
@@ -1101,13 +780,17 @@ public class StationMonitorActivity extends BaseActivity implements OnClickListe
         }
 
         llCursor.removeAllViews();
-        cursorView = new StationCursorView(mContext);
+        StationCursorView cursorView = new StationCursorView(mContext);
         llCursor.addView(cursorView, (int) CommonUtil.dip2px(mContext, 30), (int) CommonUtil.dip2px(mContext, 160));
 
         geocoderSearch = new GeocodeSearch(mContext);
         geocoderSearch.setOnGeocodeSearchListener(this);
 
-        startLocation();
+        if (CommonUtil.isLocationOpen(mContext)) {
+            startLocation();
+        }else {
+            addLocationMarker(locationLatLng);
+        }
 
         String columnId = getIntent().getStringExtra(CONST.COLUMN_ID);
         CommonUtil.submitClickCount(columnId, title);
@@ -1150,12 +833,11 @@ public class StationMonitorActivity extends BaseActivity implements OnClickListe
      * 开始定位
      */
     private void startLocation() {
-        mLocationOption = new AMapLocationClientOption();//初始化定位参数
-        mLocationClient = new AMapLocationClient(mContext);//初始化定位
+        AMapLocationClientOption mLocationOption = new AMapLocationClientOption();//初始化定位参数
+        AMapLocationClient mLocationClient = new AMapLocationClient(mContext);//初始化定位
         mLocationOption.setLocationMode(AMapLocationMode.Hight_Accuracy);//设置定位模式为高精度模式，Battery_Saving为低功耗模式，Device_Sensors是仅设备模式
         mLocationOption.setNeedAddress(true);//设置是否返回地址信息（默认返回地址信息）
         mLocationOption.setOnceLocation(true);//设置是否只定位一次,默认为false
-        mLocationOption.setWifiActiveScan(true);//设置是否强制刷新WIFI，默认为强制刷新
         mLocationOption.setMockEnable(false);//设置是否允许模拟位置,默认为false，不允许模拟位置
         mLocationOption.setInterval(2000);//设置定位间隔,单位毫秒,默认为2000ms
         mLocationClient.setLocationOption(mLocationOption);//给定位客户端对象设置定位参数
@@ -1166,23 +848,33 @@ public class StationMonitorActivity extends BaseActivity implements OnClickListe
     @Override
     public void onLocationChanged(AMapLocation amapLocation) {
         if (amapLocation != null && amapLocation.getErrorCode() == 0) {
-            locationLat = amapLocation.getLatitude();
-            locationLng = amapLocation.getLongitude();
-            ivLocation.setVisibility(View.VISIBLE);
-            LatLng latLng = new LatLng(amapLocation.getLatitude(), amapLocation.getLongitude());
-            MarkerOptions options = new MarkerOptions();
-            options.anchor(0.5f, 0.5f);
-            Bitmap bitmap = ThumbnailUtils.extractThumbnail(BitmapFactory.decodeResource(getResources(), R.drawable.iv_map_location),
-                    (int) (CommonUtil.dip2px(mContext, 15)), (int) (CommonUtil.dip2px(mContext, 15)));
-            if (bitmap != null) {
-                options.icon(BitmapDescriptorFactory.fromBitmap(bitmap));
-            } else {
-                options.icon(BitmapDescriptorFactory.fromResource(R.drawable.iv_map_location));
-            }
-            options.position(latLng);
-            Marker locationMarker = aMap.addMarker(options);
-            locationMarker.setClickable(false);
+            locationLatLng = new LatLng(amapLocation.getLatitude(), amapLocation.getLongitude());
+            addLocationMarker(locationLatLng);
         }
+    }
+
+    /**
+     * 添加定位标记
+     */
+    private void addLocationMarker(LatLng latLng) {
+        if (latLng == null) {
+            return;
+        }
+        MarkerOptions options = new MarkerOptions();
+        options.position(latLng);
+        options.anchor(0.5f, 1.0f);
+        Bitmap bitmap = ThumbnailUtils.extractThumbnail(BitmapFactory.decodeResource(getResources(), R.drawable.shawn_icon_map_location),
+                (int)(CommonUtil.dip2px(mContext, 21)), (int)(CommonUtil.dip2px(mContext, 32)));
+        if (bitmap != null) {
+            options.icon(BitmapDescriptorFactory.fromBitmap(bitmap));
+        }else {
+            options.icon(BitmapDescriptorFactory.fromResource(R.drawable.shawn_icon_map_location));
+        }
+        if (clickMarker != null) {
+            clickMarker.remove();
+        }
+        clickMarker = aMap.addMarker(options);
+        clickMarker.setClickable(false);
     }
 
     /**
@@ -1249,7 +941,6 @@ public class StationMonitorActivity extends BaseActivity implements OnClickListe
                     list.add(dto);
                 }
                 cursor.close();
-                cursor = null;
                 dbManager.closeDatabase();
 
                 if (!TextUtils.isEmpty(ids)) {
@@ -1326,7 +1017,6 @@ public class StationMonitorActivity extends BaseActivity implements OnClickListe
                     list.add(dto);
                 }
                 cursor.close();
-                cursor = null;
                 dbManager.closeDatabase();
 
                 if (!TextUtils.isEmpty(ids)) {
@@ -1354,9 +1044,7 @@ public class StationMonitorActivity extends BaseActivity implements OnClickListe
                 OkHttpUtil.enqueue(new Request.Builder().url(SecretUrlUtil.stationsInfo(ids[0])).post(requestBody).build(), new Callback() {
                     @Override
                     public void onFailure(Call call, IOException e) {
-
                     }
-
                     @Override
                     public void onResponse(Call call, Response response) throws IOException {
                         if (!response.isSuccessful()) {
@@ -1374,7 +1062,9 @@ public class StationMonitorActivity extends BaseActivity implements OnClickListe
                                         dto.time = obj.getString("datatime");
                                     }
 
-                                    dto.distance = getDistance(locationLng, locationLat, Double.valueOf(dto.lng), Double.valueOf(dto.lat));
+                                    float distance = AMapUtils.calculateLineDistance(locationLatLng, new LatLng(Double.valueOf(dto.lat), Double.valueOf(dto.lng)))/1000;
+                                    float d = new BigDecimal(distance/1000).setScale(1, BigDecimal.ROUND_FLOOR).floatValue();
+                                    dto.distance = d+"";
 
                                     if (!obj.isNull("airpressure")) {
                                         String value = obj.getString("airpressure");
@@ -1656,10 +1346,15 @@ public class StationMonitorActivity extends BaseActivity implements OnClickListe
      * 移除map上已经存在的站点marker
      */
     private void removeStationMarkers() {
-        for (int i = 0; i < markerList.size(); i++) {
-            markerList.get(i).remove();
-        }
-        markerList.clear();
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                for (int i = 0; i < markerList.size(); i++) {
+                    markerList.get(i).remove();
+                }
+                markerList.clear();
+            }
+        }).start();
     }
 
     /**
@@ -1668,49 +1363,53 @@ public class StationMonitorActivity extends BaseActivity implements OnClickListe
      * @param list
      * @param value
      */
-    private void addMarker(final List<StationMonitorDto> list, int value, final String loadType) {
+    private void addMarker(final List<StationMonitorDto> list, final int value, final String loadType) {
         removeStationMarkers();
-        if (list.isEmpty() || list.size() == 0) {
+        if (list.size() <= 0) {
             return;
         }
 
-        final LatLngBounds.Builder bounds = LatLngBounds.builder();
-        for (int i = 0; i < list.size(); i++) {
-            StationMonitorDto dto = list.get(i);
-            double lat = 0;
-            double lng = 0;
-            if (!TextUtils.isEmpty(dto.lat)) {
-                lat = Double.valueOf(dto.lat);
-            }
-            if (!TextUtils.isEmpty(dto.lng)) {
-                lng = Double.valueOf(dto.lng);
-            }
-            MarkerOptions options = new MarkerOptions();
-            options.title(dto.stationId);
-            options.snippet(dto.name);
-            options.anchor(0.5f, 0.5f);
-            options.position(new LatLng(lat, lng));
-            View markerView = getTextBitmap(value, dto);
-            if (markerView != null && lat != 0 && lng != 0) {
-                options.icon(BitmapDescriptorFactory.fromView(markerView));
-                Marker m = aMap.addMarker(options);
-                markerList.add(m);
-
-                bounds.include(new LatLng(lat, lng));
-            }
-        }
-
-        runOnUiThread(new Runnable() {
+        new Thread(new Runnable() {
             @Override
             public void run() {
-                if (tvProName.getVisibility() == View.VISIBLE) {
-                    if (TextUtils.equals(loadType, LOADTYPE3)) {
-                        drawProvinceBounds(tvProName.getText().toString());
-                        aMap.animateCamera(CameraUpdateFactory.newLatLngBounds(bounds.build(), 100));
+                final LatLngBounds.Builder bounds = LatLngBounds.builder();
+                for (StationMonitorDto dto : list) {
+                    double lat = 0;
+                    double lng = 0;
+                    if (!TextUtils.isEmpty(dto.lat)) {
+                        lat = Double.valueOf(dto.lat);
+                    }
+                    if (!TextUtils.isEmpty(dto.lng)) {
+                        lng = Double.valueOf(dto.lng);
+                    }
+                    MarkerOptions options = new MarkerOptions();
+                    options.title(dto.stationId);
+                    options.snippet(dto.name);
+                    options.anchor(0.5f, 0.5f);
+                    options.position(new LatLng(lat, lng));
+                    View markerView = getTextBitmap(value, dto);
+                    if (markerView != null && lat != 0 && lng != 0) {
+                        options.icon(BitmapDescriptorFactory.fromView(markerView));
+                        Marker m = aMap.addMarker(options);
+                        markerList.add(m);
+
+                        bounds.include(new LatLng(lat, lng));
                     }
                 }
+
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        if (tvProName.getVisibility() == View.VISIBLE) {
+                            if (TextUtils.equals(loadType, LOADTYPE3)) {
+                                drawProvinceBounds(tvProName.getText().toString());
+                                aMap.animateCamera(CameraUpdateFactory.newLatLngBounds(bounds.build(), 100));
+                            }
+                        }
+                    }
+                });
             }
-        });
+        }).start();
     }
 
     /**
@@ -1720,43 +1419,57 @@ public class StationMonitorActivity extends BaseActivity implements OnClickListe
     private View getTextBitmap(int value, StationMonitorDto dto) {
         LayoutInflater inflater = (LayoutInflater) getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         View view = inflater.inflate(R.layout.station_monitor_item, null);
-        if (value == 6) {
+        if (value == typeWind) {
             view = inflater.inflate(R.layout.station_monitor_item_wind, null);
         }
         if (view == null) {
             return null;
         }
-        ImageView ivMarker = (ImageView) view.findViewById(R.id.ivMarker);
-        TextView tvValue = (TextView) view.findViewById(R.id.tvValue);
-        ImageView ivWind = (ImageView) view.findViewById(R.id.ivWind);
+        ImageView ivMarker = view.findViewById(R.id.ivMarker);
+        TextView tvValue = view.findViewById(R.id.tvValue);
+        ImageView ivWind = view.findViewById(R.id.ivWind);
 
         String number = "";
-        if (value == 1) {
-            number = dto.precipitation1h;
-        } else if (value == 13) {
-            number = dto.precipitation3h;
-        } else if (value == 16) {
-            number = dto.precipitation6h;
-        } else if (value == 112) {
-            number = dto.precipitation12h;
-        } else if (value == 124) {
-            number = dto.precipitation24h;
-        } else if (value == 21) {
-            number = dto.ballTemp;
-        } else if (value == 22) {
-            number = dto.balltempMax;
-        } else if (value == 23) {
-            number = dto.balltempMin;
-        } else if (value == 24) {
-            number = dto.balltempChange;
-        } else if (value == 3) {
-            number = dto.humidity;
-        } else if (value == 4) {
-            number = dto.visibility;
-        } else if (value == 5) {
-            number = dto.airPressure;
-        } else if (value == 6) {
-            number = dto.windSpeed;
+        switch (value) {
+            case typeRain1:
+                number = dto.precipitation1h;
+                break;
+            case typeRain3:
+                number = dto.precipitation3h;
+                break;
+            case typeRain6:
+                number = dto.precipitation6h;
+                break;
+            case typeRain12:
+                number = dto.precipitation12h;
+                break;
+            case typeRain24:
+                number = dto.precipitation24h;
+                break;
+            case typeTemp1:
+                number = dto.ballTemp;
+                break;
+            case typeTemp24Max:
+                number = dto.balltempMax;
+                break;
+            case typeTemp24Min:
+                number = dto.balltempMin;
+                break;
+            case typeTemp24Change:
+                number = dto.balltempChange;
+                break;
+            case typeHumidity:
+                number = dto.humidity;
+                break;
+            case typeVisible:
+                number = dto.visibility;
+                break;
+            case typePressure:
+                number = dto.airPressure;
+                break;
+            case typeWind:
+                number = dto.windSpeed;
+                break;
         }
 
         if (TextUtils.isEmpty(number) || TextUtils.equals(number, CONST.noValue)) {
@@ -1764,10 +1477,10 @@ public class StationMonitorActivity extends BaseActivity implements OnClickListe
         }
 
         GradientDrawable gradientDrawable = (GradientDrawable) ivMarker.getBackground();
-        gradientDrawable.setColor(pointColor(value, number));
+        gradientDrawable.setColor(FactManager.pointColor(value, number));
         tvValue.setText(number);
 
-        if (value == 24) {//变温
+        if (value == typeTemp24Change) {//变温
             float changeTemp = Float.parseFloat(number);
             if (changeTemp >= 0) {
                 ivWind.setImageResource(R.drawable.iv_high_temp_logo);
@@ -1775,7 +1488,7 @@ public class StationMonitorActivity extends BaseActivity implements OnClickListe
                 ivWind.setImageResource(R.drawable.iv_low_temp_logo);
             }
             ivWind.setVisibility(View.VISIBLE);
-        } else if (value == 6) {//风向风速
+        } else if (value == typeWind) {//风向风速
             if (dto.wdir != -1) {
                 float windSpeed = Float.parseFloat(number);
                 Bitmap b = CommonUtil.getWindMarker(mContext, windSpeed);
@@ -1793,103 +1506,6 @@ public class StationMonitorActivity extends BaseActivity implements OnClickListe
         }
 
         return view;
-    }
-
-    private int pointColor(int value, String number) {
-        String color = "#a5f38d";
-        if (value == 1) {
-            for (int i = 0; i < precipitation1hColor.size(); i++) {
-                String[] colorStr = precipitation1hColor.get(i).split(",");
-                if (Float.valueOf(number) >= Float.valueOf(colorStr[0]) && Float.valueOf(number) < Float.valueOf(colorStr[1])) {
-                    color = colorStr[2];
-                }
-            }
-        } else if (value == 13) {
-            for (int i = 0; i < precipitation3hColor.size(); i++) {
-                String[] colorStr = precipitation3hColor.get(i).split(",");
-                if (Float.valueOf(number) >= Float.valueOf(colorStr[0]) && Float.valueOf(number) < Float.valueOf(colorStr[1])) {
-                    color = colorStr[2];
-                }
-            }
-        } else if (value == 16) {
-            for (int i = 0; i < precipitation6hColor.size(); i++) {
-                String[] colorStr = precipitation6hColor.get(i).split(",");
-                if (Float.valueOf(number) >= Float.valueOf(colorStr[0]) && Float.valueOf(number) < Float.valueOf(colorStr[1])) {
-                    color = colorStr[2];
-                }
-            }
-        } else if (value == 112) {
-            for (int i = 0; i < precipitation12hColor.size(); i++) {
-                String[] colorStr = precipitation12hColor.get(i).split(",");
-                if (Float.valueOf(number) >= Float.valueOf(colorStr[0]) && Float.valueOf(number) < Float.valueOf(colorStr[1])) {
-                    color = colorStr[2];
-                }
-            }
-        } else if (value == 124) {
-            for (int i = 0; i < precipitation24hColor.size(); i++) {
-                String[] colorStr = precipitation24hColor.get(i).split(",");
-                if (Float.valueOf(number) >= Float.valueOf(colorStr[0]) && Float.valueOf(number) < Float.valueOf(colorStr[1])) {
-                    color = colorStr[2];
-                }
-            }
-        } else if (value == 21) {
-            for (int i = 0; i < balltempColor.size(); i++) {
-                String[] colorStr = balltempColor.get(i).split(",");
-                if (Float.valueOf(number) >= Float.valueOf(colorStr[0]) && Float.valueOf(number) < Float.valueOf(colorStr[1])) {
-                    color = colorStr[2];
-                }
-            }
-        } else if (value == 22) {
-            for (int i = 0; i < balltempMaxColor.size(); i++) {
-                String[] colorStr = balltempMaxColor.get(i).split(",");
-                if (Float.valueOf(number) >= Float.valueOf(colorStr[0]) && Float.valueOf(number) < Float.valueOf(colorStr[1])) {
-                    color = colorStr[2];
-                }
-            }
-        } else if (value == 23) {
-            for (int i = 0; i < balltempMinColor.size(); i++) {
-                String[] colorStr = balltempMinColor.get(i).split(",");
-                if (Float.valueOf(number) >= Float.valueOf(colorStr[0]) && Float.valueOf(number) < Float.valueOf(colorStr[1])) {
-                    color = colorStr[2];
-                }
-            }
-        } else if (value == 24) {
-            for (int i = 0; i < balltempChangeColor.size(); i++) {
-                String[] colorStr = balltempChangeColor.get(i).split(",");
-                if (Float.valueOf(number) >= Float.valueOf(colorStr[0]) && Float.valueOf(number) < Float.valueOf(colorStr[1])) {
-                    color = colorStr[2];
-                }
-            }
-        } else if (value == 3) {
-            for (int i = 0; i < humidityColor.size(); i++) {
-                String[] colorStr = humidityColor.get(i).split(",");
-                if (Float.valueOf(number) >= Float.valueOf(colorStr[0]) && Float.valueOf(number) < Float.valueOf(colorStr[1])) {
-                    color = colorStr[2];
-                }
-            }
-        } else if (value == 4) {
-            for (int i = 0; i < visibilityColor.size(); i++) {
-                String[] colorStr = visibilityColor.get(i).split(",");
-                if (Float.valueOf(number) >= Float.valueOf(colorStr[0]) && Float.valueOf(number) < Float.valueOf(colorStr[1])) {
-                    color = colorStr[2];
-                }
-            }
-        } else if (value == 5) {
-            for (int i = 0; i < airpressureColor.size(); i++) {
-                String[] colorStr = airpressureColor.get(i).split(",");
-                if (Float.valueOf(number) >= Float.valueOf(colorStr[0]) && Float.valueOf(number) < Float.valueOf(colorStr[1])) {
-                    color = colorStr[2];
-                }
-            }
-        } else if (value == 6) {
-            for (int i = 0; i < windspeedColor.size(); i++) {
-                String[] colorStr = windspeedColor.get(i).split(",");
-                if (Float.valueOf(number) >= Float.valueOf(colorStr[0]) && Float.valueOf(number) < Float.valueOf(colorStr[1])) {
-                    color = colorStr[2];
-                }
-            }
-        }
-        return Color.parseColor(color);
     }
 
     @Override
@@ -1954,45 +1570,39 @@ public class StationMonitorActivity extends BaseActivity implements OnClickListe
                     tvDistance.setText(getString(R.string.distance_station) + data.distance + getString(R.string.unit_km));
 
                     if (TextUtils.equals(data.ballTemp, CONST.noValue)) {
-                        tvTemp.setText(CONST.noValue);
+                        tvTemp.setText("气温 "+CONST.noValue);
                     } else {
-                        tvTemp.setText(data.ballTemp);
+                        tvTemp.setText("气温 "+data.ballTemp+getString(R.string.unit_degree));
                     }
 
                     if (TextUtils.equals(data.precipitation1h, CONST.noValue)) {
-                        tvJiangshui.setText(CONST.noValue);
+                        tvJiangshui.setText("过去1h降水量 "+CONST.noValue);
                     } else {
-                        tvJiangshui.setText(data.precipitation1h + getString(R.string.unit_mm));
+                        tvJiangshui.setText("过去1h降水量 "+data.precipitation1h + getString(R.string.unit_mm));
                     }
 
                     if (TextUtils.equals(data.humidity, CONST.noValue)) {
-                        tvShidu.setText(CONST.noValue);
+                        tvShidu.setText("相对湿度 "+CONST.noValue);
                     } else {
-                        tvShidu.setText(data.humidity + getString(R.string.unit_percent));
+                        tvShidu.setText("相对湿度 "+data.humidity + getString(R.string.unit_percent));
                     }
 
                     if (TextUtils.equals(data.windDir, CONST.noValue) && TextUtils.equals(data.windDir, CONST.noValue)) {
-                        tvWind.setText(CONST.noValue);
+                        tvWind.setText("风速风向 "+CONST.noValue);
                     } else {
-                        tvWind.setText(data.windDir + " " + data.windSpeed + getString(R.string.unit_speed));
-                    }
-
-                    if (TextUtils.equals(data.pointTemp, CONST.noValue)) {
-                        tvLoudian.setText(CONST.noValue);
-                    } else {
-                        tvLoudian.setText(data.pointTemp + getString(R.string.unit_degree));
+                        tvWind.setText("风速风向 "+data.windDir + " " + data.windSpeed + getString(R.string.unit_speed));
                     }
 
                     if (TextUtils.equals(data.visibility, CONST.noValue)) {
-                        tvVisible.setText(CONST.noValue);
+                        tvVisible.setText("能见度 "+CONST.noValue);
                     } else {
-                        tvVisible.setText(data.visibility + getString(R.string.unit_km));
+                        tvVisible.setText("能见度 "+data.visibility + getString(R.string.unit_km));
                     }
 
                     if (TextUtils.equals(data.airPressure, CONST.noValue)) {
-                        tvPressrue.setText(CONST.noValue);
+                        tvPressrue.setText("气压 "+CONST.noValue);
                     } else {
-                        tvPressrue.setText(data.airPressure + getString(R.string.unit_hPa));
+                        tvPressrue.setText("气压 "+data.airPressure + getString(R.string.unit_hPa));
                     }
 
                     setPointEmit(stationId, stationName);
@@ -2015,18 +1625,6 @@ public class StationMonitorActivity extends BaseActivity implements OnClickListe
         return true;
     }
 
-    @Override
-    public View getInfoContents(Marker arg0) {
-        LayoutInflater inflater = (LayoutInflater) getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-        View view = inflater.inflate(R.layout.empty_marker_view, null);
-        return view;
-    }
-
-    @Override
-    public View getInfoWindow(Marker arg0) {
-        return null;
-    }
-
     /**
      * 关闭详情窗口
      */
@@ -2044,70 +1642,331 @@ public class StationMonitorActivity extends BaseActivity implements OnClickListe
         }
     }
 
-    /**
-     * 计算两点之间距离
-     *
-     * @param longitude1
-     * @param latitude1
-     * @param longitude2
-     * @param latitude2
-     * @return
-     */
-    public static String getDistance(double longitude1, double latitude1, double longitude2, double latitude2) {
-        double EARTH_RADIUS = 6378137;
-        double Lat1 = rad(latitude1);
-        double Lat2 = rad(latitude2);
-        double a = Lat1 - Lat2;
-        double b = rad(longitude1) - rad(longitude2);
-        double s = 2 * Math.asin(Math.sqrt(Math.pow(Math.sin(a / 2), 2)
-                + Math.cos(Lat1) * Math.cos(Lat2)
-                * Math.pow(Math.sin(b / 2), 2)));
-        s = s * EARTH_RADIUS;
-        s = Math.round(s * 10000) / 10000;
-        BigDecimal bd = new BigDecimal(s / 1000);
-        double d = bd.setScale(1, BigDecimal.ROUND_HALF_UP).doubleValue();
-        String distance = d + "";
-
-        String value = distance;
-        if (value.length() >= 2 && value.contains(".")) {
-            if (value.equals(".0")) {
-                distance = "0";
-            } else {
-                if (TextUtils.equals(value.substring(value.length() - 2, value.length()), ".0")) {
-                    distance = value.substring(0, value.indexOf("."));
-                } else {
-                    distance = value;
-                }
-            }
-        }
-
-        return distance;
-    }
-
-    private static double rad(double d) {
-        return d * Math.PI / 180.0;
-    }
-
     @Override
-    public void onMapScreenShot(final Bitmap bitmap1) {//bitmap1为地图截屏
+    public void onMapScreenShot(final Bitmap bitmap1) {
         Bitmap bitmap2 = CommonUtil.captureView(reShare);
-        Bitmap bitmap3 = CommonUtil.mergeBitmap(StationMonitorActivity.this, bitmap1, bitmap2, true);
+        Bitmap bitmap3 = CommonUtil.mergeBitmap(ShawnFactActivity.this, bitmap1, bitmap2, true);
         CommonUtil.clearBitmap(bitmap1);
         CommonUtil.clearBitmap(bitmap2);
         Bitmap bitmap4 = BitmapFactory.decodeResource(getResources(), R.drawable.shawn_legend_share_portrait);
-//		Bitmap bitmap4 = BitmapFactory.decodeStream(getClass().getResourceAsStream("/res/drawable-hdpi/iv_share_bottom.png"));
-        Bitmap bitmap5 = CommonUtil.mergeBitmap(mContext, bitmap3, bitmap4, false);
+        Bitmap bitmap = CommonUtil.mergeBitmap(mContext, bitmap3, bitmap4, false);
         CommonUtil.clearBitmap(bitmap3);
         CommonUtil.clearBitmap(bitmap4);
-        Bitmap bitmap6 = CommonUtil.captureView(llScrollView);
-        Bitmap bitmap = CommonUtil.mergeBitmap(mContext, bitmap6, bitmap5, false);
-        CommonUtil.clearBitmap(bitmap5);
-        CommonUtil.clearBitmap(bitmap6);
-        CommonUtil.share(StationMonitorActivity.this, bitmap);
+        CommonUtil.share(ShawnFactActivity.this, bitmap);
     }
 
     @Override
     public void onMapScreenShot(Bitmap arg0, int arg1) {
+    }
+
+    /**
+     * 获取分钟级降水图
+     */
+    private void OkHttpRadar() {
+        loadingView.setVisibility(View.VISIBLE);
+        final String url = "http://api.tianqi.cn:8070/v1/img.py";
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                OkHttpUtil.enqueue(new Request.Builder().url(url).build(), new Callback() {
+                    @Override
+                    public void onFailure(Call call, IOException e) {
+                    }
+                    @Override
+                    public void onResponse(Call call, Response response) throws IOException {
+                        if (!response.isSuccessful()) {
+                            return;
+                        }
+                        final String result = response.body().string();
+                        runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                if (!TextUtils.isEmpty(result)) {
+                                    try {
+                                        JSONObject obj = new JSONObject(result);
+                                        if (!obj.isNull("status")) {
+                                            if (obj.getString("status").equals("ok")) {
+                                                if (!obj.isNull("radar_img")) {
+                                                    JSONArray array = new JSONArray(obj.getString("radar_img"));
+                                                    radarList.clear();
+                                                    for (int i = 0; i < array.length(); i++) {
+                                                        JSONArray array0 = array.getJSONArray(i);
+                                                        MinuteFallDto dto = new MinuteFallDto();
+                                                        dto.setImgUrl(array0.optString(0));
+                                                        dto.setTime(array0.optLong(1));
+                                                        JSONArray itemArray = array0.getJSONArray(2);
+                                                        dto.setP1(itemArray.optDouble(0));
+                                                        dto.setP2(itemArray.optDouble(1));
+                                                        dto.setP3(itemArray.optDouble(2));
+                                                        dto.setP4(itemArray.optDouble(3));
+                                                        radarList.add(dto);
+                                                    }
+
+                                                    if (radarList.size() > 0) {
+                                                        startDownLoadImgs(radarList);
+                                                    }
+
+                                                }
+                                            }
+                                        }
+                                    } catch (JSONException e) {
+                                        e.printStackTrace();
+                                    }
+                                }
+                            }
+                        });
+                    }
+                });
+            }
+        }).start();
+
+    }
+
+    private void startDownLoadImgs(List<MinuteFallDto> list) {
+        if (mRadarThread != null) {
+            mRadarThread.cancel();
+            mRadarThread = null;
+        }
+        mRadarManager.loadImagesAsyn(list, new CaiyunManager.RadarListener() {
+            @Override
+            public void onResult(int result, List<MinuteFallDto> images) {
+                if (result == CaiyunManager.RadarListener.RESULT_SUCCESSED) {
+                    mHandler.sendEmptyMessage(HANDLER_LOAD_FINISHED);
+
+                    removeRadar();
+                    mRadarThread = new RadarThread(radarList);
+                    mRadarThread.start();
+                }
+            }
+
+            @Override
+            public void onProgress(String url, int progress) {
+//		Message msg = new Message();
+//		msg.obj = progress;
+//		msg.what = HANDLER_PROGRESS;
+//		mHandler.sendMessage(msg);
+            }
+        });
+    }
+
+    @SuppressLint("HandlerLeak")
+    private Handler mHandler = new Handler(){
+        public void handleMessage(android.os.Message msg) {
+            int what = msg.what;
+            switch (what) {
+                case HANDLER_SHOW_RADAR:
+                    if (msg.obj != null) {
+                        MinuteFallDto dto = (MinuteFallDto) msg.obj;
+                        if (!TextUtils.isEmpty(dto.path)) {
+                            try {
+                                Bitmap bitmap = BitmapFactory.decodeFile(dto.path);
+                                if (bitmap != null) {
+                                    showRadar(bitmap, dto.getP1(), dto.getP2(), dto.getP3(), dto.getP4());
+                                }
+                            } catch (Exception e) {
+                                e.printStackTrace();
+                            }
+                        }
+                    }
+                    break;
+                case HANDLER_LOAD_FINISHED:
+                    ivTyphoonRadar.setVisibility(View.VISIBLE);
+                    loadingView.setVisibility(View.GONE);
+                    break;
+                default:
+                    break;
+            }
+        };
+    };
+
+    private void showRadar(Bitmap bitmap, double p1, double p2, double p3, double p4) {
+        BitmapDescriptor fromView = BitmapDescriptorFactory.fromBitmap(bitmap);
+        LatLngBounds bounds = new LatLngBounds.Builder()
+                .include(new LatLng(p3, p2))
+                .include(new LatLng(p1, p4))
+                .build();
+
+        if (radarOverlay == null) {
+            radarOverlay = aMap.addGroundOverlay(new GroundOverlayOptions()
+                    .anchor(0.5f, 0.5f)
+                    .positionFromBounds(bounds)
+                    .image(fromView)
+                    .transparency(0.0f));
+        } else {
+            radarOverlay.setImage(null);
+            radarOverlay.setPositionFromBounds(bounds);
+            radarOverlay.setImage(fromView);
+        }
+        aMap.runOnDrawFrame();
+    }
+
+    private class RadarThread extends Thread {
+
+        static final int STATE_NONE = 0;
+        static final int STATE_PLAYING = 1;
+        static final int STATE_PAUSE = 2;
+        static final int STATE_CANCEL = 3;
+        private List<MinuteFallDto> images;
+        private int state;
+        private int index;
+        private int count;
+
+        private RadarThread(List<MinuteFallDto> images) {
+            this.images = images;
+            this.count = images.size();
+            this.index = 0;
+            this.state = STATE_NONE;
+        }
+
+        @Override
+        public void run() {
+            super.run();
+            this.state = STATE_PLAYING;
+            while (true) {
+                if (state == STATE_CANCEL) {
+                    break;
+                }
+                if (state == STATE_PAUSE) {
+                    continue;
+                }
+                sendRadar();
+                try {
+                    Thread.sleep(200);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+
+        private void sendRadar() {
+            if (index >= count || index < 0) {
+                index = 0;
+            }else {
+                MinuteFallDto radar = images.get(index);
+                Message message = mHandler.obtainMessage();
+                message.what = HANDLER_SHOW_RADAR;
+                message.obj = radar;
+                message.arg1 = count - 1;
+                message.arg2 = index ++;
+                mHandler.sendMessage(message);
+            }
+        }
+
+        public void cancel() {
+            this.state = STATE_CANCEL;
+        }
+    }
+
+    /**
+     * 清除雷达拼图，取消线程
+     */
+    private void removeRadar() {
+        if (mRadarThread != null) {
+            mRadarThread.cancel();
+            mRadarThread = null;
+        }
+        if (radarOverlay != null) {
+            radarOverlay.remove();
+            radarOverlay = null;
+        }
+    }
+
+    /**
+     * 获取云图数据
+     */
+    private void OkHttpCloudChart() {
+        loadingView.setVisibility(View.VISIBLE);
+        final String url = "http://decision-admin.tianqi.cn/Home/other/getDecisionCloudImages";
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                OkHttpUtil.enqueue(new Request.Builder().url(url).build(), new Callback() {
+                    @Override
+                    public void onFailure(Call call, IOException e) {
+                    }
+                    @Override
+                    public void onResponse(Call call, Response response) throws IOException {
+                        if (!response.isSuccessful()) {
+                            return;
+                        }
+                        final String result = response.body().string();
+                        runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                if (!TextUtils.isEmpty(result)) {
+                                    try {
+                                        JSONObject obj = new JSONObject(result);
+                                        if (!obj.isNull("l")) {
+                                            JSONArray array = obj.getJSONArray("l");
+                                            if (array.length() > 0) {
+                                                JSONObject itemObj = array.getJSONObject(0);
+                                                String imgUrl = itemObj.getString("l2");
+                                                if (!TextUtils.isEmpty(imgUrl)) {
+                                                    Picasso.get().load(imgUrl).into(new Target() {
+                                                        @Override
+                                                        public void onBitmapLoaded(Bitmap bitmap, Picasso.LoadedFrom from) {
+                                                            cloudBitmap = bitmap;
+                                                            ivTyphoonCloud.setVisibility(View.VISIBLE);
+                                                            loadingView.setVisibility(View.GONE);
+                                                            drawCloud(bitmap);
+                                                        }
+                                                        @Override
+                                                        public void onBitmapFailed(Exception e, Drawable errorDrawable) {
+                                                        }
+                                                        @Override
+                                                        public void onPrepareLoad(Drawable placeHolderDrawable) {
+                                                        }
+                                                    });
+                                                }
+                                            }
+                                        }
+                                    } catch (JSONException e) {
+                                        e.printStackTrace();
+                                    }
+                                }
+                            }
+                        });
+
+                    }
+                });
+            }
+        }).start();
+    }
+
+    /**
+     * 绘制卫星拼图
+     */
+    private void drawCloud(Bitmap bitmap) {
+        if (bitmap == null || !isCloudOn) {
+            return;
+        }
+        BitmapDescriptor fromView = BitmapDescriptorFactory.fromBitmap(bitmap);
+        LatLngBounds bounds = new LatLngBounds.Builder()
+                .include(new LatLng(-10.787277369124666, 62.8820698883665))
+                .include(new LatLng(56.385845314127209, 161.69675114151386))
+                .build();
+
+        if (cloudOverlay == null) {
+            cloudOverlay = aMap.addGroundOverlay(new GroundOverlayOptions()
+                    .anchor(0.5f, 0.5f)
+                    .positionFromBounds(bounds)
+                    .image(fromView)
+                    .transparency(0.2f));
+        } else {
+            cloudOverlay.setImage(null);
+            cloudOverlay.setPositionFromBounds(bounds);
+            cloudOverlay.setImage(fromView);
+        }
+    }
+
+    /**
+     * 清除云图
+     */
+    private void removeCloud() {
+        if (cloudOverlay != null) {
+            cloudOverlay.remove();
+            cloudOverlay = null;
+        }
     }
 
     @Override
@@ -2127,7 +1986,7 @@ public class StationMonitorActivity extends BaseActivity implements OnClickListe
                 finish();
                 break;
             case R.id.ivShare:
-                aMap.getMapScreenShot(StationMonitorActivity.this);
+                aMap.getMapScreenShot(ShawnFactActivity.this);
                 break;
             case R.id.tv1:
                 setElementEmit("1", "0");
@@ -2154,9 +2013,8 @@ public class StationMonitorActivity extends BaseActivity implements OnClickListe
                 tvWindSpeed2.setTextColor(getResources().getColor(R.color.text_color4));
                 tvWindSpeed2.setBackgroundColor(getResources().getColor(R.color.transparent));
 
-                if (!TextUtils.isEmpty(precipitation1hLegend)) {
-                    FinalBitmap finalBitmap = FinalBitmap.create(mContext);
-                    finalBitmap.display(ivLegend, precipitation1hLegend, null, 0);
+                if (!TextUtils.isEmpty(FactManager.precipitation1hLegend)) {
+                    Picasso.get().load(FactManager.precipitation1hLegend).into(ivLegend);
                 }
                 pastTime = 60 * 60 * 1000;
                 value = 1;
@@ -2197,9 +2055,8 @@ public class StationMonitorActivity extends BaseActivity implements OnClickListe
                 tvWindSpeed2.setTextColor(getResources().getColor(R.color.text_color4));
                 tvWindSpeed2.setBackgroundColor(getResources().getColor(R.color.transparent));
 
-                if (!TextUtils.isEmpty(precipitation3hLegend)) {
-                    FinalBitmap finalBitmap = FinalBitmap.create(mContext);
-                    finalBitmap.display(ivLegend, precipitation3hLegend, null, 0);
+                if (!TextUtils.isEmpty(FactManager.precipitation3hLegend)) {
+                    Picasso.get().load(FactManager.precipitation3hLegend).into(ivLegend);
                 }
                 pastTime = 3 * 60 * 60 * 1000;
                 value = 13;
@@ -2240,9 +2097,8 @@ public class StationMonitorActivity extends BaseActivity implements OnClickListe
                 tvWindSpeed2.setTextColor(getResources().getColor(R.color.text_color4));
                 tvWindSpeed2.setBackgroundColor(getResources().getColor(R.color.transparent));
 
-                if (!TextUtils.isEmpty(precipitation6hLegend)) {
-                    FinalBitmap finalBitmap = FinalBitmap.create(mContext);
-                    finalBitmap.display(ivLegend, precipitation6hLegend, null, 0);
+                if (!TextUtils.isEmpty(FactManager.precipitation6hLegend)) {
+                    Picasso.get().load(FactManager.precipitation6hLegend).into(ivLegend);
                 }
                 pastTime = 6 * 60 * 60 * 1000;
                 value = 16;
@@ -2283,9 +2139,8 @@ public class StationMonitorActivity extends BaseActivity implements OnClickListe
                 tvWindSpeed2.setTextColor(getResources().getColor(R.color.text_color4));
                 tvWindSpeed2.setBackgroundColor(getResources().getColor(R.color.transparent));
 
-                if (!TextUtils.isEmpty(precipitation12hLegend)) {
-                    FinalBitmap finalBitmap = FinalBitmap.create(mContext);
-                    finalBitmap.display(ivLegend, precipitation12hLegend, null, 0);
+                if (!TextUtils.isEmpty(FactManager.precipitation12hLegend)) {
+                    Picasso.get().load(FactManager.precipitation12hLegend).into(ivLegend);
                 }
                 pastTime = 12 * 60 * 60 * 1000;
                 value = 112;
@@ -2326,9 +2181,8 @@ public class StationMonitorActivity extends BaseActivity implements OnClickListe
                 tvWindSpeed2.setTextColor(getResources().getColor(R.color.text_color4));
                 tvWindSpeed2.setBackgroundColor(getResources().getColor(R.color.transparent));
 
-                if (!TextUtils.isEmpty(precipitation24hLegend)) {
-                    FinalBitmap finalBitmap = FinalBitmap.create(mContext);
-                    finalBitmap.display(ivLegend, precipitation24hLegend, null, 0);
+                if (!TextUtils.isEmpty(FactManager.precipitation24hLegend)) {
+                    Picasso.get().load(FactManager.precipitation24hLegend).into(ivLegend);
                 }
                 pastTime = 24 * 60 * 60 * 1000;
                 value = 124;
@@ -2389,9 +2243,8 @@ public class StationMonitorActivity extends BaseActivity implements OnClickListe
                 tvWindSpeed2.setTextColor(getResources().getColor(R.color.text_color4));
                 tvWindSpeed2.setBackgroundColor(getResources().getColor(R.color.transparent));
 
-                if (!TextUtils.isEmpty(balltempLegend)) {
-                    FinalBitmap finalBitmap = FinalBitmap.create(mContext);
-                    finalBitmap.display(ivLegend, balltempLegend, null, 0);
+                if (!TextUtils.isEmpty(FactManager.balltempLegend)) {
+                    Picasso.get().load(FactManager.balltempLegend).into(ivLegend);
                 }
                 pastTime = 60 * 60 * 1000;
                 value = 21;
@@ -2431,9 +2284,8 @@ public class StationMonitorActivity extends BaseActivity implements OnClickListe
                 tvWindSpeed2.setTextColor(getResources().getColor(R.color.text_color4));
                 tvWindSpeed2.setBackgroundColor(getResources().getColor(R.color.transparent));
 
-                if (!TextUtils.isEmpty(balltempMaxLegend)) {
-                    FinalBitmap finalBitmap = FinalBitmap.create(mContext);
-                    finalBitmap.display(ivLegend, balltempMaxLegend, null, 0);
+                if (!TextUtils.isEmpty(FactManager.balltempMaxLegend)) {
+                    Picasso.get().load(FactManager.balltempMaxLegend).into(ivLegend);
                 }
                 pastTime = 24 * 60 * 60 * 1000;
                 value = 22;
@@ -2473,9 +2325,8 @@ public class StationMonitorActivity extends BaseActivity implements OnClickListe
                 tvWindSpeed2.setTextColor(getResources().getColor(R.color.text_color4));
                 tvWindSpeed2.setBackgroundColor(getResources().getColor(R.color.transparent));
 
-                if (!TextUtils.isEmpty(balltempMinLegend)) {
-                    FinalBitmap finalBitmap = FinalBitmap.create(mContext);
-                    finalBitmap.display(ivLegend, balltempMinLegend, null, 0);
+                if (!TextUtils.isEmpty(FactManager.balltempMinLegend)) {
+                    Picasso.get().load(FactManager.balltempMinLegend).into(ivLegend);
                 }
                 pastTime = 24 * 60 * 60 * 1000;
                 value = 23;
@@ -2515,9 +2366,8 @@ public class StationMonitorActivity extends BaseActivity implements OnClickListe
                 tvWindSpeed2.setTextColor(getResources().getColor(R.color.text_color4));
                 tvWindSpeed2.setBackgroundColor(getResources().getColor(R.color.transparent));
 
-                if (!TextUtils.isEmpty(balltempChangeLegend)) {
-                    FinalBitmap finalBitmap = FinalBitmap.create(mContext);
-                    finalBitmap.display(ivLegend, balltempChangeLegend, null, 0);
+                if (!TextUtils.isEmpty(FactManager.balltempChangeLegend)) {
+                    Picasso.get().load(FactManager.balltempChangeLegend).into(ivLegend);
                 }
                 pastTime = 24 * 60 * 60 * 1000;
                 value = 24;
@@ -2572,9 +2422,8 @@ public class StationMonitorActivity extends BaseActivity implements OnClickListe
                 tvWindSpeed2.setTextColor(getResources().getColor(R.color.text_color4));
                 tvWindSpeed2.setBackgroundColor(getResources().getColor(R.color.transparent));
 
-                if (!TextUtils.isEmpty(humidityLegend)) {
-                    FinalBitmap finalBitmap = FinalBitmap.create(mContext);
-                    finalBitmap.display(ivLegend, humidityLegend, null, 0);
+                if (!TextUtils.isEmpty(FactManager.humidityLegend)) {
+                    Picasso.get().load(FactManager.humidityLegend).into(ivLegend);
                 }
                 pastTime = 60 * 60 * 1000;
                 value = 3;
@@ -2607,9 +2456,8 @@ public class StationMonitorActivity extends BaseActivity implements OnClickListe
                 tvWindSpeed2.setTextColor(getResources().getColor(R.color.text_color4));
                 tvWindSpeed2.setBackgroundColor(getResources().getColor(R.color.transparent));
 
-                if (!TextUtils.isEmpty(visibilityLegend)) {
-                    FinalBitmap finalBitmap = FinalBitmap.create(mContext);
-                    finalBitmap.display(ivLegend, visibilityLegend, null, 0);
+                if (!TextUtils.isEmpty(FactManager.visibilityLegend)) {
+                    Picasso.get().load(FactManager.visibilityLegend).into(ivLegend);
                 }
                 pastTime = 60 * 60 * 1000;
                 value = 4;
@@ -2642,9 +2490,8 @@ public class StationMonitorActivity extends BaseActivity implements OnClickListe
                 tvWindSpeed2.setTextColor(getResources().getColor(R.color.text_color4));
                 tvWindSpeed2.setBackgroundColor(getResources().getColor(R.color.transparent));
 
-                if (!TextUtils.isEmpty(airpressureLegend)) {
-                    FinalBitmap finalBitmap = FinalBitmap.create(mContext);
-                    finalBitmap.display(ivLegend, airpressureLegend, null, 0);
+                if (!TextUtils.isEmpty(FactManager.airpressureLegend)) {
+                    Picasso.get().load(FactManager.airpressureLegend).into(ivLegend);
                 }
                 pastTime = 60 * 60 * 1000;
                 value = 5;
@@ -2677,9 +2524,8 @@ public class StationMonitorActivity extends BaseActivity implements OnClickListe
                 tvWindSpeed2.setTextColor(0xff2d5a9d);
                 tvWindSpeed2.setBackgroundResource(R.drawable.bg_layer_button);
 
-                if (!TextUtils.isEmpty(windspeedLegend)) {
-                    FinalBitmap finalBitmap = FinalBitmap.create(mContext);
-                    finalBitmap.display(ivLegend, windspeedLegend, null, 0);
+                if (!TextUtils.isEmpty(FactManager.windspeedLegend)) {
+                    Picasso.get().load(FactManager.windspeedLegend).into(ivLegend);
                 }
                 pastTime = 60 * 60 * 1000;
                 value = 6;
@@ -2701,7 +2547,7 @@ public class StationMonitorActivity extends BaseActivity implements OnClickListe
                 intent.putExtra("interface", "oneDay");
                 startActivity(intent);
                 break;
-            case R.id.ivMapSearch:
+            case R.id.ivArea:
                 reContent.setVisibility(View.GONE);
 
                 Intent intentMap = new Intent(mContext, StationMonitorSearchActivity.class);
@@ -2724,10 +2570,10 @@ public class StationMonitorActivity extends BaseActivity implements OnClickListe
             case R.id.ivLocation:
                 if (zoom < 10.f) {
                     zoom = 10.0f;
-                    aMap.animateCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(locationLat, locationLng), zoom));
+                    aMap.animateCamera(CameraUpdateFactory.newLatLngZoom(locationLatLng, zoom));
                 } else {
                     zoom = 3.5f;
-                    aMap.animateCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(35.926628, 105.178100), zoom));
+                    aMap.animateCamera(CameraUpdateFactory.newLatLngZoom(locationLatLng, zoom));
                 }
                 break;
             case R.id.ivLegendPrompt:
@@ -2767,6 +2613,46 @@ public class StationMonitorActivity extends BaseActivity implements OnClickListe
                     zoom = 9.0f;
                 }
                 moveCursor();
+                break;
+            case R.id.ivTyphoonRadar:
+                isRadarOn = !isRadarOn;
+                if (isRadarOn) {//添加雷达图
+                    ivTyphoonRadar.setImageResource(R.drawable.shawn_icon_typhoon_radar_on);
+                    if (radarList.size() <= 0) {
+                        OkHttpRadar();
+                    }else {
+                        removeRadar();
+                        mRadarThread = new RadarThread(radarList);
+                        mRadarThread.start();
+                    }
+
+                    ivTyphoonCloud.setImageResource(R.drawable.shawn_icon_typhoon_cloud_off);
+                    removeCloud();
+                    isCloudOn = false;
+
+                }else {//删除雷达图
+                    ivTyphoonRadar.setImageResource(R.drawable.shawn_icon_typhoon_radar_off);
+                    removeRadar();
+                }
+                break;
+            case R.id.ivTyphoonCloud:
+                isCloudOn = !isCloudOn;
+                if (isCloudOn) {//添加云图
+                    ivTyphoonCloud.setImageResource(R.drawable.shawn_icon_typhoon_cloud_on);
+                    if (cloudBitmap == null) {
+                        OkHttpCloudChart();
+                    }else {
+                        drawCloud(cloudBitmap);
+                    }
+
+                    ivTyphoonRadar.setImageResource(R.drawable.shawn_icon_typhoon_radar_off);
+                    removeRadar();
+                    isRadarOn = false;
+
+                }else {//删除云图
+                    ivTyphoonCloud.setImageResource(R.drawable.shawn_icon_typhoon_cloud_off);
+                    removeCloud();
+                }
                 break;
 
             default:
@@ -2850,6 +2736,13 @@ public class StationMonitorActivity extends BaseActivity implements OnClickListe
         if (mMapView != null) {
             mMapView.onDestroy();
         }
+        if (mReceiver != null) {
+            unregisterReceiver(mReceiver);
+        }
+        if (mRadarManager != null) {
+            mRadarManager.onDestory();
+        }
+        removeRadar();
     }
 
     private String columnId = "";//栏目id

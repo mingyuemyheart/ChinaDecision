@@ -146,7 +146,7 @@
             android:configChanges="orientation|keyboard|keyboardHidden|screenSize" />
 
         <activity
-            android:name="com.china.activity.StationMonitorActivity"
+            android:name="com.china.activity.ShawnFactActivity"
             android:screenOrientation="portrait" />
 
         <activity

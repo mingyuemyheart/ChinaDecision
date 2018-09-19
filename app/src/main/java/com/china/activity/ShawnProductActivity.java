@@ -101,7 +101,7 @@ public class ShawnProductActivity extends BaseActivity implements OnClickListene
 					startActivity(intent);
 				}else if (TextUtils.equals(dto.showType, CONST.LOCAL)) {
 					if (TextUtils.equals(dto.id, "101")) {//站点检测
-						intent = new Intent(mContext, StationMonitorActivity.class);
+						intent = new Intent(mContext, ShawnFactActivity.class);
 						intent.putExtra(CONST.COLUMN_ID, dto.columnId);
 						intent.putExtra(CONST.ACTIVITY_NAME, dto.name);
 						startActivity(intent);

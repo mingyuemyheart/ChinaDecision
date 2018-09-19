@@ -15,7 +15,7 @@
         android:id="@+id/ivMarker"
         android:layout_width="10dp"
         android:layout_height="10dp"
-        android:background="@drawable/skjc_marker_point"/>
+        android:background="@drawable/shawn_fact_marker_icon"/>
 
     <TextView
         android:id="@+id/tvValue"
