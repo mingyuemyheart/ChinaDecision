@@ -522,9 +522,7 @@ public class StreamFactActivity extends BaseActivity implements OnClickListener,
 				OkHttpUtil.enqueue(new Request.Builder().url(url).build(), new Callback() {
 					@Override
 					public void onFailure(Call call, IOException e) {
-
 					}
-
 					@Override
 					public void onResponse(Call call, Response response) throws IOException {
 						if (!response.isSuccessful()) {
@@ -1146,12 +1144,11 @@ public class StreamFactActivity extends BaseActivity implements OnClickListener,
 			options.position(new LatLng(dto.lat, dto.lng));
 			View view = inflater.inflate(R.layout.layout_marker_stream_fact, null);
 			ImageView ivMarker = view.findViewById(R.id.ivMarker);
-			float value = Float.parseFloat(dto.windD);
-			Bitmap b = CommonUtil.getStrongWindMarker(mContext, value);
+			Bitmap b = CommonUtil.getStrongWindMarker(mContext, Float.parseFloat(dto.windS));
 			if (b != null) {
 				Matrix matrix = new Matrix();
 				matrix.postScale(1, 1);
-				matrix.postRotate(value);
+				matrix.postRotate(Float.parseFloat(dto.windD));
 				Bitmap bitmap = Bitmap.createBitmap(b, 0, 0, b.getWidth(), b.getHeight(), matrix, true);
 				if (bitmap != null) {
 					ivMarker.setImageBitmap(bitmap);
