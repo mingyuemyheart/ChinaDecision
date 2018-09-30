@@ -339,7 +339,7 @@
                         <ImageView
                             android:layout_width="12dp"
                             android:layout_height="12dp"
-                            android:src="@drawable/shawn_typhoon_"/>
+                            android:src="@drawable/shawn_typhoon_wind_circle10"/>
 
                         <TextView
                             android:layout_width="wrap_content"

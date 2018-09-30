@@ -126,7 +126,6 @@ public class ShawnFactActivity extends BaseActivity implements OnClickListener, 
     private List<Marker> markerList = new ArrayList<>();//10个站点的marker
     private LatLng locationLatLng = new LatLng(39.904030, 116.407526);
     private GeocodeSearch geocoderSearch;
-    private List<Polygon> polygons = new ArrayList<>();
     private List<Text> texts = new ArrayList<>();//等值线
     private ImageView ivLegend,ivProName,ivGuide,ivCursor,ivTyphoonRadar,ivTyphoonCloud;
     private int value = 1;//默认为降水
@@ -138,6 +137,7 @@ public class ShawnFactActivity extends BaseActivity implements OnClickListener, 
     private final int typeRain1 = 1,typeRain3 = 13,typeRain6 = 16,typeRain12 = 112,typeRain24 = 124,typeTemp1 = 21,typeTemp24Max = 22,
             typeTemp24Min = 23,typeTemp24Change = 24,typeHumidity = 3,typeVisible = 4,typePressure = 5,typeWind = 6;
     private List<Polyline> boundLines = new ArrayList<>();//省份边界
+    private GroundOverlay layerOverlay;
     private MyBroadCastReceiver mReceiver;
     private AVLoadingIndicatorView loadingView;
 
@@ -258,58 +258,72 @@ public class ShawnFactActivity extends BaseActivity implements OnClickListener, 
      * @param value 判断降水、气温、气压等类型
      */
     private void drawNationDataToMap(int value, String loadType) {
+        String imgUrl = "";
         String result = "";
         String type = "";
         switch (value) {
             case typeRain1:
+                imgUrl = FactManager.precipitation1hImg;
                 result = FactManager.precipitation1hResult;
                 type = getString(R.string.layer_rain1);
                 break;
             case typeRain3:
+                imgUrl = FactManager.precipitation3hImg;
                 result = FactManager.precipitation3hResult;
                 type = getString(R.string.layer_rain3);
                 break;
             case typeRain6:
+                imgUrl = FactManager.precipitation6hImg;
                 result = FactManager.precipitation6hResult;
                 type = getString(R.string.layer_rain6);
                 break;
             case typeRain12:
+                imgUrl = FactManager.precipitation12hImg;
                 result = FactManager.precipitation12hResult;
                 type = getString(R.string.layer_rain12);
                 break;
             case typeRain24:
+                imgUrl = FactManager.precipitation24hImg;
                 result = FactManager.precipitation24hResult;
                 type = getString(R.string.layer_rain24);
                 break;
             case typeTemp1:
+                imgUrl = FactManager.balltempImg;
                 result = FactManager.balltempResult;
                 type = getString(R.string.layer_temp21);
                 break;
             case typeTemp24Max:
+                imgUrl = FactManager.balltempMaxImg;
                 result = FactManager.balltempMaxResult;
                 type = getString(R.string.layer_temp22);
                 break;
             case typeTemp24Min:
+                imgUrl = FactManager.balltempMinImg;
                 result = FactManager.balltempMinResult;
                 type = getString(R.string.layer_temp23);
                 break;
             case typeTemp24Change:
+                imgUrl = FactManager.balltempChangeImg;
                 result = FactManager.balltempChangeResult;
                 type = getString(R.string.layer_temp24);
                 break;
             case typeHumidity:
+                imgUrl = FactManager.humidityImg;
                 result = FactManager.humidityResult;
                 type = getString(R.string.layer_humidity);
                 break;
             case typeVisible:
+                imgUrl = FactManager.visibilityImg;
                 result = FactManager.visibilityResult;
                 type = getString(R.string.layer_visible);
                 break;
             case typePressure:
+                imgUrl = FactManager.airpressureImg;
                 result = FactManager.airpressureResult;
                 type = getString(R.string.layer_pressure);
                 break;
             case typeWind:
+                imgUrl = FactManager.windspeedImg;
                 result = FactManager.windspeedResult;
                 type = getString(R.string.layer_wind);
                 break;
@@ -317,14 +331,11 @@ public class ShawnFactActivity extends BaseActivity implements OnClickListener, 
 
         if (TextUtils.equals(loadType, LOADTYPE1)) {//默认只加载图层数据、图层名称
             drawWeatherLayerName(result, type);
-            drawWeatherLayer(result);
+            drawNewWeatherLayer(imgUrl);
         } else if (TextUtils.equals(loadType, LOADTYPE2)) {//监听地图缩放、移动等
             if (zoom < 10.0f) {//保持图层一直在
                 removeStationMarkers();
-
-                if (polygons.size() == 0) {
-                    drawWeatherLayer(result);
-                }
+                drawNewWeatherLayer(imgUrl);
                 if (zoom < 8.0f) {
                     removeValueLine();
                 } else if (zoom >= 8.0f && zoom < 10.0f) {//绘制等值线
@@ -333,22 +344,20 @@ public class ShawnFactActivity extends BaseActivity implements OnClickListener, 
                     }
                 }
             } else {//清除图层、等值线，绘制站点
-                removeWeatherLayer();
+                removeNewWeatherLayer();
                 removeValueLine();
 
                 queryNationViewStationInfo(stationList, loadType);//绘制站点
             }
         } else if (TextUtils.equals(loadType, LOADTYPE3)) {//监听天气6要素切换点击事件
-            removeWeatherLayer();
+            removeNewWeatherLayer();
             removeValueLine();
             removeStationMarkers();
 
             drawWeatherLayerName(result, type);
 
             if (zoom < 10.0f) {//绘制新选择的图层数据
-                if (polygons.size() == 0) {
-                    drawWeatherLayer(result);
-                }
+                drawNewWeatherLayer(imgUrl);
                 if (zoom < 8.0f) {
                     removeValueLine();
                 } else if (zoom >= 8.0f && zoom < 10.0f) {//绘制等值线
@@ -433,7 +442,7 @@ public class ShawnFactActivity extends BaseActivity implements OnClickListener, 
 
             queryProStationInfo(stationList, tvProName.getText().toString(), loadType);//绘制省份站点
         } else if (TextUtils.equals(loadType, LOADTYPE3)) {//监听天气6要素切换点击事件
-            removeWeatherLayer();
+            removeNewWeatherLayer();
             removeValueLine();
             removeStationMarkers();
 
@@ -491,50 +500,48 @@ public class ShawnFactActivity extends BaseActivity implements OnClickListener, 
     }
 
     /**
-     * 绘制图层
+     * 绘制新的图层
      */
-    private void drawWeatherLayer(final String result) {
-        if (TextUtils.isEmpty(result)) {
+    private void drawNewWeatherLayer(final String imgUrl) {
+        if (TextUtils.isEmpty(imgUrl)) {
             return;
         }
-        new Thread(new Runnable() {
+        Picasso.get().load(imgUrl).into(new Target() {
             @Override
-            public void run() {
-                try {
-                    JSONObject obj = new JSONObject(result);
-                    JSONArray array = obj.getJSONArray("l");
-                    int length = array.length();
-                    for (int i = 0; i < length; i++) {
-                        JSONObject itemObj = array.getJSONObject(i);
-                        JSONArray c = itemObj.getJSONArray("c");
-                        int r = c.getInt(0);
-                        int g = c.getInt(1);
-                        int b = c.getInt(2);
-                        int a = c.getInt(3) * (int)(255 * 0.7f);
-
-                        if (!itemObj.isNull("p")) {
-                            String p = itemObj.getString("p");
-                            if (!TextUtils.isEmpty(p)) {
-                                String[] points = p.split(";");
-                                PolygonOptions polylineOption = new PolygonOptions();
-                                polylineOption.fillColor(Color.argb(a, r, g, b));
-                                polylineOption.strokeColor(Color.TRANSPARENT);
-                                for (String point : points) {
-                                    String[] latLng = point.split(",");
-                                    double lat = Double.valueOf(latLng[1]);
-                                    double lng = Double.valueOf(latLng[0]);
-                                    polylineOption.add(new LatLng(lat, lng));
-                                }
-                                Polygon polygon = aMap.addPolygon(polylineOption);
-                                polygons.add(polygon);
-                            }
-                        }
-                    }
-                } catch (JSONException e) {
-                    e.printStackTrace();
+            public void onBitmapLoaded(Bitmap bitmap, Picasso.LoadedFrom from) {
+                BitmapDescriptor fromView = BitmapDescriptorFactory.fromBitmap(bitmap);
+                LatLngBounds bounds = new LatLngBounds.Builder()
+                        .include(new LatLng(3.83703, 73.502355))
+                        .include(new LatLng(53.563624, 135.09567))
+                        .build();
+                if (layerOverlay == null) {
+                    layerOverlay = aMap.addGroundOverlay(new GroundOverlayOptions()
+                            .anchor(0.5f, 0.5f)
+                            .positionFromBounds(bounds)
+                            .image(fromView)
+                            .zIndex(1001)
+                            .transparency(0.25f));
+                } else {
+                    layerOverlay.setImage(null);
+                    layerOverlay.setPositionFromBounds(bounds);
+                    layerOverlay.setImage(fromView);
                 }
+                aMap.runOnDrawFrame();
             }
-        }).start();
+            @Override
+            public void onBitmapFailed(Exception e, Drawable errorDrawable) {
+            }
+            @Override
+            public void onPrepareLoad(Drawable placeHolderDrawable) {
+            }
+        });
+    }
+
+    private void removeNewWeatherLayer() {
+        if (layerOverlay != null) {
+            layerOverlay.remove();
+            layerOverlay = null;
+        }
     }
 
     /**
@@ -561,15 +568,9 @@ public class ShawnFactActivity extends BaseActivity implements OnClickListener, 
                             String p = itemObj.getString("p");
                             if (!TextUtils.isEmpty(p)) {
                                 String[] points = p.split(";");
-                                for (int j = 0; j < points.length; j++) {
-                                    String[] latLng = points[j].split(",");
-                                    double lat = Double.valueOf(latLng[1]);
-                                    double lng = Double.valueOf(latLng[0]);
-                                    if (j == points.length / 2) {
-                                        centerLat = lat;
-                                        centerLng = lng;
-                                    }
-                                }
+                                String[] latLng = points[points.length/2].split(",");
+                                centerLat = Double.valueOf(latLng[1]);
+                                centerLng = Double.valueOf(latLng[0]);
                             }
                         }
                         if (!itemObj.isNull("v")) {
@@ -589,16 +590,6 @@ public class ShawnFactActivity extends BaseActivity implements OnClickListener, 
                 }
             }
         }).start();
-    }
-
-    /**
-     * 清除图层
-     */
-    private void removeWeatherLayer() {
-        for (int i = 0; i < polygons.size(); i++) {
-            polygons.get(i).remove();
-        }
-        polygons.clear();
     }
 
     /**
@@ -761,7 +752,6 @@ public class ShawnFactActivity extends BaseActivity implements OnClickListener, 
         ivTyphoonCloud.setOnClickListener(this);
 
         mRadarManager = new CaiyunManager(mContext);
-        columnId = getIntent().getStringExtra(CONST.COLUMN_ID);//栏目id
         CommonUtil.showGuidePage(mContext, this.getClass().getName(), ivGuide);
 
         DisplayMetrics dm = new DisplayMetrics();
@@ -792,7 +782,7 @@ public class ShawnFactActivity extends BaseActivity implements OnClickListener, 
             addLocationMarker(locationLatLng);
         }
 
-        String columnId = getIntent().getStringExtra(CONST.COLUMN_ID);
+        columnId = getIntent().getStringExtra(CONST.COLUMN_ID);//栏目id
         CommonUtil.submitClickCount(columnId, title);
     }
 

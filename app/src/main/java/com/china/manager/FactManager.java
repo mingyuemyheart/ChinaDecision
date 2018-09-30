@@ -34,6 +34,10 @@ public class FactManager {
 	public static String balltempResult, balltempMaxResult, balltempMinResult, balltempChangeResult;
 	public static String humidityResult,visibilityResult,airpressureResult,windspeedResult;
 
+	public static String precipitation1hImg,precipitation3hImg,precipitation6hImg,precipitation12hImg,precipitation24hImg;
+	public static String balltempImg, balltempMaxImg, balltempMinImg, balltempChangeImg;
+	public static String humidityImg,visibilityImg,airpressureImg,windspeedImg;
+
 	public static String precipitation1hLegend,precipitation3hLegend,precipitation6hLegend,precipitation12hLegend,precipitation24hLegend;
 	public static String balltempLegend, balltempMaxLegend, balltempMinLegend, balltempChangeLegend;
 	public static String humidityLegend,visibilityLegend,windspeedLegend,airpressureLegend;
@@ -54,6 +58,7 @@ public class FactManager {
 
 	public FactManager(Context context) {
 		this.context = context;
+		OkHttpNewLayer();
 		OkHttpLayer();
 		OkHttpLegend();
 	}
@@ -201,7 +206,7 @@ public class FactManager {
 			}
 		}).start();
 	}
-	
+
 	/**
 	 * 获取3小时降水图层
 	 * @param url
@@ -228,7 +233,7 @@ public class FactManager {
 			}
 		}).start();
 	}
-	
+
 	/**
 	 * 获取6小时降水图层
 	 * @param url
@@ -282,7 +287,7 @@ public class FactManager {
 			}
 		}).start();
 	}
-	
+
 	/**
 	 * 获取24小时降水图层
 	 * @param url
@@ -309,7 +314,7 @@ public class FactManager {
 			}
 		}).start();
 	}
-	
+
 	/**
 	 * 获取1小时气温图层
 	 * @param url
@@ -417,7 +422,7 @@ public class FactManager {
 			}
 		}).start();
 	}
-	
+
 	/**
 	 * 获取湿度图层
 	 * @param url
@@ -471,7 +476,7 @@ public class FactManager {
 			}
 		}).start();
 	}
-	
+
 	/**
 	 * 获取能见度图层
 	 * @param url
@@ -498,7 +503,7 @@ public class FactManager {
 			}
 		}).start();
 	}
-	
+
 	/**
 	 * 获取气压图层
 	 * @param url
@@ -519,6 +524,122 @@ public class FactManager {
 						String result = response.body().string();
 						if (!TextUtils.isEmpty(result)) {
 							airpressureResult = result;
+						}
+					}
+				});
+			}
+		}).start();
+	}
+
+	/**
+	 * 获取新的图层信息
+	 */
+	private void OkHttpNewLayer() {
+		final String url = "http://decision-admin.tianqi.cn/Home/extra/decision_new_skjclayers";
+		new Thread(new Runnable() {
+			@Override
+			public void run() {
+				OkHttpUtil.enqueue(new Request.Builder().url(url).build(), new Callback() {
+					@Override
+					public void onFailure(Call call, IOException e) {
+					}
+					@Override
+					public void onResponse(Call call, Response response) throws IOException {
+						if (!response.isSuccessful()) {
+							return;
+						}
+						String result = response.body().string();
+						if (!TextUtils.isEmpty(result)) {
+							try {
+								JSONArray array = new JSONArray(result);
+								if (array.length() <= 0) {
+									return;
+								}
+								JSONObject obj = array.getJSONObject(0);
+								if (!obj.isNull("precipitation1h")) {
+									JSONObject itemObj = obj.getJSONObject("precipitation1h");
+									if (!itemObj.isNull("imgurl")) {
+										precipitation1hImg = itemObj.getString("imgurl");
+										Intent intent = new Intent();
+										intent.setAction(BROAD_RAIN1_COMPLETE);
+										context.sendBroadcast(intent);
+									}
+								}
+								if (!obj.isNull("rainfall3")) {
+									JSONObject itemObj = obj.getJSONObject("rainfall3");
+									if (!itemObj.isNull("imgurl")) {
+										precipitation3hImg = itemObj.getString("imgurl");
+									}
+								}
+								if (!obj.isNull("rainfall6")) {
+									JSONObject itemObj = obj.getJSONObject("rainfall6");
+									if (!itemObj.isNull("imgurl")) {
+										precipitation6hImg = itemObj.getString("imgurl");
+									}
+								}
+								if (!obj.isNull("rainfall12")) {
+									JSONObject itemObj = obj.getJSONObject("rainfall12");
+									if (!itemObj.isNull("imgurl")) {
+										precipitation12hImg = itemObj.getString("imgurl");
+									}
+								}
+								if (!obj.isNull("rainfall24")) {
+									JSONObject itemObj = obj.getJSONObject("rainfall24");
+									if (!itemObj.isNull("imgurl")) {
+										precipitation24hImg = itemObj.getString("imgurl");
+									}
+								}
+								if (!obj.isNull("balltemp")) {
+									JSONObject itemObj = obj.getJSONObject("balltemp");
+									if (!itemObj.isNull("imgurl")) {
+										balltempImg = itemObj.getString("imgurl");
+									}
+								}
+								if (!obj.isNull("tempmax")) {
+									JSONObject itemObj = obj.getJSONObject("tempmax");
+									if (!itemObj.isNull("imgurl")) {
+										balltempMaxImg = itemObj.getString("imgurl");
+									}
+								}
+								if (!obj.isNull("tempmin")) {
+									JSONObject itemObj = obj.getJSONObject("tempmin");
+									if (!itemObj.isNull("imgurl")) {
+										balltempMinImg = itemObj.getString("imgurl");
+									}
+								}
+								if (!obj.isNull("tempchange")) {
+									JSONObject itemObj = obj.getJSONObject("tempchange");
+									if (!itemObj.isNull("imgurl")) {
+										balltempChangeImg = itemObj.getString("imgurl");
+									}
+								}
+								if (!obj.isNull("humidity")) {
+									JSONObject itemObj = obj.getJSONObject("humidity");
+									if (!itemObj.isNull("imgurl")) {
+										humidityImg = itemObj.getString("imgurl");
+									}
+								}
+								if (!obj.isNull("windspeed")) {
+									JSONObject itemObj = obj.getJSONObject("windspeed");
+									if (!itemObj.isNull("imgurl")) {
+										windspeedImg = itemObj.getString("imgurl");
+									}
+								}
+								if (!obj.isNull("visibility")) {
+									JSONObject itemObj = obj.getJSONObject("visibility");
+									if (!itemObj.isNull("imgurl")) {
+										visibilityImg = itemObj.getString("imgurl");
+									}
+								}
+								if (!obj.isNull("airpressure")) {
+									JSONObject itemObj = obj.getJSONObject("airpressure");
+									if (!itemObj.isNull("imgurl")) {
+										airpressureImg = itemObj.getString("imgurl");
+									}
+								}
+							} catch (JSONException e) {
+								e.printStackTrace();
+							}
 						}
 					}
 				});

@@ -1,9 +1,5 @@
 package com.china.view;
 
-/**
- * 一周预报曲线图
- */
-
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
@@ -24,22 +20,22 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 
+/**
+ * 一周预报曲线图
+ */
 public class WeeklyView extends View{
 	
-	private Context mContext = null;
+	private Context mContext;
 	private List<WeatherDto> tempList = new ArrayList<>();
-	private int maxTemp = 0;//最高温度
-	private int minTemp = 0;//最低温度
-	private Paint lineP = null;//画线画笔
-	private Paint textP = null;//写字画笔
-	private SimpleDateFormat sdf1 = new SimpleDateFormat("yyyyMMdd");
-	private SimpleDateFormat sdf2 = new SimpleDateFormat("MM/dd");
-	private int totalDivider = 0;
-	private int itemDivider = 1;
-	private long foreDate = 0;
-	private long currentDate = 0;
-	
+	private int maxTemp,minTemp;//最高温度
+	private Paint lineP,textP;//画线画笔
+	private SimpleDateFormat sdf1 = new SimpleDateFormat("yyyyMMdd", Locale.CANADA);
+	private SimpleDateFormat sdf2 = new SimpleDateFormat("MM/dd", Locale.CANADA);
+	private int totalDivider = 0, itemDivider = 1;
+	private long foreDate = 0, currentDate = 0;
+
 	public WeeklyView(Context context) {
 		super(context);
 		mContext = context;
@@ -217,7 +213,7 @@ public class WeeklyView extends View{
 				}else if (i == 2) {
 					week = "明天";
 				}else {
-					week = mContext.getString(R.string.week)+dto.week.substring(dto.week.length()-1, dto.week.length());
+					week = dto.week;
 				}
 			}else {
 				if (i == 0) {
@@ -225,7 +221,7 @@ public class WeeklyView extends View{
 				}else if (i == 1) {
 					week = "明天";
 				}else {
-					week = mContext.getString(R.string.week)+dto.week.substring(dto.week.length()-1, dto.week.length());
+					week = dto.week;
 				}
 			}
 			float weekText = textP.measureText(week);
