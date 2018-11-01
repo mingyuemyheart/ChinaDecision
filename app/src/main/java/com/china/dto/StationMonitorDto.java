@@ -11,8 +11,8 @@ public class StationMonitorDto implements Parcelable{
 	public String stationId;//站点号
 	public String name;//站点名称
 	public String time;
-	public String lat;
-	public String lng;
+	public double lat;
+	public double lng;
 	public String ballTemp;//干球温度
 	public String balltempMax;
 	public String balltempMin;
@@ -60,9 +60,13 @@ public class StationMonitorDto implements Parcelable{
 	public String statisMaxPressure;//24h最大气压
 	public String statisMinPressure;//24h最小气压
 	public String statisMinVisible;//24h最小能见度
-	public List<StationMonitorDto> dataList = new ArrayList<StationMonitorDto>();//24h数据list
+	public List<StationMonitorDto> dataList = new ArrayList<>();//24h数据list
 	public float x = 0;//x轴坐标点
 	public float y = 0;//y轴坐标点
+
+
+	//格点预报用到
+	public List<StationMonitorDto> itemList = new ArrayList<>();
 
 	public StationMonitorDto() {
 	}
@@ -77,8 +81,8 @@ public class StationMonitorDto implements Parcelable{
 		dest.writeString(this.stationId);
 		dest.writeString(this.name);
 		dest.writeString(this.time);
-		dest.writeString(this.lat);
-		dest.writeString(this.lng);
+		dest.writeDouble(this.lat);
+		dest.writeDouble(this.lng);
 		dest.writeString(this.ballTemp);
 		dest.writeString(this.balltempMax);
 		dest.writeString(this.balltempMin);
@@ -126,14 +130,15 @@ public class StationMonitorDto implements Parcelable{
 		dest.writeTypedList(this.dataList);
 		dest.writeFloat(this.x);
 		dest.writeFloat(this.y);
+		dest.writeTypedList(this.itemList);
 	}
 
 	protected StationMonitorDto(Parcel in) {
 		this.stationId = in.readString();
 		this.name = in.readString();
 		this.time = in.readString();
-		this.lat = in.readString();
-		this.lng = in.readString();
+		this.lat = in.readDouble();
+		this.lng = in.readDouble();
 		this.ballTemp = in.readString();
 		this.balltempMax = in.readString();
 		this.balltempMin = in.readString();
@@ -181,6 +186,7 @@ public class StationMonitorDto implements Parcelable{
 		this.dataList = in.createTypedArrayList(StationMonitorDto.CREATOR);
 		this.x = in.readFloat();
 		this.y = in.readFloat();
+		this.itemList = in.createTypedArrayList(StationMonitorDto.CREATOR);
 	}
 
 	public static final Creator<StationMonitorDto> CREATOR = new Creator<StationMonitorDto>() {

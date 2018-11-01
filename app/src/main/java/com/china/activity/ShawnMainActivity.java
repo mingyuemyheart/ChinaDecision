@@ -890,6 +890,10 @@ public class ShawnMainActivity extends BaseActivity implements OnClickListener, 
 						intent.putExtra(CONST.COLUMN_ID, dto.columnId);
 						intent.putExtra(CONST.ACTIVITY_NAME, dto.name);
 						startActivity(intent);
+					}else if (TextUtils.equals(dto.id, "207")) {//格点预报
+						intent = new Intent(mContext, ShawnPointForeActivity.class);
+						intent.putExtra(CONST.ACTIVITY_NAME, dto.name);
+						startActivity(intent);
 					}else if (TextUtils.equals(dto.id, "301")) {//灾情专报
 						intent = new Intent(mContext, DisasterSpecialActivity.class);
 						intent.putExtra(CONST.COLUMN_ID, dto.columnId);

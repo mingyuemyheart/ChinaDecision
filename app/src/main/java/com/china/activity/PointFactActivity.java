@@ -322,8 +322,8 @@ public class PointFactActivity extends BaseActivity implements OnClickListener, 
 									for (int i = 0; i < array.length(); i++) {
 										JSONObject itemObj = array.getJSONObject(i);
 										StationMonitorDto dto = new StationMonitorDto();
-										dto.lat = itemObj.getString("LAT");
-										dto.lng = itemObj.getString("LON");
+										dto.lat = itemObj.getDouble("LAT");
+										dto.lng = itemObj.getDouble("LON");
 										dto.pointTemp = itemObj.getString("TEM");
 										dto.humidity = itemObj.getString("RHU");
 										dto.windSpeed = itemObj.getString("WINS");

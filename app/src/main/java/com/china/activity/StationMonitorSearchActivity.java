@@ -124,8 +124,8 @@ public class StationMonitorSearchActivity extends BaseActivity implements OnClic
 				for (int i = 0; i < cursor.getCount(); i++) {
 					cursor.moveToPosition(i);
 					StationMonitorDto data = new StationMonitorDto();
-					data.lat = cursor.getString(cursor.getColumnIndex("LAT"));
-					data.lng = cursor.getString(cursor.getColumnIndex("LON"));
+					data.lat = cursor.getDouble(cursor.getColumnIndex("LAT"));
+					data.lng = cursor.getDouble(cursor.getColumnIndex("LON"));
 					data.provinceName = cursor.getString(cursor.getColumnIndex("PRO"));
 					data.cityName = cursor.getString(cursor.getColumnIndex("CITY"));
 					data.districtName = cursor.getString(cursor.getColumnIndex("DIST"));

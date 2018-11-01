@@ -303,6 +303,14 @@
             android:name="com.china.activity.ShawnRadarDetailActivity"
             android:screenOrientation="portrait" />
 
+        <activity
+            android:name="com.china.activity.ShawnPointForeActivity"
+            android:screenOrientation="portrait" />
+
+        <activity
+            android:name="com.china.activity.ShawnPointForeDetailActivity"
+            android:screenOrientation="portrait" />
+
 
         <!--umeng share-->
         <activity

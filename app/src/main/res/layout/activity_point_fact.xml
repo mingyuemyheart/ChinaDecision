@@ -168,7 +168,8 @@
                     android:layout_centerVertical="true"
                     android:background="@drawable/shawn_bg_corner_switch_height"
                     android:gravity="center_vertical"
-                    android:paddingLeft="40dp"/>
+                    android:paddingStart="40dp"
+                    android:paddingEnd="10dp"/>
 
                 <ImageView
                     android:id="@+id/ivDataSource"

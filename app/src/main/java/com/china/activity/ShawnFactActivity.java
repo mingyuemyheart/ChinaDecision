@@ -900,8 +900,8 @@ public class ShawnFactActivity extends BaseActivity implements OnClickListener, 
                     cursor.moveToPosition(i);
                     StationMonitorDto dto = new StationMonitorDto();
                     dto.stationId = cursor.getString(cursor.getColumnIndex("SID"));
-                    dto.lat = cursor.getString(cursor.getColumnIndex("LAT"));
-                    dto.lng = cursor.getString(cursor.getColumnIndex("LON"));
+                    dto.lat = cursor.getDouble(cursor.getColumnIndex("LAT"));
+                    dto.lng = cursor.getDouble(cursor.getColumnIndex("LON"));
 
                     String pro = cursor.getString(cursor.getColumnIndex("PRO"));
                     String city = cursor.getString(cursor.getColumnIndex("CITY"));
@@ -976,8 +976,8 @@ public class ShawnFactActivity extends BaseActivity implements OnClickListener, 
                     cursor.moveToPosition(i);
                     StationMonitorDto dto = new StationMonitorDto();
                     dto.stationId = cursor.getString(cursor.getColumnIndex("SID"));
-                    dto.lat = cursor.getString(cursor.getColumnIndex("LAT"));
-                    dto.lng = cursor.getString(cursor.getColumnIndex("LON"));
+                    dto.lat = cursor.getDouble(cursor.getColumnIndex("LAT"));
+                    dto.lng = cursor.getDouble(cursor.getColumnIndex("LON"));
 
                     String pro = cursor.getString(cursor.getColumnIndex("PRO"));
                     String city = cursor.getString(cursor.getColumnIndex("CITY"));
@@ -1364,14 +1364,8 @@ public class ShawnFactActivity extends BaseActivity implements OnClickListener, 
             public void run() {
                 final LatLngBounds.Builder bounds = LatLngBounds.builder();
                 for (StationMonitorDto dto : list) {
-                    double lat = 0;
-                    double lng = 0;
-                    if (!TextUtils.isEmpty(dto.lat)) {
-                        lat = Double.valueOf(dto.lat);
-                    }
-                    if (!TextUtils.isEmpty(dto.lng)) {
-                        lng = Double.valueOf(dto.lng);
-                    }
+                    double lat = dto.lat;
+                    double lng = dto.lng;
                     MarkerOptions options = new MarkerOptions();
                     options.title(dto.stationId);
                     options.snippet(dto.name);
