@@ -158,7 +158,9 @@ public class ShawnMainActivity extends BaseActivity implements OnClickListener, 
 	 * 初始化控件
 	 */
 	private void initWidget() {
-		AutoUpdateUtil.checkUpdate(ShawnMainActivity.this, mContext, "52", getString(R.string.app_name), true);
+		if (!TextUtils.equals(MyApplication.USERGROUP, "17")) {//大众用户不使用自动更新，使用应用市场更新
+			AutoUpdateUtil.checkUpdate(ShawnMainActivity.this, mContext, "52", getString(R.string.app_name), true);
+		}
 		reTitle = findViewById(R.id.reTitle);
 		ImageView ivAdd = findViewById(R.id.ivAdd);
 		ivAdd.setOnClickListener(this);

@@ -2,6 +2,7 @@ package com.china.adapter;
 
 import android.content.Context;
 import android.graphics.Color;
+import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -11,26 +12,25 @@ import android.widget.TextView;
 import com.china.R;
 import com.china.dto.TyphoonDto;
 
-import java.util.HashMap;
 import java.util.List;
 
 /**
- * 台风路径-年份
+ * 台风列表，按照不同发布单位区分
  */
-public class ShawnTyphoonYearAdapter extends BaseAdapter{
-
+public class TyphoonPublishAdapter extends BaseAdapter {
+	
 	private Context mContext;
 	private LayoutInflater mInflater;
 	private List<TyphoonDto> mArrayList;
 
 	private final class ViewHolder{
-		TextView tvYear;
+		TextView tvName;
 	}
 	
-	public ShawnTyphoonYearAdapter(Context context, List<TyphoonDto> mArrayList) {
+	public TyphoonPublishAdapter(Context context, List<TyphoonDto> mArrayList) {
 		mContext = context;
 		this.mArrayList = mArrayList;
-		mInflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+		mInflater = (LayoutInflater) mContext.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
 	}
 
 	@Override
@@ -52,9 +52,9 @@ public class ShawnTyphoonYearAdapter extends BaseAdapter{
 	public View getView(int position, View convertView, ViewGroup parent) {
 		ViewHolder mHolder;
 		if (convertView == null) {
-			convertView = mInflater.inflate(R.layout.shawn_adapter_typhoon_year, null);
+			convertView = mInflater.inflate(R.layout.shawn_adapter_typhoon_publish, null);
 			mHolder = new ViewHolder();
-			mHolder.tvYear = convertView.findViewById(R.id.tvYear);
+			mHolder.tvName = convertView.findViewById(R.id.tvName);
 			convertView.setTag(mHolder);
 		}else {
 			mHolder = (ViewHolder) convertView.getTag();
@@ -62,8 +62,10 @@ public class ShawnTyphoonYearAdapter extends BaseAdapter{
 		
 		TyphoonDto dto = mArrayList.get(position);
 
-		mHolder.tvYear.setText(dto.yearly+"年");
-		
+		if (!TextUtils.isEmpty(dto.publishName)) {
+			mHolder.tvName.setText(dto.publishName);
+		}
+
 		if (dto.isSelected) {
 			convertView.setBackgroundColor(mContext.getResources().getColor(R.color.blue));
 		}else {

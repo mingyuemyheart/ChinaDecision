@@ -98,6 +98,16 @@
             android:layout_marginTop="5dp"
             android:src="@drawable/shawn_icon_typhoon_cloud_off"/>
 
+        <ImageView
+            android:id="@+id/ivTyphoonWarning"
+            android:layout_width="35dp"
+            android:layout_height="35dp"
+            android:layout_alignParentEnd="true"
+            android:layout_below="@+id/ivTyphoonCloud"
+            android:layout_marginEnd="10dp"
+            android:layout_marginTop="5dp"
+            android:src="@drawable/shawn_icon_typhoon_warning_off"/>
+
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -105,20 +115,13 @@
             android:orientation="vertical">
 
             <ImageView
+                android:visibility="gone"
                 android:id="@+id/ivTyphoonRange"
                 android:layout_width="35dp"
                 android:layout_height="35dp"
                 android:layout_marginBottom="5dp"
                 android:layout_marginStart="10dp"
                 android:src="@drawable/shawn_icon_typhoon_range_off"/>
-
-            <ImageView
-                android:id="@+id/ivLocation"
-                android:layout_width="35dp"
-                android:layout_height="35dp"
-                android:layout_marginBottom="5dp"
-                android:layout_marginStart="10dp"
-                android:src="@drawable/shawn_icon_location_off"/>
 
             <ImageView
                 android:id="@+id/ivTyphoonPlay"
@@ -136,6 +139,14 @@
                 android:layout_marginBottom="5dp"
                 android:layout_marginStart="10dp"
                 android:src="@drawable/shawn_icon_typhoon_list"/>
+
+            <ImageView
+                android:id="@+id/ivLocation"
+                android:layout_width="35dp"
+                android:layout_height="35dp"
+                android:layout_marginBottom="5dp"
+                android:layout_marginStart="10dp"
+                android:src="@drawable/shawn_icon_location_off"/>
 
             <ImageView
                 android:id="@+id/ivLegend"
@@ -377,13 +388,31 @@
             android:layout_width="match_parent"
             android:layout_height="150dp"
             android:layout_alignParentBottom="true"
-            android:background="#90000000"
+            android:background="#be000000"
             android:visibility="gone">
 
             <ListView
-                android:id="@+id/yearListView"
-                android:layout_width="100dp"
+                android:id="@+id/publishListView"
+                android:layout_width="80dp"
                 android:layout_height="wrap_content"
+                android:cacheColorHint="@color/transparent"
+                android:divider="@null"
+                android:listSelector="@color/transparent"
+                android:overScrollMode="never"
+                android:scrollbars="none"/>
+
+            <TextView
+                android:id="@+id/divider1"
+                android:layout_width="0.5dp"
+                android:layout_height="match_parent"
+                android:layout_toEndOf="@+id/publishListView"
+                android:background="#80ffffff"/>
+
+            <ListView
+                android:id="@+id/yearListView"
+                android:layout_width="80dp"
+                android:layout_height="wrap_content"
+                android:layout_toEndOf="@+id/divider1"
                 android:cacheColorHint="@color/transparent"
                 android:divider="@null"
                 android:listSelector="@color/transparent"
@@ -391,11 +420,18 @@
                 android:scrollbars="none">
             </ListView>
 
+            <TextView
+                android:id="@+id/divider2"
+                android:layout_width="0.5dp"
+                android:layout_toEndOf="@+id/yearListView"
+                android:layout_height="match_parent"
+                android:background="#80ffffff"/>
+
             <ListView
                 android:id="@+id/nameListView"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_toEndOf="@+id/yearListView"
+                android:layout_toEndOf="@+id/divider2"
                 android:layout_toStartOf="@+id/ivCancelList"
                 android:cacheColorHint="@color/transparent"
                 android:divider="@null"

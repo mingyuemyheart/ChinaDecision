@@ -26,9 +26,11 @@ import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
+import android.view.ViewGroup;
 import android.view.animation.Animation;
 import android.view.animation.Animation.AnimationListener;
 import android.view.animation.AnimationSet;
+import android.view.animation.LinearInterpolator;
 import android.view.animation.TranslateAnimation;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
@@ -38,6 +40,7 @@ import android.widget.ListView;
 import android.widget.RelativeLayout;
 import android.widget.TextSwitcher;
 import android.widget.TextView;
+import android.widget.Toast;
 import android.widget.ViewSwitcher;
 
 import com.amap.api.location.AMapLocation;
@@ -69,6 +72,7 @@ import com.amap.api.maps.model.Polyline;
 import com.amap.api.maps.model.PolylineOptions;
 import com.amap.api.maps.model.Text;
 import com.amap.api.maps.model.TextOptions;
+import com.amap.api.maps.model.animation.ScaleAnimation;
 import com.amap.api.services.core.LatLonPoint;
 import com.amap.api.services.geocoder.GeocodeResult;
 import com.amap.api.services.geocoder.GeocodeSearch;
@@ -77,6 +81,8 @@ import com.amap.api.services.geocoder.RegeocodeResult;
 import com.china.R;
 import com.china.adapter.ShawnTyphoonNameAdapter;
 import com.china.adapter.ShawnTyphoonYearAdapter;
+import com.china.adapter.ShawnWarningAdapter;
+import com.china.adapter.TyphoonPublishAdapter;
 import com.china.common.CONST;
 import com.china.dto.MinuteFallDto;
 import com.china.dto.TyphoonDto;
@@ -124,17 +130,21 @@ public class ShawnTyhpoonActivity extends BaseActivity implements OnClickListene
 	private Context mContext;
 	private TextView tvTitle,tvTyphoonName,tvFileTime;
 	private TextSwitcher tvTyphoonInfo;
-	private ImageView ivLegend,ivTyphoonList,ivTyphoonPlay,ivTyphoonRadar,ivTyphoonCloud,ivTyphoonWind,ivWarning,ivTyphoonRange,ivGuide;
+	private ImageView ivLegend,ivTyphoonList,ivTyphoonPlay,ivTyphoonRadar,ivTyphoonCloud,ivTyphoonWarning,ivTyphoonWind,ivWarning,ivTyphoonRange,ivGuide;
 	private RelativeLayout reShare,reLegend,reTyphoonList;
 	private MapView mapView;
 	private AMap aMap;
 	private SimpleDateFormat sdf1 = new SimpleDateFormat("yyyy", Locale.CHINA);
 	private SimpleDateFormat sdf2 = new SimpleDateFormat("yyyyMMddHH", Locale.CHINA);
 	private SimpleDateFormat sdf3 = new SimpleDateFormat("yyyy年MM月dd日HH时", Locale.CHINA);
+	private SimpleDateFormat sdf8 = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.0", Locale.CHINA);
 	private String locationCity = "北京市";
 	private Bundle savedInstanceState;
 	private AVLoadingIndicatorView loadingView;
-	private boolean isRadarOn = false,isCloudOn = false,isWindOn = false;
+	private boolean isRadarOn = false,isCloudOn = false,isWindOn = false, isWarningOn = false;
+	private List<WarningDto> typhoonWarnings = new ArrayList<>();//全国所有的台风预警信息
+	private List<Marker> typhoonWarningMarkers = new ArrayList<>();
+	private String markerType2 = "typhoon", markerType1 = "warning";
 
 	//云图雷达图
 	private CaiyunManager mRadarManager;
@@ -167,6 +177,9 @@ public class ShawnTyhpoonActivity extends BaseActivity implements OnClickListene
     private Map<String, TyphoonDto> lastFactPointMap = new HashMap<>();//最后一个实况点数据集合
 	private Marker clickMarker,locationMarker;//被点击的marker
 	private List<Polygon> windCirclePolygons = new ArrayList<>();//风圈
+	private ListView publishListView;
+	private TyphoonPublishAdapter publishAdapter;
+	private List<TyphoonDto> publishList = new ArrayList<>();
 	private ShawnTyphoonYearAdapter yearAdapter;
 	private List<TyphoonDto> yearList = new ArrayList<>();
 	private ShawnTyphoonNameAdapter nameAdapter;
@@ -193,6 +206,7 @@ public class ShawnTyhpoonActivity extends BaseActivity implements OnClickListene
 	private void init() {
 		initAmap(savedInstanceState);
 		initWidget();
+		initPublishListView();
 		initYearListView();
 		initNameListView();
 	}
@@ -241,17 +255,19 @@ public class ShawnTyhpoonActivity extends BaseActivity implements OnClickListene
 		ivGuide = findViewById(R.id.ivGuide);
 		ivGuide.setOnClickListener(this);
 		tvTyphoonInfo = findViewById(R.id.tvTyphoonInfo);
-
-		OkHttpWarning();
+		ivTyphoonWarning = findViewById(R.id.ivTyphoonWarning);
+		ivTyphoonWarning.setOnClickListener(this);
 
 		mRadarManager = new CaiyunManager(mContext);
-		CommonUtil.showGuidePage(mContext, this.getClass().getName(), ivGuide);
 
 		String title = getIntent().getStringExtra(CONST.ACTIVITY_NAME);
 		if (title != null) {
 			tvTitle.setText(title);
 		}
 
+		OkHttpWarning();
+
+		CommonUtil.showGuidePage(mContext, this.getClass().getName(), ivGuide);
 		String columnId = getIntent().getStringExtra(CONST.COLUMN_ID);
 		CommonUtil.submitClickCount(columnId, title);
 	}
@@ -509,6 +525,10 @@ public class ShawnTyhpoonActivity extends BaseActivity implements OnClickListene
 												dto.lat = tempArray.getDouble(3);
 												dto.name = tempArray.getString(0);
 
+												if (!dto.name.contains("解除") && !TextUtils.equals(item0, "000000") && item2.startsWith("11B01")) {//所有台风预警
+													typhoonWarnings.add(dto);
+												}
+
 												if (!dto.name.contains("解除") && TextUtils.equals(item0, "000000") && item2.startsWith("11B01")) {//国家级台风预警
 													Bitmap bitmap = null;
 													if (dto.color.equals(CONST.blue[0])) {
@@ -552,6 +572,144 @@ public class ShawnTyhpoonActivity extends BaseActivity implements OnClickListene
 		}).start();
 	}
 
+	/**
+	 * 去掉台风预警markers
+	 */
+	private void removeTyphoonWarningMarkers() {
+		for (Marker marker : typhoonWarningMarkers) {
+			marker.remove();
+		}
+		typhoonWarningMarkers.clear();
+	}
+
+	/**
+	 * 绘制台风预警markers
+	 */
+	private void addTyphoonWarningMarkers() {
+		LayoutInflater inflater = (LayoutInflater) mContext.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+		LatLngBounds.Builder builder = LatLngBounds.builder();
+		for (WarningDto dto : typhoonWarnings) {
+			MarkerOptions optionsTemp = new MarkerOptions();
+			optionsTemp.title(dto.lat+","+dto.lng+","+dto.item0+","+dto.color);
+			optionsTemp.snippet(markerType1);
+			optionsTemp.anchor(0.5f, 0.5f);
+			LatLng latLng = new LatLng(dto.lat, dto.lng);
+			builder.include(latLng);
+			optionsTemp.position(latLng);
+			View mView = inflater.inflate(R.layout.shawn_warning_marker_icon, null);
+			ImageView ivMarker = mView.findViewById(R.id.ivMarker);
+			Bitmap bitmap = null;
+			if (dto.color.equals(CONST.blue[0])) {
+				bitmap = CommonUtil.getImageFromAssetsFile(mContext,"warning/"+dto.type+CONST.blue[1]+CONST.imageSuffix);
+			}else if (dto.color.equals(CONST.yellow[0])) {
+				bitmap = CommonUtil.getImageFromAssetsFile(mContext,"warning/"+dto.type+CONST.yellow[1]+CONST.imageSuffix);
+			}else if (dto.color.equals(CONST.orange[0])) {
+				bitmap = CommonUtil.getImageFromAssetsFile(mContext,"warning/"+dto.type+CONST.orange[1]+CONST.imageSuffix);
+			}else if (dto.color.equals(CONST.red[0])) {
+				bitmap = CommonUtil.getImageFromAssetsFile(mContext,"warning/"+dto.type+CONST.red[1]+CONST.imageSuffix);
+			}
+			if (bitmap == null) {
+				bitmap = CommonUtil.getImageFromAssetsFile(mContext,"warning/"+"default"+CONST.imageSuffix);
+			}
+			ivMarker.setImageBitmap(bitmap);
+			optionsTemp.icon(BitmapDescriptorFactory.fromView(mView));
+			Marker marker = aMap.addMarker(optionsTemp);
+			typhoonWarningMarkers.add(marker);
+			markerExpandAnimation(marker);
+		}
+		if (typhoonWarnings.size() > 0) {
+			aMap.animateCamera(CameraUpdateFactory.newLatLngBounds(builder.build(), 100));
+		}
+	}
+
+	private void markerExpandAnimation(Marker marker) {
+		ScaleAnimation animation = new ScaleAnimation(0,1,0,1);
+		animation.setInterpolator(new LinearInterpolator());
+		animation.setDuration(300);
+		marker.setAnimation(animation);
+		marker.startAnimation();
+	}
+
+	/**
+	 * 初始化台风发布单位列表
+	 */
+	private void initPublishListView() {
+		publishList.clear();
+		TyphoonDto dto = new TyphoonDto();
+		dto.publishName = "北京台";
+		dto.publishCode = "BABJ";
+		dto.isSelected = true;
+		publishList.add(dto);
+		dto = new TyphoonDto();
+		dto.publishName = "广州台";
+		dto.publishCode = "BCGZ";
+		publishList.add(dto);
+		dto = new TyphoonDto();
+		dto.publishName = "香港台";
+		dto.publishCode = "VHHH";
+		publishList.add(dto);
+		dto = new TyphoonDto();
+		dto.publishName = "日本台";
+		dto.publishCode = "RJTD";
+		publishList.add(dto);
+		dto = new TyphoonDto();
+		dto.publishName = "关岛台";
+		dto.publishCode = "PGTW";
+		publishList.add(dto);
+//        dto = new TyphoonDto();
+//        dto.publishName = "欧洲台";
+//        dto.publishCode = "ECMF";
+//        publishList.add(dto);
+//        dto = new TyphoonDto();
+//        dto.publishName = "广州热带所KM";
+//        dto.publishCode = "GZRD";
+//        publishList.add(dto);
+//        dto = new TyphoonDto();
+//        dto.publishName = "广州热带所9KM";
+//        dto.publishCode = "GZRD9KM";
+//        publishList.add(dto);
+
+
+		publishListView = findViewById(R.id.publishListView);
+		publishAdapter = new TyphoonPublishAdapter(mContext, publishList);
+		publishListView.setAdapter(publishAdapter);
+		publishListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+			@Override
+			public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+				TyphoonDto data = publishList.get(position);
+				data.isSelected = !data.isSelected;
+				if (publishAdapter != null) {
+					publishAdapter.notifyDataSetChanged();
+				}
+
+				if (data.isSelected) {
+					//绘制所有选中的台风
+					for (TyphoonDto dto : nameList) {
+						if (dto.isSelected) {
+							isShowInfoWindow = true;
+							String name = dto.code+" "+dto.name+" "+dto.enName;
+							if (TextUtils.equals(data.publishCode, "BABJ") && !TextUtils.isEmpty(dto.id)) {
+								OkHttpTyphoonDetailBABJ(data.publishName, data.publishCode, dto.id, name);
+							}else {
+								OkHttpTyphoonDetailIdea(data.publishName, data.publishCode, dto.tId, name);
+							}
+						}
+					}
+				}else {//清除选择的数据源对应的所有台风
+					for (TyphoonDto dto : nameList) {
+						if (TextUtils.equals(data.publishCode, "BABJ") && !TextUtils.isEmpty(dto.tId)) {
+							clearAllPoints(data.publishCode+dto.tId);
+						}else {
+							clearAllPoints(data.publishCode+dto.id);
+						}
+					}
+				}
+
+			}
+		});
+
+	}
+
 	private void initYearListView() {
 		yearList.clear();
 		final int currentYear = Integer.valueOf(sdf1.format(new Date()));
@@ -586,7 +744,7 @@ public class ShawnTyhpoonActivity extends BaseActivity implements OnClickListene
 				}
 
 				for (TyphoonDto data : nameList) {
-					if (TextUtils.equals(data.status, "start")) {
+					if (TextUtils.equals(data.status, "1")) {
 						data.isSelected = true;
 					}else {
 						data.isSelected = false;
@@ -607,17 +765,8 @@ public class ShawnTyhpoonActivity extends BaseActivity implements OnClickListene
 	 * 获取某一年的台风列表信息
 	 */
 	private void OkHttpTyphoonList(final int currentYear, final int selectYear) {
-		if (currentYear != selectYear) {//当年的就不用缓存了，防止数据更新
-			SharedPreferences sp = getSharedPreferences(selectYear+"", Context.MODE_PRIVATE);
-			String requestResult = sp.getString(selectYear+"", "");
-			if (!TextUtils.isEmpty(requestResult)) {
-				parseTyphoonList(requestResult, currentYear, selectYear);
-				return;
-			}
-		}
-
 		loadingView.setVisibility(View.VISIBLE);
-		final String url = "http://decision-admin.tianqi.cn/Home/extra/gettyphoon/list/"+selectYear;
+		final String url = "http://decision-admin.tianqi.cn/Home/other/zs_get_tflist/year/"+selectYear;
 		new Thread(new Runnable() {
 			@Override
 			public void run() {
@@ -630,112 +779,120 @@ public class ShawnTyhpoonActivity extends BaseActivity implements OnClickListene
 						if (!response.isSuccessful()) {
 							return;
 						}
-						final String requestResult = response.body().string();
+						final String result = response.body().string();
+						runOnUiThread(new Runnable() {
+							@Override
+							public void run() {
+								if (!TextUtils.isEmpty(result)) {
+									try {
+										JSONObject obj = new JSONObject(result);
+										if (!obj.isNull("DATA")) {
+											nameList.clear();
+											startList.clear();
+											JSONArray array = obj.getJSONArray("DATA");
+											for (int i = 0; i < array.length(); i++) {
+												TyphoonDto dto = new TyphoonDto();
+												JSONObject itemObj = array.getJSONObject(i);
+												if (!itemObj.isNull("TSID")) {
+													dto.tId = itemObj.getString("TSID");
+												}
+												if (!itemObj.isNull("TFWID")) {
+													dto.id = itemObj.getString("TFWID");
+												}
+												if (!itemObj.isNull("TSENAME")) {
+													dto.enName = itemObj.getString("TSENAME");
+												}
+												if (!itemObj.isNull("TSCNAME")) {
+													dto.name = itemObj.getString("TSCNAME");
+												}
+												if (!itemObj.isNull("INTLID")) {
+													dto.code = itemObj.getString("INTLID");
+												}
+												if (!itemObj.isNull("CRTTIME")) {
+													dto.createTime = itemObj.getString("CRTTIME");
+												}
+												if (!itemObj.isNull("status")) {
+													dto.status = itemObj.getString("status");
+													dto.isSelected = true;//生效台风默认选中状态
+												}else {
+													dto.status = "0";
+												}
+												if (!dto.code.contains("****")) {
+													nameList.add(dto);
 
-						if (!TextUtils.isEmpty(requestResult) && !TextUtils.isEmpty(selectYear+"")) {
-							SharedPreferences sp = getSharedPreferences(selectYear+"", Context.MODE_PRIVATE);
-							SharedPreferences.Editor editor = sp.edit();
-							editor.remove(selectYear+"");
-							editor.putString(selectYear+"", requestResult);
-							editor.apply();
-						}
+													//把活跃台风过滤出来存放
+													if (TextUtils.equals(dto.status, "1")) {
+														startList.add(dto);
+													}
+												}
 
-						parseTyphoonList(requestResult, currentYear, selectYear);
+											}
+
+											//如果选中是当年台风才绘制，防止选择其他年份也绘制一遍生效台风
+											if (currentYear == selectYear) {
+												String typhoonName = "";
+												for (TyphoonDto data : startList) {
+													String name;
+													if (TextUtils.equals(data.enName, "nameless")) {
+														if (!TextUtils.isEmpty(typhoonName)) {
+															typhoonName = data.enName+"\n"+typhoonName;
+														}else {
+															typhoonName = data.enName;
+														}
+														name = data.code + " " + data.enName;
+													}else {
+														if (!TextUtils.isEmpty(typhoonName)) {
+															typhoonName = data.code + " " + data.name + " " + data.enName+"\n"+typhoonName;
+														}else {
+															typhoonName = data.code + " " + data.name + " " + data.enName;
+														}
+														name = data.code + " " + data.name + " " + data.enName;
+													}
+													for (TyphoonDto pub : publishList) {
+														if (pub.isSelected) {
+															if (TextUtils.equals(pub.publishCode, "BABJ") && !TextUtils.isEmpty(data.id)) {
+																OkHttpTyphoonDetailBABJ(pub.publishName, pub.publishCode, data.id, name);
+															}else {
+																OkHttpTyphoonDetailIdea(pub.publishName, pub.publishCode, data.tId, name);
+															}
+														}
+													}
+												}
+												if (TextUtils.isEmpty(typhoonName)) {
+													tvTyphoonName.setText(getString(R.string.no_typhoon));
+												}else {
+													tvTyphoonName.setText(typhoonName);
+												}
+												tvTyphoonName.setVisibility(View.VISIBLE);
+											}
+
+											if (startList.size() <= 0) {// 没有生效台风
+												ivTyphoonPlay.setVisibility(View.GONE);
+												ivTyphoonRange.setVisibility(View.GONE);
+											}else if (startList.size() == 1) {
+//												ivTyphoonPlay.setVisibility(View.VISIBLE);
+												ivTyphoonRange.setVisibility(View.VISIBLE);
+											}else {
+												ivTyphoonPlay.setVisibility(View.GONE);
+												ivTyphoonRange.setVisibility(View.VISIBLE);
+											}
+
+											if (nameAdapter != null) {
+												nameAdapter.notifyDataSetChanged();
+											}
+											loadingView.setVisibility(View.GONE);
+										}
+									} catch (JSONException e) {
+										e.printStackTrace();
+									}
+
+								}
+							}
+						});
 					}
 				});
 			}
 		}).start();
-	}
-
-	/**
-	 * 解析台风列表
-	 * @param requestResult
-	 */
-	private void parseTyphoonList(final String requestResult, final int currentYear, final int selectYear) {
-		runOnUiThread(new Runnable() {
-			@Override
-			public void run() {
-				if (!TextUtils.isEmpty(requestResult)) {
-					String c = "(";
-					String c2 = "})";
-					String result = requestResult.substring(requestResult.indexOf(c)+c.length(), requestResult.indexOf(c2)+1);
-					if (!TextUtils.isEmpty(result)) {
-						try {
-							JSONObject obj = new JSONObject(result);
-							if (!obj.isNull("typhoonList")) {
-								nameList.clear();
-								startList.clear();
-								JSONArray array = obj.getJSONArray("typhoonList");
-								for (int i = 0; i < array.length(); i++) {
-									JSONArray itemArray = array.getJSONArray(i);
-									TyphoonDto dto = new TyphoonDto();
-									dto.id = itemArray.getString(0);
-									dto.enName = itemArray.getString(1);
-									dto.name = itemArray.getString(2);
-									dto.code = itemArray.getString(4);
-									dto.status = itemArray.getString(7);
-									nameList.add(dto);
-
-									//把活跃台风过滤出来存放
-									if (TextUtils.equals(dto.status, "start")) {
-										startList.add(dto);
-									}
-								}
-
-								//如果选中是当年台风才绘制，防止选择其他年份也绘制一遍生效台风
-								if (currentYear == selectYear) {
-									String typhoonName = "";
-									for (TyphoonDto data : startList) {
-										String name;
-										if (TextUtils.equals(data.enName, "nameless")) {
-											if (!TextUtils.isEmpty(typhoonName)) {
-												typhoonName = data.enName+"\n"+typhoonName;
-											}else {
-												typhoonName = data.enName;
-											}
-											name = data.code + " " + data.enName;
-										}else {
-											if (!TextUtils.isEmpty(typhoonName)) {
-												typhoonName = data.code + " " + data.name + " " + data.enName+"\n"+typhoonName;
-											}else {
-												typhoonName = data.code + " " + data.name + " " + data.enName;
-											}
-											name = data.code + " " + data.name + " " + data.enName;
-										}
-										OkHttpTyphoonDetail(data.status, data.id, name);
-									}
-									if (TextUtils.isEmpty(typhoonName)) {
-										tvTyphoonName.setText(getString(R.string.no_typhoon));
-									}else {
-										tvTyphoonName.setText(typhoonName);
-									}
-									tvTyphoonName.setVisibility(View.VISIBLE);
-								}
-
-								if (startList.size() <= 0) {// 没有生效台风
-									ivTyphoonPlay.setVisibility(View.GONE);
-									ivTyphoonRange.setVisibility(View.GONE);
-								}else if (startList.size() == 1) {
-									ivTyphoonPlay.setVisibility(View.VISIBLE);
-									ivTyphoonRange.setVisibility(View.VISIBLE);
-								}else {
-									ivTyphoonPlay.setVisibility(View.GONE);
-									ivTyphoonRange.setVisibility(View.VISIBLE);
-								}
-
-								if (nameAdapter != null) {
-									nameAdapter.notifyDataSetChanged();
-								}
-								loadingView.setVisibility(View.GONE);
-							}
-						} catch (JSONException e) {
-							e.printStackTrace();
-						}
-
-					}
-				}
-			}
-		});
 	}
 
 	private void initNameListView() {
@@ -762,7 +919,7 @@ public class ShawnTyhpoonActivity extends BaseActivity implements OnClickListene
 
 				startList.clear();
 				pointsMap.clear();
-				ivTyphoonPlay.setVisibility(View.VISIBLE);
+//				ivTyphoonPlay.setVisibility(View.VISIBLE);
 				if (TextUtils.equals(dto.enName, "nameless")) {
 					tvTyphoonName.setText(dto.enName);
 				}else {
@@ -771,7 +928,17 @@ public class ShawnTyhpoonActivity extends BaseActivity implements OnClickListene
 
 				clearAllPoints(null);
 				isShowInfoWindow = true;
-				OkHttpTyphoonDetail(dto.status, dto.id, tvTyphoonName.getText().toString());
+				for (TyphoonDto pub : publishList) {
+					if (pub.isSelected) {
+						if (dto.isSelected) {
+							if (TextUtils.equals(pub.publishCode, "BABJ") && !TextUtils.isEmpty(dto.id)) {
+								OkHttpTyphoonDetailBABJ(pub.publishName, pub.publishCode, dto.id, tvTyphoonName.getText().toString());
+							}else {
+								OkHttpTyphoonDetailIdea(pub.publishName, pub.publishCode, dto.tId, tvTyphoonName.getText().toString());
+							}
+						}
+					}
+				}
 
 			}
 		});
@@ -780,16 +947,7 @@ public class ShawnTyhpoonActivity extends BaseActivity implements OnClickListene
 	/**
 	 * 获取台风详情
 	 */
-	private void OkHttpTyphoonDetail(String status, final String typhoonId, final String typhoonName) {
-		if (!TextUtils.equals(status, "start")) {//防止数据更新
-			SharedPreferences sp = getSharedPreferences(typhoonId, Context.MODE_PRIVATE);
-			String requestResult = sp.getString(typhoonId, "");
-			if (!TextUtils.isEmpty(requestResult)) {
-				parseTyphoonDetail(requestResult, typhoonName, typhoonId);
-				return;
-			}
-		}
-
+	private void OkHttpTyphoonDetailBABJ(final String publishName, final String publishCode, final String typhoonId, final String typhoonName) {
 		loadingView.setVisibility(View.VISIBLE);
 		final String url = "http://decision-admin.tianqi.cn/Home/extra/gettyphoon/view/"+typhoonId;
 		new Thread(new Runnable() {
@@ -805,174 +963,325 @@ public class ShawnTyhpoonActivity extends BaseActivity implements OnClickListene
 							return;
 						}
 						final String requestResult = response.body().string();
+						runOnUiThread(new Runnable() {
+							@Override
+							public void run() {
+								if (!TextUtils.isEmpty(requestResult)) {
+									String c = "(";
+									String result = requestResult.substring(requestResult.indexOf(c)+c.length(), requestResult.indexOf(")"));
+									if (!TextUtils.isEmpty(result)) {
+										try {
+											JSONObject obj = new JSONObject(result);
+											if (!obj.isNull("typhoon")) {
+												List<TyphoonDto> points = new ArrayList<>();//台风实点
+												List<TyphoonDto> forePoints = new ArrayList<>();//台风预报点
+												JSONArray array = obj.getJSONArray("typhoon");
+												JSONArray itemArray = array.getJSONArray(8);
+												for (int j = 0; j < itemArray.length(); j++) {
+													JSONArray itemArray2 = itemArray.getJSONArray(j);
+													TyphoonDto dto = new TyphoonDto();
+													if (!TextUtils.isEmpty(typhoonName)) {
+														dto.name = typhoonName;
+													}
+													long longTime = itemArray2.getLong(2);
+													dto.time = sdf2.format(new Date(longTime));
 
-						if (!TextUtils.isEmpty(requestResult) && !TextUtils.isEmpty(typhoonId)) {
-							SharedPreferences sp = getSharedPreferences(typhoonId, Context.MODE_PRIVATE);
-							SharedPreferences.Editor editor = sp.edit();
-							editor.remove(typhoonId);
-							editor.putString(typhoonId, requestResult);
-							editor.apply();
-						}
+													dto.lng = itemArray2.getDouble(4);
+													dto.lat = itemArray2.getDouble(5);
+													dto.pressure = itemArray2.getString(6);
+													dto.max_wind_speed = itemArray2.getString(7);
+													dto.move_speed = itemArray2.getString(9);
+													String fx_string = itemArray2.getString(8);
+													if( !TextUtils.isEmpty(fx_string)){
+														String windDir = "";
+														for (int i = 0; i < fx_string.length(); i++) {
+															String item = fx_string.substring(i, i+1);
+															if (TextUtils.equals(item, "N")) {
+																item = "北";
+															}else if (TextUtils.equals(item, "S")) {
+																item = "南";
+															}else if (TextUtils.equals(item, "W")) {
+																item = "西";
+															}else if (TextUtils.equals(item, "E")) {
+																item = "东";
+															}
+															windDir = windDir+item;
+														}
+														dto.wind_dir = windDir;
+													}
 
-						parseTyphoonDetail(requestResult, typhoonName, typhoonId);
+													String type = itemArray2.getString(3);
+													if (TextUtils.equals(type, "TD")) {//热带低压
+														type = "1";
+													}else if (TextUtils.equals(type, "TS")) {//热带风暴
+														type = "2";
+													}else if (TextUtils.equals(type, "STS")) {//强热带风暴
+														type = "3";
+													}else if (TextUtils.equals(type, "TY")) {//台风
+														type = "4";
+													}else if (TextUtils.equals(type, "STY")) {//强台风
+														type = "5";
+													}else if (TextUtils.equals(type, "SuperTY")) {//超强台风
+														type = "6";
+													}
+													dto.type = type;
+													dto.isFactPoint = true;
 
+													JSONArray array10 = itemArray2.getJSONArray(10);
+													for (int m = 0; m < array10.length(); m++) {
+														JSONArray itemArray10 = array10.getJSONArray(m);
+														if (m == 0) {
+															dto.radius_7 = itemArray10.getString(1)+","+itemArray10.getString(2)+","+itemArray10.getString(3)+","+itemArray10.getString(4);
+														}else if (m == 1) {
+															dto.radius_10 = itemArray10.getString(1)+","+itemArray10.getString(2)+","+itemArray10.getString(3)+","+itemArray10.getString(4);
+														}
+													}
+													points.add(dto);
+
+													if (!itemArray2.get(11).equals("null") && !itemArray2.get(11).equals(null)) {
+														JSONObject obj11 = itemArray2.getJSONObject(11);
+														JSONArray array11 = obj11.getJSONArray("BABJ");
+														if (array11.length() > 0) {
+															forePoints.clear();
+														}
+														for (int n = 0; n < array11.length(); n++) {
+															JSONArray itemArray11 = array11.getJSONArray(n);
+															for (int i = 0; i < itemArray11.length(); i++) {
+																TyphoonDto data = new TyphoonDto();
+																if (!TextUtils.isEmpty(typhoonName)) {
+																	data.name = typhoonName;
+																}
+																data.lng = itemArray11.getDouble(2);
+																data.lat = itemArray11.getDouble(3);
+																data.pressure = itemArray11.getString(4);
+																data.max_wind_speed = itemArray11.getString(5);
+
+																long t2 = itemArray11.getLong(0)*3600*1000;
+																long ttt = longTime+t2;
+																data.time = sdf2.format(new Date(ttt));
+
+																String babjType = itemArray11.getString(7);
+																if (TextUtils.equals(babjType, "TD")) {//热带低压
+																	babjType = "1";
+																}else if (TextUtils.equals(babjType, "TS")) {//热带风暴
+																	babjType = "2";
+																}else if (TextUtils.equals(babjType, "STS")) {//强热带风暴
+																	babjType = "3";
+																}else if (TextUtils.equals(babjType, "TY")) {//台风
+																	babjType = "4";
+																}else if (TextUtils.equals(babjType, "STY")) {//强台风
+																	babjType = "5";
+																}else if (TextUtils.equals(babjType, "SuperTY")) {//超强台风
+																	babjType = "6";
+																}
+																data.type = babjType;
+																data.isFactPoint = false;
+
+																forePoints.add(data);
+															}
+														}
+													}
+												}
+
+												points.addAll(forePoints);
+												pointsMap.put(typhoonId, points);
+												loadingView.setVisibility(View.GONE);
+
+												try {
+													int size = startList.size();
+													long sleep;
+													if (size == 1) {
+														sleep = 100;
+													}else if (size == 2) {
+														sleep = 300;
+													}else if (size == 3) {
+														sleep = 400;
+													}else {
+														sleep = 500;
+													}
+													Thread.sleep(sleep);
+
+													drawTyphoon(publishName, publishCode+typhoonId, false, points);
+												} catch (InterruptedException e) {
+													e.printStackTrace();
+												}
+											}
+										} catch (JSONException e) {
+											e.printStackTrace();
+										}
+									}
+								}
+							}
+						});
 					}
 				});
 			}
 		}).start();
 	}
 
-	private void parseTyphoonDetail(final String requestResult, final String typhoonName, final String typhoonId) {
-		runOnUiThread(new Runnable() {
+	/**
+	 * 获取台风详情
+	 */
+	private void OkHttpTyphoonDetailIdea(final String publishName, final String publishCode, final String typhoonId, final String typhoonName) {
+		loadingView.setVisibility(View.VISIBLE);
+		final String url = String.format("http://61.142.114.104:8080/zstyphoon/lhdata/zstf?type=1&tsid=%s&fcid=%s", typhoonId, publishCode);
+		new Thread(new Runnable() {
 			@Override
 			public void run() {
-				if (!TextUtils.isEmpty(requestResult)) {
-					String c = "(";
-					String result = requestResult.substring(requestResult.indexOf(c)+c.length(), requestResult.indexOf(")"));
-					if (!TextUtils.isEmpty(result)) {
-						try {
-							JSONObject obj = new JSONObject(result);
-							if (!obj.isNull("typhoon")) {
-								List<TyphoonDto> points = new ArrayList<>();//台风实点
-								List<TyphoonDto> forePoints = new ArrayList<>();//台风预报点
-								JSONArray array = obj.getJSONArray("typhoon");
-								JSONArray itemArray = array.getJSONArray(8);
-								for (int j = 0; j < itemArray.length(); j++) {
-									JSONArray itemArray2 = itemArray.getJSONArray(j);
-									TyphoonDto dto = new TyphoonDto();
+				OkHttpUtil.enqueue(new Request.Builder().url(url).build(), new Callback() {
+					@Override
+					public void onFailure(Call call, IOException e) {
+					}
+					@Override
+					public void onResponse(Call call, Response response) throws IOException {
+						if (!response.isSuccessful()) {
+							return;
+						}
+						final String result = response.body().string();
+						if (TextUtils.isEmpty(result) || TextUtils.equals(result, "{}")) {
+							runOnUiThread(new Runnable() {
+								@Override
+								public void run() {
+									loadingView.setVisibility(View.GONE);
 									if (!TextUtils.isEmpty(typhoonName)) {
-										dto.name = typhoonName;
-									}
-									long longTime = itemArray2.getLong(2);
-									dto.time = sdf2.format(new Date(longTime));
-
-									dto.lng = itemArray2.getDouble(4);
-									dto.lat = itemArray2.getDouble(5);
-									dto.pressure = itemArray2.getString(6);
-									dto.max_wind_speed = itemArray2.getString(7);
-									dto.move_speed = itemArray2.getString(9);
-									String fx_string = itemArray2.getString(8);
-									if( !TextUtils.isEmpty(fx_string)){
-										String windDir = "";
-										for (int i = 0; i < fx_string.length(); i++) {
-											String item = fx_string.substring(i, i+1);
-											if (TextUtils.equals(item, "N")) {
-												item = "北";
-											}else if (TextUtils.equals(item, "S")) {
-												item = "南";
-											}else if (TextUtils.equals(item, "W")) {
-												item = "西";
-											}else if (TextUtils.equals(item, "E")) {
-												item = "东";
-											}
-											windDir = windDir+item;
-										}
-										dto.wind_dir = windDir;
-									}
-
-									String type = itemArray2.getString(3);
-									if (TextUtils.equals(type, "TD")) {//热带低压
-										type = "1";
-									}else if (TextUtils.equals(type, "TS")) {//热带风暴
-										type = "2";
-									}else if (TextUtils.equals(type, "STS")) {//强热带风暴
-										type = "3";
-									}else if (TextUtils.equals(type, "TY")) {//台风
-										type = "4";
-									}else if (TextUtils.equals(type, "STY")) {//强台风
-										type = "5";
-									}else if (TextUtils.equals(type, "SuperTY")) {//超强台风
-										type = "6";
-									}
-									dto.type = type;
-									dto.isFactPoint = true;
-
-									JSONArray array10 = itemArray2.getJSONArray(10);
-									for (int m = 0; m < array10.length(); m++) {
-										JSONArray itemArray10 = array10.getJSONArray(m);
-										if (m == 0) {
-											dto.radius_7 = itemArray10.getString(1)+","+itemArray10.getString(2)+","+itemArray10.getString(3)+","+itemArray10.getString(4);
-										}else if (m == 1) {
-											dto.radius_10 = itemArray10.getString(1)+","+itemArray10.getString(2)+","+itemArray10.getString(3)+","+itemArray10.getString(4);
-										}
-									}
-									points.add(dto);
-
-									if (!itemArray2.get(11).equals("null") && !itemArray2.get(11).equals(null)) {
-										JSONObject obj11 = itemArray2.getJSONObject(11);
-										JSONArray array11 = obj11.getJSONArray("BABJ");
-										if (array11.length() > 0) {
-											forePoints.clear();
-										}
-										for (int n = 0; n < array11.length(); n++) {
-											JSONArray itemArray11 = array11.getJSONArray(n);
-											for (int i = 0; i < itemArray11.length(); i++) {
-												TyphoonDto data = new TyphoonDto();
-												if (!TextUtils.isEmpty(typhoonName)) {
-													data.name = typhoonName;
-												}
-												data.lng = itemArray11.getDouble(2);
-												data.lat = itemArray11.getDouble(3);
-												data.pressure = itemArray11.getString(4);
-												data.max_wind_speed = itemArray11.getString(5);
-
-												long t2 = itemArray11.getLong(0)*3600*1000;
-												long ttt = longTime+t2;
-												data.time = sdf2.format(new Date(ttt));
-
-												String babjType = itemArray11.getString(7);
-												if (TextUtils.equals(babjType, "TD")) {//热带低压
-													babjType = "1";
-												}else if (TextUtils.equals(babjType, "TS")) {//热带风暴
-													babjType = "2";
-												}else if (TextUtils.equals(babjType, "STS")) {//强热带风暴
-													babjType = "3";
-												}else if (TextUtils.equals(babjType, "TY")) {//台风
-													babjType = "4";
-												}else if (TextUtils.equals(babjType, "STY")) {//强台风
-													babjType = "5";
-												}else if (TextUtils.equals(babjType, "SuperTY")) {//超强台风
-													babjType = "6";
-												}
-												data.type = babjType;
-												data.isFactPoint = false;
-
-												forePoints.add(data);
-											}
-										}
+										Toast.makeText(mContext, "暂无"+publishName+typhoonName+"数据", Toast.LENGTH_SHORT).show();
 									}
 								}
-
-								points.addAll(forePoints);
-								pointsMap.put(typhoonId, points);
-								loadingView.setVisibility(View.GONE);
-
+							});
+							return;
+						}
+						runOnUiThread(new Runnable() {
+							@Override
+							public void run() {
 								try {
-									int size = startList.size();
-									long sleep;
-									if (size == 1) {
-										sleep = 100;
-									}else if (size == 2) {
-										sleep = 300;
-									}else if (size == 3) {
-										sleep = 400;
-									}else {
-										sleep = 500;
+									List<TyphoonDto> allPoints = new ArrayList<>();
+									JSONArray array = new JSONArray(result);
+									if (array.length() <= 0) {
+										loadingView.setVisibility(View.GONE);
+										if (!TextUtils.isEmpty(typhoonName)) {
+											Toast.makeText(mContext, "暂无"+publishName+typhoonName+"数据", Toast.LENGTH_SHORT).show();
+										}
+										return;
 									}
-									Thread.sleep(sleep);
 
-									drawTyphoon(typhoonId, false, points);
-								} catch (InterruptedException e) {
+									for (int i = 0; i < array.length(); i++) {
+										TyphoonDto dto = new TyphoonDto();
+										JSONObject itemObj = array.getJSONObject(i);
+										if (!TextUtils.isEmpty(typhoonName)) {
+											dto.name = typhoonName;
+										}
+										if (!itemObj.isNull("DDATETIME") && !TextUtils.isEmpty(itemObj.getString("DDATETIME"))) {
+											String time = itemObj.getString("DDATETIME");
+											if (!TextUtils.isEmpty(time)) {
+												try {
+													dto.time = sdf3.format(sdf8.parse(time));
+												} catch (ParseException e) {
+													e.printStackTrace();
+												}
+											}
+										}
+										if (!itemObj.isNull("LEADTIME")) {
+											int LEADTIME = itemObj.getInt("LEADTIME");
+											if (!TextUtils.isEmpty(dto.time)) {
+												try {
+													long time = sdf3.parse(dto.time).getTime()+1000*60*60*LEADTIME;
+													dto.time = sdf3.format(new Date(time));
+												} catch (ParseException e) {
+													e.printStackTrace();
+												}
+											}
+										}
+										if (!itemObj.isNull("LONGITUDE") && !TextUtils.isEmpty(itemObj.getString("LONGITUDE"))) {
+											dto.lng = itemObj.getDouble("LONGITUDE");
+										}
+										if (!itemObj.isNull("LATITUDE") && !TextUtils.isEmpty(itemObj.getString("LATITUDE"))) {
+											dto.lat = itemObj.getDouble("LATITUDE");
+										}
+										if (!itemObj.isNull("PRESSURE") && !TextUtils.isEmpty(itemObj.getString("PRESSURE"))) {
+											dto.pressure = itemObj.getString("PRESSURE");
+										}
+										if (!itemObj.isNull("WINDSPEED") && !TextUtils.isEmpty(itemObj.getString("WINDSPEED"))) {
+											dto.max_wind_speed = itemObj.getString("WINDSPEED");
+										}
+										if (!itemObj.isNull("SPEED") && !TextUtils.isEmpty(itemObj.getString("SPEED"))) {
+											dto.move_speed = itemObj.getString("SPEED");
+										}
+										if (!itemObj.isNull("DIRECTION") && !TextUtils.isEmpty(itemObj.getString("DIRECTION"))) {
+											float fx = (float) itemObj.getDouble("DIRECTION");
+											dto.wind_dir = CommonUtil.getWindDirection(fx);
+										}
+										if (!itemObj.isNull("TCRANK") && !TextUtils.isEmpty(itemObj.getString("TCRANK"))) {
+											String type = itemObj.getString("TCRANK");
+											if (TextUtils.equals(type, "TD")) {//热带低压
+												type = "1";
+											}else if (TextUtils.equals(type, "TS")) {//热带风暴
+												type = "2";
+											}else if (TextUtils.equals(type, "STS")) {//强热带风暴
+												type = "3";
+											}else if (TextUtils.equals(type, "TY")) {//台风
+												type = "4";
+											}else if (TextUtils.equals(type, "STY")) {//强台风
+												type = "5";
+											}else if (TextUtils.equals(type, "SUPER TY")) {//超强台风
+												type = "6";
+											}
+											dto.type = type;
+										}
+										if (!itemObj.isNull("TYPE") && !TextUtils.isEmpty(itemObj.getString("TYPE"))) {
+											String isFactFore = itemObj.getString("TYPE");
+											if (TextUtils.equals(isFactFore, "0")) {
+												dto.isFactPoint = true;
+											}else {
+												dto.isFactPoint = false;
+											}
+										}
+										if (!itemObj.isNull("RD07") && !TextUtils.isEmpty(itemObj.getString("RD07"))) {
+											dto.radius_7 = itemObj.getString("RD07");
+										}else if (!itemObj.isNull("RR07") && !TextUtils.isEmpty(itemObj.getString("RR07"))) {
+											String r = itemObj.getString("RR07");
+											dto.radius_7 = r+","+r+","+r+","+r;
+										}
+
+										if (!itemObj.isNull("RD10") && !TextUtils.isEmpty(itemObj.getString("RD10"))) {
+											dto.radius_10 = itemObj.getString("RD10");
+										}else if (!itemObj.isNull("RR10") && !TextUtils.isEmpty(itemObj.getString("RR10"))) {
+											String r = itemObj.getString("RR10");
+											dto.radius_10 = r+","+r+","+r+","+r;
+										}
+
+										allPoints.add(dto);
+									}
+
+									loadingView.setVisibility(View.GONE);
+									try {
+										int size = startList.size();
+										long sleep;
+										if (size == 1) {
+											sleep = 100;
+										}else if (size == 2) {
+											sleep = 300;
+										}else if (size == 3) {
+											sleep = 400;
+										}else {
+											sleep = 500;
+										}
+										Thread.sleep(sleep);
+
+										drawTyphoon(publishName, publishCode+typhoonId, false, allPoints);
+									} catch (InterruptedException e) {
+										e.printStackTrace();
+									}
+
+								} catch (JSONException e) {
 									e.printStackTrace();
 								}
 							}
-						} catch (JSONException e) {
-							e.printStackTrace();
-						}
+						});
+
 					}
-				}
+				});
 			}
-		});
+		}).start();
 	}
 
 	@SuppressLint("HandlerLeak")
@@ -1238,7 +1547,7 @@ public class ShawnTyhpoonActivity extends BaseActivity implements OnClickListene
 	 * 绘制台风
 	 * @param isAnimate
 	 */
-	private void drawTyphoon(String typhoonId, boolean isAnimate, List<TyphoonDto> list) {
+	private void drawTyphoon(String publishName, String typhoonId, boolean isAnimate, List<TyphoonDto> list) {
 		if (list.isEmpty()) {
 			return;
 		}
@@ -1247,7 +1556,7 @@ public class ShawnTyhpoonActivity extends BaseActivity implements OnClickListene
 			mRoadThread.cancel();
 			mRoadThread = null;
 		}
-		mRoadThread = new RoadThread(typhoonId, list, isAnimate);
+		mRoadThread = new RoadThread(publishName, typhoonId, list, isAnimate);
 		mRoadThread.start();
 	}
 
@@ -1259,10 +1568,11 @@ public class ShawnTyhpoonActivity extends BaseActivity implements OnClickListene
         private boolean cancelled;
         private boolean isAnimate;
         private List<TyphoonDto> allPoints;//整个台风路径信息
-        private String typhoonId;
+        private String publishName,typhoonId;
 
-        private RoadThread(String typhoonId, List<TyphoonDto> allPoints, boolean isAnimate) {
-            this.typhoonId = typhoonId;
+        private RoadThread(String publishName, String typhoonId, List<TyphoonDto> allPoints, boolean isAnimate) {
+            this.publishName = publishName;
+        	this.typhoonId = typhoonId;
             this.allPoints = allPoints;
             this.isAnimate = isAnimate;
         }
@@ -1307,7 +1617,7 @@ public class ShawnTyhpoonActivity extends BaseActivity implements OnClickListene
 				if (factPoints.size() > 0) {
 					lastFactPoint = factPoints.get(factPoints.size()-1);//最后一个实况点
 				}
-                drawRoute(typhoonId, factLines, foreLines, markerPoints, firstPoint, lastPoint, lastFactPoint);
+                drawRoute(publishName, typhoonId, factLines, foreLines, markerPoints, firstPoint, lastPoint, lastFactPoint);
             }
             factLinesMap.put(typhoonId, factLines);
             foreLinesMap.put(typhoonId, foreLines);
@@ -1320,12 +1630,25 @@ public class ShawnTyhpoonActivity extends BaseActivity implements OnClickListene
         }
 	}
 
-	private void drawRoute(final String typhoonId, List<Polyline> factLines, List<Polyline> foreLines, List<Marker> markerPoints, TyphoonDto firstPoint, TyphoonDto lastPoint, TyphoonDto lastFactPoint) {
+	private void drawRoute(String publishName, final String typhoonId, List<Polyline> factLines, List<Polyline> foreLines, List<Marker> markerPoints, TyphoonDto firstPoint, TyphoonDto lastPoint, TyphoonDto lastFactPoint) {
 		if (lastPoint == null) {//最后一个点
 			lastPoint = firstPoint;
 		}
 		if (lastFactPoint == null) {
 			lastFactPoint = firstPoint;
+		}
+
+		int lineColor = 0;
+		if (typhoonId.contains("BABJ")) {//北京台
+			lineColor = Color.RED;
+		}else if (typhoonId.contains("BCGZ")) {//广州台
+			lineColor = 0xffEF9A1A;
+		}else if (typhoonId.contains("VHHH")) {//香港台
+			lineColor = Color.YELLOW;
+		}else if (typhoonId.contains("RJTD")) {//日本台
+			lineColor = Color.GREEN;
+		}else if (typhoonId.contains("PGTW")) {//关岛台
+			lineColor = Color.BLUE;
 		}
 
         double firstLat = firstPoint.lat;
@@ -1340,7 +1663,7 @@ public class ShawnTyhpoonActivity extends BaseActivity implements OnClickListene
         if (lastPoint.isFactPoint) {//实况线
             PolylineOptions polylineOptions = new PolylineOptions();
             polylineOptions.width(CommonUtil.dip2px(mContext, 2));
-            polylineOptions.color(Color.RED);
+            polylineOptions.color(lineColor);
             latLngs.add(firstLatLng);
             latLngs.add(lastLatLng);
             polylineOptions.addAll(latLngs);
@@ -1353,7 +1676,7 @@ public class ShawnTyhpoonActivity extends BaseActivity implements OnClickListene
             double lat_per = (lastLat-firstLat)/numPoint;
             for (int i = 0; i < numPoint; i++) {
                 PolylineOptions polylineOptions = new PolylineOptions();
-                polylineOptions.color(Color.RED);
+                polylineOptions.color(lineColor);
                 polylineOptions.width(CommonUtil.dip2px(mContext, 2));
                 latLngs.add(new LatLng(firstLat+i*lat_per, firstLng+i*lng_per));
                 if (i % 2 == 1) {
@@ -1367,6 +1690,17 @@ public class ShawnTyhpoonActivity extends BaseActivity implements OnClickListene
 
         LayoutInflater inflater = (LayoutInflater) getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         View view = inflater.inflate(R.layout.shawn_typhoon_point_icon, null);
+
+
+		if (firstPoint == lastPoint) {//最后一个点，绘制发布源
+			if (!TextUtils.isEmpty(publishName)) {
+				TextView tvName = view.findViewById(R.id.tvName);
+				tvName.setText(publishName);
+				tvName.setVisibility(View.VISIBLE);
+			}
+		}
+
+
         ImageView ivPoint = view.findViewById(R.id.ivPoint);
         if (TextUtils.equals(firstPoint.type, "1")) {
             ivPoint.setImageResource(R.drawable.shawn_typhoon_level1);
@@ -1385,6 +1719,7 @@ public class ShawnTyhpoonActivity extends BaseActivity implements OnClickListene
         }
         MarkerOptions options = new MarkerOptions();
         options.title(firstPoint.name+"|"+firstPoint.content(mContext)+"|"+firstPoint.radius_7+"|"+firstPoint.radius_10);
+        options.snippet(markerType2);
         options.anchor(0.5f, 0.5f);
         options.position(firstLatLng);
         options.icon(BitmapDescriptorFactory.fromView(view));
@@ -1682,16 +2017,20 @@ public class ShawnTyhpoonActivity extends BaseActivity implements OnClickListene
     @Override
 	public boolean onMarkerClick(Marker marker) {
         if (marker != null && marker != locationMarker) {
-            if (!TextUtils.isEmpty(marker.getTitle())) {
-                String[] title = marker.getTitle().split("\\|");
-                drawWindCircle(title[2], title[3], marker.getPosition());
-            }
+        	if (TextUtils.equals(marker.getSnippet(), markerType2)) {//台风点
+				if (!TextUtils.isEmpty(marker.getTitle())) {
+					String[] title = marker.getTitle().split("\\|");
+					drawWindCircle(title[2], title[3], marker.getPosition());
+				}
+			}else if (TextUtils.equals(marker.getSnippet(), markerType1)) {//预警
+
+			}
 
 			clickMarker = marker;
             if (clickMarker.isInfoWindowShown()) {
             	clickMarker.hideInfoWindow();
 			}else {
-				marker.showInfoWindow();
+				clickMarker.showInfoWindow();
 			}
 
         }
@@ -1718,33 +2057,79 @@ public class ShawnTyhpoonActivity extends BaseActivity implements OnClickListene
     }
 
 	@Override
-	public View getInfoContents(Marker arg0) {
+	public View getInfoContents(Marker marker) {
 		LayoutInflater inflater = (LayoutInflater) getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-		View view = inflater.inflate(R.layout.shawn_typhoon_marker_icon_info, null);
-		TextView tvName = view.findViewById(R.id.tvName);
-		TextView tvInfo = view.findViewById(R.id.tvInfo);
-		ImageView ivDelete = view.findViewById(R.id.ivDelete);
-		if (!TextUtils.isEmpty(arg0.getTitle())) {
-			String[] str = arg0.getTitle().split("\\|");
-			if (!TextUtils.isEmpty(str[0])) {
-				tvName.setText(str[0]);
+		View mView = null;
+		if (TextUtils.equals(marker.getSnippet(), markerType1)) {//预警marker
+			mView = inflater.inflate(R.layout.shawn_warning_marker_icon_info, null);
+			final List<WarningDto> infoList = addInfoList(marker);
+			ListView mListView = mView.findViewById(R.id.listView);
+			ShawnWarningAdapter mAdapter = new ShawnWarningAdapter(mContext, infoList, true);
+			mListView.setAdapter(mAdapter);
+			ViewGroup.LayoutParams params = mListView.getLayoutParams();
+			if (infoList.size() == 1) {
+				params.height = (int) CommonUtil.dip2px(mContext, 50);
+			}else if (infoList.size() == 2) {
+				params.height = (int) CommonUtil.dip2px(mContext, 100);
+			}else if (infoList.size() > 2){
+				params.height = (int) CommonUtil.dip2px(mContext, 150);
 			}
-			if (!TextUtils.isEmpty(str[1])) {
-				tvInfo.setText(str[1]);
+			mListView.setLayoutParams(params);
+			mListView.setOnItemClickListener(new OnItemClickListener() {
+				@Override
+				public void onItemClick(AdapterView<?> arg0, View arg1, int arg2, long arg3) {
+					intentDetail(infoList.get(arg2));
+				}
+			});
+		}else if (TextUtils.equals(marker.getSnippet(), markerType2)) {
+			mView = inflater.inflate(R.layout.shawn_typhoon_marker_icon_info, null);
+			TextView tvName = mView.findViewById(R.id.tvName);
+			TextView tvInfo = mView.findViewById(R.id.tvInfo);
+			ImageView ivDelete = mView.findViewById(R.id.ivDelete);
+			if (!TextUtils.isEmpty(marker.getTitle())) {
+				String[] str = marker.getTitle().split("\\|");
+				if (!TextUtils.isEmpty(str[0])) {
+					tvName.setText(str[0]);
+				}
+				if (!TextUtils.isEmpty(str[1])) {
+					tvInfo.setText(str[1]);
+				}
 			}
+			ivDelete.setOnClickListener(new OnClickListener() {
+				@Override
+				public void onClick(View v) {
+					mapClick();
+				}
+			});
 		}
-		ivDelete.setOnClickListener(new OnClickListener() {
-			@Override
-			public void onClick(View v) {
-				mapClick();
-			}
-		});
-		return view;
+
+		return mView;
 	}
 
 	@Override
 	public View getInfoWindow(Marker arg0) {
 		return null;
+	}
+
+	private List<WarningDto> addInfoList(Marker marker) {
+		List<WarningDto> infoList = new ArrayList<>();
+		for (WarningDto dto : typhoonWarnings) {
+			String[] latLng = marker.getTitle().split(",");
+			if (TextUtils.equals(latLng[0], dto.lat+"") && TextUtils.equals(latLng[1], dto.lng+"")) {
+				infoList.add(dto);
+			}
+		}
+		return infoList;
+	}
+
+	private void intentDetail(WarningDto data) {
+		Intent intentDetail = new Intent(mContext, ShawnWarningDetailActivity.class);
+		String columnId = getIntent().getStringExtra(CONST.COLUMN_ID);
+		intentDetail.putExtra(CONST.COLUMN_ID, columnId);
+		Bundle bundle = new Bundle();
+		bundle.putParcelable("data", data);
+		intentDetail.putExtras(bundle);
+		startActivity(intentDetail);
 	}
 
 	private void legendAnimation(boolean flag, final RelativeLayout reLayout) {
@@ -2312,6 +2697,16 @@ public class ShawnTyhpoonActivity extends BaseActivity implements OnClickListene
 					tvFileTime.setVisibility(View.GONE);
 				}
 				break;
+			case R.id.ivTyphoonWarning:
+				isWarningOn = !isWarningOn;
+				if (isWarningOn) {
+					addTyphoonWarningMarkers();
+					ivTyphoonWarning.setImageResource(R.drawable.shawn_icon_typhoon_warning_on);
+				}else {
+					removeTyphoonWarningMarkers();
+					ivTyphoonWarning.setImageResource(R.drawable.shawn_icon_typhoon_warning_off);
+				}
+				break;
 
 			case R.id.ivTyphoonRange:
 				isRanging = !isRanging;
@@ -2333,12 +2728,12 @@ public class ShawnTyhpoonActivity extends BaseActivity implements OnClickListene
 			case R.id.ivTyphoonPlay:
 				clearAllPoints(null);
 				ivTyphoonPlay.setImageResource(R.drawable.shawn_icon_typhoon_pause);
-				for (String typhoonId : pointsMap.keySet()) {
-					if (pointsMap.containsKey(typhoonId)) {
-						List<TyphoonDto> points = pointsMap.get(typhoonId);
-						drawTyphoon(typhoonId, true, points);
-					}
-				}
+//				for (String typhoonId : pointsMap.keySet()) {
+//					if (pointsMap.containsKey(typhoonId)) {
+//						List<TyphoonDto> points = pointsMap.get(typhoonId);
+//						drawTyphoon(typhoonId, true, points);
+//					}
+//				}
 				break;
 			case R.id.ivLegend:
 			case R.id.ivCancelLegend:

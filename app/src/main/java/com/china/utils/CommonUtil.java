@@ -1012,5 +1012,32 @@ public class CommonUtil {
 		}
 		return navigationBarHeight;
 	}
+
+	/**
+	 * 通过旋转角度获取风向字符串
+	 * @param fx
+	 * @return
+	 */
+	public static String getWindDirection(float fx) {
+		String wind_dir;
+		if(fx >= 22.5 && fx < 67.5){
+			wind_dir = "东北";
+		}else if(fx >= 67.5 && fx < 112.5){
+			wind_dir = "东";
+		}else if(fx >= 112.5 && fx < 157.5){
+			wind_dir = "东南";
+		}else if(fx >= 157.5 && fx < 202.5){
+			wind_dir = "南";
+		}else if(fx >= 202.5 && fx < 247.5){
+			wind_dir = "西南";
+		}else if(fx >= 247.5 && fx < 292.5){
+			wind_dir = "西";
+		}else if(fx >= 292.5 && fx < 337.5){
+			wind_dir = "西北";
+		}else {
+			wind_dir = "北";
+		}
+		return wind_dir;
+	}
     
 }

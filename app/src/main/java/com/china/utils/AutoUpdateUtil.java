@@ -1,6 +1,5 @@
 package com.china.utils;
 
-import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.Dialog;
 import android.app.DownloadManager;
@@ -13,8 +12,6 @@ import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Environment;
-import android.os.Handler;
-import android.os.Message;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -39,10 +36,8 @@ import okhttp3.Response;
 
 /**
  * 自动更新
- * @author shawn_sun
  *
  */
-
 public class AutoUpdateUtil {
 
 	private static Context mContext;
@@ -53,7 +48,7 @@ public class AutoUpdateUtil {
 	 * 获取版本号
 	 * @return 当前应用的版本号
 	 */
-	public static int getVersionCode(Context context) {
+	private static int getVersionCode(Context context) {
 	    try {
 	        PackageManager manager = context.getPackageManager();
 	        PackageInfo info = manager.getPackageInfo(context.getPackageName(), 0);
@@ -75,62 +70,63 @@ public class AutoUpdateUtil {
 		appName = app_name;
 		flag = is_flag;
 		if (TextUtils.isEmpty(app_id)) {
-			Toast.makeText(mContext, "The app_id is empty", Toast.LENGTH_SHORT).show();
 			return;
 		}
-		String url = "https://app.tianqi.cn/update/check";
+		final String url = "https://app.tianqi.cn/update/check";
 		FormBody.Builder builder = new FormBody.Builder();
 		builder.add("app_id", app_id);
-		RequestBody body = builder.build();
-		OkHttpUtil.enqueue(new okhttp3.Request.Builder().post(body).url(url).build(), new Callback() {
+		final RequestBody body = builder.build();
+		new Thread(new Runnable() {
 			@Override
-			public void onFailure(Call call, IOException e) {
-			}
-			@Override
-			public void onResponse(Call call, Response response) throws IOException {
-				if (!response.isSuccessful()) {
-					return;
-				}
-				String result = response.body().string();
-				if (!TextUtils.isEmpty(result)) {
-					try {
-						JSONObject obj = new JSONObject(result);
-						UpdateDto dto = new UpdateDto();
-						if (!obj.isNull("version")) {
-							dto.version = obj.getString("version");
-						}
-						if (!obj.isNull("update_info")) {
-							dto.update_info = obj.getString("update_info");
-						}
-						if (!obj.isNull("dl_url")) {
-							dto.dl_url = obj.getString("dl_url");
-						}
-						if (!obj.isNull("versionCode")) {
-							dto.versionCode = obj.getInt("versionCode");
-						}
-
-						//检查版本不一样时候才更新
-						if (dto.versionCode > getVersionCode(mContext)) {
-							Message msg = new Message();
-							msg.what = 1000;
-							msg.obj = dto;
-							handler.sendMessage(msg);
-						}else {
-							if (!flag) {
-								activity.runOnUiThread(new Runnable() {
-									@Override
-									public void run() {
-										Toast.makeText(mContext, "已经是最新版本", Toast.LENGTH_SHORT).show();
-									}
-								});
-							}
-						}
-					} catch (JSONException e) {
-						e.printStackTrace();
+			public void run() {
+				OkHttpUtil.enqueue(new okhttp3.Request.Builder().post(body).url(url).build(), new Callback() {
+					@Override
+					public void onFailure(Call call, IOException e) {
 					}
-				}
+					@Override
+					public void onResponse(Call call, Response response) throws IOException {
+						if (!response.isSuccessful()) {
+							return;
+						}
+						final String result = response.body().string();
+						activity.runOnUiThread(new Runnable() {
+							@Override
+							public void run() {
+								if (!TextUtils.isEmpty(result)) {
+									try {
+										JSONObject obj = new JSONObject(result);
+										UpdateDto dto = new UpdateDto();
+										if (!obj.isNull("version")) {
+											dto.version = obj.getString("version");
+										}
+										if (!obj.isNull("update_info")) {
+											dto.update_info = obj.getString("update_info");
+										}
+										if (!obj.isNull("dl_url")) {
+											dto.dl_url = obj.getString("dl_url");
+										}
+										if (!obj.isNull("versionCode")) {
+											dto.versionCode = obj.getInt("versionCode");
+										}
+
+										//检查版本不一样时候才更新
+										if (dto.versionCode > getVersionCode(mContext)) {
+											updateDialog(dto);
+										}else {
+											if (!flag) {
+												Toast.makeText(mContext, "已经是最新版本", Toast.LENGTH_SHORT).show();
+											}
+										}
+									} catch (JSONException e) {
+										e.printStackTrace();
+									}
+								}
+							}
+						});
+					}
+				});
 			}
-		});
+		}).start();
 	}
 	
 	private static class UpdateDto {
@@ -139,21 +135,6 @@ public class AutoUpdateUtil {
 		public String dl_url = "";
 		public int versionCode = 0;
 	}
-
-	@SuppressLint("HandlerLeak")
-	private static Handler handler = new Handler() {
-		public void handleMessage(Message msg) {
-			switch (msg.what) {
-			case 1000:
-				UpdateDto dto = (UpdateDto) msg.obj;
-				updateDialog(dto);
-				break;
-
-			default:
-				break;
-			}
-		};
-	};
 
 	private static void updateDialog(final UpdateDto dto) {
 		LayoutInflater inflater = (LayoutInflater) mContext.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
@@ -217,13 +198,11 @@ public class AutoUpdateUtil {
 
 	}
 
-	private static BroadcastReceiver mReceiver;
-
 	/**
 	 * 注册广播监听系统的下载完成事件
 	 */
 	private static void initBroadCast(Context context, final long referneceId, final String filePath) {
-		mReceiver = new BroadcastReceiver() {
+		BroadcastReceiver mReceiver = new BroadcastReceiver() {
 			@Override
 			public void onReceive(Context context, Intent intent) {
 				long id = intent.getLongExtra(DownloadManager.EXTRA_DOWNLOAD_ID, -1);
