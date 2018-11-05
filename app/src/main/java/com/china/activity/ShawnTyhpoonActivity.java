@@ -586,6 +586,10 @@ public class ShawnTyhpoonActivity extends BaseActivity implements OnClickListene
 	 * 绘制台风预警markers
 	 */
 	private void addTyphoonWarningMarkers() {
+		if (typhoonWarnings.size() <= 0) {
+			Toast.makeText(mContext, "当前无台风相关预警信息发布！", Toast.LENGTH_SHORT).show();
+			return;
+		}
 		LayoutInflater inflater = (LayoutInflater) mContext.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
 		LatLngBounds.Builder builder = LatLngBounds.builder();
 		for (WarningDto dto : typhoonWarnings) {

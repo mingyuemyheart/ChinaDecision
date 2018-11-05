@@ -291,9 +291,8 @@ public class ShawnMainActivity extends BaseActivity implements OnClickListener, 
 	@Override
 	public void onLocationChanged(AMapLocation amapLocation) {
 		if (amapLocation != null && amapLocation.getErrorCode() == 0) {
-			String position = amapLocation.getCity()+amapLocation.getDistrict()+amapLocation.getStreet()+amapLocation.getStreetNum();
+			cityName = amapLocation.getCity()+amapLocation.getDistrict()+amapLocation.getStreet()+amapLocation.getStreetNum();
 			locationLatLng = new LatLng(amapLocation.getLatitude(), amapLocation.getLongitude());
-			cityName = position;
 			tvLocation.setText(cityName);
 			OkHttpGeo(locationLatLng.longitude, locationLatLng.latitude);
         }
