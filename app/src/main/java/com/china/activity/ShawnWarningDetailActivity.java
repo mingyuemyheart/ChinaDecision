@@ -135,9 +135,7 @@ public class ShawnWarningDetailActivity extends BaseActivity implements OnClickL
 				OkHttpUtil.enqueue(new Request.Builder().url(url).build(), new Callback() {
 					@Override
 					public void onFailure(Call call, IOException e) {
-
 					}
-
 					@Override
 					public void onResponse(Call call, Response response) throws IOException {
 						if (!response.isSuccessful()) {
@@ -170,12 +168,24 @@ public class ShawnWarningDetailActivity extends BaseActivity implements OnClickL
 										Bitmap bitmap = null;
 										if (color.equals(CONST.blue[0])) {
 											bitmap = CommonUtil.getImageFromAssetsFile(mContext,"warning/"+type+CONST.blue[1]+CONST.imageSuffix);
+											if (bitmap == null) {
+												bitmap = CommonUtil.getImageFromAssetsFile(mContext,"warning/"+"default"+CONST.blue[1]+CONST.imageSuffix);
+											}
 										}else if (color.equals(CONST.yellow[0])) {
 											bitmap = CommonUtil.getImageFromAssetsFile(mContext,"warning/"+type+CONST.yellow[1]+CONST.imageSuffix);
+											if (bitmap == null) {
+												bitmap = CommonUtil.getImageFromAssetsFile(mContext,"warning/"+"default"+CONST.yellow[1]+CONST.imageSuffix);
+											}
 										}else if (color.equals(CONST.orange[0])) {
 											bitmap = CommonUtil.getImageFromAssetsFile(mContext,"warning/"+type+CONST.orange[1]+CONST.imageSuffix);
+											if (bitmap == null) {
+												bitmap = CommonUtil.getImageFromAssetsFile(mContext,"warning/"+"default"+CONST.orange[1]+CONST.imageSuffix);
+											}
 										}else if (color.equals(CONST.red[0])) {
 											bitmap = CommonUtil.getImageFromAssetsFile(mContext,"warning/"+type+CONST.red[1]+CONST.imageSuffix);
+											if (bitmap == null) {
+												bitmap = CommonUtil.getImageFromAssetsFile(mContext,"warning/"+"default"+CONST.red[1]+CONST.imageSuffix);
+											}
 										}
 										if (bitmap == null) {
 											bitmap = CommonUtil.getImageFromAssetsFile(mContext,"warning/"+"default"+CONST.imageSuffix);

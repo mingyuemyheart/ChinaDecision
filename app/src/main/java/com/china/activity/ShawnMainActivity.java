@@ -514,7 +514,11 @@ public class ShawnMainActivity extends BaseActivity implements OnClickListener, 
 	 */
 	private void OkHttpWarning(final String warningId) {
 		llWarning.removeAllViews();
-		final String url = "http://decision-admin.tianqi.cn/Home/extra/getwarns?order=0&areaid="+warningId.substring(0, 4);
+		String wId = warningId.substring(0, 4);
+		if (warningId.startsWith("11") || warningId.startsWith("31") || warningId.startsWith("12") || warningId.startsWith("50")) {
+			wId = warningId.substring(0, 2);
+		}
+		final String url = "http://decision-admin.tianqi.cn/Home/extra/getwarns?order=0&areaid="+wId;
 		new Thread(new Runnable() {
 			@Override
 			public void run() {
@@ -555,8 +559,15 @@ public class ShawnMainActivity extends BaseActivity implements OnClickListener, 
 												dto.name = tempArray.getString(0);
 
 												if (!TextUtils.isEmpty(dto.name) && !dto.name.contains("解除")) {
-													if (TextUtils.equals(item0, warningId) || TextUtils.equals(item0, warningId.substring(0,4)+"00"))
-													warningList.add(dto);
+													if (warningId.startsWith("11") || warningId.startsWith("31") || warningId.startsWith("12") || warningId.startsWith("50")) {
+														if (TextUtils.equals(item0, warningId) || TextUtils.equals(item0, warningId.substring(0,2)+"0000")) {
+															warningList.add(dto);
+														}
+													}else {
+														if (TextUtils.equals(item0, warningId) || TextUtils.equals(item0, warningId.substring(0,4)+"00")) {
+															warningList.add(dto);
+														}
+													}
 												}
 											}
 
