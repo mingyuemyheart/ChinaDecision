@@ -29,7 +29,6 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.IOException;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -52,9 +51,6 @@ public class DecisionNewsActivity extends BaseActivity implements OnClickListene
 	private DecisionNewsAdapter mAdapter = null;
 	private List<DisasterDto> mList = new ArrayList<>();
 	private RefreshLayout refreshLayout = null;//下拉刷新布局
-	private SimpleDateFormat sdf1 = new SimpleDateFormat("yyyyMMddHHmm");
-	private SimpleDateFormat sdf2 = new SimpleDateFormat("yyyy年MM月dd日 HH时");
-	private SimpleDateFormat sdf3 = new SimpleDateFormat("yyyy年MM月dd日");
 	private ProgressBar progressBar = null;
 	
 	@Override
@@ -119,6 +115,8 @@ public class DecisionNewsActivity extends BaseActivity implements OnClickListene
 				Intent intent = new Intent(mContext, ShawnPDFActivity.class);
 				intent.putExtra(CONST.ACTIVITY_NAME, dto.title);
 				intent.putExtra(CONST.WEB_URL, dto.url);
+				intent.putExtra(CONST.IMG_URL, dto.imgUrl);
+				intent.putExtra(CONST.DATA_TIME, dto.time);
 				startActivity(intent);
 			}
 		});

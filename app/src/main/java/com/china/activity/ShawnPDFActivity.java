@@ -4,8 +4,6 @@ import android.Manifest;
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.pm.PackageManager;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
@@ -52,6 +50,8 @@ public class ShawnPDFActivity extends BaseActivity implements OnClickListener {
 	private Context mContext;
 	private PDFView pdfView;
 	private TextView tvPercent;
+	private String title = "春运气象服务专报";
+	private String dataUrl = "";
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -73,10 +73,14 @@ public class ShawnPDFActivity extends BaseActivity implements OnClickListener {
 		ImageView ivShare = findViewById(R.id.ivShare);
 		ivShare.setOnClickListener(this);
 		tvPercent = findViewById(R.id.tvPercent);
-		
-		String title = getIntent().getStringExtra(CONST.ACTIVITY_NAME);
+
+		title = getIntent().getStringExtra(CONST.ACTIVITY_NAME);
 		if (!TextUtils.isEmpty(title)) {
 			tvTitle.setText(title);
+		}
+
+		if (TextUtils.equals(title, "春运气象服务专报")) {
+			ivShare.setVisibility(View.VISIBLE);
 		}
 
 	}
@@ -111,13 +115,13 @@ public class ShawnPDFActivity extends BaseActivity implements OnClickListener {
 	private void initPDFView() {
 		pdfView = findViewById(R.id.pdfView);
 
-		String pdfUrl = getIntent().getStringExtra(CONST.WEB_URL);
-		if (TextUtils.isEmpty(pdfUrl)) {
+		dataUrl = getIntent().getStringExtra(CONST.WEB_URL);
+		if (TextUtils.isEmpty(dataUrl)) {
 			return;
 		}else {
-			pdfUrl = isChinese(pdfUrl);
+			dataUrl = isChinese(dataUrl);
 		}
-		OkHttpFile(pdfUrl);
+		OkHttpFile(dataUrl);
 	}
 
 	private void OkHttpFile(final String url) {
@@ -221,12 +225,19 @@ public class ShawnPDFActivity extends BaseActivity implements OnClickListener {
 			finish();
 			break;
 		case R.id.ivShare:
-			Bitmap bitmap1 = CommonUtil.captureView(pdfView);
-			Bitmap bitmap2 = BitmapFactory.decodeResource(getResources(), R.drawable.shawn_legend_share_portrait);
-			Bitmap bitmap = CommonUtil.mergeBitmap(ShawnPDFActivity.this, bitmap1, bitmap2, false);
-			CommonUtil.clearBitmap(bitmap1);
-			CommonUtil.clearBitmap(bitmap2);
-			CommonUtil.share(ShawnPDFActivity.this, bitmap);
+			String time = "";
+			if (getIntent().hasExtra(CONST.DATA_TIME)) {
+				time = getIntent().getStringExtra(CONST.DATA_TIME);
+			}
+			String imgUrl = "";
+			if (getIntent().hasExtra(CONST.IMG_URL)) {
+				imgUrl = getIntent().getStringExtra(CONST.IMG_URL);
+			}
+			String url = "";
+			if (!TextUtils.isEmpty(dataUrl) && dataUrl.endsWith(".pdf")) {
+				url = dataUrl.replace(".pdf", ".doc");
+			}
+			CommonUtil.share(this, title, time, imgUrl, url);
 			break;
 
 		default:
