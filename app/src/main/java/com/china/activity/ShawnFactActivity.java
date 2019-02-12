@@ -1203,6 +1203,90 @@ public class ShawnFactActivity extends BaseActivity implements OnClickListener, 
                                         dto.precipitation1h = CONST.noValue;
                                     }
 
+                                    if (!obj.isNull("rainfall3")) {
+                                        String value = obj.getString("rainfall3");
+                                        if (!TextUtils.isEmpty(value)) {
+                                            if (value.length() >= 2 && value.contains(".")) {
+                                                if (value.equals(".0") || value.equals("0.0") || value.equals("0")) {
+                                                    dto.precipitation3h = CONST.noValue;
+                                                } else {
+                                                    if (TextUtils.equals(value.substring(value.length() - 2, value.length()), ".0")) {
+                                                        dto.precipitation3h = value.substring(0, value.indexOf("."));
+                                                    } else {
+                                                        dto.precipitation3h = value;
+                                                    }
+                                                }
+                                            }
+                                        } else {
+                                            dto.precipitation3h = CONST.noValue;
+                                        }
+                                    } else {
+                                        dto.precipitation3h = CONST.noValue;
+                                    }
+
+                                    if (!obj.isNull("rainfall6")) {
+                                        String value = obj.getString("rainfall6");
+                                        if (!TextUtils.isEmpty(value)) {
+                                            if (value.length() >= 2 && value.contains(".")) {
+                                                if (value.equals(".0") || value.equals("0.0") || value.equals("0")) {
+                                                    dto.precipitation6h = CONST.noValue;
+                                                } else {
+                                                    if (TextUtils.equals(value.substring(value.length() - 2, value.length()), ".0")) {
+                                                        dto.precipitation6h = value.substring(0, value.indexOf("."));
+                                                    } else {
+                                                        dto.precipitation6h = value;
+                                                    }
+                                                }
+                                            }
+                                        } else {
+                                            dto.precipitation6h = CONST.noValue;
+                                        }
+                                    } else {
+                                        dto.precipitation6h = CONST.noValue;
+                                    }
+
+                                    if (!obj.isNull("rainfall12")) {
+                                        String value = obj.getString("rainfall12");
+                                        if (!TextUtils.isEmpty(value)) {
+                                            if (value.length() >= 2 && value.contains(".")) {
+                                                if (value.equals(".0") || value.equals("0.0") || value.equals("0")) {
+                                                    dto.precipitation12h = CONST.noValue;
+                                                } else {
+                                                    if (TextUtils.equals(value.substring(value.length() - 2, value.length()), ".0")) {
+                                                        dto.precipitation12h = value.substring(0, value.indexOf("."));
+                                                    } else {
+                                                        dto.precipitation12h = value;
+                                                    }
+                                                }
+                                            }
+                                        } else {
+                                            dto.precipitation12h = CONST.noValue;
+                                        }
+                                    } else {
+                                        dto.precipitation12h = CONST.noValue;
+                                    }
+
+                                    if (!obj.isNull("rainfall24")) {
+                                        String value = obj.getString("rainfall24");
+                                        if (!TextUtils.isEmpty(value)) {
+                                            if (value.length() >= 2 && value.contains(".")) {
+                                                if (value.equals(".0") || value.equals("0.0") || value.equals("0")) {
+                                                    dto.precipitation24h = CONST.noValue;
+                                                } else {
+                                                    if (TextUtils.equals(value.substring(value.length() - 2, value.length()), ".0")) {
+                                                        dto.precipitation24h = value.substring(0, value.indexOf("."));
+                                                    } else {
+                                                        dto.precipitation24h = value;
+                                                    }
+                                                }
+                                            }
+                                        } else {
+                                            dto.precipitation24h = CONST.noValue;
+                                        }
+                                    } else {
+                                        dto.precipitation24h = CONST.noValue;
+                                    }
+
                                     if (!obj.isNull("winddir")) {
                                         String dir = null;
                                         String value = obj.getString("winddir");
