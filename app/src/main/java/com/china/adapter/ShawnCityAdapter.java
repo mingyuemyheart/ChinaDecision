@@ -14,7 +14,7 @@ import com.china.dto.CityDto;
 import java.util.List;
 
 /**
- * 城市选择
+ * 城市查询-搜索列表
  */
 public class ShawnCityAdapter extends BaseAdapter{
 	

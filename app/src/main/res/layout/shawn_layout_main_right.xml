@@ -76,7 +76,7 @@
                     <ImageView
                         android:layout_width="15dp"
                         android:layout_height="15dp"
-                        android:src="@drawable/shawn_icon_collection"/>
+                        android:src="@drawable/shawn_icon_collection_gray"/>
 
                     <TextView
                         android:layout_width="0dp"

@@ -223,12 +223,12 @@ public class PointFactActivity extends BaseActivity implements OnClickListener, 
 			LatLng latLng = new LatLng(amapLocation.getLatitude(), amapLocation.getLongitude());
 			MarkerOptions options = new MarkerOptions();
 			options.anchor(0.5f, 0.5f);
-			Bitmap bitmap = ThumbnailUtils.extractThumbnail(BitmapFactory.decodeResource(getResources(), R.drawable.iv_map_location),
+			Bitmap bitmap = ThumbnailUtils.extractThumbnail(BitmapFactory.decodeResource(getResources(), R.drawable.shawn_icon_location_point),
 					(int) (CommonUtil.dip2px(mContext, 15)), (int) (CommonUtil.dip2px(mContext, 15)));
 			if (bitmap != null) {
 				options.icon(BitmapDescriptorFactory.fromBitmap(bitmap));
 			} else {
-				options.icon(BitmapDescriptorFactory.fromResource(R.drawable.iv_map_location));
+				options.icon(BitmapDescriptorFactory.fromResource(R.drawable.shawn_icon_location_point));
 			}
 			options.position(latLng);
 			Marker locationMarker = aMap.addMarker(options);

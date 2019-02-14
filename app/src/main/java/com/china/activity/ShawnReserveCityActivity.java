@@ -96,17 +96,82 @@ public class ShawnReserveCityActivity extends BaseActivity implements View.OnCli
         tvControl.setOnClickListener(this);
         tvControl.setVisibility(View.VISIBLE);
 
-        OkHttpWarning();
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                OkHttpWarning();
+            }
+        }).start();
+    }
 
+    /**
+     * 获取预警信息
+     */
+    private void OkHttpWarning() {
+        final String url = "http://decision-admin.tianqi.cn/Home/extra/getwarns?order=0";
+        OkHttpUtil.enqueue(new Request.Builder().url(url).build(), new Callback() {
+            @Override
+            public void onFailure(Call call, IOException e) {
+                queryWeatherInfos();
+            }
+            @Override
+            public void onResponse(Call call, Response response) throws IOException {
+                if (!response.isSuccessful()) {
+                    return;
+                }
+                String result = response.body().string();
+                if (!TextUtils.isEmpty(result)) {
+                    try {
+                        JSONObject object = new JSONObject(result);
+                        if (!object.isNull("data")) {
+                            warningList.clear();
+                            JSONArray jsonArray = object.getJSONArray("data");
+                            for (int i = 0; i < jsonArray.length(); i++) {
+                                JSONArray tempArray = jsonArray.getJSONArray(i);
+                                WarningDto dto = new WarningDto();
+                                dto.html = tempArray.getString(1);
+                                String[] array = dto.html.split("-");
+                                String item0 = array[0];
+                                String item1 = array[1];
+                                String item2 = array[2];
+
+                                dto.item0 = item0;
+                                dto.provinceId = item0.substring(0, 2);
+                                dto.type = item2.substring(0, 5);
+                                dto.color = item2.substring(5, 7);
+                                dto.time = item1;
+                                dto.lng = tempArray.getDouble(2);
+                                dto.lat = tempArray.getDouble(3);
+                                dto.name = tempArray.getString(0);
+
+                                if (!dto.name.contains("解除")) {
+                                    warningList.add(dto);
+                                }
+                            }
+                        }
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                    }
+                }
+
+                queryWeatherInfos();
+            }
+        });
+    }
+
+    /**
+     * 查询天气信息
+     */
+    private void queryWeatherInfos() {
         String cityName = getIntent().getStringExtra("cityName");
         String cityId = getIntent().getStringExtra("cityId");
         String warningId = queryWarningIdByCityId(cityId);
 
-        SharedPreferences sharedPreferences = getSharedPreferences("RESERVE_CITY", Context.MODE_PRIVATE);
-        String cityInfo = sharedPreferences.getString("cityInfo", "");
-        cityList.clear();
+        SharedPreferences sp = getSharedPreferences("RESERVE_CITY", Context.MODE_PRIVATE);
+        String cityInfo = sp.getString("cityInfo", "");
         final List<String> cityIds = new ArrayList<>();
         cityIds.add(cityId);
+        cityList.clear();
         CityDto dto = new CityDto();
         dto.cityId = cityId;
         dto.cityName = cityName;
@@ -124,17 +189,26 @@ public class ShawnReserveCityActivity extends BaseActivity implements View.OnCli
                 cityIds.add(itemArray[0]);
             }
         }
-        if (cityList.size() > 1) {
-            tvPrompt.setVisibility(View.VISIBLE);
-        }else {
-            tvPrompt.setVisibility(View.GONE);
-        }
-        if (mAdapter != null) {
-            mAdapter.notifyDataSetChanged();
-        }
 
         getWeatherInfos(cityIds);
+    }
 
+    /**
+     * 获取预警id
+     */
+    private String queryWarningIdByCityId(String cityId) {
+        DBManager dbManager = new DBManager(mContext);
+        dbManager.openDateBase();
+        dbManager.closeDatabase();
+        SQLiteDatabase database = SQLiteDatabase.openOrCreateDatabase(DBManager.DB_PATH + "/" + DBManager.DB_NAME, null);
+        Cursor cursor = database.rawQuery("select * from " + DBManager.TABLE_NAME3 + " where cid = " + "\"" + cityId + "\"",null);
+        String warningId = null;
+        for (int i = 0; i < cursor.getCount(); i++) {
+            cursor.moveToPosition(i);
+            warningId = cursor.getString(cursor.getColumnIndex("wid"));
+        }
+        cursor.close();
+        return warningId;
     }
 
     /**
@@ -202,70 +276,70 @@ public class ShawnReserveCityActivity extends BaseActivity implements View.OnCli
      * 获取定位城市和保存本地城市信息
      */
     private void getWeatherInfos(final List<String> cityIds) {
-        new Thread(new Runnable() {
+        WeatherAPI.getWeathers2(mContext, cityIds, Constants.Language.ZH_CN, new AsyncResponseHandler() {
             @Override
-            public void run() {
-                WeatherAPI.getWeathers2(mContext, cityIds, Constants.Language.ZH_CN, new AsyncResponseHandler() {
+            public void onComplete(final List<Weather> contentList) {
+                super.onComplete(contentList);
+                runOnUiThread(new Runnable() {
                     @Override
-                    public void onComplete(final List<Weather> contentList) {
-                        super.onComplete(contentList);
-                        runOnUiThread(new Runnable() {
-                            @Override
-                            public void run() {
-                                for (int i = 0; i < contentList.size(); i++) {
-                                    Weather content = contentList.get(i);
-                                    if (content != null) {
-                                        try {
-                                            JSONObject obj = new JSONObject(content.toString());
+                    public void run() {
+                        for (int i = 0; i < contentList.size(); i++) {
+                            Weather content = contentList.get(i);
+                            if (content != null) {
+                                try {
+                                    JSONObject obj = new JSONObject(content.toString());
 
-                                            //实况信息
-                                            if (!obj.isNull("l")) {
-                                                CityDto dto = cityList.get(i);
+                                    //实况信息
+                                    if (!obj.isNull("l")) {
+                                        CityDto dto = cityList.get(i);
 
-                                                JSONObject l = obj.getJSONObject("l");
-                                                if (!l.isNull("l5")) {
-                                                    String weatherCode = WeatherUtil.lastValue(l.getString("l5"));
-                                                    if (!TextUtils.isEmpty(weatherCode)) {
-                                                        dto.highPheCode = Integer.parseInt(weatherCode);
-                                                    }
-                                                }
-
-                                                if (!l.isNull("l1")) {
-                                                    String factTemp = WeatherUtil.lastValue(l.getString("l1"));
-                                                    if (!TextUtils.isEmpty(factTemp)) {
-                                                        dto.highTemp = factTemp;
-                                                    }
-                                                }
-
-                                                List<WarningDto> list = new ArrayList<>();
-                                                for (WarningDto data : warningList) {
-                                                    if (TextUtils.equals(data.item0, dto.warningId)) {
-                                                        list.add(data);
-                                                    }
-                                                }
-                                                dto.warningList.addAll(list);
-
+                                        JSONObject l = obj.getJSONObject("l");
+                                        if (!l.isNull("l5")) {
+                                            String weatherCode = WeatherUtil.lastValue(l.getString("l5"));
+                                            if (!TextUtils.isEmpty(weatherCode)) {
+                                                dto.highPheCode = Integer.parseInt(weatherCode);
                                             }
-                                        } catch (JSONException e) {
-                                            e.printStackTrace();
                                         }
-                                    }
-                                }
 
-                                if (mAdapter != null) {
-                                    mAdapter.notifyDataSetChanged();
+                                        if (!l.isNull("l1")) {
+                                            String factTemp = WeatherUtil.lastValue(l.getString("l1"));
+                                            if (!TextUtils.isEmpty(factTemp)) {
+                                                dto.highTemp = factTemp;
+                                            }
+                                        }
+
+                                        List<WarningDto> list = new ArrayList<>();
+                                        for (WarningDto data : warningList) {
+                                            if (TextUtils.equals(data.item0, dto.warningId)) {
+                                                list.add(data);
+                                            }
+                                        }
+                                        dto.warningList.addAll(list);
+
+                                    }
+                                } catch (JSONException e) {
+                                    e.printStackTrace();
                                 }
-                                loadingView.setVisibility(View.GONE);
                             }
-                        });
-                    }
-                    @Override
-                    public void onError(Throwable error, String content) {
-                        super.onError(error, content);
+                        }
+
+                        if (mAdapter != null) {
+                            mAdapter.notifyDataSetChanged();
+                        }
+                        if (cityList.size() > 1) {
+                            tvPrompt.setVisibility(View.VISIBLE);
+                        }else {
+                            tvPrompt.setVisibility(View.GONE);
+                        }
+                        loadingView.setVisibility(View.GONE);
                     }
                 });
             }
-        }).start();
+            @Override
+            public void onError(Throwable error, String content) {
+                super.onError(error, content);
+            }
+        });
     }
 
     /**
@@ -273,68 +347,57 @@ public class ShawnReserveCityActivity extends BaseActivity implements View.OnCli
      */
     private void getWeatherInfo(final CityDto dto) {
         loadingView.setVisibility(View.VISIBLE);
-        new Thread(new Runnable() {
+        WeatherAPI.getWeather2(mContext, dto.cityId, Constants.Language.ZH_CN, new AsyncResponseHandler() {
             @Override
-            public void run() {
-                WeatherAPI.getWeather2(mContext, dto.cityId, Constants.Language.ZH_CN, new AsyncResponseHandler() {
-                    @Override
-                    public void onComplete(final Weather content) {
-                        super.onComplete(content);
-                        runOnUiThread(new Runnable() {
-                            @Override
-                            public void run() {
-                                if (content != null) {
-                                    try {
-                                        JSONObject obj = new JSONObject(content.toString());
+            public void onComplete(final Weather content) {
+                super.onComplete(content);
+                if (content != null) {
+                    try {
+                        JSONObject obj = new JSONObject(content.toString());
 
-                                        //实况信息
-                                        if (!obj.isNull("l")) {
-                                            JSONObject l = obj.getJSONObject("l");
-                                            if (!l.isNull("l5")) {
-                                                String weatherCode = WeatherUtil.lastValue(l.getString("l5"));
-                                                if (!TextUtils.isEmpty(weatherCode)) {
-                                                    dto.highPheCode = Integer.parseInt(weatherCode);
-                                                }
-                                            }
-
-                                            if (!l.isNull("l1")) {
-                                                String factTemp = WeatherUtil.lastValue(l.getString("l1"));
-                                                if (!TextUtils.isEmpty(factTemp)) {
-                                                    dto.highTemp = factTemp;
-                                                }
-                                            }
-
-                                            List<WarningDto> list = new ArrayList<>();
-                                            for (WarningDto data : warningList) {
-                                                if (TextUtils.equals(data.item0, dto.warningId)) {
-                                                    list.add(data);
-                                                }
-                                            }
-                                            dto.warningList.addAll(list);
-
-                                            if (mAdapter != null) {
-                                                mAdapter.notifyDataSetChanged();
-                                            }
-
-                                        }
-                                    } catch (JSONException e) {
-                                        e.printStackTrace();
-                                    }
-
+                        //实况信息
+                        if (!obj.isNull("l")) {
+                            JSONObject l = obj.getJSONObject("l");
+                            if (!l.isNull("l5")) {
+                                String weatherCode = WeatherUtil.lastValue(l.getString("l5"));
+                                if (!TextUtils.isEmpty(weatherCode)) {
+                                    dto.highPheCode = Integer.parseInt(weatherCode);
                                 }
-
-                                loadingView.setVisibility(View.GONE);
                             }
-                        });
+
+                            if (!l.isNull("l1")) {
+                                String factTemp = WeatherUtil.lastValue(l.getString("l1"));
+                                if (!TextUtils.isEmpty(factTemp)) {
+                                    dto.highTemp = factTemp;
+                                }
+                            }
+
+                            List<WarningDto> list = new ArrayList<>();
+                            for (WarningDto data : warningList) {
+                                if (TextUtils.equals(data.item0, dto.warningId)) {
+                                    list.add(data);
+                                }
+                            }
+                            dto.warningList.addAll(list);
+
+                            if (mAdapter != null) {
+                                mAdapter.notifyDataSetChanged();
+                            }
+
+                        }
+                    } catch (JSONException e) {
+                        e.printStackTrace();
                     }
 
-                    @Override
-                    public void onError(Throwable error, String content) {
-                        super.onError(error, content);
-                    }
-                });
+                }
+
+                loadingView.setVisibility(View.GONE);
             }
-        }).start();
+            @Override
+            public void onError(Throwable error, String content) {
+                super.onError(error, content);
+            }
+        });
     }
 
     /**
@@ -411,9 +474,6 @@ public class ShawnReserveCityActivity extends BaseActivity implements View.OnCli
                                 dto.cityName = dto.areaName;
                             }
                             cityList.add(dto);
-                            if (mAdapter != null) {
-                                mAdapter.notifyDataSetChanged();
-                            }
 
                             getWeatherInfo(dto);
                         }
@@ -481,81 +541,6 @@ public class ShawnReserveCityActivity extends BaseActivity implements View.OnCli
                 }
                 break;
         }
-    }
-
-    /**
-     * 获取预警id
-     */
-    private String queryWarningIdByCityId(String cityId) {
-        DBManager dbManager = new DBManager(mContext);
-        dbManager.openDateBase();
-        dbManager.closeDatabase();
-        SQLiteDatabase database = SQLiteDatabase.openOrCreateDatabase(DBManager.DB_PATH + "/" + DBManager.DB_NAME, null);
-        Cursor cursor = database.rawQuery("select * from " + DBManager.TABLE_NAME3 + " where cid = " + "\"" + cityId + "\"",null);
-        String warningId = null;
-        for (int i = 0; i < cursor.getCount(); i++) {
-            cursor.moveToPosition(i);
-            warningId = cursor.getString(cursor.getColumnIndex("wid"));
-        }
-        cursor.close();
-        return warningId;
-    }
-
-    /**
-     * 获取预警信息
-     */
-    private void OkHttpWarning() {
-        final String url = "http://decision-admin.tianqi.cn/Home/extra/getwarns?order=0";
-        new Thread(new Runnable() {
-            @Override
-            public void run() {
-                OkHttpUtil.enqueue(new Request.Builder().url(url).build(), new Callback() {
-                    @Override
-                    public void onFailure(Call call, IOException e) {
-                    }
-                    @Override
-                    public void onResponse(Call call, Response response) throws IOException {
-                        if (!response.isSuccessful()) {
-                            return;
-                        }
-                        String result = response.body().string();
-                        if (!TextUtils.isEmpty(result)) {
-                            try {
-                                JSONObject object = new JSONObject(result);
-                                if (!object.isNull("data")) {
-                                    warningList.clear();
-                                    JSONArray jsonArray = object.getJSONArray("data");
-                                    for (int i = 0; i < jsonArray.length(); i++) {
-                                        JSONArray tempArray = jsonArray.getJSONArray(i);
-                                        WarningDto dto = new WarningDto();
-                                        dto.html = tempArray.getString(1);
-                                        String[] array = dto.html.split("-");
-                                        String item0 = array[0];
-                                        String item1 = array[1];
-                                        String item2 = array[2];
-
-                                        dto.item0 = item0;
-                                        dto.provinceId = item0.substring(0, 2);
-                                        dto.type = item2.substring(0, 5);
-                                        dto.color = item2.substring(5, 7);
-                                        dto.time = item1;
-                                        dto.lng = tempArray.getDouble(2);
-                                        dto.lat = tempArray.getDouble(3);
-                                        dto.name = tempArray.getString(0);
-
-                                        if (!dto.name.contains("解除")) {
-                                            warningList.add(dto);
-                                        }
-                                    }
-                                }
-                            } catch (JSONException e) {
-                                e.printStackTrace();
-                            }
-                        }
-                    }
-                });
-            }
-        }).start();
     }
 
 }

@@ -74,7 +74,7 @@ import okhttp3.Request;
 import okhttp3.Response;
 
 /**
- * 城市预报
+ * 城市天气预报
  */
 public class ShawnCityForecastActivity extends BaseActivity implements OnClickListener, OnMarkerClickListener,
         OnMapClickListener, OnCameraChangeListener, AMap.InfoWindowAdapter, AMap.OnInfoWindowClickListener, OnMapScreenShotListener{
@@ -148,7 +148,7 @@ public class ShawnCityForecastActivity extends BaseActivity implements OnClickLi
         tvTime = findViewById(R.id.tvTime);
 
         String title = getIntent().getStringExtra(CONST.ACTIVITY_NAME);
-        if (title != null) {
+        if (!TextUtils.isEmpty(title)) {
             tvTitle.setText(title);
         }
 
@@ -233,9 +233,7 @@ public class ShawnCityForecastActivity extends BaseActivity implements OnClickLi
                             level2List.add(dto);
                         }
                     }
-
                 }
-
             }
         } catch (JSONException e) {
             e.printStackTrace();
@@ -243,60 +241,50 @@ public class ShawnCityForecastActivity extends BaseActivity implements OnClickLi
     }
 
     private void switchMarkers() {
-        new Thread(new Runnable() {
-            @Override
-            public void run() {
-                for (String areaId : markerMap.keySet()) {
-                    if (!TextUtils.isEmpty(areaId) && markerMap.containsKey(areaId)) {
-                        Marker marker = markerMap.get(areaId);
-                        String level = marker.getSnippet();
-                        double lat = marker.getPosition().latitude;
-                        double lng = marker.getPosition().longitude;
-                        if (zoom <= zoom1) {
-                            if (TextUtils.equals(level, "2") || TextUtils.equals(level, "3")) {
-                                marker.remove();
-                            }
-                        }
-                        if (lat > leftlatlng.latitude && lat < rightLatlng.latitude && lng > leftlatlng.longitude && lng < rightLatlng.longitude) {
-                            //已经在可是范围内则不处理
-                        }else {
-                            marker.remove();
-                        }
+        for (String areaId : markerMap.keySet()) {
+            if (!TextUtils.isEmpty(areaId) && markerMap.containsKey(areaId)) {
+                Marker marker = markerMap.get(areaId);
+                String level = marker.getSnippet();
+                double lat = marker.getPosition().latitude;
+                double lng = marker.getPosition().longitude;
+                if (zoom <= zoom1) {
+                    if (TextUtils.equals(level, "2") || TextUtils.equals(level, "3")) {
+                        marker.remove();
                     }
                 }
+                if (lat > leftlatlng.latitude && lat < rightLatlng.latitude && lng > leftlatlng.longitude && lng < rightLatlng.longitude) {
+                    //已经在可是范围内则不处理
+                }else {
+                    marker.remove();
+                }
             }
-        }).start();
+        }
     }
 
     /**
      * 添加marker
      */
     private void addMarkers() {
-        new Thread(new Runnable() {
-            @Override
-            public void run() {
-                List<WeatherStaticsDto> list = new ArrayList<>();
-                if (zoom <= zoom1) {
-                    list.addAll(level1List);
-                }else {
-                    list.addAll(level1List);
-                    list.addAll(level2List);
-                }
+        List<WeatherStaticsDto> list = new ArrayList<>();
+        if (zoom <= zoom1) {
+            list.addAll(level1List);
+        }else {
+            list.addAll(level1List);
+            list.addAll(level2List);
+        }
 
-                for (WeatherStaticsDto dto : list) {
-                    if (markerMap.containsKey(dto.areaId)) {
-                        Marker m = markerMap.get(dto.areaId);
-                        if (m != null && m.isVisible()) {
-                            //已经在可是区域添加过了，就不重复绘制了
-                        }else {
-                            addVisibleAreaMarker(dto);
-                        }
-                    }else {
-                        addVisibleAreaMarker(dto);
-                    }
+        for (WeatherStaticsDto dto : list) {
+            if (markerMap.containsKey(dto.areaId)) {
+                Marker m = markerMap.get(dto.areaId);
+                if (m != null && m.isVisible()) {
+                    //已经在可是区域添加过了，就不重复绘制了
+                }else {
+                    addVisibleAreaMarker(dto);
                 }
+            }else {
+                addVisibleAreaMarker(dto);
             }
-        }).start();
+        }
     }
 
     /**
@@ -322,82 +310,74 @@ public class ShawnCityForecastActivity extends BaseActivity implements OnClickLi
         if (TextUtils.isEmpty(dto.cityId)) {
             return;
         }
-        new Thread(new Runnable() {
+        WeatherAPI.getWeather2(mContext, dto.cityId, Constants.Language.ZH_CN, new AsyncResponseHandler() {
             @Override
-            public void run() {
-                try {
-                    WeatherAPI.getWeather2(mContext, dto.cityId, Constants.Language.ZH_CN, new AsyncResponseHandler() {
-                        @Override
-                        public void onComplete(final Weather content) {
-                            super.onComplete(content);
-                            if (content != null) {
-                                try {
-                                    JSONObject obj = new JSONObject(content.toString());
+            public void onComplete(final Weather content) {
+                super.onComplete(content);
+                if (content != null) {
+                    try {
+                        JSONObject obj = new JSONObject(content.toString());
 
-                                    //15天预报
-                                    if (!obj.isNull("f")) {
-                                        JSONObject f = obj.getJSONObject("f");
+                        //15天预报
+                        if (!obj.isNull("f")) {
+                            JSONObject f = obj.getJSONObject("f");
 
-                                        final String f0 = f.getString("f0");
-                                        runOnUiThread(new Runnable() {
-                                            @Override
-                                            public void run() {
-                                                if (!TextUtils.isEmpty(f0)) {
-                                                    try {
-                                                        tvTime.setText(sdf2.format(sdf1.parse(f0)));
-                                                    } catch (ParseException e) {
-                                                        e.printStackTrace();
-                                                    }
-                                                }
-                                            }
-                                        });
-
-                                        if (!f.isNull("f1")) {
-                                            JSONArray f1 = f.getJSONArray("f1");
-                                            JSONObject weeklyObj = f1.getJSONObject(0);
-                                            //晚上
-                                            dto.lowPheCode = Integer.valueOf(weeklyObj.getString("fb"));
-                                            dto.lowPhe = getString(WeatherUtil.getWeatherId(Integer.valueOf(weeklyObj.getString("fb"))));
-                                            dto.lowTemp = Integer.valueOf(weeklyObj.getString("fd"));
-                                            dto.lowWindDir = Integer.valueOf(weeklyObj.getString("ff"));
-                                            dto.lowWindForce = Integer.valueOf(weeklyObj.getString("fh"));
-
-                                            //白天
-                                            dto.highPheCode = Integer.valueOf(weeklyObj.getString("fa"));
-                                            dto.highPhe = getString(WeatherUtil.getWeatherId(Integer.valueOf(weeklyObj.getString("fa"))));
-                                            dto.highTemp = Integer.valueOf(weeklyObj.getString("fc"));
-                                            dto.highWindDir = Integer.valueOf(weeklyObj.getString("fe"));
-                                            dto.highWindForce = Integer.valueOf(weeklyObj.getString("fg"));
-
-                                            MarkerOptions options = new MarkerOptions();
-                                            options.title(dto.cityName+","+dto.highPheCode+","+dto.highTemp+","+dto.highWindDir+","+dto.highWindForce
-                                                    +","+dto.lowPheCode+","+dto.lowTemp+","+dto.lowWindDir+","+dto.lowWindForce+","+dto.cityId);
-                                            options.snippet(dto.level);
-                                            options.anchor(0.5f, 1.0f);
-                                            options.position(new LatLng(dto.lat, dto.lng));
-                                            int currentHour = Integer.valueOf(sdf3.format(new Date()));
-                                            if (currentHour >= 5 && currentHour < 18) {
-                                                options.icon(BitmapDescriptorFactory.fromView(getTextBitmap(dto.highPheCode)));
-                                            }else {
-                                                options.icon(BitmapDescriptorFactory.fromView(getTextBitmap(dto.lowPheCode)));
-                                            }
-                                            Marker marker = aMap.addMarker(options);
-                                            markerMap.put(dto.cityId, marker);
-                                            markerExpandAnimation(marker);
-
+                            final String f0 = f.getString("f0");
+                            runOnUiThread(new Runnable() {
+                                @Override
+                                public void run() {
+                                    if (!TextUtils.isEmpty(f0)) {
+                                        try {
+                                            tvTime.setText(sdf2.format(sdf1.parse(f0)));
+                                            tvTime.setVisibility(View.VISIBLE);
+                                        } catch (ParseException e) {
+                                            e.printStackTrace();
                                         }
                                     }
-                                }catch (JSONException e) {
-                                    e.printStackTrace();
                                 }
+                            });
+
+                            if (!f.isNull("f1")) {
+                                JSONArray f1 = f.getJSONArray("f1");
+                                JSONObject weeklyObj = f1.getJSONObject(0);
+                                //晚上
+                                dto.lowPheCode = Integer.valueOf(weeklyObj.getString("fb"));
+                                dto.lowPhe = getString(WeatherUtil.getWeatherId(Integer.valueOf(weeklyObj.getString("fb"))));
+                                dto.lowTemp = Integer.valueOf(weeklyObj.getString("fd"));
+                                dto.lowWindDir = Integer.valueOf(weeklyObj.getString("ff"));
+                                dto.lowWindForce = Integer.valueOf(weeklyObj.getString("fh"));
+
+                                //白天
+                                dto.highPheCode = Integer.valueOf(weeklyObj.getString("fa"));
+                                dto.highPhe = getString(WeatherUtil.getWeatherId(Integer.valueOf(weeklyObj.getString("fa"))));
+                                dto.highTemp = Integer.valueOf(weeklyObj.getString("fc"));
+                                dto.highWindDir = Integer.valueOf(weeklyObj.getString("fe"));
+                                dto.highWindForce = Integer.valueOf(weeklyObj.getString("fg"));
+
+                                MarkerOptions options = new MarkerOptions();
+                                options.title(dto.cityName+","+dto.highPheCode+","+dto.highTemp+","+dto.highWindDir+","+dto.highWindForce
+                                        +","+dto.lowPheCode+","+dto.lowTemp+","+dto.lowWindDir+","+dto.lowWindForce+","+dto.cityId);
+                                options.snippet(dto.level);
+                                options.anchor(0.5f, 1.0f);
+                                options.position(new LatLng(dto.lat, dto.lng));
+                                int currentHour = Integer.valueOf(sdf3.format(new Date()));
+                                if (currentHour >= 5 && currentHour < 18) {
+                                    options.icon(BitmapDescriptorFactory.fromView(getTextBitmap(dto.highPheCode)));
+                                }else {
+                                    options.icon(BitmapDescriptorFactory.fromView(getTextBitmap(dto.lowPheCode)));
+                                }
+                                Marker marker = aMap.addMarker(options);
+                                markerMap.put(dto.cityId, marker);
+                                markerExpandAnimation(marker);
+
                             }
                         }
-                    });
-                } catch (Exception e) {
-                    e.printStackTrace();
+                    }catch (JSONException e) {
+                        e.printStackTrace();
+                    }
                 }
             }
-        }).start();
+        });
     }
 
     /**
@@ -449,7 +429,7 @@ public class ShawnCityForecastActivity extends BaseActivity implements OnClickLi
         handler.removeMessages(1001);
         Message msg = handler.obtainMessage();
         msg.what = 1001;
-        handler.sendMessageDelayed(msg, 1000);
+        handler.sendMessageDelayed(msg, 500);
     }
 
     @SuppressLint("HandlerLeak")
@@ -525,7 +505,7 @@ public class ShawnCityForecastActivity extends BaseActivity implements OnClickLi
         Bitmap bitmap = CommonUtil.mergeBitmap(mContext, bitmap1, bitmap4, false);
         CommonUtil.clearBitmap(bitmap1);
         CommonUtil.clearBitmap(bitmap4);
-        CommonUtil.share(ShawnCityForecastActivity.this, bitmap);
+        CommonUtil.share(this, bitmap);
     }
 
     @Override
@@ -549,7 +529,7 @@ public class ShawnCityForecastActivity extends BaseActivity implements OnClickLi
                 finish();
                 break;
             case R.id.ivShare:
-                aMap.getMapScreenShot(ShawnCityForecastActivity.this);
+                aMap.getMapScreenShot(this);
                 break;
             case R.id.ivMapSearch:
                 startActivity(new Intent(mContext, ShawnCityActivity.class));

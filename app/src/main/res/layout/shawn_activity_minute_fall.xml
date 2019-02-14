@@ -19,7 +19,6 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_below="@+id/reTitle"
-        android:background="#deffffff"
         android:clickable="true"
         android:focusable="true"
         android:gravity="center_horizontal"
@@ -57,13 +56,15 @@
             android:id="@+id/llContainer"
             android:layout_width="match_parent"
             android:layout_height="120dp"
-            android:visibility="gone"
-            android:orientation="horizontal"/>
+            android:background="#deffffff"
+            android:orientation="horizontal"
+            android:visibility="gone"/>
 
         <ImageView
             android:id="@+id/ivArrow"
-            android:layout_width="25dp"
+            android:layout_width="match_parent"
             android:layout_height="25dp"
+            android:background="#deffffff"
             android:padding="5dp"
             android:src="@drawable/shawn_icon_animation_down"/>
 
@@ -80,8 +81,8 @@
             android:layout_width="35dp"
             android:layout_height="35dp"
             android:layout_above="@+id/ivSwitch"
-            android:layout_marginBottom="5dp"
             android:layout_marginStart="10dp"
+            android:layout_marginBottom="5dp"
             android:src="@drawable/shawn_icon_minute_radar_off"/>
 
         <ImageView
@@ -89,8 +90,8 @@
             android:layout_width="35dp"
             android:layout_height="35dp"
             android:layout_above="@+id/ivLocation"
-            android:layout_marginBottom="5dp"
             android:layout_marginStart="10dp"
+            android:layout_marginBottom="5dp"
             android:src="@drawable/shawn_icon_switch_map_off"/>
 
         <ImageView
@@ -98,8 +99,8 @@
             android:layout_width="35dp"
             android:layout_height="35dp"
             android:layout_above="@+id/llLegend"
-            android:layout_marginBottom="5dp"
             android:layout_marginStart="10dp"
+            android:layout_marginBottom="5dp"
             android:src="@drawable/shawn_icon_location_off"/>
 
         <LinearLayout
@@ -107,8 +108,8 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_above="@+id/llSeekBar"
-            android:layout_marginBottom="5dp"
             android:layout_marginStart="10dp"
+            android:layout_marginBottom="5dp"
             android:gravity="center_vertical"
             android:orientation="horizontal">
 
@@ -137,10 +138,10 @@
             android:clickable="true"
             android:focusable="true"
             android:gravity="center_vertical"
-            android:paddingBottom="5dp"
-            android:paddingEnd="10dp"
             android:paddingStart="10dp"
-            android:paddingTop="5dp">
+            android:paddingTop="5dp"
+            android:paddingEnd="10dp"
+            android:paddingBottom="5dp">
 
             <ImageView
                 android:id="@+id/ivPlay"

@@ -53,6 +53,7 @@ import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 
 import okhttp3.Call;
 import okhttp3.Callback;
@@ -61,32 +62,26 @@ import okhttp3.Response;
 
 /**
  * 综合预报
- * @author shawn_sun
- *
  */
-public class ComprehensiveForecastActivity extends BaseActivity implements OnClickListener, AMapLocationListener, OnMapScreenShotListener, AMap.OnCameraChangeListener {
+public class ShawnComForecastActivity extends BaseActivity implements OnClickListener, AMapLocationListener, OnMapScreenShotListener, AMap.OnCameraChangeListener {
 	
-	private Context mContext = null;
-	private LinearLayout llBack = null;
+	private Context mContext;
 	private TextView tvTitle,tvName,tvTime;
-	private MapView mMapView = null;
-	private AMap aMap = null;
-	private ImageView ivShare,ivLegendPrompt,ivLocation,ivLegend,ivJiangshui,ivHighTemp,ivLowTemp,ivWuran,ivShachen,ivGaowen,ivFog,ivDizhi,ivHaze,ivQiangduiliu,ivDafeng,ivMore;
+	private MapView mMapView;
+	private AMap aMap;
+	private ImageView ivLocation,ivLegend,ivJiangshui,ivHighTemp,ivLowTemp,ivWuran,ivShachen,ivGaowen,ivFog,ivDizhi,ivHaze,ivQiangduiliu,ivDafeng;
 	private RelativeLayout reShare,reMore;
-	private SimpleDateFormat sdf1 = new SimpleDateFormat("yyyy.MM.dd HH:00");
+	private SimpleDateFormat sdf1 = new SimpleDateFormat("yyyy.MM.dd HH:00", Locale.CHINA);
 	private float zoom = 3.5f;
-	private AMapLocationClientOption mLocationOption = null;//声明mLocationOption对象
-	private AMapLocationClient mLocationClient = null;//声明AMapLocationClient类对象
 	private double locationLat = 35.926628, locationLng = 105.178100;
 	private List<Polygon> polygons = new ArrayList<>();//图层数据
-	private int swithWidth = 0;
 	private LinearLayout llJiangshui,llHightemp,llLowtemp,llWuran;
 	private TextView tvJiangshui24,tvJiangshui48,tvJiangshui72,tvHightemp24,tvHightemp48,tvHightemp72,tvLowtemp24,tvLowtemp48,tvLowtemp72,tvWuran24,tvWuran48,tvWuran72;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		setContentView(R.layout.activity_comprehensive_forecast);
+		setContentView(R.layout.shawn_activity_com_forecast);
 		mContext = this;
 		showDialog();
 		initMap(savedInstanceState);
@@ -97,12 +92,12 @@ public class ComprehensiveForecastActivity extends BaseActivity implements OnCli
 	 * 初始化控件
 	 */
 	private void initWidget() {
-		llBack = findViewById(R.id.llBack);
+		LinearLayout llBack = findViewById(R.id.llBack);
 		llBack.setOnClickListener(this);
-		ivShare = findViewById(R.id.ivShare);
+		ImageView ivShare = findViewById(R.id.ivShare);
 		ivShare.setOnClickListener(this);
 		ivShare.setVisibility(View.VISIBLE);
-		ivLegendPrompt = findViewById(R.id.ivLegendPrompt);
+		ImageView ivLegendPrompt = findViewById(R.id.ivLegendPrompt);
 		ivLegendPrompt.setOnClickListener(this);
 		ivLegend = findViewById(R.id.ivLegend);
 		ivLocation = findViewById(R.id.ivLocation);
@@ -134,7 +129,7 @@ public class ComprehensiveForecastActivity extends BaseActivity implements OnCli
 		ivQiangduiliu.setOnClickListener(this);
 		ivDafeng = findViewById(R.id.ivDafeng);
 		ivDafeng.setOnClickListener(this);
-		ivMore = findViewById(R.id.ivMore);
+		ImageView ivMore = findViewById(R.id.ivMore);
 		ivMore.setOnClickListener(this);
 		llJiangshui = findViewById(R.id.llJiangshui);
 		llHightemp = findViewById(R.id.llHightemp);
@@ -165,19 +160,13 @@ public class ComprehensiveForecastActivity extends BaseActivity implements OnCli
 		tvWuran72 = findViewById(R.id.tvWuran72);
 		tvWuran72.setOnClickListener(this);
 
-		int w = View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED);
-		int h = View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED);
-		llJiangshui.measure(w, h);
-		swithWidth = llJiangshui.getMeasuredWidth();
-
 		String title = getIntent().getStringExtra(CONST.ACTIVITY_NAME);
-		if (title != null) {
+		if (!TextUtils.isEmpty(title)) {
 			tvTitle.setText(title);
 		}
 
 		checkAuthority();
-
-		OkHttpList("http://decision-admin.tianqi.cn/Home/extra/decision_zhyblayers");
+		OkHttpList();
 		
 		String columnId = getIntent().getStringExtra(CONST.COLUMN_ID);
 		CommonUtil.submitClickCount(columnId, title);
@@ -219,12 +208,11 @@ public class ComprehensiveForecastActivity extends BaseActivity implements OnCli
 	 * 开始定位
 	 */
 	private void startLocation() {
-		mLocationOption = new AMapLocationClientOption();//初始化定位参数
-		mLocationClient = new AMapLocationClient(mContext);//初始化定位
+		AMapLocationClientOption mLocationOption = new AMapLocationClientOption();//初始化定位参数
+		AMapLocationClient mLocationClient = new AMapLocationClient(mContext);//初始化定位
 		mLocationOption.setLocationMode(AMapLocationClientOption.AMapLocationMode.Hight_Accuracy);//设置定位模式为高精度模式，Battery_Saving为低功耗模式，Device_Sensors是仅设备模式
 		mLocationOption.setNeedAddress(true);//设置是否返回地址信息（默认返回地址信息）
 		mLocationOption.setOnceLocation(true);//设置是否只定位一次,默认为false
-		mLocationOption.setWifiActiveScan(true);//设置是否强制刷新WIFI，默认为强制刷新
 		mLocationOption.setMockEnable(false);//设置是否允许模拟位置,默认为false，不允许模拟位置
 		mLocationOption.setInterval(2000);//设置定位间隔,单位毫秒,默认为2000ms
 		mLocationClient.setLocationOption(mLocationOption);//给定位客户端对象设置定位参数
@@ -241,12 +229,12 @@ public class ComprehensiveForecastActivity extends BaseActivity implements OnCli
 			LatLng latLng = new LatLng(amapLocation.getLatitude(), amapLocation.getLongitude());
 			MarkerOptions options = new MarkerOptions();
 			options.anchor(0.5f, 0.5f);
-			Bitmap bitmap = ThumbnailUtils.extractThumbnail(BitmapFactory.decodeResource(getResources(), R.drawable.iv_map_location),
+			Bitmap bitmap = ThumbnailUtils.extractThumbnail(BitmapFactory.decodeResource(getResources(), R.drawable.shawn_icon_location_point),
 					(int) (CommonUtil.dip2px(mContext, 15)), (int) (CommonUtil.dip2px(mContext, 15)));
 			if (bitmap != null) {
 				options.icon(BitmapDescriptorFactory.fromBitmap(bitmap));
 			} else {
-				options.icon(BitmapDescriptorFactory.fromResource(R.drawable.iv_map_location));
+				options.icon(BitmapDescriptorFactory.fromResource(R.drawable.shawn_icon_location_point));
 			}
 			options.position(latLng);
 			Marker locationMarker = aMap.addMarker(options);
@@ -278,16 +266,15 @@ public class ComprehensiveForecastActivity extends BaseActivity implements OnCli
 		zoom = arg0.zoom;
 	}
 
-	private void OkHttpList(final String url) {
+	private void OkHttpList() {
 		new Thread(new Runnable() {
 			@Override
 			public void run() {
+				final String url = "http://decision-admin.tianqi.cn/Home/extra/decision_zhyblayers";
 				OkHttpUtil.enqueue(new Request.Builder().url(url).build(), new Callback() {
 					@Override
 					public void onFailure(Call call, IOException e) {
-
 					}
-
 					@Override
 					public void onResponse(Call call, Response response) throws IOException {
 						if (!response.isSuccessful()) {
@@ -787,7 +774,7 @@ public class ComprehensiveForecastActivity extends BaseActivity implements OnCli
 		bitmap = CommonUtil.mergeBitmap(mContext, bitmap3, bitmap8, false);
 		CommonUtil.clearBitmap(bitmap3);
 		CommonUtil.clearBitmap(bitmap8);
-		CommonUtil.share(ComprehensiveForecastActivity.this, bitmap);
+		CommonUtil.share(ShawnComForecastActivity.this, bitmap);
 	}
 
 	@Override
@@ -801,7 +788,7 @@ public class ComprehensiveForecastActivity extends BaseActivity implements OnCli
 				finish();
 				break;
 			case R.id.ivShare:
-				aMap.getMapScreenShot(ComprehensiveForecastActivity.this);
+				aMap.getMapScreenShot(ShawnComForecastActivity.this);
 				break;
 			case R.id.ivLegendPrompt:
 				if (ivLegend.getVisibility() == View.VISIBLE) {

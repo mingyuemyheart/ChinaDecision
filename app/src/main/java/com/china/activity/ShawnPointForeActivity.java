@@ -45,11 +45,8 @@ import com.amap.api.maps.model.CameraPosition;
 import com.amap.api.maps.model.LatLng;
 import com.amap.api.maps.model.Marker;
 import com.amap.api.maps.model.MarkerOptions;
-import com.amap.api.maps.model.Text;
-import com.amap.api.maps.model.TextOptions;
 import com.china.R;
 import com.china.common.CONST;
-import com.china.dto.MinuteFallDto;
 import com.china.dto.StationMonitorDto;
 import com.china.utils.AuthorityUtil;
 import com.china.utils.CommonUtil;
@@ -155,7 +152,7 @@ public class ShawnPointForeActivity extends BaseActivity implements OnClickListe
 		seekBar.setOnSeekBarChangeListener(seekbarListener);
 
 		String title = getIntent().getStringExtra(CONST.ACTIVITY_NAME);
-		if (title != null) {
+		if (!TextUtils.isEmpty(title)) {
 			tvTitle.setText(title);
 		}
 
@@ -220,12 +217,12 @@ public class ShawnPointForeActivity extends BaseActivity implements OnClickListe
 		LatLng latLng = new LatLng(locationLat, locationLng);
 		MarkerOptions options = new MarkerOptions();
 		options.anchor(0.5f, 0.5f);
-		Bitmap bitmap = ThumbnailUtils.extractThumbnail(BitmapFactory.decodeResource(getResources(), R.drawable.iv_map_location),
+		Bitmap bitmap = ThumbnailUtils.extractThumbnail(BitmapFactory.decodeResource(getResources(), R.drawable.shawn_icon_location_point),
 				(int) (CommonUtil.dip2px(mContext, 15)), (int) (CommonUtil.dip2px(mContext, 15)));
 		if (bitmap != null) {
 			options.icon(BitmapDescriptorFactory.fromBitmap(bitmap));
 		} else {
-			options.icon(BitmapDescriptorFactory.fromResource(R.drawable.iv_map_location));
+			options.icon(BitmapDescriptorFactory.fromResource(R.drawable.shawn_icon_location_point));
 		}
 		options.position(latLng);
 		locationMarker = aMap.addMarker(options);
@@ -263,19 +260,19 @@ public class ShawnPointForeActivity extends BaseActivity implements OnClickListe
 		end = aMap.getProjection().fromScreenLocation(endPoint);
 
 		zoom = arg0.zoom;
-		getPointInfo(1000);
+		getPointInfo();
 	}
 
 	/**
 	 * 获取格点数据
 	 */
-	private void getPointInfo(long delayMillis) {
+	private void getPointInfo() {
 		String url = String.format("http://scapi.weather.com.cn/weather/getqggdybql?zoom=%s&statlonlat=%s,%s&endlonlat=%s,%s&test=ncg",
 				(int)zoom, start.longitude, start.latitude, end.longitude, end.latitude);
-		handler.removeMessages(1000);
-		Message msg = handler.obtainMessage(1000);
+		handler.removeMessages(1001);
+		Message msg = handler.obtainMessage(1001);
 		msg.obj = url;
-		handler.sendMessageDelayed(msg, delayMillis);
+		handler.sendMessageDelayed(msg, 1000);
 	}
 
 	@SuppressLint("HandlerLeak")
@@ -284,7 +281,7 @@ public class ShawnPointForeActivity extends BaseActivity implements OnClickListe
 		public void handleMessage(Message msg) {
 			super.handleMessage(msg);
 			switch (msg.what) {
-				case 1000:
+				case 1001:
 					OkHttpList(msg.obj+"");
 					break;
 			}
@@ -349,7 +346,6 @@ public class ShawnPointForeActivity extends BaseActivity implements OnClickListe
 													if (currentTime <= time) {
 														list.add(data);
 													}
-
 												} catch (ParseException e) {
 													e.printStackTrace();
 												}
@@ -360,8 +356,13 @@ public class ShawnPointForeActivity extends BaseActivity implements OnClickListe
 										}
 
 										switchElement();
-										StationMonitorDto dto = dataList.get(currentIndex).itemList.get(0);
-										changeProgress(dto.time, 0, dataList.get(currentIndex).itemList.size()-1);
+										if (dataList.size() > 0) {
+											StationMonitorDto dto = dataList.get(currentIndex);
+											if (dto != null && dto.itemList.size() > 0) {
+												StationMonitorDto data = dto.itemList.get(0);
+												changeProgress(data.time, 0, dto.itemList.size()-1);
+											}
+										}
 
 									} catch (JSONException e) {
 										e.printStackTrace();
@@ -388,44 +389,43 @@ public class ShawnPointForeActivity extends BaseActivity implements OnClickListe
 	 * 切换要素
 	 */
 	private void switchElement() {
-		new Thread(new Runnable() {
-			@Override
-			public void run() {
-				removeTexts();
-				LayoutInflater inflater = (LayoutInflater) getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-				for (StationMonitorDto dto : dataList) {
-					MarkerOptions options = new MarkerOptions();
-					options.position(new LatLng(dto.lat, dto.lng));
-					View view = inflater.inflate(R.layout.shawn_point_fore_icon, null);
-					TextView tvMarker = view.findViewById(R.id.tvMarker);
-					tvMarker.setTextSize(TypedValue.COMPLEX_UNIT_DIP, 10);
-					if (mapType == AMap.MAP_TYPE_NORMAL) {
-						tvMarker.setTextColor(Color.RED);
-					}else if (mapType == AMap.MAP_TYPE_SATELLITE){
-						tvMarker.setTextColor(Color.WHITE);
-					}
-					String content = "";
-					if (dataType == 1) {
-						content = dto.itemList.get(currentIndex).pointTemp;
-					}else if (dataType == 2) {
-						content = dto.itemList.get(currentIndex).humidity;
-					}else if (dataType == 3) {
-						content = dto.itemList.get(currentIndex).windSpeed;
-					}else if (dataType == 5) {
-						content = dto.itemList.get(currentIndex).cloud;
-					}
-					tvMarker.setText(content);
-					options.icon(BitmapDescriptorFactory.fromView(view));
-					if (!TextUtils.isEmpty(content)) {
-						float value = Float.valueOf(content);
-						if (value < 9000) {
-							Marker marker = aMap.addMarker(options);
-							markers.add(marker);
-						}
+		removeTexts();
+		LayoutInflater inflater = (LayoutInflater) getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+		for (StationMonitorDto dto : dataList) {
+			MarkerOptions options = new MarkerOptions();
+			options.position(new LatLng(dto.lat, dto.lng));
+			View view = inflater.inflate(R.layout.shawn_point_fore_icon, null);
+			TextView tvMarker = view.findViewById(R.id.tvMarker);
+			tvMarker.setTextSize(TypedValue.COMPLEX_UNIT_DIP, 10);
+			if (mapType == AMap.MAP_TYPE_NORMAL) {
+				tvMarker.setTextColor(Color.RED);
+			}else if (mapType == AMap.MAP_TYPE_SATELLITE){
+				tvMarker.setTextColor(Color.WHITE);
+			}
+
+			if (dto.itemList.size() > 0) {
+				String content = "";
+				if (dataType == 1) {
+					content = dto.itemList.get(currentIndex).pointTemp;
+				}else if (dataType == 2) {
+					content = dto.itemList.get(currentIndex).humidity;
+				}else if (dataType == 3) {
+					content = dto.itemList.get(currentIndex).windSpeed;
+				}else if (dataType == 5) {
+					content = dto.itemList.get(currentIndex).cloud;
+				}
+				tvMarker.setText(content);
+				options.icon(BitmapDescriptorFactory.fromView(view));
+				if (!TextUtils.isEmpty(content)) {
+					float value = Float.valueOf(content);
+					if (value < 9000) {
+						Marker marker = aMap.addMarker(options);
+						markers.add(marker);
 					}
 				}
 			}
-		}).start();
+
+		}
 	}
 
 	private class RadarThread extends Thread {
@@ -613,10 +613,12 @@ public class ShawnPointForeActivity extends BaseActivity implements OnClickListe
 					mapType = AMap.MAP_TYPE_SATELLITE;
 					ivSwitch.setImageResource(R.drawable.com_switch_map_press);
 					tvName.setTextColor(Color.WHITE);
+					tvPublishTime.setTextColor(Color.WHITE);
 				}else if (mapType == AMap.MAP_TYPE_SATELLITE) {
 					mapType = AMap.MAP_TYPE_NORMAL;
 					ivSwitch.setImageResource(R.drawable.com_switch_map);
 					tvName.setTextColor(Color.BLACK);
+					tvPublishTime.setTextColor(Color.BLACK);
 				}
 				if (aMap != null) {
 					aMap.setMapType(mapType);

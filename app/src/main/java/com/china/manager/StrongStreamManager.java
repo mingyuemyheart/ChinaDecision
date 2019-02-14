@@ -15,14 +15,17 @@ import java.net.URL;
 import java.net.URLConnection;
 import java.util.List;
 
+/**
+ * 分钟降水与强对流
+ */
 public class StrongStreamManager {
 
 	private Context mContext;
 	private LoadThread mLoadThread;
 
 	public interface StrongStreamListener {
-		public static final int RESULT_SUCCESSED = 1;
-		public static final int RESULT_FAILED = 2;
+		int RESULT_SUCCESSED = 1;
+		int RESULT_FAILED = 2;
 		void onResult(int result, List<StrongStreamDto> images);
 		void onProgress(String url, int progress);
 	}

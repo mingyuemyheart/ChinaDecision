@@ -25,7 +25,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * 实况监测等模块
+ * 实况监测、天气预报、专业服务、灾情信息、天气会商
  */
 public class ShawnProductActivity extends BaseActivity implements OnClickListener {
 	
@@ -144,7 +144,7 @@ public class ShawnProductActivity extends BaseActivity implements OnClickListene
 						intent.putExtra(CONST.ACTIVITY_NAME, dto.name);
 						startActivity(intent);
 					}else if (TextUtils.equals(dto.id, "111")) {//综合预报
-						intent = new Intent(mContext, ComprehensiveForecastActivity.class);
+						intent = new Intent(mContext, ShawnComForecastActivity.class);
 						intent.putExtra(CONST.ACTIVITY_NAME, dto.name);
 						startActivity(intent);
 					}else if (TextUtils.equals(dto.id, "112")) {//强对流天气实况（新）
@@ -168,7 +168,7 @@ public class ShawnProductActivity extends BaseActivity implements OnClickListene
 						intent.putExtra(CONST.WEB_URL, CONST.WAIT_WIND);
 						startActivity(intent);
 					}else if (TextUtils.equals(dto.id, "204")) {//分钟降水与强对流
-						intent = new Intent(mContext, StrongStreamActivity.class);
+						intent = new Intent(mContext, ShawnStrongStreamActivity.class);
 						intent.putExtra(CONST.COLUMN_ID, dto.columnId);
 						intent.putExtra(CONST.ACTIVITY_NAME, dto.name);
 						startActivity(intent);

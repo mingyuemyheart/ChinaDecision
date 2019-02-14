@@ -34,7 +34,7 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * 天气资讯详情
+ * 天气资讯详情，底部带有分享、收藏等功能
  */
 public class ShawnNewsDetailActivity extends BaseActivity implements OnClickListener{
 
@@ -73,9 +73,7 @@ public class ShawnNewsDetailActivity extends BaseActivity implements OnClickList
         refreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
             public void onRefresh() {
-                if (webView != null && !TextUtils.isEmpty(dataUrl)) {
-                    loadUrl();
-                }
+				loadUrl();
             }
         });
 	}
@@ -114,7 +112,7 @@ public class ShawnNewsDetailActivity extends BaseActivity implements OnClickList
 		if (size != 0) {
 			for (int i = 0; i < collectList.size(); i++) {
 				if (TextUtils.equals(url, collectList.get(i).detailUrl)) {
-					ivCollect.setImageResource(R.drawable.shawn_icon_collection2_press);
+					ivCollect.setImageResource(R.drawable.shawn_icon_collection_blue_press);
 					isCollected = true;
 					break;
 				}
@@ -148,7 +146,6 @@ public class ShawnNewsDetailActivity extends BaseActivity implements OnClickList
 		//自适应屏幕
 		webSettings.setLayoutAlgorithm(LayoutAlgorithm.SINGLE_COLUMN);
 		webSettings.setLoadWithOverviewMode(true);
-//		webView.loadUrl(url);
 		loadUrl();
 		
 		webView.setWebChromeClient(new WebChromeClient() {
@@ -179,9 +176,11 @@ public class ShawnNewsDetailActivity extends BaseActivity implements OnClickList
 	}
 
 	private void loadUrl() {
-		Map<String, String> extraHeaders = new HashMap<>();
-		extraHeaders.put("Referer", CommonUtil.getRequestHeader());
-		webView.loadUrl(dataUrl, extraHeaders);
+		if (webView != null && !TextUtils.isEmpty(dataUrl)) {
+			Map<String, String> extraHeaders = new HashMap<>();
+			extraHeaders.put("Referer", CommonUtil.getRequestHeader());
+			webView.loadUrl(dataUrl, extraHeaders);
+		}
 	}
 	
 	/**
@@ -226,31 +225,31 @@ public class ShawnNewsDetailActivity extends BaseActivity implements OnClickList
 				NewsDto dto = getIntent().getExtras().getParcelable("data");
 				if (dto != null) {
 					collectList.add(0, dto);
-					ivCollect.setImageResource(R.drawable.shawn_icon_collection2_press);
-					Toast.makeText(ShawnNewsDetailActivity.this, getString(R.string.collect_success), Toast.LENGTH_SHORT).show();
+					ivCollect.setImageResource(R.drawable.shawn_icon_collection_blue_press);
+					Toast.makeText(this, getString(R.string.collect_success), Toast.LENGTH_SHORT).show();
 					isCollected = true;
 				}
 			}else {
 				for (int i = 0; i < collectList.size(); i++) {
 					if (TextUtils.equals(dataUrl, collectList.get(i).detailUrl)) {
 						collectList.remove(i);
-						ivCollect.setImageResource(R.drawable.shawn_icon_collection2);
-						Toast.makeText(ShawnNewsDetailActivity.this, getString(R.string.collect_cancel), Toast.LENGTH_SHORT).show();
+						ivCollect.setImageResource(R.drawable.shawn_icon_collection_blue);
+						Toast.makeText(this, getString(R.string.collect_cancel), Toast.LENGTH_SHORT).show();
 						isCollected = false;
 						break;
 					}
 				}
 			}
-			MyCollectManager.clearCollectData(ShawnNewsDetailActivity.this);
-			MyCollectManager.writeCollect(ShawnNewsDetailActivity.this, collectList);
+			MyCollectManager.clearCollectData(this);
+			MyCollectManager.writeCollect(this, collectList);
 			break;
 		case R.id.ivShareImg:
 			Bitmap bitmap1 = CommonUtil.captureWebView(webView);
 			Bitmap bitmap2 = BitmapFactory.decodeResource(getResources(), R.drawable.shawn_legend_share_portrait);
-			Bitmap bitmap = CommonUtil.mergeBitmap(ShawnNewsDetailActivity.this, bitmap1, bitmap2, false);
+			Bitmap bitmap = CommonUtil.mergeBitmap(this, bitmap1, bitmap2, false);
 			CommonUtil.clearBitmap(bitmap1);
 			CommonUtil.clearBitmap(bitmap2);
-			CommonUtil.share(ShawnNewsDetailActivity.this, bitmap);
+			CommonUtil.share(this, bitmap);
 	        break;
 
 		default:

@@ -1,9 +1,5 @@
 package com.china.activity;
 
-/**
- * 分钟降水与强对流
- */
-
 import android.annotation.SuppressLint;
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -51,6 +47,7 @@ import com.china.utils.CommonUtil;
 import com.china.utils.OkHttpUtil;
 import com.china.view.MySeekbar;
 import com.tendcloud.tenddata.TCAgent;
+import com.wang.avi.AVLoadingIndicatorView;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -66,50 +63,42 @@ import okhttp3.Callback;
 import okhttp3.Request;
 import okhttp3.Response;
 
-public class StrongStreamActivity extends BaseActivity implements OnClickListener, StrongStreamManager.StrongStreamListener, OnMapScreenShotListener{
+/**
+ * 分钟降水与强对流
+ */
+public class ShawnStrongStreamActivity extends BaseActivity implements OnClickListener, OnMapScreenShotListener{
 	
-	private Context mContext = null;
-	private LinearLayout llBack = null;
-	private TextView tvTitle = null;
-	private MapView mMapView = null;
-	private AMap aMap = null;
+	private Context mContext;
+	private TextView tvTitle;
+	private MapView mMapView;
+	private AMap aMap;
 	private List<StrongStreamDto> radarList = new ArrayList<>();
-	private String radarDataUrl = "http://radar-qpfref.tianqi.cn/";//雷达数据url
-//	private String strongStreamFactUrl = "http://cn-scw.tianqi.cn/api/merge";//强对流实况、预报数据
-//	private String lightingUrl = "http://lightning.tianqi.cn/lightningInterface/data/getdefault";//雷电数据
-	private String dataUrl = "http://cn-scw.tianqi.cn/api/merge-all";//三种数据和一起
-	private GroundOverlay mOverlay = null;
+	private GroundOverlay mOverlay;
 	private StrongStreamManager mRadarManager;
 	private RadarThread mRadarThread;
 	private static final int HANDLER_SHOW_RADAR = 1;
 	private static final int HANDLER_PROGRESS = 2;
 	private static final int HANDLER_LOAD_FINISHED = 3;
 	private static final int HANDLER_PAUSE = 4;
-    private float zoom = 3.7f;
-	private ImageView ivShare = null;
-	private RelativeLayout reShare = null;
 	private HashMap<String, JSONObject> hashMap = new HashMap<>();//强对流数据
 	private List<Polyline> polylines = new ArrayList<>();
-	private ImageView ivRadar = null;
-	private ImageView ivLighting = null;
+	private ImageView ivRadar,ivLighting,ivLegend;
 	private HashMap<String, JSONObject> lightingMap = new HashMap<>();//闪电数据
 	private List<Marker> lightingMarkers = new ArrayList<>();//闪电markers
 	private boolean isShowLightingMarkers = false;
-	private LinearLayout llLegend = null;
-	private ImageView ivRank = null;
-	private ImageView ivLegend = null;
-	private LinearLayout llContainer = null;
-	private MySeekbar mySeekbar = null;
+	private LinearLayout llLegend,llContainer;
+	private MySeekbar mySeekbar;
 	private int width = 0;
-	private MyBroadCastReceiver mReceiver = null;
+	private MyBroadCastReceiver mReceiver;
 	private String BROAD_CLICKMENU = "broad_clickMenu";//点击播放或暂停
+	private RelativeLayout reShare;
+	private AVLoadingIndicatorView loadingView;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		setContentView(R.layout.activity_strong_stream);
+		setContentView(R.layout.shawn_activity_strong_stream);
 		mContext = this;
-		showDialog();
 		initBroadCast();
 		initMap(savedInstanceState);
 		initWidget();
@@ -142,74 +131,79 @@ public class StrongStreamActivity extends BaseActivity implements OnClickListene
 		}
 	}
 
+	private void unregistBroadCast() {
+		if (mReceiver != null) {
+			unregisterReceiver(mReceiver);
+		}
+	}
+
+	private void initMap(Bundle bundle) {
+		mMapView = findViewById(R.id.mapView);
+		mMapView.onCreate(bundle);
+		if (aMap == null) {
+			aMap = mMapView.getMap();
+		}
+		aMap.moveCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(35.926628, 105.178100), 3.7f));
+		aMap.getUiSettings().setZoomControlsEnabled(false);
+		aMap.getUiSettings().setRotateGesturesEnabled(false);
+	}
+
 	private void initWidget() {
-		llBack = (LinearLayout) findViewById(R.id.llBack);
+		loadingView = findViewById(R.id.loadingView);
+		LinearLayout llBack = findViewById(R.id.llBack);
 		llBack.setOnClickListener(this);
-		tvTitle = (TextView) findViewById(R.id.tvTitle);
-		ivShare = (ImageView) findViewById(R.id.ivShare);
+		tvTitle = findViewById(R.id.tvTitle);
+		ImageView ivShare = findViewById(R.id.ivShare);
 		ivShare.setOnClickListener(this);
 		ivShare.setVisibility(View.VISIBLE);
-		reShare = (RelativeLayout) findViewById(R.id.reShare);
-		ivRadar = (ImageView) findViewById(R.id.ivRadar);
+		ivRadar = findViewById(R.id.ivRadar);
 		ivRadar.setOnClickListener(this);
-		ivLighting = (ImageView) findViewById(R.id.ivLighting);
+		ivLighting = findViewById(R.id.ivLighting);
 		ivLighting.setOnClickListener(this);
-		llLegend = (LinearLayout) findViewById(R.id.llLegend);
-		ivRank = (ImageView) findViewById(R.id.ivRank);
+		llLegend = findViewById(R.id.llLegend);
+		ImageView ivRank = findViewById(R.id.ivRank);
 		ivRank.setOnClickListener(this);
-		ivLegend = (ImageView) findViewById(R.id.ivLegend);
-		llContainer = (LinearLayout) findViewById(R.id.llContainer);
+		ivLegend = findViewById(R.id.ivLegend);
+		llContainer = findViewById(R.id.llContainer);
+		reShare = findViewById(R.id.reShare);
 
 		DisplayMetrics dm = new DisplayMetrics();
 		getWindowManager().getDefaultDisplay().getMetrics(dm);
 		width = dm.widthPixels;
 
 		String title = getIntent().getStringExtra(CONST.ACTIVITY_NAME);
-		if (title != null) {
+		if (!TextUtils.isEmpty(title)) {
 			tvTitle.setText(title);
 		}
 		
-		mRadarManager = new StrongStreamManager(getApplicationContext());
-		OkHttpData(dataUrl);
+		mRadarManager = new StrongStreamManager(mContext);
+		OkHttpData();
 		
 		String columnId = getIntent().getStringExtra(CONST.COLUMN_ID);
 		CommonUtil.submitClickCount(columnId, title);
 	}
-
-	private void initMap(Bundle bundle) {
-		mMapView = (MapView) findViewById(R.id.map);
-		mMapView.onCreate(bundle);
-		if (aMap == null) {
-			aMap = mMapView.getMap();
-		}
-		aMap.moveCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(35.926628, 105.178100), zoom));
-		aMap.getUiSettings().setZoomControlsEnabled(false);
-		aMap.getUiSettings().setRotateGesturesEnabled(false);
-	}
 	
 	/**
 	 * 获取雷达图数据
-	 * @param url
 	 */
-	private void OkHttpData(final String url) {
+	private void OkHttpData() {
 		new Thread(new Runnable() {
 			@Override
 			public void run() {
+				final String url = "http://cn-scw.tianqi.cn/api/merge-all";
 				OkHttpUtil.enqueue(new Request.Builder().url(url).build(), new Callback() {
 					@Override
 					public void onFailure(Call call, IOException e) {
-
 					}
-
 					@Override
 					public void onResponse(Call call, Response response) throws IOException {
 						if (!response.isSuccessful()) {
 							return;
 						}
 						String result = response.body().string();
-						if (result != null) {
+						if (!TextUtils.isEmpty(result)) {
 							try {
-								JSONObject object = new JSONObject(result.toString());
+								JSONObject object = new JSONObject(result);
 
 								//强对流图层数据
 								if (!object.isNull("cn_scw")) {
@@ -272,7 +266,7 @@ public class StrongStreamActivity extends BaseActivity implements OnClickListene
 											StrongStreamDto dto = new StrongStreamDto();
 											String itemUrl = array.getString(i);
 											if (!TextUtils.isEmpty(itemUrl)) {
-												dto.imgUrl = radarDataUrl+itemUrl;
+												dto.imgUrl = "http://radar-qpfref.tianqi.cn/"+itemUrl;
 												dto.time = itemUrl.substring(itemUrl.length()-16, itemUrl.length()-4);
 												if (i == array.length()-1) {
 													dto.tag = "currentTime";
@@ -288,7 +282,7 @@ public class StrongStreamActivity extends BaseActivity implements OnClickListene
 											StrongStreamDto dto = new StrongStreamDto();
 											String itemUrl = array.getString(i);
 											if (!TextUtils.isEmpty(itemUrl)) {
-												dto.imgUrl = radarDataUrl+itemUrl;
+												dto.imgUrl = "http://radar-qpfref.tianqi.cn/"+itemUrl;
 												dto.time = itemUrl.substring(itemUrl.length()-16, itemUrl.length()-4);
 												radarList.add(dto);
 											}
@@ -315,34 +309,34 @@ public class StrongStreamActivity extends BaseActivity implements OnClickListene
 			mRadarThread.cancel();
 			mRadarThread = null;
 		}
- 		mRadarManager.loadImagesAsyn(list, this);
-	}
-	
-	@Override
-	public void onResult(int result, final List<StrongStreamDto> images) {
-		mHandler.sendEmptyMessage(HANDLER_LOAD_FINISHED);
-		if (result == RadarListener.RESULT_SUCCESSED) {
-			for (int i = 0; i < images.size(); i++) {
-				StrongStreamDto dto = images.get(i);
-				if (TextUtils.equals(dto.tag, "currentTime")) {
-					Message message = mHandler.obtainMessage();
-					message.what = HANDLER_SHOW_RADAR;
-					message.obj = dto;
-					message.arg1 = images.size()-1;
-					message.arg2 = 0;
-					mHandler.sendMessage(message);
-					break;
+ 		mRadarManager.loadImagesAsyn(list, new StrongStreamManager.StrongStreamListener() {
+			@Override
+			public void onResult(int result, List<StrongStreamDto> images) {
+				mHandler.sendEmptyMessage(HANDLER_LOAD_FINISHED);
+				if (result == RadarListener.RESULT_SUCCESSED) {
+					for (int i = 0; i < images.size(); i++) {
+						StrongStreamDto dto = images.get(i);
+						if (TextUtils.equals(dto.tag, "currentTime")) {
+							Message message = mHandler.obtainMessage();
+							message.what = HANDLER_SHOW_RADAR;
+							message.obj = dto;
+							message.arg1 = images.size()-1;
+							message.arg2 = 0;
+							mHandler.sendMessage(message);
+							break;
+						}
+					}
 				}
 			}
-		}
-	}
 
-	@Override
-	public void onProgress(String url, int progress) {
-		Message msg = new Message();
-		msg.obj = progress;
-		msg.what = HANDLER_PROGRESS;
-		mHandler.sendMessage(msg);
+			@Override
+			public void onProgress(String url, int progress) {
+				Message msg = new Message();
+				msg.obj = progress;
+				msg.what = HANDLER_PROGRESS;
+				mHandler.sendMessage(msg);
+			}
+		});
 	}
 	
 	private void showRadar(Bitmap bitmap) {
@@ -416,7 +410,7 @@ public class StrongStreamActivity extends BaseActivity implements OnClickListene
 //				}
 				break;
 			case HANDLER_LOAD_FINISHED: 
-				cancelDialog();
+				loadingView.setVisibility(View.GONE);
 				ivRadar.setVisibility(View.VISIBLE);
 				ivLighting.setVisibility(View.VISIBLE);
 				llLegend.setVisibility(View.VISIBLE);
@@ -443,7 +437,7 @@ public class StrongStreamActivity extends BaseActivity implements OnClickListene
 		public int state;
 		private int index;
 		private int count;
-		private boolean isTracking = false;
+		private boolean isTracking;
 
 		public RadarThread(List<StrongStreamDto> radarList) {
 			this.radarList = radarList;
@@ -674,8 +668,8 @@ public class StrongStreamActivity extends BaseActivity implements OnClickListene
 					MarkerOptions options = new MarkerOptions();
 					options.anchor(1.0f, 0.0f);
 					options.position(new LatLng(lat, lng));
-					View view = inflater.inflate(R.layout.strong_stream_marker_view, null);
-					ImageView ivMarker = (ImageView) view.findViewById(R.id.ivMarker);
+					View view = inflater.inflate(R.layout.shawn_layout_strong_stream_marker_icon, null);
+					ImageView ivMarker = view.findViewById(R.id.ivMarker);
 					ivMarker.setImageResource(R.drawable.fzj_pic_sd);
 					options.icon(BitmapDescriptorFactory.fromView(view));
 					Marker marker = aMap.addMarker(options);
@@ -715,12 +709,17 @@ public class StrongStreamActivity extends BaseActivity implements OnClickListene
 
 	@Override
 	public void onMapScreenShot(final Bitmap bitmap1) {//bitmap1为地图截屏
-		//bitmap2为覆盖再地图上的view
-		Bitmap bitmap2 = BitmapFactory.decodeResource(getResources(), R.drawable.shawn_legend_share_portrait);
-		Bitmap bitmap = CommonUtil.mergeBitmap(mContext, bitmap1, bitmap2, false);
-		CommonUtil.clearBitmap(bitmap1);
+		Bitmap bitmap2 = CommonUtil.captureView(reShare);
+		Bitmap bitmap3 = CommonUtil.captureMyView(llContainer);
+		Bitmap bitmap4 = CommonUtil.mergeBitmap(mContext, bitmap2, bitmap3, false);
 		CommonUtil.clearBitmap(bitmap2);
-		CommonUtil.share(StrongStreamActivity.this, bitmap);
+		CommonUtil.clearBitmap(bitmap3);
+		Bitmap bitmap5 = CommonUtil.mergeBitmap(mContext, bitmap1, bitmap4, true);
+		Bitmap bitmap6 = BitmapFactory.decodeResource(getResources(), R.drawable.shawn_legend_share_portrait);
+		Bitmap bitmap = CommonUtil.mergeBitmap(mContext, bitmap5, bitmap6, false);
+		CommonUtil.clearBitmap(bitmap5);
+		CommonUtil.clearBitmap(bitmap6);
+		CommonUtil.share(this, bitmap);
 	}
 
 	@Override
@@ -734,16 +733,16 @@ public class StrongStreamActivity extends BaseActivity implements OnClickListene
 			finish();
 			break;
 		case R.id.ivShare:
-			aMap.getMapScreenShot(StrongStreamActivity.this);
+			aMap.getMapScreenShot(this);
 			break;
 		case R.id.ivRadar:
 			if (mOverlay != null) {
 				if (mOverlay.isVisible()) {
 					mOverlay.setVisible(false);
-					ivRadar.setImageResource(R.drawable.fzj_butn_ldoff);
+					ivRadar.setImageResource(R.drawable.shawn_icon_radar_off);
 				}else {
 					mOverlay.setVisible(true);
-					ivRadar.setImageResource(R.drawable.fzj_butn_ld);
+					ivRadar.setImageResource(R.drawable.shawn_icon_radar_on);
 				}
 			}
 			break;
@@ -751,11 +750,11 @@ public class StrongStreamActivity extends BaseActivity implements OnClickListene
 			if (isShowLightingMarkers) {
 				hideLightingMarkers();
 				isShowLightingMarkers = false;
-				ivLighting.setImageResource(R.drawable.fzj_butn_sdoff);
+				ivLighting.setImageResource(R.drawable.shawn_icon_lighting_offf);
 			}else {
 				showLightingMarkers();
 				isShowLightingMarkers = true;
-				ivLighting.setImageResource(R.drawable.fzj_butn_sd);
+				ivLighting.setImageResource(R.drawable.shawn_icon_lighting_onn);
 			}
 			break;
 			case R.id.ivRank:
@@ -826,9 +825,7 @@ public class StrongStreamActivity extends BaseActivity implements OnClickListene
 			mRadarThread.cancel();
 			mRadarThread = null;
 		}
-		if (mReceiver != null) {
-			unregisterReceiver(mReceiver);
-		}
+		unregistBroadCast();
 	}
 
 }

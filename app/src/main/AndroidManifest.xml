@@ -135,7 +135,7 @@
             android:screenOrientation="portrait" />
 
         <activity
-            android:name="com.china.activity.StrongStreamActivity"
+            android:name="com.china.activity.ShawnStrongStreamActivity"
             android:screenOrientation="portrait" />
 
         <activity
@@ -286,7 +286,7 @@
             android:screenOrientation="portrait" />
 
         <activity
-            android:name="com.china.activity.ComprehensiveForecastActivity"
+            android:name="com.china.activity.ShawnComForecastActivity"
             android:screenOrientation="portrait" />
 
         <activity

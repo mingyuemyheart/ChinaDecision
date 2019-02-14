@@ -30,7 +30,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * 城市选择
+ * 城市查询
  */
 public class ShawnCityActivity extends BaseActivity implements OnClickListener {
 
@@ -44,7 +44,7 @@ public class ShawnCityActivity extends BaseActivity implements OnClickListener {
     private List<CityDto> cityList = new ArrayList<>();
 
     //全国热门
-    private GridView nGridView;
+    private GridView gridView;
     private List<CityDto> nList = new ArrayList<>();
 
     @Override
@@ -54,7 +54,7 @@ public class ShawnCityActivity extends BaseActivity implements OnClickListener {
         mContext = this;
         initWidget();
         initListView();
-        initNGridView();
+        initGridView();
     }
 
     /**
@@ -90,16 +90,16 @@ public class ShawnCityActivity extends BaseActivity implements OnClickListener {
                     mListView.setVisibility(View.GONE);
                 }
                 llNation.setVisibility(View.VISIBLE);
-                if (nGridView != null) {
-                    nGridView.setVisibility(View.VISIBLE);
+                if (gridView != null) {
+                    gridView.setVisibility(View.VISIBLE);
                 }
             } else {
                 if (mListView != null) {
                     mListView.setVisibility(View.VISIBLE);
                 }
                 llNation.setVisibility(View.GONE);
-                if (nGridView != null) {
-                    nGridView.setVisibility(View.GONE);
+                if (gridView != null) {
+                    gridView.setVisibility(View.GONE);
                 }
                 getCityInfo(arg0.toString().trim());
             }
@@ -148,7 +148,7 @@ public class ShawnCityActivity extends BaseActivity implements OnClickListener {
     /**
      * 初始化全国热门
      */
-    private void initNGridView() {
+    private void initGridView() {
         nList.clear();
         String[] stations = getResources().getStringArray(R.array.nation_hotCity);
         for (String station : stations) {
@@ -161,10 +161,10 @@ public class ShawnCityActivity extends BaseActivity implements OnClickListener {
             nList.add(dto);
         }
 
-        nGridView = findViewById(R.id.nGridView);
+        gridView = findViewById(R.id.gridView);
         ShawnCityHotAdapter nAdapter = new ShawnCityHotAdapter(mContext, nList);
-        nGridView.setAdapter(nAdapter);
-        nGridView.setOnItemClickListener(new OnItemClickListener() {
+        gridView.setAdapter(nAdapter);
+        gridView.setOnItemClickListener(new OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> arg0, View arg1, int arg2, long arg3) {
                 intentWeatherDetail(nList.get(arg2));

@@ -44,7 +44,7 @@
                 android:layout_below="@+id/tvName"
                 android:layout_marginRight="10dp"
                 android:layout_marginTop="5dp"
-                android:src="@drawable/fzj_butn_sd"/>
+                android:src="@drawable/shawn_icon_lighting_onn"/>
 
             <ImageView
                 android:visibility="gone"
@@ -87,7 +87,7 @@
                 android:layout_above="@+id/ivData"
                 android:layout_marginBottom="5dp"
                 android:layout_marginLeft="10dp"
-                android:src="@drawable/fzj_butn_ldoff"/>
+                android:src="@drawable/shawn_icon_radar_off"/>
 
             <ImageView
                 android:id="@+id/ivData"

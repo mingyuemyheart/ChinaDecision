@@ -9,7 +9,6 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.graphics.Color;
 import android.media.ThumbnailUtils;
 import android.os.Build;
 import android.os.Bundle;
@@ -60,7 +59,6 @@ import com.amap.api.services.geocoder.RegeocodeResult;
 import com.china.R;
 import com.china.common.CONST;
 import com.china.dto.MinuteFallDto;
-import com.china.dto.RadarDto;
 import com.china.dto.WeatherDto;
 import com.china.manager.CaiyunManager;
 import com.china.manager.CaiyunManager.RadarListener;
@@ -80,6 +78,7 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Locale;
 
 import okhttp3.Call;
 import okhttp3.Callback;
@@ -87,9 +86,9 @@ import okhttp3.Request;
 import okhttp3.Response;
 
 /**
- * 分钟级降水
+ * 分钟级降水估测
  */
-public class ShawnMinuteFallActivity extends BaseActivity implements OnClickListener, RadarListener, AMapLocationListener,
+public class ShawnMinuteFallActivity extends BaseActivity implements OnClickListener, AMapLocationListener,
 OnMapClickListener, AMap.OnMarkerClickListener, OnGeocodeSearchListener, OnMapScreenShotListener{
 	
 	private Context mContext;
@@ -192,7 +191,7 @@ OnMapClickListener, AMap.OnMarkerClickListener, OnGeocodeSearchListener, OnMapSc
 
 		mRadarManager = new CaiyunManager(mContext);
 
-		OkHttpCaiyun("http://api.tianqi.cn:8070/v1/img.py");
+		OkHttpCaiyun();
 		if (CommonUtil.isLocationOpen(mContext)) {
 			startLocation();
 		}else {
@@ -386,12 +385,12 @@ OnMapClickListener, AMap.OnMarkerClickListener, OnGeocodeSearchListener, OnMapSc
 	
 	/**
 	 * 获取彩云数据
-	 * @param url
 	 */
-	private void OkHttpCaiyun(final String url) {
+	private void OkHttpCaiyun() {
 		new Thread(new Runnable() {
 			@Override
 			public void run() {
+				final String url = "http://api.tianqi.cn:8070/v1/img.py";
 				OkHttpUtil.enqueue(new Request.Builder().url(url).build(), new Callback() {
 					@Override
 					public void onFailure(Call call, IOException e) {
@@ -442,37 +441,36 @@ OnMapClickListener, AMap.OnMarkerClickListener, OnGeocodeSearchListener, OnMapSc
 			mRadarThread.cancel();
 			mRadarThread = null;
 		}
- 		mRadarManager.loadImagesAsyn(list, this);
-	}
-	
-	@Override
-	public void onResult(int result, List<MinuteFallDto> images) {
-		mHandler.sendEmptyMessage(HANDLER_LOAD_FINISHED);
-		if (result == RadarListener.RESULT_SUCCESSED) {
+ 		mRadarManager.loadImagesAsyn(list, new RadarListener() {
+			@Override
+			public void onResult(int result, List<MinuteFallDto> images) {
+				mHandler.sendEmptyMessage(HANDLER_LOAD_FINISHED);
+				if (result == RadarListener.RESULT_SUCCESSED) {
 //			if (mRadarThread != null) {
 //				mRadarThread.cancel();
 //				mRadarThread = null;
 //			}
 //			mRadarThread = new RadarThread(images);
 //			mRadarThread.start();
-			
-			//把最新的一张降雨图片覆盖在地图上
-			MinuteFallDto radar = images.get(images.size()-1);
-			Message message = mHandler.obtainMessage();
-			message.what = HANDLER_SHOW_RADAR;
-			message.obj = radar;
-			message.arg1 = 100;
-			message.arg2 = 100;
-			mHandler.sendMessage(message);
-		}
-	}
 
-	@Override
-	public void onProgress(String url, int progress) {
-		Message msg = new Message();
-		msg.obj = progress;
-		msg.what = HANDLER_PROGRESS;
-		mHandler.sendMessage(msg);
+					//把最新的一张降雨图片覆盖在地图上
+					MinuteFallDto radar = images.get(images.size()-1);
+					Message message = mHandler.obtainMessage();
+					message.what = HANDLER_SHOW_RADAR;
+					message.obj = radar;
+					message.arg1 = 100;
+					message.arg2 = 100;
+					mHandler.sendMessage(message);
+				}
+			}
+			@Override
+			public void onProgress(String url, int progress) {
+				Message msg = new Message();
+				msg.obj = progress;
+				msg.what = HANDLER_PROGRESS;
+				mHandler.sendMessage(msg);
+			}
+		});
 	}
 	
 	private void showRadar(Bitmap bitmap, double p1, double p2, double p3, double p4) {
@@ -624,13 +622,12 @@ OnMapClickListener, AMap.OnMarkerClickListener, OnGeocodeSearchListener, OnMapSc
 		}
 	}
 	
-	@SuppressLint("SimpleDateFormat")
 	private void changeProgress(long time, int progress, int max) {
 		if (seekBar != null) {
 			seekBar.setMax(max);
 			seekBar.setProgress(progress);
 		}
-		SimpleDateFormat sdf = new SimpleDateFormat("HH:mm");
+		SimpleDateFormat sdf = new SimpleDateFormat("HH:mm", Locale.CHINA);
 		String value = time + "000";
 		Date date = new Date(Long.valueOf(value));
 		tvTime.setText(sdf.format(date));

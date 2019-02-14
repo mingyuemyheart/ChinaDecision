@@ -874,7 +874,7 @@ public class ShawnMainActivity extends BaseActivity implements OnClickListener, 
                         intent.putExtra(CONST.ACTIVITY_NAME, dto.name);
                         startActivity(intent);
                     }else if (TextUtils.equals(dto.id, "111")) {//综合预报
-						intent = new Intent(mContext, ComprehensiveForecastActivity.class);
+						intent = new Intent(mContext, ShawnComForecastActivity.class);
 						intent.putExtra(CONST.ACTIVITY_NAME, dto.name);
 						startActivity(intent);
 					}else if (TextUtils.equals(dto.id, "112")) {//强对流天气实况（新）
@@ -898,7 +898,7 @@ public class ShawnMainActivity extends BaseActivity implements OnClickListener, 
 						intent.putExtra(CONST.WEB_URL, com.china.common.CONST.WAIT_WIND);
 						startActivity(intent);
 					}else if (TextUtils.equals(dto.id, "204")) {//分钟降水与强对流
-						intent = new Intent(mContext, StrongStreamActivity.class);
+						intent = new Intent(mContext, ShawnStrongStreamActivity.class);
 						intent.putExtra(CONST.COLUMN_ID, dto.columnId);
 						intent.putExtra(CONST.ACTIVITY_NAME, dto.name);
 						startActivity(intent);

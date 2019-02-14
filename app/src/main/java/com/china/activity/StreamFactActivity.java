@@ -263,12 +263,12 @@ public class StreamFactActivity extends BaseActivity implements OnClickListener,
 			LatLng latLng = new LatLng(amapLocation.getLatitude(), amapLocation.getLongitude());
 			MarkerOptions options = new MarkerOptions();
 			options.anchor(0.5f, 0.5f);
-			Bitmap bitmap = ThumbnailUtils.extractThumbnail(BitmapFactory.decodeResource(getResources(), R.drawable.iv_map_location),
+			Bitmap bitmap = ThumbnailUtils.extractThumbnail(BitmapFactory.decodeResource(getResources(), R.drawable.shawn_icon_location_point),
 					(int) (CommonUtil.dip2px(mContext, 15)), (int) (CommonUtil.dip2px(mContext, 15)));
 			if (bitmap != null) {
 				options.icon(BitmapDescriptorFactory.fromBitmap(bitmap));
 			} else {
-				options.icon(BitmapDescriptorFactory.fromResource(R.drawable.iv_map_location));
+				options.icon(BitmapDescriptorFactory.fromResource(R.drawable.shawn_icon_location_point));
 			}
 			options.position(latLng);
 			locationMarker = aMap.addMarker(options);
@@ -328,11 +328,11 @@ public class StreamFactActivity extends BaseActivity implements OnClickListener,
 				break;
 			case R.id.ivLighting:
 				if (!isShowLighting) {
-					ivLighting.setImageResource(R.drawable.fzj_butn_sd);
+					ivLighting.setImageResource(R.drawable.shawn_icon_lighting_onn);
 					addLightingMarkers();
 					llSeekBar.setVisibility(View.VISIBLE);
 				}else {
-					ivLighting.setImageResource(R.drawable.fzj_butn_sdoff);
+					ivLighting.setImageResource(R.drawable.shawn_icon_lighting_off);
 					removeLightingMarkers();
 					llSeekBar.setVisibility(View.INVISIBLE);
 				}
@@ -370,7 +370,7 @@ public class StreamFactActivity extends BaseActivity implements OnClickListener,
 				break;
 			case R.id.ivRadar:
 				if (!isShowOverlay) {
-					ivRadar.setImageResource(R.drawable.fzj_butn_ld);
+					ivRadar.setImageResource(R.drawable.shawn_icon_radar_on);
 					if (caiyunThread != null && caiyunThread.getCurrentState() == CaiyunThread.STATE_PLAYING) {
 						caiyunThread.pause();
 					} else if (caiyunThread != null && caiyunThread.getCurrentState() == CaiyunThread.STATE_PAUSE) {
@@ -384,7 +384,7 @@ public class StreamFactActivity extends BaseActivity implements OnClickListener,
 						caiyunThread.start();
 					}
 				}else {
-					ivRadar.setImageResource(R.drawable.fzj_butn_ldoff);
+					ivRadar.setImageResource(R.drawable.shawn_icon_radar_off);
 					if (radarOverlay != null) {
 						radarOverlay.remove();
 						radarOverlay = null;
