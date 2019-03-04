@@ -332,7 +332,7 @@ public class StreamFactActivity extends BaseActivity implements OnClickListener,
 					addLightingMarkers();
 					llSeekBar.setVisibility(View.VISIBLE);
 				}else {
-					ivLighting.setImageResource(R.drawable.shawn_icon_lighting_off);
+					ivLighting.setImageResource(R.drawable.shawn_icon_lighting_offf);
 					removeLightingMarkers();
 					llSeekBar.setVisibility(View.INVISIBLE);
 				}
