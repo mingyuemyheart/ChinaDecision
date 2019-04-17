@@ -39,7 +39,7 @@ import okhttp3.Request;
 import okhttp3.RequestBody;
 import okhttp3.Response;
 
-public class ScreenActivity extends BaseActivity implements OnClickListener{
+public class ScreenActivity extends ShawnBaseActivity implements OnClickListener{
 
 	private Context mContext = null;
 	private LinearLayout llBack = null;

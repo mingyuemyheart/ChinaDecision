@@ -80,7 +80,7 @@ import okhttp3.Response;
  *
  */
 
-public class PointFactActivity extends BaseActivity implements OnClickListener, AMapLocationListener, OnCameraChangeListener, OnMapScreenShotListener{
+public class PointFactActivity extends ShawnBaseActivity implements OnClickListener, AMapLocationListener, OnCameraChangeListener, OnMapScreenShotListener{
 	
 	private Context mContext;
 	private LinearLayout llBack,llShowType;

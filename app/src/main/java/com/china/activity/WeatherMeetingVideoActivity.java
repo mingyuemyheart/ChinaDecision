@@ -31,7 +31,7 @@ import java.util.Map;
  *
  */
 
-public class WeatherMeetingVideoActivity extends BaseActivity implements OnClickListener{
+public class WeatherMeetingVideoActivity extends ShawnBaseActivity implements OnClickListener{
 	
 	private LinearLayout llBack = null;
 	private TextView tvTitle = null;

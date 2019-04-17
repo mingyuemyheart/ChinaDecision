@@ -26,7 +26,7 @@ import java.util.List;
 /**
  * 我的收藏
  */
-public class ShawnCollectionActivity extends BaseActivity implements OnClickListener {
+public class ShawnCollectionActivity extends ShawnBaseActivity implements OnClickListener {
 	
 	private Context mContext;
 	private TextView tvTitle, tvPrompt;

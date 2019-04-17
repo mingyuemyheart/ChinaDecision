@@ -45,7 +45,7 @@ import okhttp3.Response;
  */
 
 @SuppressLint("SimpleDateFormat")
-public class DisasterReportActivity extends BaseActivity implements OnClickListener{
+public class DisasterReportActivity extends ShawnBaseActivity implements OnClickListener{
 	
 	private Context mContext = null;
 	private LinearLayout llBack = null;

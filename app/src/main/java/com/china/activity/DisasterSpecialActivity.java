@@ -39,7 +39,7 @@ import okhttp3.Response;
 /**
  * 灾情专报
  */
-public class DisasterSpecialActivity extends BaseActivity implements OnClickListener{
+public class DisasterSpecialActivity extends ShawnBaseActivity implements OnClickListener{
 	
 	private Context mContext = null;
 	private LinearLayout llBack = null;

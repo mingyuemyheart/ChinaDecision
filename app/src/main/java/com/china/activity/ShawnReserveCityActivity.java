@@ -60,7 +60,7 @@ import okhttp3.Response;
 /**
  * 城市预定
  */
-public class ShawnReserveCityActivity extends BaseActivity implements View.OnClickListener {
+public class ShawnReserveCityActivity extends ShawnBaseActivity implements View.OnClickListener {
     
     private Context mContext;
     private ShawnReserveCityAdapter mAdapter;

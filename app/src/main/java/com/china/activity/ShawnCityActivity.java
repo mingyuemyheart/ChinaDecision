@@ -32,7 +32,7 @@ import java.util.List;
 /**
  * 城市查询
  */
-public class ShawnCityActivity extends BaseActivity implements OnClickListener {
+public class ShawnCityActivity extends ShawnBaseActivity implements OnClickListener {
 
     private Context mContext;
     private TextView tvTitle;

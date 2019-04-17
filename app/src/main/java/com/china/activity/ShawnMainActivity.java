@@ -17,6 +17,7 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
+import android.os.Parcelable;
 import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
@@ -54,7 +55,7 @@ import com.china.common.MyApplication;
 import com.china.dto.NewsDto;
 import com.china.dto.WarningDto;
 import com.china.dto.WeatherDto;
-import com.china.fragment.PdfFragment;
+import com.china.fragment.ShawnPdfFragment;
 import com.china.manager.DBManager;
 import com.china.manager.DataCleanManager;
 import com.china.utils.AuthorityUtil;
@@ -92,7 +93,7 @@ import okhttp3.Response;
 /**
  * 主界面
  */
-public class ShawnMainActivity extends BaseActivity implements OnClickListener, AMapLocationListener, MyApplication.NavigationListener{
+public class ShawnMainActivity extends ShawnBaseActivity implements OnClickListener, AMapLocationListener, MyApplication.NavigationListener{
 	
 	private Context mContext;
 	private TextView tvLocation,tvTime,tvTemperature,tvHumidity,tvWind,tvQuality,tvFifteen,tvHour;
@@ -106,7 +107,8 @@ public class ShawnMainActivity extends BaseActivity implements OnClickListener, 
 	private LatLng locationLatLng = new LatLng(39.904030, 116.407526);
 	private String cityName = "北京市",cityId = "101010100";
 	private ShawnMainAdapter mAdapter;
-	private ArrayList<ColumnData> channelList = new ArrayList<>();
+	private List<ColumnData> dataList = new ArrayList<>();
+	private List<ColumnData> intentList = new ArrayList<>();
 	private int width = 0, height = 0, min = 0, index = 0;
 	private float density = 0;
 	private HourView hourView;//逐小时view
@@ -225,6 +227,10 @@ public class ShawnMainActivity extends BaseActivity implements OnClickListener, 
 		llRecommend.setOnClickListener(this);
         LinearLayout llScreen = findViewById(R.id.llScreen);
 		llScreen.setOnClickListener(this);
+		LinearLayout llControl = findViewById(R.id.llControl);
+		llControl.setOnClickListener(this);
+		LinearLayout llProduct = findViewById(R.id.llProduct);
+		llProduct.setOnClickListener(this);
 
 		getDisplayWidthHeight();
 
@@ -259,7 +265,9 @@ public class ShawnMainActivity extends BaseActivity implements OnClickListener, 
 	private void refresh() {
 		try {
 			String cache = DataCleanManager.getCacheSize(mContext);
-			tvCache.setText(cache);
+			if (!TextUtils.isEmpty(cache)) {
+				tvCache.setText(cache);
+			}
 		} catch (Exception e) {
 			e.printStackTrace();
 		} 
@@ -640,7 +648,7 @@ public class ShawnMainActivity extends BaseActivity implements OnClickListener, 
 		pdfList.clear();
 		pdfList.addAll(getIntent().getExtras().<NewsDto>getParcelableArrayList("pdfList"));
 		for (int i = 0; i < pdfList.size(); i++) {
-			Fragment fragment = new PdfFragment();
+			Fragment fragment = new ShawnPdfFragment();
 			Bundle bundle = new Bundle();
 			bundle.putParcelable("data", pdfList.get(i));
 			fragment.setArguments(bundle);
@@ -758,24 +766,43 @@ public class ShawnMainActivity extends BaseActivity implements OnClickListener, 
 		}
 	};
 
-	private void initGridView() {
-		channelList.clear();
+	private void setGridViewData() {
 		if (!getIntent().hasExtra("dataList")) {
 			return;
 		}
-		List<ColumnData> dataList = getIntent().getExtras().getParcelableArrayList("dataList");
-		if (dataList == null || dataList.size() <= 0) {
+		List<ColumnData> list = getIntent().getExtras().getParcelableArrayList("dataList");
+		if (list == null || list.size() <= 0) {
 			return;
 		}
-		channelList.addAll(dataList);
+		intentList.clear();
+		intentList.addAll(list);
+		dataList.clear();
+		String columnIds = MyApplication.getColumnIds(this);
+		if (!TextUtils.isEmpty(columnIds)) {
+			for (int i = 0; i < list.size(); i++) {
+				ColumnData dto = list.get(i);
+				if (columnIds.contains(dto.columnId)) {//已经有保存的栏目
+					dataList.add(dto);
+				}
+			}
+		}else {
+			dataList.addAll(list);
+		}
+		if (mAdapter != null) {
+			mAdapter.notifyDataSetChanged();
+		}
+	}
+
+	private void initGridView() {
+		setGridViewData();
         ScrollviewGridview gridView = findViewById(R.id.gridView);
-		mAdapter = new ShawnMainAdapter(mContext, channelList);
+		mAdapter = new ShawnMainAdapter(mContext, dataList);
 		gridView.setAdapter(mAdapter);
 		onLayoutMeasure();
 		gridView.setOnItemClickListener(new OnItemClickListener() {
 			@Override
 			public void onItemClick(AdapterView<?> arg0, View arg1, int arg2, long arg3) {
-				ColumnData dto = channelList.get(arg2);
+				ColumnData dto = dataList.get(arg2);
 				Intent intent;
 				if (TextUtils.equals(dto.showType, CONST.PRODUCT)) {
 					if (TextUtils.isEmpty(dto.dataUrl)) {//实况监测、天气预报、专业服务、灾情信息、天气会商
@@ -1075,100 +1102,129 @@ public class ShawnMainActivity extends BaseActivity implements OnClickListener, 
 	public void onClick(View v) {
 		Intent intent;
 		switch (v.getId()) {
-		case R.id.ivSetting:
-			if (drawerlayout.isDrawerOpen(reRight)) {
-				drawerlayout.closeDrawer(reRight);
-			}else {
-				drawerlayout.openDrawer(reRight);
-			}
-			break;
-		case R.id.tvLocation:
-		case R.id.tvTime:
-			intent = new Intent(mContext, ShawnForecastActivity.class);
-			intent.putExtra("cityName", cityName);
-			intent.putExtra("cityId", cityId);
-			startActivity(intent);
-			break;
-		case R.id.ivAdd:
-			intent = new Intent(mContext, ShawnReserveCityActivity.class);
-			intent.putExtra("cityName", cityName);
-			intent.putExtra("cityId", cityId);
-			startActivity(intent);
-			break;
-		case R.id.tvFifteen:
-			if (hScrollView2.getVisibility() == View.VISIBLE) {
-				return;
-			}
-			tvFifteen.setTextColor(Color.WHITE);
-			tvHour.setTextColor(0x60ffffff);
-			reScrollView.setVisibility(View.GONE);
-			hScrollView2.setVisibility(View.VISIBLE);
-			break;
-		case R.id.tvHour:
-			if (hScrollView2.getVisibility() == View.GONE) {
-				return;
-			}
-			tvFifteen.setTextColor(0x60ffffff);
-			tvHour.setTextColor(Color.WHITE);
-			reScrollView.setVisibility(View.VISIBLE);
-			hScrollView2.setVisibility(View.GONE);
-			break;
-		case R.id.llSave:
-			intent = new Intent(mContext, ShawnCollectionActivity.class);
-			intent.putExtra(CONST.ACTIVITY_NAME, getString(R.string.setting_save));
-			startActivity(intent);
-			break;
-		case R.id.llClearCache:
-			dialoaCache(true, getString(R.string.sure_delete_cache), tvCache);
-			break;
-		case R.id.llVersion:
-			intent = new Intent(mContext, ShawnAboutActivity.class);
-			intent.putExtra(CONST.ACTIVITY_NAME, "关于我们");
-			startActivity(intent);
-			break;
-		case R.id.tvLogout:
-			dialogLogout(getString(R.string.sure_logout));
-			break;
-		case R.id.llIntro:
-			intent = new Intent(mContext, ShawnNewsDetailActivity.class);
-			intent.putExtra(CONST.ACTIVITY_NAME, "中国气象局简介");
-			intent.putExtra(CONST.WEB_URL, "http://www.cma.gov.cn/2011zwxx/2011zbmgk/201110/t20111026_117793.html");
-			startActivity(intent);
-			break;
-		case R.id.llFeedBack:
-			intent = new Intent(mContext, ShawnFeedbackActivity.class);
-			intent.putExtra(CONST.ACTIVITY_NAME, getString(R.string.setting_feedback));
-			intent.putExtra(CONST.INTENT_APPID, com.china.common.CONST.APPID);
-			startActivity(intent);
-			break;
-		case R.id.llHotline1:
-			dialogDial(getString(R.string.setting_hotline1)+"\n"+tvHotline1.getText().toString(), getString(R.string.dial));
-			break;
-		case R.id.llHotline2:
-			dialogDial(getString(R.string.setting_hotline2)+"\n"+tvHotline2.getText().toString(), getString(R.string.dial));
-			break;
-		case R.id.llStatistic:
-			intent = new Intent(mContext, ShawnWebviewActivity.class);
-			intent.putExtra(CONST.ACTIVITY_NAME, "周报统计");
-			intent.putExtra(CONST.WEB_URL, CONST.COUNTURL);
-			startActivity(intent);
-			break;
-		case R.id.llRecommend:
-			intent = new Intent(mContext, ShawnWebviewActivity.class);
-			intent.putExtra(CONST.ACTIVITY_NAME, "应用推荐");
-			intent.putExtra(CONST.WEB_URL, CONST.RECOMMENDURL);
-			startActivity(intent);
-			break;
-		case R.id.llScreen:
-			startActivity(new Intent(mContext, ConnectionActivity.class));
-			break;
+			case R.id.ivSetting:
+				if (drawerlayout.isDrawerOpen(reRight)) {
+					drawerlayout.closeDrawer(reRight);
+				}else {
+					drawerlayout.openDrawer(reRight);
+				}
+				break;
+			case R.id.tvLocation:
+			case R.id.tvTime:
+				intent = new Intent(mContext, ShawnForecastActivity.class);
+				intent.putExtra("cityName", cityName);
+				intent.putExtra("cityId", cityId);
+				startActivity(intent);
+				break;
+			case R.id.ivAdd:
+				intent = new Intent(mContext, ShawnReserveCityActivity.class);
+				intent.putExtra("cityName", cityName);
+				intent.putExtra("cityId", cityId);
+				startActivity(intent);
+				break;
+			case R.id.tvFifteen:
+				if (hScrollView2.getVisibility() == View.VISIBLE) {
+					return;
+				}
+				tvFifteen.setTextColor(Color.WHITE);
+				tvHour.setTextColor(0x60ffffff);
+				reScrollView.setVisibility(View.GONE);
+				hScrollView2.setVisibility(View.VISIBLE);
+				break;
+			case R.id.tvHour:
+				if (hScrollView2.getVisibility() == View.GONE) {
+					return;
+				}
+				tvFifteen.setTextColor(0x60ffffff);
+				tvHour.setTextColor(Color.WHITE);
+				reScrollView.setVisibility(View.VISIBLE);
+				hScrollView2.setVisibility(View.GONE);
+				break;
+			case R.id.llSave:
+				intent = new Intent(mContext, ShawnCollectionActivity.class);
+				intent.putExtra(CONST.ACTIVITY_NAME, getString(R.string.setting_save));
+				startActivity(intent);
+				break;
+			case R.id.llClearCache:
+				dialoaCache(true, getString(R.string.sure_delete_cache), tvCache);
+				break;
+			case R.id.llVersion:
+				intent = new Intent(mContext, ShawnAboutActivity.class);
+				intent.putExtra(CONST.ACTIVITY_NAME, "关于我们");
+				startActivity(intent);
+				break;
+			case R.id.tvLogout:
+				dialogLogout(getString(R.string.sure_logout));
+				break;
+			case R.id.llIntro:
+				intent = new Intent(mContext, ShawnNewsDetailActivity.class);
+				intent.putExtra(CONST.ACTIVITY_NAME, "中国气象局简介");
+				intent.putExtra(CONST.WEB_URL, "http://www.cma.gov.cn/2011zwxx/2011zbmgk/201110/t20111026_117793.html");
+				startActivity(intent);
+				break;
+			case R.id.llFeedBack:
+				intent = new Intent(mContext, ShawnFeedbackActivity.class);
+				intent.putExtra(CONST.ACTIVITY_NAME, getString(R.string.setting_feedback));
+				intent.putExtra(CONST.INTENT_APPID, com.china.common.CONST.APPID);
+				startActivity(intent);
+				break;
+			case R.id.llHotline1:
+				dialogDial(getString(R.string.setting_hotline1)+"\n"+tvHotline1.getText().toString(), getString(R.string.dial));
+				break;
+			case R.id.llHotline2:
+				dialogDial(getString(R.string.setting_hotline2)+"\n"+tvHotline2.getText().toString(), getString(R.string.dial));
+				break;
+			case R.id.llStatistic:
+				intent = new Intent(mContext, ShawnWebviewActivity.class);
+				intent.putExtra(CONST.ACTIVITY_NAME, "周报统计");
+				intent.putExtra(CONST.WEB_URL, CONST.COUNTURL);
+				startActivity(intent);
+				break;
+			case R.id.llRecommend:
+				intent = new Intent(mContext, ShawnWebviewActivity.class);
+				intent.putExtra(CONST.ACTIVITY_NAME, "应用推荐");
+				intent.putExtra(CONST.WEB_URL, CONST.RECOMMENDURL);
+				startActivity(intent);
+				break;
+			case R.id.llScreen:
+				startActivity(new Intent(mContext, ConnectionActivity.class));
+				break;
+			case R.id.llControl:
+				intent = new Intent(mContext, ShawnManageActivity.class);
+				Bundle bundle = new Bundle();
+				bundle.putParcelableArrayList("dataList", (ArrayList<? extends Parcelable>) intentList);
+				intent.putExtras(bundle);
+				startActivityForResult(intent, 1001);
+				break;
+			case R.id.llProduct:
+				startActivity(new Intent(mContext, ShawnProductOrderActivity.class));
+				break;
 
 		default:
 			break;
 		}
 	}
 
-    @Override
+	@Override
+	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+		super.onActivityResult(requestCode, resultCode, data);
+		if (resultCode == RESULT_OK) {
+			switch (requestCode) {
+				case 1001:
+					if (data != null) {
+						String columnIds = data.getStringExtra("columnIds");
+						if (!TextUtils.isEmpty(columnIds)) {
+							Log.e("columnIds", columnIds);
+							MyApplication.saveColumnIds(this, columnIds);
+							setGridViewData();
+						}
+					}
+					break;
+			}
+		}
+	}
+
+	@Override
     public void showNavigation(boolean show) {
         onLayoutMeasure();
     }

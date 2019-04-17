@@ -180,4 +180,22 @@ public class MyApplication extends Application{
 		PASSWORD = sharedPreferences.getString(UserInfo.passWord, "");
 	}
 
+	/**
+	 * 保存columnIds
+	 */
+	public static void saveColumnIds(Context context, String columnIds) {
+		SharedPreferences sharedPreferences = context.getSharedPreferences("COLUMNIDS", Context.MODE_PRIVATE);
+		SharedPreferences.Editor editor = sharedPreferences.edit();
+		editor.putString("columnIds", columnIds);
+		editor.apply();
+	}
+
+	/**
+	 * 获取columnIds
+	 */
+	public static String getColumnIds(Context context) {
+		SharedPreferences sharedPreferences = context.getSharedPreferences("COLUMNIDS", Context.MODE_PRIVATE);
+		return sharedPreferences.getString("columnIds", "");
+	}
+
 }

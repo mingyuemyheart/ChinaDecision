@@ -41,7 +41,7 @@ import okhttp3.Response;
 /**
  * 预警统计列表
  */
-public class ShawnWarningStatisticListActivity extends BaseActivity implements View.OnClickListener {
+public class ShawnWarningStatisticListActivity extends ShawnBaseActivity implements View.OnClickListener {
 
     private Context mContext;
     private AVLoadingIndicatorView loadingView;

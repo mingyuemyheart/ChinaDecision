@@ -35,7 +35,7 @@ import okhttp3.Response;
 /**
  * 预警统计
  */
-public class ShawnWarningStatisticActivity extends BaseActivity implements View.OnClickListener {
+public class ShawnWarningStatisticActivity extends ShawnBaseActivity implements View.OnClickListener {
 
     private Context mContext;
     private TextView tvTitle,tvTime;

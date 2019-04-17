@@ -40,7 +40,7 @@ import java.util.Locale;
 /**
  * 站点排行搜索
  */
-public class ShawnFactRankSearchActivity extends BaseActivity implements OnClickListener{
+public class ShawnFactRankSearchActivity extends ShawnBaseActivity implements OnClickListener{
 	
 	private Context mContext;
 	private TextView tvStartTime,tvEndTime,tvArea,tvContent;

@@ -78,7 +78,7 @@ import okhttp3.Response;
 /**
  * 空气质量
  */
-public class ShawnAirQualityActivity extends BaseActivity implements OnClickListener, OnMarkerClickListener,
+public class ShawnAirQualityActivity extends ShawnBaseActivity implements OnClickListener, OnMarkerClickListener,
 OnMapClickListener, OnCameraChangeListener, OnMapScreenShotListener{
 	
 	private Context mContext;

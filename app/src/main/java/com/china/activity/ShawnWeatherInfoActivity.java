@@ -39,7 +39,7 @@ import okhttp3.Response;
 /**
  * 天气资讯
  */
-public class ShawnWeatherInfoActivity extends BaseActivity implements OnClickListener {
+public class ShawnWeatherInfoActivity extends ShawnBaseActivity implements OnClickListener {
 	
 	private Context mContext;
 	private TextView tvTitle;

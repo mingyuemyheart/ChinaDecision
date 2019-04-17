@@ -1,0 +1,442 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:background="@color/white"
+                android:orientation="vertical">
+
+    <include
+        android:id="@+id/reTitle"
+        layout="@layout/shawn_layout_title"/>
+
+    <LinearLayout
+        android:id="@+id/llMail"
+        android:layout_width="match_parent"
+        android:layout_height="40dp"
+        android:layout_below="@+id/reTitle"
+        android:layout_marginTop="10dp"
+        android:background="@drawable/shawn_selector_setting_item"
+        android:gravity="center_vertical"
+        android:paddingStart="15dp"
+        android:paddingEnd="15dp">
+
+        <TextView
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="5dp"
+            android:layout_weight="1"
+            android:text="接收邮箱"
+            android:textColor="@color/text_color3"
+            android:textSize="@dimen/level_4"/>
+
+        <TextView
+            android:id="@+id/tvMail"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="10dp"
+            android:textColor="@color/text_color4"
+            android:textSize="@dimen/level_4"/>
+
+        <ImageView
+            android:layout_width="20dp"
+            android:layout_height="20dp"
+            android:background="@drawable/shawn_icon_arrow_right"/>
+    </LinearLayout>
+
+    <TextView
+        android:id="@+id/divider1"
+        android:layout_width="match_parent"
+        android:layout_height="0.5dp"
+        android:layout_below="@+id/llMail"
+        android:layout_marginStart="15dp"
+        android:layout_marginEnd="15dp"
+        android:background="@color/light_gray"/>
+
+    <LinearLayout
+        android:id="@+id/llReceiveTime"
+        android:layout_width="match_parent"
+        android:layout_height="40dp"
+        android:layout_below="@+id/divider1"
+        android:background="@drawable/shawn_selector_setting_item"
+        android:gravity="center_vertical"
+        android:paddingStart="15dp"
+        android:paddingEnd="15dp">
+
+        <TextView
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="5dp"
+            android:layout_weight="1"
+            android:text="接收时间"
+            android:textColor="@color/text_color3"
+            android:textSize="@dimen/level_4"/>
+
+        <TextView
+            android:id="@+id/tvReceiveTime"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="10dp"
+            android:textColor="@color/text_color4"
+            android:textSize="@dimen/level_4"/>
+
+        <ImageView
+            android:layout_width="20dp"
+            android:layout_height="20dp"
+            android:background="@drawable/shawn_icon_arrow_right"/>
+    </LinearLayout>
+
+    <TextView
+        android:id="@id/divider2"
+        android:layout_width="match_parent"
+        android:layout_height="0.5dp"
+        android:layout_below="@+id/llReceiveTime"
+        android:layout_marginStart="15dp"
+        android:layout_marginEnd="15dp"
+        android:background="@color/light_gray"/>
+
+    <LinearLayout
+        android:id="@+id/llStartTime"
+        android:layout_width="match_parent"
+        android:layout_height="40dp"
+        android:layout_below="@+id/divider2"
+        android:background="@drawable/shawn_selector_setting_item"
+        android:gravity="center_vertical"
+        android:paddingStart="15dp"
+        android:paddingEnd="15dp">
+
+        <TextView
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="5dp"
+            android:layout_weight="1"
+            android:text="开始时间"
+            android:textColor="@color/text_color3"
+            android:textSize="@dimen/level_4"/>
+
+        <TextView
+            android:id="@+id/tvStartTime"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="10dp"
+            android:textColor="@color/text_color4"
+            android:textSize="@dimen/level_4"/>
+
+        <ImageView
+            android:layout_width="20dp"
+            android:layout_height="20dp"
+            android:background="@drawable/shawn_icon_arrow_right"/>
+    </LinearLayout>
+
+    <TextView
+        android:id="@+id/divider3"
+        android:layout_width="match_parent"
+        android:layout_height="0.5dp"
+        android:layout_below="@+id/llStartTime"
+        android:layout_marginStart="15dp"
+        android:layout_marginEnd="15dp"
+        android:background="@color/light_gray"/>
+
+    <LinearLayout
+        android:id="@+id/llLoseTime"
+        android:layout_width="match_parent"
+        android:layout_height="40dp"
+        android:layout_below="@+id/divider3"
+        android:layout_marginBottom="20dp"
+        android:background="@drawable/shawn_selector_setting_item"
+        android:gravity="center_vertical"
+        android:paddingStart="15dp"
+        android:paddingEnd="15dp">
+
+        <TextView
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="5dp"
+            android:layout_weight="1"
+            android:text="失效时间"
+            android:textColor="@color/text_color3"
+            android:textSize="@dimen/level_4"/>
+
+        <TextView
+            android:id="@+id/tvLoseTime"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="10dp"
+            android:textColor="@color/text_color4"
+            android:textSize="@dimen/level_4"/>
+
+        <ImageView
+            android:layout_width="20dp"
+            android:layout_height="20dp"
+            android:background="@drawable/shawn_icon_arrow_right"/>
+    </LinearLayout>
+
+    <TextView
+        android:id="@+id/divider4"
+        android:layout_width="match_parent"
+        android:layout_height="10dp"
+        android:layout_below="@+id/llLoseTime"
+        android:background="@color/light_gray"/>
+
+    <TextView
+        android:id="@+id/tvOrder"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/divider4"
+        android:layout_marginStart="20dp"
+        android:layout_marginTop="30dp"
+        android:text="订阅内容"
+        android:textColor="@color/text_color3"
+        android:textSize="@dimen/level_4"
+        android:textStyle="bold"/>
+
+    <LinearLayout
+        android:id="@+id/llOrder1"
+        android:layout_width="match_parent"
+        android:layout_height="40dp"
+        android:layout_below="@+id/tvOrder"
+        android:layout_marginTop="10dp"
+        android:background="@drawable/shawn_selector_setting_item"
+        android:gravity="center_vertical"
+        android:paddingStart="15dp"
+        android:paddingEnd="15dp">
+
+        <TextView
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="5dp"
+            android:layout_weight="1"
+            android:text="灾害预警服务快报"
+            android:textColor="@color/text_color3"
+            android:textSize="@dimen/level_4"/>
+
+        <TextView
+            android:id="@+id/tvOrder1"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="@drawable/shawn_btn_order_gray"
+            android:gravity="center"
+            android:text="订阅"
+            android:textColor="@color/text_color4"
+            android:textSize="@dimen/level_6"/>
+    </LinearLayout>
+
+    <TextView
+        android:id="@+id/divider5"
+        android:layout_width="match_parent"
+        android:layout_height="0.5dp"
+        android:layout_below="@+id/llOrder1"
+        android:layout_marginStart="15dp"
+        android:layout_marginEnd="15dp"
+        android:background="@color/light_gray"/>
+
+    <LinearLayout
+        android:id="@+id/llOrder2"
+        android:layout_width="match_parent"
+        android:layout_height="40dp"
+        android:layout_below="@+id/divider5"
+        android:background="@drawable/shawn_selector_setting_item"
+        android:gravity="center_vertical"
+        android:paddingStart="15dp"
+        android:paddingEnd="15dp">
+
+        <TextView
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="5dp"
+            android:layout_weight="1"
+            android:text="重大气象信息专报"
+            android:textColor="@color/text_color3"
+            android:textSize="@dimen/level_4"/>
+
+        <TextView
+            android:id="@+id/tvOrder2"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="@drawable/shawn_btn_order_gray"
+            android:gravity="center"
+            android:text="订阅"
+            android:textColor="@color/text_color4"
+            android:textSize="@dimen/level_6"/>
+    </LinearLayout>
+
+    <TextView
+        android:id="@+id/divider6"
+        android:layout_width="match_parent"
+        android:layout_height="0.5dp"
+        android:layout_below="@+id/llOrder2"
+        android:layout_marginStart="15dp"
+        android:layout_marginEnd="15dp"
+        android:background="@color/light_gray"/>
+
+    <LinearLayout
+        android:id="@+id/llOrder3"
+        android:layout_width="match_parent"
+        android:layout_height="40dp"
+        android:layout_below="@+id/divider6"
+        android:background="@drawable/shawn_selector_setting_item"
+        android:gravity="center_vertical"
+        android:paddingStart="15dp"
+        android:paddingEnd="15dp">
+
+        <TextView
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="5dp"
+            android:layout_weight="1"
+            android:text="两办刊物信息"
+            android:textColor="@color/text_color3"
+            android:textSize="@dimen/level_4"/>
+
+        <TextView
+            android:id="@+id/tvOrder3"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="@drawable/shawn_btn_order_gray"
+            android:gravity="center"
+            android:text="订阅"
+            android:textColor="@color/text_color4"
+            android:textSize="@dimen/level_6"/>
+    </LinearLayout>
+
+    <TextView
+        android:id="@+id/divider7"
+        android:layout_width="match_parent"
+        android:layout_height="0.5dp"
+        android:layout_below="@+id/llOrder3"
+        android:layout_marginStart="15dp"
+        android:layout_marginEnd="15dp"
+        android:background="@color/light_gray"/>
+
+    <LinearLayout
+        android:id="@+id/llOrder4"
+        android:layout_width="match_parent"
+        android:layout_height="40dp"
+        android:layout_below="@+id/divider7"
+        android:background="@drawable/shawn_selector_setting_item"
+        android:gravity="center_vertical"
+        android:paddingStart="15dp"
+        android:paddingEnd="15dp">
+
+        <TextView
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="5dp"
+            android:layout_weight="1"
+            android:text="春运气象服务专报"
+            android:textColor="@color/text_color3"
+            android:textSize="@dimen/level_4"/>
+
+        <TextView
+            android:id="@+id/tvOrder4"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="@drawable/shawn_btn_order_gray"
+            android:gravity="center"
+            android:text="订阅"
+            android:textColor="@color/text_color4"
+            android:textSize="@dimen/level_6"/>
+    </LinearLayout>
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="0.5dp"
+        android:layout_below="@+id/llOrder4"
+        android:layout_marginStart="15dp"
+        android:layout_marginEnd="15dp"
+        android:background="@color/light_gray"/>
+
+    <RelativeLayout
+        android:id="@+id/reLayout"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_below="@+id/reTitle"
+        android:padding="10dp"
+        android:background="#90000000"
+        android:visibility="gone">
+
+        <LinearLayout
+            android:layout_above="@+id/divider8"
+            android:id="@+id/llWheel"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:paddingTop="10dp"
+            android:paddingBottom="10dp"
+            android:background="@drawable/shawn_bg_corner_top_white">
+
+            <com.china.wheelview.WheelView
+                android:id="@+id/year"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:layout_weight="1"/>
+
+            <com.china.wheelview.WheelView
+                android:id="@+id/month"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:layout_weight="1"/>
+
+            <com.china.wheelview.WheelView
+                android:id="@+id/day"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:layout_weight="1"/>
+
+            <com.china.wheelview.WheelView
+                android:id="@+id/hour"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:layout_weight="1"/>
+
+        </LinearLayout>
+
+        <TextView
+            android:id="@+id/divider8"
+            android:layout_above="@+id/llButton"
+            android:layout_width="match_parent"
+            android:layout_height="0.5dp"
+            android:background="@color/light_gray"/>
+
+        <LinearLayout
+            android:id="@+id/llButton"
+            android:layout_width="match_parent"
+            android:layout_height="40dp"
+            android:gravity="center_vertical"
+            android:layout_alignParentBottom="true"
+            android:orientation="horizontal">
+
+            <TextView
+                android:id="@+id/tvNegtive"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:gravity="center"
+                android:background="@drawable/pgy_left_btn"
+                android:text="取消"
+                android:textColor="@color/text_color2"
+                android:textSize="@dimen/level_3"/>
+
+            <TextView
+                android:layout_width="0.5dp"
+                android:layout_height="match_parent"
+                android:background="@color/light_gray"/>
+
+            <TextView
+                android:id="@+id/tvPositive"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:background="@drawable/pgy_right_btn"
+                android:layout_weight="1"
+                android:gravity="center"
+                android:text="确定"
+                android:textColor="@color/white"
+                android:textSize="@dimen/level_3"/>
+
+        </LinearLayout>
+
+    </RelativeLayout>
+
+</RelativeLayout>

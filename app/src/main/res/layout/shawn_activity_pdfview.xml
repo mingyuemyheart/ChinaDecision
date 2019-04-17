@@ -1,27 +1,60 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:orientation="vertical" >
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:orientation="vertical">
 
     <include
         android:id="@+id/reTitle"
-        layout="@layout/shawn_layout_title" />
+        layout="@layout/shawn_layout_title"/>
 
     <com.github.barteksc.pdfviewer.PDFView
         android:id="@+id/pdfView"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_below="@+id/reTitle" />
+        android:layout_below="@+id/reTitle"/>
 
     <TextView
-        android:background="@drawable/shawn_bg_corner_dialog"
-        android:text="0%"
         android:id="@+id/tvPercent"
-        android:gravity="center"
         android:layout_width="40dp"
         android:layout_height="40dp"
         android:layout_centerInParent="true"
+        android:background="@drawable/shawn_bg_corner_dialog"
+        android:gravity="center"
+        android:text="0%"
         android:textColor="@color/white"
-        android:textSize="@dimen/level_5" />
+        android:textSize="@dimen/level_5"/>
+
+    <com.china.view.MyRatingBar
+        xmlns:app="http://schemas.android.com/apk/res-auto"
+        android:id="@+id/ratingBar"
+        android:visibility="gone"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_above="@+id/tvFeedback"
+        android:layout_centerHorizontal="true"
+        android:layout_gravity="center"
+        app:selectedNumber="0"
+        app:starDistance="10dp"
+        app:starEmptyRes="@drawable/shawn_icon_ratingbar"
+        app:starHeight="30dp"
+        app:starIsFull="false"
+        app:starSelectedRes="@drawable/shawn_icon_ratingbar_press"
+        app:starWidth="30dp"
+        app:startTotalNumber="5"/>
+
+    <TextView
+        android:id="@+id/tvFeedback"
+        android:visibility="gone"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="10dp"
+        android:layout_marginBottom="10dp"
+        android:background="@drawable/shawn_selector_feedback"
+        android:gravity="center"
+        android:text="更多反馈"
+        android:textColor="@color/text_color3"
+        android:textSize="@dimen/level_4"/>
 
 </RelativeLayout>

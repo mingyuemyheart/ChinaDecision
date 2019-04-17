@@ -61,7 +61,7 @@ import uk.co.senab.photoview.PhotoViewAttacher;
 /**
  * 天气雷达详情
  */
-public class ShawnRadarDetailActivity extends BaseActivity implements OnClickListener, RadarManager.RadarListener {
+public class ShawnRadarDetailActivity extends ShawnBaseActivity implements OnClickListener, RadarManager.RadarListener {
 
 	private Context mContext;
 	private List<RadarDto> radarList = new ArrayList<>();

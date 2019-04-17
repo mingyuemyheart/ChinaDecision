@@ -66,7 +66,7 @@ import okhttp3.Response;
 /**
  * 分钟降水与强对流
  */
-public class ShawnStrongStreamActivity extends BaseActivity implements OnClickListener, OnMapScreenShotListener{
+public class ShawnStrongStreamActivity extends ShawnBaseActivity implements OnClickListener, OnMapScreenShotListener{
 	
 	private Context mContext;
 	private TextView tvTitle;

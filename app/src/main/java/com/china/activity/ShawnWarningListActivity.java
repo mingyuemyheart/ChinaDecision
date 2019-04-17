@@ -42,7 +42,7 @@ import java.util.List;
 /**
  * 预警列表
  */
-public class ShawnWarningListActivity extends BaseActivity implements OnClickListener {
+public class ShawnWarningListActivity extends ShawnBaseActivity implements OnClickListener {
 	
 	private Context mContext;
 	private ListView cityListView;

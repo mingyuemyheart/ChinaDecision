@@ -57,7 +57,7 @@ import okhttp3.Response;
 /**
  * 实况监测详情
  */
-public class ShawnFactRankDetailActivity extends BaseActivity implements OnClickListener{
+public class ShawnFactRankDetailActivity extends ShawnBaseActivity implements OnClickListener{
 	
 	private Context mContext = null;
 	private LinearLayout llBack = null;

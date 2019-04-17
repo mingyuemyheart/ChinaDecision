@@ -31,7 +31,7 @@ import okhttp3.Response;
 /**
  * 意见反馈
  */
-public class ShawnFeedbackActivity extends BaseActivity implements OnClickListener{
+public class ShawnFeedbackActivity extends ShawnBaseActivity implements OnClickListener{
 	
 	private Context mContext;
 	private EditText etContent;

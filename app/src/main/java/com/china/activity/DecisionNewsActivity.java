@@ -42,7 +42,7 @@ import okhttp3.Response;
  * @author shawn_sun
  *
  */
-public class DecisionNewsActivity extends BaseActivity implements OnClickListener{
+public class DecisionNewsActivity extends ShawnBaseActivity implements OnClickListener{
 	
 	private Context mContext = null;
 	private LinearLayout llBack = null;

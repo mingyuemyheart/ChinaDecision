@@ -16,7 +16,7 @@ import android.widget.TextView;
 import com.china.R;
 import com.china.common.CONST;
 
-public class EmptyActivity extends BaseActivity implements OnClickListener {
+public class EmptyActivity extends ShawnBaseActivity implements OnClickListener {
 	
 	private Context mContext = null;
 	private LinearLayout llBack = null;

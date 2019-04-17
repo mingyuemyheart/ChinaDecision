@@ -38,7 +38,7 @@ import okhttp3.Response;
 /**
  * 预警筛选选择区域
  */
-public class ShawnWarningStatisticScreenAreaActivity extends BaseActivity implements OnClickListener {
+public class ShawnWarningStatisticScreenAreaActivity extends ShawnBaseActivity implements OnClickListener {
 
     private Context mContext;
     private EditText etSearch;

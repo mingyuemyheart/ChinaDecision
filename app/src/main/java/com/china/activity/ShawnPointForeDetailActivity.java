@@ -45,7 +45,7 @@ import okhttp3.Response;
 /**
  * 格点预报详情
  */
-public class ShawnPointForeDetailActivity extends BaseActivity implements View.OnClickListener, GeocodeSearch.OnGeocodeSearchListener {
+public class ShawnPointForeDetailActivity extends ShawnBaseActivity implements View.OnClickListener, GeocodeSearch.OnGeocodeSearchListener {
 
     private Context mContext;
     private TextView tvName,tvPublishTime;

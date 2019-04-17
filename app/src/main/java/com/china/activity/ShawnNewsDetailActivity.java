@@ -36,7 +36,7 @@ import java.util.Map;
 /**
  * 天气资讯详情，底部带有分享、收藏等功能
  */
-public class ShawnNewsDetailActivity extends BaseActivity implements OnClickListener{
+public class ShawnNewsDetailActivity extends ShawnBaseActivity implements OnClickListener{
 
 	private Context mContext;
 	private TextView tvTitle;

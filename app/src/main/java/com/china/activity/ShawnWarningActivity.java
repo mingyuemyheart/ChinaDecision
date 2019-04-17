@@ -94,7 +94,7 @@ import okhttp3.Response;
 /**
  * 预警
  */
-public class ShawnWarningActivity extends BaseActivity implements OnClickListener, AMapLocationListener, OnMapClickListener,
+public class ShawnWarningActivity extends ShawnBaseActivity implements OnClickListener, AMapLocationListener, OnMapClickListener,
 OnMarkerClickListener, InfoWindowAdapter, OnCameraChangeListener, OnMapScreenShotListener{
 	
 	private Context mContext;

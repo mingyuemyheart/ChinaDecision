@@ -59,7 +59,7 @@ import okhttp3.Response;
 /**
  * 社会化观测
  */
-public class ShawnSocietyObserveActivity extends BaseActivity implements OnClickListener, OnMarkerClickListener,
+public class ShawnSocietyObserveActivity extends ShawnBaseActivity implements OnClickListener, OnMarkerClickListener,
 OnMapClickListener, InfoWindowAdapter, OnMapScreenShotListener{
 	
 	private Context mContext;

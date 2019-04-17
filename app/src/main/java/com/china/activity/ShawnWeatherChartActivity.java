@@ -47,7 +47,7 @@ import okhttp3.Response;
 /**
  * 天气图分析
  */
-public class ShawnWeatherChartActivity extends BaseActivity implements View.OnClickListener, AMap.OnMapScreenShotListener {
+public class ShawnWeatherChartActivity extends ShawnBaseActivity implements View.OnClickListener, AMap.OnMapScreenShotListener {
 
     private Context mContext;
     private TextView tvTitle,tvTime;

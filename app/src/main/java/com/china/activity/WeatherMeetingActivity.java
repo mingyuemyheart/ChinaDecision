@@ -45,7 +45,7 @@ import okhttp3.Response;
  *
  */
 
-public class WeatherMeetingActivity extends BaseActivity implements OnClickListener{
+public class WeatherMeetingActivity extends ShawnBaseActivity implements OnClickListener{
 	
 	private Context mContext = this;
 	private LinearLayout llBack = null;

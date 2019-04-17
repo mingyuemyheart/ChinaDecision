@@ -78,7 +78,7 @@ import okhttp3.Response;
 /**
  * 等风来
  */
-public class ShawnWaitWindActivity extends BaseActivity implements OnClickListener, AMap.OnMapScreenShotListener, OnCameraChangeListener,
+public class ShawnWaitWindActivity extends ShawnBaseActivity implements OnClickListener, AMap.OnMapScreenShotListener, OnCameraChangeListener,
         AMap.OnMapClickListener,AMapLocationListener {
 
     private Context mContext;

@@ -46,7 +46,7 @@ import okhttp3.Response;
 /**
  * 登录界面
  */
-public class ShawnLoginActivity extends BaseActivity implements OnClickListener, AMapLocationListener{
+public class ShawnLoginActivity extends ShawnBaseActivity implements OnClickListener, AMapLocationListener{
 	
 	private Context mContext = null;
 	private EditText etUserName,etPwd;
@@ -200,6 +200,7 @@ public class ShawnLoginActivity extends BaseActivity implements OnClickListener,
 														for (int j = 0; j < childArray.length(); j++) {
 															JSONObject childObj = childArray.getJSONObject(j);
 															ColumnData dto = new ColumnData();
+															dto.groupColumnId = data.columnId;
 															if (!childObj.isNull("id")) {
 																dto.columnId = childObj.getString("id");
 															}

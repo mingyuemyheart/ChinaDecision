@@ -1,13 +1,11 @@
 package com.china.activity;
 
 import android.Manifest;
-import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
-import android.net.Uri;
 import android.net.wifi.WifiInfo;
 import android.net.wifi.WifiManager;
 import android.os.Build;
@@ -39,7 +37,7 @@ import java.net.URISyntaxException;
  *
  */
 
-public class ConnectionActivity extends BaseActivity implements OnClickListener{
+public class ConnectionActivity extends ShawnBaseActivity implements OnClickListener{
 
 	private Context mContext = null;
 	private LinearLayout llBack = null;

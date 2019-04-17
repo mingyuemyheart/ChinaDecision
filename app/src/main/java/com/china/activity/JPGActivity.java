@@ -25,7 +25,7 @@ import net.tsz.afinal.FinalBitmap;
  *
  */
 
-public class JPGActivity extends BaseActivity implements OnClickListener{
+public class JPGActivity extends ShawnBaseActivity implements OnClickListener{
 	
 	private Context mContext = null;
 	private TextView tvTitle = null;

@@ -36,7 +36,7 @@ import java.util.List;
 /**
  * 左右切换的预警界面
  */
-public class ShawnHeadWarningActivity extends BaseActivity implements OnClickListener{
+public class ShawnHeadWarningActivity extends ShawnBaseActivity implements OnClickListener{
 	
 	private Context mContext;
 	private MainViewPager viewPager;

@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+              android:layout_width="match_parent"
+              android:layout_height="match_parent"
+              android:background="@color/white"
+              android:orientation="vertical">
+
+    <include
+        android:id="@+id/reTitle"
+        layout="@layout/shawn_layout_title" />
+
+    <EditText
+        android:id="@+id/etMail"
+        android:layout_margin="15dp"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:textColor="@color/text_color3"
+        android:textSize="@dimen/level_4"
+        android:background="@drawable/shawn_bg_corner_edittext2"
+        android:padding="10dp"
+        android:textColorHint="@color/text_color4"
+        android:hint="请输入接收邮箱"/>
+
+</LinearLayout>

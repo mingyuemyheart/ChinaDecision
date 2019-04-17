@@ -21,18 +21,14 @@ import net.tsz.afinal.FinalBitmap;
 /**
  * 首页pdf文档
  */
+public class ShawnPdfFragment extends Fragment implements View.OnClickListener{
 
-public class PdfFragment extends Fragment implements View.OnClickListener{
-
-    private ImageView imageView;
-    private TextView tvTitle;
     private NewsDto data;
 
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, Bundle savedInstanceState) {
-        View view = inflater.inflate(R.layout.fragment_pdf, null);
-        return view;
+        return inflater.inflate(R.layout.shawn_fragment_pdf, null);
     }
 
     @Override
@@ -42,9 +38,9 @@ public class PdfFragment extends Fragment implements View.OnClickListener{
     }
 
     private void initWidget(View view) {
-        imageView = (ImageView) view.findViewById(R.id.imageView);
+        ImageView imageView = view.findViewById(R.id.imageView);
         imageView.setOnClickListener(this);
-        tvTitle = (TextView) view.findViewById(R.id.tvTitle);
+        TextView tvTitle = view.findViewById(R.id.tvTitle);
         tvTitle.setOnClickListener(this);
 
         data = getArguments().getParcelable("data");

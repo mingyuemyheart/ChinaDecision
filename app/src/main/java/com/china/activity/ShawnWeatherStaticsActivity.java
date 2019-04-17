@@ -72,7 +72,7 @@ import okhttp3.Response;
 /**
  * 天气统计
  */
-public class ShawnWeatherStaticsActivity extends BaseActivity implements OnClickListener, OnMarkerClickListener,
+public class ShawnWeatherStaticsActivity extends ShawnBaseActivity implements OnClickListener, OnMarkerClickListener,
  OnMapClickListener, OnCameraChangeListener, OnMapScreenShotListener{
 	
 	private Context mContext;

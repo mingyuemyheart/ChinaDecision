@@ -27,7 +27,7 @@ import java.util.Locale;
 /**
  * 预警筛选
  */
-public class ShawnWarningStatisticScreenActivity extends BaseActivity implements OnClickListener{
+public class ShawnWarningStatisticScreenActivity extends ShawnBaseActivity implements OnClickListener{
 
     private Context mContext;
     private TextView tvStartTime,tvEndTime,tvArea,tvContent;

@@ -38,7 +38,7 @@ import java.util.List;
  * @author shawn_sun
  *
  */
-public class StationMonitorSearchActivity extends BaseActivity implements OnClickListener{
+public class StationMonitorSearchActivity extends ShawnBaseActivity implements OnClickListener{
 	
 	private Context mContext = null;
 	private LinearLayout llBack = null;

@@ -74,7 +74,7 @@ import okhttp3.Response;
 /**
  * 格点预报
  */
-public class ShawnPointForeActivity extends BaseActivity implements OnClickListener, AMapLocationListener, OnCameraChangeListener,
+public class ShawnPointForeActivity extends ShawnBaseActivity implements OnClickListener, AMapLocationListener, OnCameraChangeListener,
 		OnMapScreenShotListener, AMap.OnMarkerClickListener {
 	
 	private Context mContext;

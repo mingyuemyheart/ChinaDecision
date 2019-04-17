@@ -79,7 +79,7 @@ import okhttp3.Response;
  * @author shawn_sun
  *
  */
-public class StreamFactActivity extends BaseActivity implements OnClickListener, AMapLocationListener, OnCameraChangeListener,
+public class StreamFactActivity extends ShawnBaseActivity implements OnClickListener, AMapLocationListener, OnCameraChangeListener,
 		AMap.OnMarkerClickListener, AMap.OnMapClickListener, AMap.InfoWindowAdapter, OnMapScreenShotListener{
 	
 	private Context mContext;

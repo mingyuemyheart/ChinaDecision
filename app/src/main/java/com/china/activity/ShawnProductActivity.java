@@ -17,6 +17,7 @@ import com.china.R;
 import com.china.adapter.ShawnProductAdapter;
 import com.china.common.CONST;
 import com.china.common.ColumnData;
+import com.china.common.MyApplication;
 import com.china.dto.NewsDto;
 import com.china.utils.CommonUtil;
 import com.tendcloud.tenddata.TCAgent;
@@ -27,7 +28,7 @@ import java.util.List;
 /**
  * 实况监测、天气预报、专业服务、灾情信息、天气会商
  */
-public class ShawnProductActivity extends BaseActivity implements OnClickListener {
+public class ShawnProductActivity extends ShawnBaseActivity implements OnClickListener {
 	
 	private Context mContext;
 	private TextView tvTitle;
@@ -51,7 +52,17 @@ public class ShawnProductActivity extends BaseActivity implements OnClickListene
 		if (data != null) {
 			tvTitle.setText(data.name);
 			dataList.clear();
-			dataList.addAll(data.child);
+			String columnIds = MyApplication.getColumnIds(this);
+			if (!TextUtils.isEmpty(columnIds)) {
+				for (int i = 0; i < data.child.size(); i++) {
+					ColumnData dto = data.child.get(i);
+					if (columnIds.contains(dto.columnId)) {//已经有保存的栏目
+						dataList.add(dto);
+					}
+				}
+			}else {
+				dataList.addAll(data.child);
+			}
 			CommonUtil.submitClickCount(data.columnId, data.name);
 		}
 	}

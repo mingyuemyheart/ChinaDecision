@@ -14,7 +14,7 @@ import com.china.utils.CommonUtil;
 /**
  * 关于我们
  */
-public class ShawnAboutActivity extends BaseActivity implements OnClickListener{
+public class ShawnAboutActivity extends ShawnBaseActivity implements OnClickListener{
 	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {

@@ -3,6 +3,7 @@ package com.china.activity;
 import android.Manifest;
 import android.annotation.SuppressLint;
 import android.content.Context;
+import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.Build;
 import android.os.Bundle;
@@ -19,14 +20,21 @@ import android.view.View.OnClickListener;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.china.R;
 import com.china.common.CONST;
+import com.china.common.MyApplication;
 import com.china.utils.AuthorityUtil;
 import com.china.utils.CommonUtil;
 import com.china.utils.OkHttpUtil;
+import com.china.view.MyRatingBar;
 import com.github.barteksc.pdfviewer.PDFView;
+import com.github.barteksc.pdfviewer.listener.OnPageChangeListener;
 import com.github.barteksc.pdfviewer.scroll.DefaultScrollHandle;
+
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -39,19 +47,22 @@ import java.util.List;
 
 import okhttp3.Call;
 import okhttp3.Callback;
+import okhttp3.FormBody;
 import okhttp3.Request;
+import okhttp3.RequestBody;
 import okhttp3.Response;
 
 /**
  * PDF列表界面
  */
-public class ShawnPDFActivity extends BaseActivity implements OnClickListener {
+public class ShawnPDFActivity extends ShawnBaseActivity implements OnClickListener, MyRatingBar.OnStarChangeListener {
 	
 	private Context mContext;
 	private PDFView pdfView;
-	private TextView tvPercent;
+	private TextView tvPercent,tvFeedback;
 	private String title = "春运气象服务专报";
 	private String dataUrl = "";
+	private MyRatingBar ratingBar;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -73,6 +84,10 @@ public class ShawnPDFActivity extends BaseActivity implements OnClickListener {
 		ImageView ivShare = findViewById(R.id.ivShare);
 		ivShare.setOnClickListener(this);
 		tvPercent = findViewById(R.id.tvPercent);
+		ratingBar = findViewById(R.id.ratingBar);
+		ratingBar.setOnStarChangeListener(this);
+		tvFeedback = findViewById(R.id.tvFeedback);
+		tvFeedback.setOnClickListener(this);
 
 		title = getIntent().getStringExtra(CONST.ACTIVITY_NAME);
 		if (!TextUtils.isEmpty(title)) {
@@ -134,9 +149,7 @@ public class ShawnPDFActivity extends BaseActivity implements OnClickListener {
 				OkHttpUtil.enqueue(new Request.Builder().url(url).build(), new Callback() {
 					@Override
 					public void onFailure(Call call, IOException e) {
-
 					}
-
 					@Override
 					public void onResponse(Call call, Response response) throws IOException {
 						if (!response.isSuccessful()) {
@@ -168,9 +181,7 @@ public class ShawnPDFActivity extends BaseActivity implements OnClickListener {
 									msg.obj = filePath;
 									msg.arg1 = percent;
 									handler.sendMessage(msg);
-
 								}
-
 							}
 							fos.flush();
 							fos.close();// 下载完成
@@ -210,6 +221,25 @@ public class ShawnPDFActivity extends BaseActivity implements OnClickListener {
 							pdfView.fromFile(file)
 									.defaultPage(0)
 									.scrollHandle(new DefaultScrollHandle(ShawnPDFActivity.this))
+									.onPageChange(new OnPageChangeListener() {
+										@Override
+										public void onPageChanged(int page, int pageCount) {
+											if (page >= pageCount-1) {
+												if (!TextUtils.isEmpty(title)) {
+													if (title.contains("两办刊物") || title.contains("灾害预警")) {
+														ratingBar.setVisibility(View.GONE);
+														tvFeedback.setVisibility(View.GONE);
+													}else {
+														ratingBar.setVisibility(View.VISIBLE);
+														tvFeedback.setVisibility(View.VISIBLE);
+													}
+												}else {
+													ratingBar.setVisibility(View.VISIBLE);
+													tvFeedback.setVisibility(View.VISIBLE);
+												}
+											}
+										}
+									})
 									.load();
 						}
 					}
@@ -221,27 +251,49 @@ public class ShawnPDFActivity extends BaseActivity implements OnClickListener {
 	@Override
 	public void onClick(View v) {
 		switch (v.getId()) {
-		case R.id.llBack:
-			finish();
-			break;
-		case R.id.ivShare:
-			String time = "";
-			if (getIntent().hasExtra(CONST.DATA_TIME)) {
-				time = getIntent().getStringExtra(CONST.DATA_TIME);
-			}
-			String imgUrl = "";
-			if (getIntent().hasExtra(CONST.IMG_URL)) {
-				imgUrl = getIntent().getStringExtra(CONST.IMG_URL);
-			}
-			String url = "";
-			if (!TextUtils.isEmpty(dataUrl) && dataUrl.endsWith(".pdf")) {
-				url = dataUrl.replace(".pdf", ".doc");
-			}
-			CommonUtil.share(this, title, time, imgUrl, url);
-			break;
+			case R.id.llBack:
+				finish();
+				break;
+			case R.id.tvFeedback:
+				Intent intent = new Intent(this, ShawnServiceFeedbackActivity.class);
+				intent.putExtra(CONST.WEB_URL, dataUrl);
+				startActivityForResult(intent, 1001);
+				break;
+			case R.id.ivShare:
+				String time = "";
+				if (getIntent().hasExtra(CONST.DATA_TIME)) {
+					time = getIntent().getStringExtra(CONST.DATA_TIME);
+				}
+				String imgUrl = "";
+				if (getIntent().hasExtra(CONST.IMG_URL)) {
+					imgUrl = getIntent().getStringExtra(CONST.IMG_URL);
+				}
+				String url = "";
+				if (!TextUtils.isEmpty(dataUrl) && dataUrl.endsWith(".pdf")) {
+					url = dataUrl.replace(".pdf", ".doc");
+				}
+				CommonUtil.share(this, title, time, imgUrl, url);
+				break;
 
 		default:
 			break;
+		}
+	}
+
+	@Override
+	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+		super.onActivityResult(requestCode, resultCode, data);
+		if (resultCode == RESULT_OK) {
+			switch (requestCode) {
+				case 1001:
+					if (ratingBar != null) {
+						ratingBar.setVisibility(View.GONE);
+					}
+					if (tvFeedback != null) {
+						tvFeedback.setVisibility(View.GONE);
+					}
+					break;
+			}
 		}
 	}
 
@@ -302,6 +354,69 @@ public class ShawnPDFActivity extends BaseActivity implements OnClickListener {
 				}
 				break;
 		}
+	}
+
+	@Override
+	public void OnStarChanged(float selectedNumber, int position) {
+		OkHttpSubmit(selectedNumber);
+	}
+
+	/**
+	 * 反馈
+	 */
+	private void OkHttpSubmit(float selectedNumber) {
+		final String url = "http://decision-admin.tianqi.cn/home/Evaluate/doinsert";
+		FormBody.Builder builder = new FormBody.Builder();
+		builder.add("uid", MyApplication.UID);
+		builder.add("url", dataUrl);
+		builder.add("whole", selectedNumber+"");
+		final RequestBody body = builder.build();
+		new Thread(new Runnable() {
+			@Override
+			public void run() {
+				OkHttpUtil.enqueue(new Request.Builder().post(body).url(url).build(), new Callback() {
+					@Override
+					public void onFailure(Call call, IOException e) {
+					}
+					@Override
+					public void onResponse(Call call, Response response) throws IOException {
+						if (!response.isSuccessful()) {
+							return;
+						}
+						final String result = response.body().string();
+						runOnUiThread(new Runnable() {
+							@Override
+							public void run() {
+								if (!TextUtils.isEmpty(result)) {
+									try {
+										JSONObject obj = new JSONObject(result);
+										if (!obj.isNull("msg")) {
+											String msg = obj.getString("msg");
+											if (!TextUtils.isEmpty(msg)) {
+												Toast.makeText(mContext, msg, Toast.LENGTH_SHORT).show();
+												new Handler().postDelayed(new Runnable() {
+													@Override
+													public void run() {
+														if (ratingBar != null) {
+															ratingBar.setVisibility(View.GONE);
+														}
+														if (tvFeedback != null) {
+															tvFeedback.setVisibility(View.GONE);
+														}
+													}
+												}, 1500);
+											}
+										}
+									} catch (JSONException e) {
+										e.printStackTrace();
+									}
+								}
+							}
+						});
+					}
+				});
+			}
+		}).start();
 	}
 
 }

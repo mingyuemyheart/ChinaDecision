@@ -26,7 +26,7 @@ import com.google.android.exoplayer.exoplayer.PlayerUtils;
  * 直播界面
  *
  */
-public class WeatherMeetingDetailActivity extends BaseActivity implements SurfaceHolder.Callback, DemoPlayer.Listener, OnClickListener {
+public class WeatherMeetingDetailActivity extends ShawnBaseActivity implements SurfaceHolder.Callback, DemoPlayer.Listener, OnClickListener {
 	
 	private SurfaceView surfaceView; // 播放区
 	private DemoPlayer player;

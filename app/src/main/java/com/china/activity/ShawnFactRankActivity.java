@@ -44,7 +44,7 @@ import okhttp3.Response;
 /**
  * 站点排序
  */
-public class ShawnFactRankActivity extends BaseActivity implements OnClickListener{
+public class ShawnFactRankActivity extends ShawnBaseActivity implements OnClickListener{
 	
 	private Context mContext;
 	private TextView tvTemp2,tvRain2,tvHumidity2,tvVisibility2,tvPressure2,tvWindSpeed2,tvArea, tvTime;

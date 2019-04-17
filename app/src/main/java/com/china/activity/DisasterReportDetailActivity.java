@@ -22,7 +22,7 @@ import java.text.SimpleDateFormat;
  */
 
 @SuppressLint("SimpleDateFormat")
-public class DisasterReportDetailActivity extends BaseActivity implements OnClickListener{
+public class DisasterReportDetailActivity extends ShawnBaseActivity implements OnClickListener{
 	
 	private LinearLayout llBack = null;
 	private TextView tvTitle = null;

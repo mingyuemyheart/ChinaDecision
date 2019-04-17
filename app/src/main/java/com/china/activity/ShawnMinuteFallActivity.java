@@ -88,7 +88,7 @@ import okhttp3.Response;
 /**
  * 分钟级降水估测
  */
-public class ShawnMinuteFallActivity extends BaseActivity implements OnClickListener, AMapLocationListener,
+public class ShawnMinuteFallActivity extends ShawnBaseActivity implements OnClickListener, AMapLocationListener,
 OnMapClickListener, AMap.OnMarkerClickListener, OnGeocodeSearchListener, OnMapScreenShotListener{
 	
 	private Context mContext;

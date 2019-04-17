@@ -24,7 +24,7 @@ import java.util.Map;
 /**
  * 应用推荐、周报统计
  */
-public class ShawnWebviewActivity extends BaseActivity implements OnClickListener{
+public class ShawnWebviewActivity extends ShawnBaseActivity implements OnClickListener{
 	
 	private TextView tvTitle;
 	private WebView webView;

@@ -9,13 +9,12 @@ import android.view.View;
 import com.china.common.MyApplication;
 import com.china.view.MyDialog2;
 import com.github.nkzawa.socketio.client.Socket;
-import com.tendcloud.tenddata.TCAgent;
 
 import org.json.JSONException;
 import org.json.JSONObject;
 
 
-public class BaseActivity extends Activity{
+public class ShawnBaseActivity extends Activity{
 	
 	private MyDialog2 mDialog = null;
 	private Context mContext = null;
@@ -25,7 +24,7 @@ public class BaseActivity extends Activity{
 		super.onCreate(savedInstanceState);
 		mContext = this;
 		if (Build.VERSION.SDK_INT >= 23) {
-			BaseActivity.this.getWindow().getDecorView().setSystemUiVisibility(View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR);
+			ShawnBaseActivity.this.getWindow().getDecorView().setSystemUiVisibility(View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR);
 		}
 	}
 	

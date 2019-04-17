@@ -37,7 +37,7 @@ import okhttp3.Response;
 /**
  * 预警详情
  */
-public class ShawnWarningDetailActivity extends BaseActivity implements OnClickListener{
+public class ShawnWarningDetailActivity extends ShawnBaseActivity implements OnClickListener{
 	
 	private Context mContext;
 	private ImageView imageView,ivShare;

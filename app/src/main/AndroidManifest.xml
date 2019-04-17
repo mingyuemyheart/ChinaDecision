@@ -313,6 +313,25 @@
             android:name="com.china.activity.ShawnPointForeDetailActivity"
             android:screenOrientation="portrait" />
 
+        <activity
+            android:name="com.china.activity.ShawnProductOrderActivity"
+            android:screenOrientation="portrait"
+            android:launchMode="singleTask"/>
+
+        <activity
+            android:name="com.china.activity.ShawnModifyMailActivity"
+            android:screenOrientation="portrait"
+            android:launchMode="singleTask"/>
+
+        <activity
+            android:name="com.china.activity.ShawnServiceFeedbackActivity"
+            android:screenOrientation="portrait"
+            android:launchMode="singleTask"/>
+
+        <activity
+            android:name="com.china.activity.ShawnManageActivity"
+            android:screenOrientation="portrait"/>
+
 
         <!--umeng share-->
         <activity

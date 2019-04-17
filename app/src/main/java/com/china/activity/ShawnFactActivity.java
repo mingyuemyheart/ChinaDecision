@@ -53,8 +53,6 @@ import com.amap.api.maps.model.LatLng;
 import com.amap.api.maps.model.LatLngBounds;
 import com.amap.api.maps.model.Marker;
 import com.amap.api.maps.model.MarkerOptions;
-import com.amap.api.maps.model.Polygon;
-import com.amap.api.maps.model.PolygonOptions;
 import com.amap.api.maps.model.Polyline;
 import com.amap.api.maps.model.PolylineOptions;
 import com.amap.api.maps.model.Text;
@@ -108,7 +106,7 @@ import okhttp3.Response;
 /**
  * 站点监测
  */
-public class ShawnFactActivity extends BaseActivity implements OnClickListener, AMapLocationListener, OnMarkerClickListener,
+public class ShawnFactActivity extends ShawnBaseActivity implements OnClickListener, AMapLocationListener, OnMarkerClickListener,
         OnMapClickListener, OnGeocodeSearchListener, OnCameraChangeListener, OnMapScreenShotListener,DistrictSearch.OnDistrictSearchListener {
 
     private Context mContext;

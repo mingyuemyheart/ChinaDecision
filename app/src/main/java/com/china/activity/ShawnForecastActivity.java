@@ -50,7 +50,7 @@ import cn.com.weather.listener.AsyncResponseHandler;
 /**
  * 天气预报
  */
-public class ShawnForecastActivity extends BaseActivity implements OnClickListener{
+public class ShawnForecastActivity extends ShawnBaseActivity implements OnClickListener{
 	
 	private Context mContext;
 	private TextView tvCity,tvTime,tvTemp,tvForeTemp,tvPhe,tvHumidity,tvWind,tvQuality;

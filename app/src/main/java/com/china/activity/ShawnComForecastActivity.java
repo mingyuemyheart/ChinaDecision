@@ -63,7 +63,7 @@ import okhttp3.Response;
 /**
  * 综合预报
  */
-public class ShawnComForecastActivity extends BaseActivity implements OnClickListener, AMapLocationListener, OnMapScreenShotListener, AMap.OnCameraChangeListener {
+public class ShawnComForecastActivity extends ShawnBaseActivity implements OnClickListener, AMapLocationListener, OnMapScreenShotListener, AMap.OnCameraChangeListener {
 	
 	private Context mContext;
 	private TextView tvTitle,tvName,tvTime;

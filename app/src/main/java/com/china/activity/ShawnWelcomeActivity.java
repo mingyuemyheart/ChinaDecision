@@ -38,7 +38,7 @@ import okhttp3.Response;
 /**
  * 欢迎界面
  */
-public class ShawnWelcomeActivity extends BaseActivity{
+public class ShawnWelcomeActivity extends ShawnBaseActivity {
 
 	private Context mContext;
 	private List<ColumnData> dataList = new ArrayList<>();
@@ -150,6 +150,7 @@ public class ShawnWelcomeActivity extends BaseActivity{
 														for (int j = 0; j < childArray.length(); j++) {
 															JSONObject childObj = childArray.getJSONObject(j);
 															ColumnData dto = new ColumnData();
+															dto.groupColumnId = data.columnId;
 															if (!childObj.isNull("id")) {
 																dto.columnId = childObj.getString("id");
 															}

@@ -76,7 +76,7 @@ import okhttp3.Response;
 /**
  * 城市天气预报
  */
-public class ShawnCityForecastActivity extends BaseActivity implements OnClickListener, OnMarkerClickListener,
+public class ShawnCityForecastActivity extends ShawnBaseActivity implements OnClickListener, OnMarkerClickListener,
         OnMapClickListener, OnCameraChangeListener, AMap.InfoWindowAdapter, AMap.OnInfoWindowClickListener, OnMapScreenShotListener{
 
     private Context mContext;

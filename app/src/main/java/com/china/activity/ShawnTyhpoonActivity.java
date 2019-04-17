@@ -4,7 +4,6 @@ import android.Manifest;
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -124,7 +123,7 @@ import okhttp3.Response;
 /**
  * 台风路径
  */
-public class ShawnTyhpoonActivity extends BaseActivity implements OnClickListener, OnMapClickListener, AMapLocationListener,
+public class ShawnTyhpoonActivity extends ShawnBaseActivity implements OnClickListener, OnMapClickListener, AMapLocationListener,
 		OnMarkerClickListener, InfoWindowAdapter, AMap.OnMapScreenShotListener, OnCameraChangeListener{
 
 	private Context mContext;

@@ -39,7 +39,7 @@ import okhttp3.Response;
  * @author shawn_sun
  *
  */
-public class StreamFactListActivity extends BaseActivity implements OnClickListener {
+public class StreamFactListActivity extends ShawnBaseActivity implements OnClickListener {
 	
 	private Context mContext;
 	private StreamFactListAdapter mAdapter;

@@ -7,7 +7,6 @@ package com.china.activity;
 import java.io.IOException;
 import java.util.Vector;
 
-import android.app.Activity;
 import android.content.Intent;
 import android.content.res.AssetFileDescriptor;
 import android.graphics.Bitmap;
@@ -29,7 +28,7 @@ import com.mining.app.zxing.camera.CameraManager;
 import com.mining.app.zxing.decoding.CaptureActivityHandler;
 import com.mining.app.zxing.decoding.InactivityTimer;
 import com.mining.app.zxing.view.ViewfinderView;
-public class ZXingActivity extends BaseActivity implements Callback {
+public class ZXingActivity extends ShawnBaseActivity implements Callback {
 
 	private CaptureActivityHandler handler;
 	private ViewfinderView viewfinderView;
