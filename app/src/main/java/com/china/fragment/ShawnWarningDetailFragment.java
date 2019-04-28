@@ -5,11 +5,13 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.graphics.Bitmap;
 import android.os.Bundle;
+import android.support.v4.widget.SwipeRefreshLayout;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
+import android.widget.ScrollView;
 import android.widget.TextView;
 
 import com.china.R;
@@ -18,8 +20,6 @@ import com.china.dto.WarningDto;
 import com.china.manager.DBManager;
 import com.china.utils.CommonUtil;
 import com.china.utils.OkHttpUtil;
-import com.china.view.RefreshLayout;
-import com.china.view.RefreshLayout.OnRefreshListener;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -38,13 +38,13 @@ public class ShawnWarningDetailFragment extends Fragment{
 	
 	private ImageView imageView;//预警图标
 	private TextView tvName,tvTime,tvIntro,tvGuide;
+	private ScrollView scrollView;
 	private WarningDto data;
-	private RefreshLayout refreshLayout;//下拉刷新布局
+	private SwipeRefreshLayout refreshLayout;//下拉刷新布局
 	
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-		View view = inflater.inflate(R.layout.shawn_fragment_warning_detail, null);
-		return view;
+		return inflater.inflate(R.layout.shawn_fragment_warning_detail, null);
 	}
 	
 	@Override
@@ -59,11 +59,10 @@ public class ShawnWarningDetailFragment extends Fragment{
 	 */
 	private void initRefreshLayout(View view) {
 		refreshLayout = view.findViewById(R.id.refreshLayout);
-		refreshLayout.setColor(CONST.color1, CONST.color2, CONST.color3, CONST.color4);
-		refreshLayout.setMode(RefreshLayout.Mode.PULL_FROM_START);
-		refreshLayout.setLoadNoFull(false);
+		refreshLayout.setColorSchemeResources(CONST.color1, CONST.color2, CONST.color3, CONST.color4);
+		refreshLayout.setProgressViewEndTarget(true, 300);
 		refreshLayout.setRefreshing(true);
-		refreshLayout.setOnRefreshListener(new OnRefreshListener() {
+		refreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
 			@Override
 			public void onRefresh() {
 				refresh();
@@ -82,6 +81,7 @@ public class ShawnWarningDetailFragment extends Fragment{
 	 * 初始化控件
 	 */
 	private void initWidget(View view) {
+		scrollView = view.findViewById(R.id.scrollView);
 		imageView = view.findViewById(R.id.imageView);
 		tvName = view.findViewById(R.id.tvName);
 		tvTime = view.findViewById(R.id.tvTime);
@@ -89,29 +89,6 @@ public class ShawnWarningDetailFragment extends Fragment{
 		tvGuide = view.findViewById(R.id.tvGuide);
 		
 		refresh();
-	}
-	
-	/**
-	 * 初始化数据库
-	 */
-	private void initDBManager() {
-		DBManager dbManager = new DBManager(getActivity());
-		dbManager.openDateBase();
-		dbManager.closeDatabase();
-		SQLiteDatabase database = SQLiteDatabase.openOrCreateDatabase(DBManager.DB_PATH + "/" + DBManager.DB_NAME, null);
-		Cursor cursor = database.rawQuery("select * from " + DBManager.TABLE_NAME2 + " where WarningId = " + "\"" + data.type+data.color + "\"",null);
-		String content = null;
-		for (int i = 0; i < cursor.getCount(); i++) {
-			cursor.moveToPosition(i);
-			content = cursor.getString(cursor.getColumnIndex("WarningGuide"));
-		}
-		cursor.close();
-		if (!TextUtils.isEmpty(content)) {
-			tvGuide.setText("预警指南：\n"+content);
-			tvGuide.setVisibility(View.VISIBLE);
-		}else {
-			tvGuide.setVisibility(View.GONE);
-		}
 	}
 	
 	/**
@@ -174,6 +151,7 @@ public class ShawnWarningDetailFragment extends Fragment{
 										imageView.setImageBitmap(bitmap);
 
 										initDBManager();
+										scrollView.setVisibility(View.VISIBLE);
 										refreshLayout.setRefreshing(false);
 									} catch (JSONException e) {
 										e.printStackTrace();
@@ -185,6 +163,29 @@ public class ShawnWarningDetailFragment extends Fragment{
 				});
 			}
 		}).start();
+	}
+
+	/**
+	 * 初始化数据库
+	 */
+	private void initDBManager() {
+		DBManager dbManager = new DBManager(getActivity());
+		dbManager.openDateBase();
+		dbManager.closeDatabase();
+		SQLiteDatabase database = SQLiteDatabase.openOrCreateDatabase(DBManager.DB_PATH + "/" + DBManager.DB_NAME, null);
+		Cursor cursor = database.rawQuery("select * from " + DBManager.TABLE_NAME2 + " where WarningId = " + "\"" + data.type+data.color + "\"",null);
+		String content = null;
+		for (int i = 0; i < cursor.getCount(); i++) {
+			cursor.moveToPosition(i);
+			content = cursor.getString(cursor.getColumnIndex("WarningGuide"));
+		}
+		cursor.close();
+		if (!TextUtils.isEmpty(content)) {
+			tvGuide.setText("预警指南：\n"+content);
+			tvGuide.setVisibility(View.VISIBLE);
+		}else {
+			tvGuide.setVisibility(View.GONE);
+		}
 	}
 
 }

@@ -39,13 +39,13 @@ public class ShawnCityActivity extends ShawnBaseActivity implements OnClickListe
     private LinearLayout llNation;
 
     //搜索城市后的结果列表
-    private ListView mListView;
-    private ShawnCityAdapter cityAdapter;
-    private List<CityDto> cityList = new ArrayList<>();
+    private ListView listView;
+    private ShawnCityAdapter searchAdapter;
+    private List<CityDto> searchList = new ArrayList<>();
 
     //全国热门
     private GridView gridView;
-    private List<CityDto> nList = new ArrayList<>();
+    private List<CityDto> hotList = new ArrayList<>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -84,18 +84,18 @@ public class ShawnCityActivity extends ShawnBaseActivity implements OnClickListe
         }
         @Override
         public void afterTextChanged(Editable arg0) {
-            cityList.clear();
+            searchList.clear();
             if (arg0.toString().trim().equals("")) {
-                if (mListView != null) {
-                    mListView.setVisibility(View.GONE);
+                if (listView != null) {
+                    listView.setVisibility(View.GONE);
                 }
                 llNation.setVisibility(View.VISIBLE);
                 if (gridView != null) {
                     gridView.setVisibility(View.VISIBLE);
                 }
             } else {
-                if (mListView != null) {
-                    mListView.setVisibility(View.VISIBLE);
+                if (listView != null) {
+                    listView.setVisibility(View.VISIBLE);
                 }
                 llNation.setVisibility(View.GONE);
                 if (gridView != null) {
@@ -134,13 +134,13 @@ public class ShawnCityActivity extends ShawnBaseActivity implements OnClickListe
      * 初始化listview
      */
     private void initListView() {
-        mListView = findViewById(R.id.listView);
-        cityAdapter = new ShawnCityAdapter(mContext, cityList);
-        mListView.setAdapter(cityAdapter);
-        mListView.setOnItemClickListener(new OnItemClickListener() {
+        listView = findViewById(R.id.listView);
+        searchAdapter = new ShawnCityAdapter(mContext, searchList);
+        listView.setAdapter(searchAdapter);
+        listView.setOnItemClickListener(new OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> arg0, View arg1, int arg2, long arg3) {
-                intentWeatherDetail(cityList.get(arg2));
+                intentWeatherDetail(searchList.get(arg2));
             }
         });
     }
@@ -149,7 +149,7 @@ public class ShawnCityActivity extends ShawnBaseActivity implements OnClickListe
      * 初始化全国热门
      */
     private void initGridView() {
-        nList.clear();
+        hotList.clear();
         String[] stations = getResources().getStringArray(R.array.nation_hotCity);
         for (String station : stations) {
             String[] value = station.split(",");
@@ -158,16 +158,16 @@ public class ShawnCityActivity extends ShawnBaseActivity implements OnClickListe
             dto.lat = Double.valueOf(value[2]);
             dto.cityId = value[0];
             dto.areaName = value[1];
-            nList.add(dto);
+            hotList.add(dto);
         }
 
         gridView = findViewById(R.id.gridView);
-        ShawnCityHotAdapter nAdapter = new ShawnCityHotAdapter(mContext, nList);
+        ShawnCityHotAdapter nAdapter = new ShawnCityHotAdapter(mContext, hotList);
         gridView.setAdapter(nAdapter);
         gridView.setOnItemClickListener(new OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> arg0, View arg1, int arg2, long arg3) {
-                intentWeatherDetail(nList.get(arg2));
+                intentWeatherDetail(hotList.get(arg2));
             }
         });
     }
@@ -176,7 +176,7 @@ public class ShawnCityActivity extends ShawnBaseActivity implements OnClickListe
      * 获取城市信息
      */
     private void getCityInfo(String keyword) {
-        cityList.clear();
+        searchList.clear();
         DBManager dbManager = new DBManager(mContext);
         dbManager.openDateBase();
         dbManager.closeDatabase();
@@ -190,12 +190,12 @@ public class ShawnCityActivity extends ShawnBaseActivity implements OnClickListe
             dto.areaName = cursor.getString(cursor.getColumnIndex("dis"));
             dto.cityId = cursor.getString(cursor.getColumnIndex("cid"));
             dto.warningId = cursor.getString(cursor.getColumnIndex("wid"));
-            cityList.add(dto);
+            searchList.add(dto);
         }
         cursor.close();
 
-        if (cityAdapter != null) {
-            cityAdapter.notifyDataSetChanged();
+        if (searchAdapter != null) {
+            searchAdapter.notifyDataSetChanged();
         }
 
     }

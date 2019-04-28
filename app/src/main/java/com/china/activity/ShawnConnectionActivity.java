@@ -30,27 +30,19 @@ import org.json.JSONObject;
 
 import java.net.URISyntaxException;
 
-
 /**
  * 屏屏联动
  * @author shawn_sun
- *
  */
-
-public class ConnectionActivity extends ShawnBaseActivity implements OnClickListener{
+public class ShawnConnectionActivity extends ShawnBaseActivity implements OnClickListener{
 
 	private Context mContext = null;
-	private LinearLayout llBack = null;
-	private TextView tvTitle = null;
-	private TextView tvWifi = null;
-	private TextView tvScane = null;
-	private TextView tvPrompt = null;
 	private Socket socket = null;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		setContentView(R.layout.activity_connection);
+		setContentView(R.layout.shawn_activity_connection);
 		mContext = this;
 		initWidget();
 	}
@@ -59,14 +51,14 @@ public class ConnectionActivity extends ShawnBaseActivity implements OnClickList
 	 * 初始化控件
 	 */
 	private void initWidget() {
-		llBack = (LinearLayout) findViewById(R.id.llBack);
+		LinearLayout llBack = findViewById(R.id.llBack);
 		llBack.setOnClickListener(this);
-		tvTitle = (TextView) findViewById(R.id.tvTitle);
+		TextView tvTitle = findViewById(R.id.tvTitle);
 		tvTitle.setText("连接电脑");
-		tvWifi = (TextView) findViewById(R.id.tvWifi);
-		tvScane = (TextView) findViewById(R.id.tvScane);
+		TextView tvWifi = findViewById(R.id.tvWifi);
+		TextView tvScane = findViewById(R.id.tvScane);
 		tvScane.setOnClickListener(this);
-		tvPrompt = (TextView) findViewById(R.id.tvPrompt);
+		TextView tvPrompt = findViewById(R.id.tvPrompt);
 		tvPrompt.setText("扫描二维码：快速连接+"+"\""+"中国气象"+"\""+"触屏版");
 
 		NetworkInfo info = ((ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE)).getActiveNetworkInfo();
@@ -90,7 +82,7 @@ public class ConnectionActivity extends ShawnBaseActivity implements OnClickList
 			startActivityForResult(new Intent(mContext, ZXingActivity.class), 1000);
 		}else {
 			if (ContextCompat.checkSelfPermission(mContext, Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) {
-				ActivityCompat.requestPermissions(ConnectionActivity.this, new String[]{Manifest.permission.CAMERA}, AuthorityUtil.AUTHOR_CAMERA);
+				ActivityCompat.requestPermissions(ShawnConnectionActivity.this, new String[]{Manifest.permission.CAMERA}, AuthorityUtil.AUTHOR_CAMERA);
 			}else {
 				startActivityForResult(new Intent(mContext, ZXingActivity.class), 1000);
 			}
@@ -105,7 +97,7 @@ public class ConnectionActivity extends ShawnBaseActivity implements OnClickList
 				if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
 					startActivityForResult(new Intent(mContext, ZXingActivity.class), 1000);
 				}else {
-					if (!ActivityCompat.shouldShowRequestPermissionRationale(ConnectionActivity.this, Manifest.permission.CAMERA)) {
+					if (!ActivityCompat.shouldShowRequestPermissionRationale(ShawnConnectionActivity.this, Manifest.permission.CAMERA)) {
 						AuthorityUtil.intentAuthorSetting(mContext, "\""+getString(R.string.app_name)+"\""+"需要使用相机权限，是否前往设置？");
 					}
 				}

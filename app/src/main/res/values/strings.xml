@@ -165,18 +165,6 @@
     <string name="collect_cancel">取消收藏</string>
     <string name="weather_quality">空气质量</string>
     
-    <string name="setting_save">我的收藏</string>
-	<string name="setting_push">要闻推送</string>
-	<string name="setting_feedback">意见反馈</string>
-	<string name="setting_version">检测版本</string>
-	<string name="setting_clearcache">清除缓存</string>
-	<string name="setting_cleardata">清除数据</string>
-	<string name="setting_build">中国气象局简介</string>
-	<string name="setting_hotline1">气象服务热线</string>
-	<string name="setting_hotline2">运行保障热线</string>
-	<string name="setting_version_code">版本号</string>
-	<string name="setting_quit">退出</string>
-	
 	<!-- 蒲公英自动更新 -->
     <string name="auto_update">更新提醒</string>
     <string name="new_version">最新版本：</string>

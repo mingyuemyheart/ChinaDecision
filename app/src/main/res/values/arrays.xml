@@ -66,6 +66,7 @@
 		<item>02,黄色</item>
 		<item>03,橙色</item>
 		<item>04,红色</item>
+		<item>05,未知</item>
     </string-array>
 
 	<string-array name="warningColor2">

@@ -96,67 +96,67 @@ public class ShawnReserveCityActivity extends ShawnBaseActivity implements View.
         tvControl.setOnClickListener(this);
         tvControl.setVisibility(View.VISIBLE);
 
-        new Thread(new Runnable() {
-            @Override
-            public void run() {
-                OkHttpWarning();
-            }
-        }).start();
+        OkHttpWarning();
     }
 
     /**
      * 获取预警信息
      */
     private void OkHttpWarning() {
-        final String url = "http://decision-admin.tianqi.cn/Home/extra/getwarns?order=0";
-        OkHttpUtil.enqueue(new Request.Builder().url(url).build(), new Callback() {
+        new Thread(new Runnable() {
             @Override
-            public void onFailure(Call call, IOException e) {
-                queryWeatherInfos();
-            }
-            @Override
-            public void onResponse(Call call, Response response) throws IOException {
-                if (!response.isSuccessful()) {
-                    return;
-                }
-                String result = response.body().string();
-                if (!TextUtils.isEmpty(result)) {
-                    try {
-                        JSONObject object = new JSONObject(result);
-                        if (!object.isNull("data")) {
-                            warningList.clear();
-                            JSONArray jsonArray = object.getJSONArray("data");
-                            for (int i = 0; i < jsonArray.length(); i++) {
-                                JSONArray tempArray = jsonArray.getJSONArray(i);
-                                WarningDto dto = new WarningDto();
-                                dto.html = tempArray.getString(1);
-                                String[] array = dto.html.split("-");
-                                String item0 = array[0];
-                                String item1 = array[1];
-                                String item2 = array[2];
+            public void run() {
+                final String url = "http://decision-admin.tianqi.cn/Home/extra/getwarns?order=0";
+                OkHttpUtil.enqueue(new Request.Builder().url(url).build(), new Callback() {
+                    @Override
+                    public void onFailure(Call call, IOException e) {
+                        queryWeatherInfos();
+                    }
+                    @Override
+                    public void onResponse(Call call, Response response) throws IOException {
+                        if (!response.isSuccessful()) {
+                            return;
+                        }
+                        String result = response.body().string();
+                        if (!TextUtils.isEmpty(result)) {
+                            try {
+                                JSONObject object = new JSONObject(result);
+                                if (!object.isNull("data")) {
+                                    warningList.clear();
+                                    JSONArray jsonArray = object.getJSONArray("data");
+                                    for (int i = 0; i < jsonArray.length(); i++) {
+                                        JSONArray tempArray = jsonArray.getJSONArray(i);
+                                        WarningDto dto = new WarningDto();
+                                        dto.html = tempArray.getString(1);
+                                        String[] array = dto.html.split("-");
+                                        String item0 = array[0];
+                                        String item1 = array[1];
+                                        String item2 = array[2];
 
-                                dto.item0 = item0;
-                                dto.provinceId = item0.substring(0, 2);
-                                dto.type = item2.substring(0, 5);
-                                dto.color = item2.substring(5, 7);
-                                dto.time = item1;
-                                dto.lng = tempArray.getDouble(2);
-                                dto.lat = tempArray.getDouble(3);
-                                dto.name = tempArray.getString(0);
+                                        dto.item0 = item0;
+                                        dto.provinceId = item0.substring(0, 2);
+                                        dto.type = item2.substring(0, 5);
+                                        dto.color = item2.substring(5, 7);
+                                        dto.time = item1;
+                                        dto.lng = tempArray.getDouble(2);
+                                        dto.lat = tempArray.getDouble(3);
+                                        dto.name = tempArray.getString(0);
 
-                                if (!dto.name.contains("解除")) {
-                                    warningList.add(dto);
+                                        if (!dto.name.contains("解除")) {
+                                            warningList.add(dto);
+                                        }
+                                    }
                                 }
+                            } catch (JSONException e) {
+                                e.printStackTrace();
                             }
                         }
-                    } catch (JSONException e) {
-                        e.printStackTrace();
                     }
-                }
+                });
 
                 queryWeatherInfos();
             }
-        });
+        }).start();
     }
 
     /**
@@ -209,67 +209,6 @@ public class ShawnReserveCityActivity extends ShawnBaseActivity implements View.
         }
         cursor.close();
         return warningId;
-    }
-
-    /**
-     * 初始化listview
-     */
-    private void initListView() {
-        SwipeMenuListView mListView = findViewById(R.id.listView);
-        mAdapter = new ShawnReserveCityAdapter(mContext, cityList);
-        mListView.setAdapter(mAdapter);
-        SwipeMenuCreator creator = new SwipeMenuCreator() {
-            @Override
-            public void create(SwipeMenu menu) {
-                switch (menu.getViewType()) {
-                    case ShawnReserveCityAdapter.notShowRemove:
-                        break;
-                    case ShawnReserveCityAdapter.showRemove:
-                        createMenu1(menu);
-                        break;
-                }
-            }
-            private void createMenu1(SwipeMenu menu) {
-                SwipeMenuItem item1 = new SwipeMenuItem(mContext);
-                item1.setBackground(new ColorDrawable(Color.RED));
-                item1.setWidth((int) CommonUtil.dip2px(mContext, 70));
-                item1.setTitle("删除");
-                item1.setTitleColor(getResources().getColor(R.color.white));
-                item1.setTitleSize(14);
-                menu.addMenuItem(item1);
-            }
-        };
-        mListView.setMenuCreator(creator);
-        mListView.setOnMenuItemClickListener(new SwipeMenuListView.OnMenuItemClickListener() {
-            @Override
-            public void onMenuItemClick(int position, SwipeMenu menu, int index) {
-                switch (menu.getViewType()) {
-                    case ShawnReserveCityAdapter.notShowRemove:
-                        break;
-                    case ShawnReserveCityAdapter.showRemove:
-                        cityList.remove(position);
-                        if (cityList.size() > 1) {
-                            tvPrompt.setVisibility(View.VISIBLE);
-                        }else {
-                            tvPrompt.setVisibility(View.GONE);
-                        }
-                        if (mAdapter != null) {
-                            mAdapter.notifyDataSetChanged();
-                        }
-                        break;
-                }
-            }
-        });
-        mListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-            @Override
-            public void onItemClick(AdapterView<?> arg0, View arg1, int arg2, long arg3) {
-                CityDto data = cityList.get(arg2);
-                Intent intent = new Intent(mContext, ShawnForecastActivity.class);
-                intent.putExtra("cityName", data.cityName);
-                intent.putExtra("cityId", data.cityId);
-                startActivity(intent);
-            }
-        });
     }
 
     /**
@@ -414,6 +353,67 @@ public class ShawnReserveCityActivity extends ShawnBaseActivity implements View.
         editor.putString("cityInfo", cityInfo);
         editor.apply();
         Log.e("cityInfo", cityInfo);
+    }
+
+    /**
+     * 初始化listview
+     */
+    private void initListView() {
+        SwipeMenuListView mListView = findViewById(R.id.listView);
+        mAdapter = new ShawnReserveCityAdapter(mContext, cityList);
+        mListView.setAdapter(mAdapter);
+        SwipeMenuCreator creator = new SwipeMenuCreator() {
+            @Override
+            public void create(SwipeMenu menu) {
+                switch (menu.getViewType()) {
+                    case ShawnReserveCityAdapter.notShowRemove:
+                        break;
+                    case ShawnReserveCityAdapter.showRemove:
+                        createMenu1(menu);
+                        break;
+                }
+            }
+            private void createMenu1(SwipeMenu menu) {
+                SwipeMenuItem item1 = new SwipeMenuItem(mContext);
+                item1.setBackground(new ColorDrawable(Color.RED));
+                item1.setWidth((int) CommonUtil.dip2px(mContext, 70));
+                item1.setTitle("删除");
+                item1.setTitleColor(getResources().getColor(R.color.white));
+                item1.setTitleSize(14);
+                menu.addMenuItem(item1);
+            }
+        };
+        mListView.setMenuCreator(creator);
+        mListView.setOnMenuItemClickListener(new SwipeMenuListView.OnMenuItemClickListener() {
+            @Override
+            public void onMenuItemClick(int position, SwipeMenu menu, int index) {
+                switch (menu.getViewType()) {
+                    case ShawnReserveCityAdapter.notShowRemove:
+                        break;
+                    case ShawnReserveCityAdapter.showRemove:
+                        cityList.remove(position);
+                        if (cityList.size() > 1) {
+                            tvPrompt.setVisibility(View.VISIBLE);
+                        }else {
+                            tvPrompt.setVisibility(View.GONE);
+                        }
+                        if (mAdapter != null) {
+                            mAdapter.notifyDataSetChanged();
+                        }
+                        break;
+                }
+            }
+        });
+        mListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> arg0, View arg1, int arg2, long arg3) {
+                CityDto data = cityList.get(arg2);
+                Intent intent = new Intent(mContext, ShawnForecastActivity.class);
+                intent.putExtra("cityName", data.cityName);
+                intent.putExtra("cityId", data.cityId);
+                startActivity(intent);
+            }
+        });
     }
 
     @Override

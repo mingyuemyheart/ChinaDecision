@@ -45,15 +45,14 @@ import okhttp3.Response;
 /**
  * 引导页
  */
-public class GuideFragment extends Fragment implements OnClickListener{
+public class ShawnGuideFragment extends Fragment implements OnClickListener{
 
 	private List<ColumnData> dataList = new ArrayList<>();
 	private List<NewsDto> pdfList = new ArrayList<>();//pdf文档类
 	
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-		View view = inflater.inflate(R.layout.fragment_guide, null);
-		return view;
+		return inflater.inflate(R.layout.shawn_fragment_guide, null);
 	}
 	
 	@Override
@@ -169,7 +168,6 @@ public class GuideFragment extends Fragment implements OnClickListener{
 															if (!childObj.isNull("dataurl")) {
 																dto.dataUrl = childObj.getString("dataurl");
 															}
-
 															if (!childObj.isNull("child")) {
 																JSONArray childArray2 = childObj.getJSONArray("child");
 																for (int m = 0; m < childArray2.length(); m++) {
@@ -199,7 +197,6 @@ public class GuideFragment extends Fragment implements OnClickListener{
 																	dto.child.add(d);
 																}
 															}
-
 															data.child.add(dto);
 														}
 													}

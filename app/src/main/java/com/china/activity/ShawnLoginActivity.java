@@ -46,7 +46,7 @@ import okhttp3.Response;
 /**
  * 登录界面
  */
-public class ShawnLoginActivity extends ShawnBaseActivity implements OnClickListener, AMapLocationListener{
+public class ShawnLoginActivity extends ShawnBaseActivity implements OnClickListener {
 	
 	private Context mContext = null;
 	private EditText etUserName,etPwd;
@@ -94,19 +94,19 @@ public class ShawnLoginActivity extends ShawnBaseActivity implements OnClickList
         mLocationOption.setMockEnable(false);//设置是否允许模拟位置,默认为false，不允许模拟位置
         mLocationOption.setInterval(2000);//设置定位间隔,单位毫秒,默认为2000ms
         mLocationClient.setLocationOption(mLocationOption);//给定位客户端对象设置定位参数
-        mLocationClient.setLocationListener(this);
+        mLocationClient.setLocationListener(new AMapLocationListener() {
+			@Override
+			public void onLocationChanged(AMapLocation aMapLocation) {
+				if (aMapLocation != null && aMapLocation.getErrorCode() == 0) {
+					lat = String.valueOf(aMapLocation.getLatitude());
+					lng = String.valueOf(aMapLocation.getLongitude());
+					addr = aMapLocation.getAddress();
+				}
+			}
+		});
         mLocationClient.startLocation();//启动定位
 	}
 
-	@Override
-	public void onLocationChanged(AMapLocation amapLocation) {
-        if (amapLocation != null && amapLocation.getErrorCode() == 0) {
-        	lat = String.valueOf(amapLocation.getLatitude());
-        	lng = String.valueOf(amapLocation.getLongitude());
-        	addr = amapLocation.getAddress();
-        }
-	}
-	
 	private void doLogin() {
 		if (checkInfo()) {
 			OkHttpLogin();
@@ -222,7 +222,6 @@ public class ShawnLoginActivity extends ShawnBaseActivity implements OnClickList
 															if (!childObj.isNull("dataurl")) {
 																dto.dataUrl = childObj.getString("dataurl");
 															}
-
 															if (!childObj.isNull("child")) {
 																JSONArray childArray2 = childObj.getJSONArray("child");
 																for (int m = 0; m < childArray2.length(); m++) {
@@ -252,7 +251,6 @@ public class ShawnLoginActivity extends ShawnBaseActivity implements OnClickList
 																	dto.child.add(d);
 																}
 															}
-
 															data.child.add(dto);
 														}
 													}

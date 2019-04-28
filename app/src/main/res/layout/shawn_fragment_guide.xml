@@ -5,5 +5,4 @@
     android:layout_height="match_parent"
     android:background="@drawable/bg_guide_01"
     android:orientation="vertical" >
-
 </RelativeLayout>

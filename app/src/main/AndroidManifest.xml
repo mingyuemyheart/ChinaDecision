@@ -242,7 +242,7 @@
             android:screenOrientation="portrait" />
 
         <activity
-            android:name="com.china.activity.ConnectionActivity"
+            android:name="com.china.activity.ShawnConnectionActivity"
             android:screenOrientation="portrait" />
 
         <activity

@@ -63,8 +63,10 @@ public class ShawnPdfFragment extends Fragment implements View.OnClickListener{
             case R.id.imageView:
             case R.id.tvTitle:
                 Intent intent = new Intent(getActivity(), ShawnPDFActivity.class);
-                intent.putExtra(CONST.ACTIVITY_NAME, data.title);
-                intent.putExtra(CONST.WEB_URL, data.detailUrl);
+                if (data != null) {
+                    intent.putExtra(CONST.ACTIVITY_NAME, data.title);
+                    intent.putExtra(CONST.WEB_URL, data.detailUrl);
+                }
                 startActivity(intent);
                 break;
         }

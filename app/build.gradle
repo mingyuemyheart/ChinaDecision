@@ -37,7 +37,7 @@ android {
 
     signingConfigs {
         debug {
-            storeFile file('/Users/shawn/Desktop/打包/中国气象/weatherdecision.keystore')
+            storeFile file('/Users/sunxiaoming/Downloads/创新网络/打包/中国气象/weatherdecision.keystore')
             storePassword "123456"
             keyAlias "platomix"
             keyPassword "123456"

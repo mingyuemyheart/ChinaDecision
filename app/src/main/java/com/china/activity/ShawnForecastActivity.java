@@ -50,10 +50,10 @@ import cn.com.weather.listener.AsyncResponseHandler;
 /**
  * 天气预报
  */
-public class ShawnForecastActivity extends ShawnBaseActivity implements OnClickListener{
+public class ShawnForecastActivity extends ShawnBaseActivity implements OnClickListener {
 	
 	private Context mContext;
-	private TextView tvCity,tvTime,tvTemp,tvForeTemp,tvPhe,tvHumidity,tvWind,tvQuality;
+	private TextView tvCity,tvTime,tvTemp,tvPhe,tvFactInfo;
 	private ImageView ivPhenomenon,ivSwitcher;
 	private LinearLayout llContainer1,llContainer2,llHourly;
 	private ScrollviewListview mListView;//一周预报列表listview
@@ -98,12 +98,9 @@ public class ShawnForecastActivity extends ShawnBaseActivity implements OnClickL
 		ivSwitcher = findViewById(R.id.ivSwitcher);
 		ivSwitcher.setOnClickListener(this);
 		tvTemp = findViewById(R.id.tvTemp);
-		tvForeTemp = findViewById(R.id.tvForeTemp);
 		ivPhenomenon = findViewById(R.id.ivPhenomenon);
 		tvPhe = findViewById(R.id.tvPhe);
-		tvQuality = findViewById(R.id.tvQuality);
-		tvHumidity = findViewById(R.id.tvHumidity);
-		tvWind = findViewById(R.id.tvWind);
+		tvFactInfo = findViewById(R.id.tvFactInfo);
 		llContainer1 = findViewById(R.id.llContainer1);
 		llContainer2 = findViewById(R.id.llContainer2);
 		scrollView = findViewById(R.id.scrollView);
@@ -151,56 +148,6 @@ public class ShawnForecastActivity extends ShawnBaseActivity implements OnClickL
 								if (!TextUtils.isEmpty(result)) {
 									try {
 										JSONObject obj = new JSONObject(result);
-
-										//实况信息
-										if (!obj.isNull("l")) {
-											JSONObject l = obj.getJSONObject("l");
-											if (!l.isNull("l7")) {
-												String time = l.getString("l7");
-												if (time != null) {
-													tvTime.setText(time+"发布");
-												}
-											}
-											if (!l.isNull("l5")) {
-												String weatherCode = WeatherUtil.lastValue(l.getString("l5"));
-												int current = Integer.parseInt(sdf2.format(new Date()));
-												if (current >= 5 && current < 18) {
-													ivPhenomenon.setImageBitmap(WeatherUtil.getDayBitmap(mContext, Integer.valueOf(weatherCode)));
-												}else {
-													ivPhenomenon.setImageBitmap(WeatherUtil.getNightBitmap(mContext, Integer.valueOf(weatherCode)));
-												}
-												tvPhe.setText(getString(WeatherUtil.getWeatherId(Integer.valueOf(weatherCode))));
-											}
-											if (!l.isNull("l1")) {
-												String factTemp = WeatherUtil.lastValue(l.getString("l1"));
-												tvTemp.setText(factTemp);
-											}
-											if (!l.isNull("l2")) {
-												String humidity = WeatherUtil.lastValue(l.getString("l2"));
-												tvHumidity.setText("相对湿度 "+humidity + getString(R.string.unit_percent));
-											}
-											if (!l.isNull("l4")) {
-												String windDir = WeatherUtil.lastValue(l.getString("l4"));
-												if (!l.isNull("l3")) {
-													String windForce = WeatherUtil.lastValue(l.getString("l3"));
-													if (!TextUtils.isEmpty(windDir) && !TextUtils.isEmpty(windForce)) {
-														tvWind.setText(getString(WeatherUtil.getWindDirection(Integer.valueOf(windDir)))+
-																" " + WeatherUtil.getFactWindForce(Integer.valueOf(windForce)));
-													}
-												}
-											}
-										}
-
-										//空气质量
-										if (!obj.isNull("k")) {
-											JSONObject k = obj.getJSONObject("k");
-											if (!k.isNull("k3")) {
-												String num = WeatherUtil.lastValue(k.getString("k3"));
-												if (!TextUtils.isEmpty(num)) {
-													tvQuality.setText("空气质量 "+WeatherUtil.getAqi(mContext, Integer.valueOf(num))+" "+num);
-												}
-											}
-										}
 
 										//逐小时预报信息
 										if (!obj.isNull("jh")) {
@@ -277,11 +224,11 @@ public class ShawnForecastActivity extends ShawnBaseActivity implements OnClickL
 
 													if (currentDate > foreDate) {
 														if (i == 1) {
-															tvForeTemp.setText(dto.highTemp+"℃"+"/"+dto.lowTemp+"℃");
+															tvFactInfo.setText(dto.highTemp+"℃"+"/"+dto.lowTemp+"℃"+"\n");
 														}
 													}else {
 														if (i == 0) {
-															tvForeTemp.setText(dto.highTemp+"℃"+"/"+dto.lowTemp+"℃");
+															tvFactInfo.setText(dto.highTemp+"℃"+"/"+dto.lowTemp+"℃"+"\n");
 														}
 													}
 												}
@@ -299,6 +246,56 @@ public class ShawnForecastActivity extends ShawnBaseActivity implements OnClickL
 											weeklyView.setData(weeklyList, foreDate, currentDate);
 											llContainer2.removeAllViews();
 											llContainer2.addView(weeklyView, width*2, (int)(CommonUtil.dip2px(mContext, 400)));
+
+											//实况信息
+											if (!obj.isNull("l")) {
+												JSONObject l = obj.getJSONObject("l");
+												if (!l.isNull("l7")) {
+													String time = l.getString("l7");
+													if (time != null) {
+														tvTime.setText(time+"发布");
+													}
+												}
+												if (!l.isNull("l5")) {
+													String weatherCode = WeatherUtil.lastValue(l.getString("l5"));
+													int current = Integer.parseInt(sdf2.format(new Date()));
+													if (current >= 5 && current < 18) {
+														ivPhenomenon.setImageBitmap(WeatherUtil.getDayBitmap(mContext, Integer.valueOf(weatherCode)));
+													}else {
+														ivPhenomenon.setImageBitmap(WeatherUtil.getNightBitmap(mContext, Integer.valueOf(weatherCode)));
+													}
+													tvPhe.setText(getString(WeatherUtil.getWeatherId(Integer.valueOf(weatherCode))));
+												}
+												if (!l.isNull("l1")) {
+													String factTemp = WeatherUtil.lastValue(l.getString("l1"));
+													tvTemp.setText(factTemp);
+												}
+												if (!l.isNull("l2")) {
+													String humidity = WeatherUtil.lastValue(l.getString("l2"));
+													tvFactInfo.setText(tvFactInfo.getText().toString()+"相对湿度 "+humidity + getString(R.string.unit_percent)+"\n");
+												}
+												if (!l.isNull("l4")) {
+													String windDir = WeatherUtil.lastValue(l.getString("l4"));
+													if (!l.isNull("l3")) {
+														String windForce = WeatherUtil.lastValue(l.getString("l3"));
+														if (!TextUtils.isEmpty(windDir) && !TextUtils.isEmpty(windForce)) {
+															tvFactInfo.setText(tvFactInfo.getText().toString()+getString(WeatherUtil.getWindDirection(Integer.valueOf(windDir)))+
+																	" " + WeatherUtil.getFactWindForce(Integer.valueOf(windForce))+"\n");
+														}
+													}
+												}
+											}
+
+											//空气质量
+											if (!obj.isNull("k")) {
+												JSONObject k = obj.getJSONObject("k");
+												if (!k.isNull("k3")) {
+													String num = WeatherUtil.lastValue(k.getString("k3"));
+													if (!TextUtils.isEmpty(num)) {
+														tvFactInfo.setText(tvFactInfo.getText().toString()+"空气质量 "+WeatherUtil.getAqi(mContext, Integer.valueOf(num))+" "+num);
+													}
+												}
+											}
 
 										}
 

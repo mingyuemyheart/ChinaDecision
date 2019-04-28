@@ -2,6 +2,7 @@ package com.china.adapter;
 
 import android.content.Context;
 import android.graphics.Color;
+import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -69,8 +70,15 @@ public class ShawnWarningStatisticAdapter extends BaseAdapter{
 		mHolder.tvPro.setText(dto.proCount);
 		mHolder.tvCity.setText(dto.cityCount);
 		mHolder.tvDis.setText(dto.disCount);
-		
-		if (dto.colorName.contains("红")) {
+
+        if (dto.colorName.contains("预警")) {
+			mHolder.tvWarning.setTextColor(mContext.getResources().getColor(R.color.text_color4));
+			mHolder.tvWarning.setBackgroundColor(0x80f0eff5);
+			mHolder.tvNation.setBackgroundColor(0x80f0eff5);
+			mHolder.tvPro.setBackgroundColor(0x80f0eff5);
+			mHolder.tvCity.setBackgroundColor(0x80f0eff5);
+			mHolder.tvDis.setBackgroundColor(0x80f0eff5);
+        }else if (dto.colorName.contains("红")) {
 			mHolder.tvWarning.setTextColor(Color.WHITE);
 			mHolder.tvWarning.setBackgroundColor(0xfffe2624);
 			mHolder.tvNation.setBackgroundColor(0x10fe2624);
@@ -98,13 +106,13 @@ public class ShawnWarningStatisticAdapter extends BaseAdapter{
 			mHolder.tvPro.setBackgroundColor(0x102f82db);
 			mHolder.tvCity.setBackgroundColor(0x102f82db);
 			mHolder.tvDis.setBackgroundColor(0x102f82db);
-		}else {
-			mHolder.tvWarning.setTextColor(mContext.getResources().getColor(R.color.text_color4));
-			mHolder.tvWarning.setBackgroundColor(0x80f0eff5);
-			mHolder.tvNation.setBackgroundColor(0x80f0eff5);
-			mHolder.tvPro.setBackgroundColor(0x80f0eff5);
-			mHolder.tvCity.setBackgroundColor(0x80f0eff5);
-			mHolder.tvDis.setBackgroundColor(0x80f0eff5);
+		}else if (dto.colorName.contains("未知")) {
+			mHolder.tvWarning.setTextColor(Color.WHITE);
+			mHolder.tvWarning.setBackgroundColor(0xff999999);
+			mHolder.tvNation.setBackgroundColor(0x20999999);
+			mHolder.tvPro.setBackgroundColor(0x20999999);
+			mHolder.tvCity.setBackgroundColor(0x20999999);
+			mHolder.tvDis.setBackgroundColor(0x20999999);
 		}
 		
 		return convertView;

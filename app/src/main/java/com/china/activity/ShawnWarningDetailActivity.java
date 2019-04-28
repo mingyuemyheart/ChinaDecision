@@ -102,29 +102,6 @@ public class ShawnWarningDetailActivity extends ShawnBaseActivity implements OnC
 	}
 	
 	/**
-	 * 初始化数据库
-	 */
-	private void initDBManager() {
-		DBManager dbManager = new DBManager(mContext);
-		dbManager.openDateBase();
-		dbManager.closeDatabase();
-		SQLiteDatabase database = SQLiteDatabase.openOrCreateDatabase(DBManager.DB_PATH + "/" + DBManager.DB_NAME, null);
-		Cursor cursor = database.rawQuery("select * from " + DBManager.TABLE_NAME2 + " where WarningId = " + "\"" + data.type+data.color + "\"",null);
-		String content = null;
-		for (int i = 0; i < cursor.getCount(); i++) {
-			cursor.moveToPosition(i);
-			content = cursor.getString(cursor.getColumnIndex("WarningGuide"));
-		}
-		cursor.close();
-		if (!TextUtils.isEmpty(content)) {
-			tvGuide.setText("预警指南：\n"+content);
-			tvGuide.setVisibility(View.VISIBLE);
-		}else {
-			tvGuide.setVisibility(View.GONE);
-		}
-	}
-	
-	/**
 	 * 获取预警详情
 	 */
 	private void OkHttpWarningDetail(final String html) {
@@ -206,6 +183,29 @@ public class ShawnWarningDetailActivity extends ShawnBaseActivity implements OnC
 				});
 			}
 		}).start();
+	}
+
+	/**
+	 * 初始化数据库
+	 */
+	private void initDBManager() {
+		DBManager dbManager = new DBManager(mContext);
+		dbManager.openDateBase();
+		dbManager.closeDatabase();
+		SQLiteDatabase database = SQLiteDatabase.openOrCreateDatabase(DBManager.DB_PATH + "/" + DBManager.DB_NAME, null);
+		Cursor cursor = database.rawQuery("select * from " + DBManager.TABLE_NAME2 + " where WarningId = " + "\"" + data.type+data.color + "\"",null);
+		String content = null;
+		for (int i = 0; i < cursor.getCount(); i++) {
+			cursor.moveToPosition(i);
+			content = cursor.getString(cursor.getColumnIndex("WarningGuide"));
+		}
+		cursor.close();
+		if (!TextUtils.isEmpty(content)) {
+			tvGuide.setText("预警指南：\n"+content);
+			tvGuide.setVisibility(View.VISIBLE);
+		}else {
+			tvGuide.setVisibility(View.GONE);
+		}
 	}
 
 	@Override

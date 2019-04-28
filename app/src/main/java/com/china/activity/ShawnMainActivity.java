@@ -37,6 +37,7 @@ import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.ListView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -49,10 +50,12 @@ import com.amap.api.location.AMapLocationListener;
 import com.amap.api.maps.model.LatLng;
 import com.china.R;
 import com.china.adapter.ShawnMainAdapter;
+import com.china.adapter.ShawnSettingAdapter;
 import com.china.common.CONST;
 import com.china.common.ColumnData;
 import com.china.common.MyApplication;
 import com.china.dto.NewsDto;
+import com.china.dto.ShawnSettingDto;
 import com.china.dto.WarningDto;
 import com.china.dto.WeatherDto;
 import com.china.fragment.ShawnPdfFragment;
@@ -93,10 +96,10 @@ import okhttp3.Response;
 /**
  * 主界面
  */
-public class ShawnMainActivity extends ShawnBaseActivity implements OnClickListener, AMapLocationListener, MyApplication.NavigationListener{
+public class ShawnMainActivity extends ShawnBaseActivity implements OnClickListener, AMapLocationListener {
 	
 	private Context mContext;
-	private TextView tvLocation,tvTime,tvTemperature,tvHumidity,tvWind,tvQuality,tvFifteen,tvHour;
+	private TextView tvLocation,tvTime,tvTemperature,tvHumidity,tvFifteen,tvHour;
 	private RelativeLayout reTitle,reFact,reScrollView;
 	private LinearLayout llWarning,llContainer1,llContainer2,llContainer3;
 	private ImageView ivAqi;
@@ -124,9 +127,8 @@ public class ShawnMainActivity extends ShawnBaseActivity implements OnClickListe
 	//侧拉页面
 	private DrawerLayout drawerlayout;
 	private RelativeLayout reRight;
-	private TextView tvCache;
-	private TextView tvHotline1,tvHotline2;
 	private String dialNumber = "";
+	private ShawnSettingAdapter sAdapter;
 	
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -137,7 +139,7 @@ public class ShawnMainActivity extends ShawnBaseActivity implements OnClickListe
 		initWidget();
 		initViewPager();
 		initGridView();
-		MyApplication.setNavigationListener(this);
+		initListView();
 	}
 
     /**
@@ -180,8 +182,6 @@ public class ShawnMainActivity extends ShawnBaseActivity implements OnClickListe
 		llWarning.setOnClickListener(this);
 		tvTemperature = findViewById(R.id.tvTemperature);
 		tvHumidity = findViewById(R.id.tvHumidity);
-		tvWind = findViewById(R.id.tvWind);
-		tvQuality = findViewById(R.id.tvQuality);
 		tvFifteen = findViewById(R.id.tvFifteen);
 		tvFifteen.setOnClickListener(this);
 		tvHour = findViewById(R.id.tvHour);
@@ -203,49 +203,12 @@ public class ShawnMainActivity extends ShawnBaseActivity implements OnClickListe
 		TextView tvUserName = findViewById(R.id.tvUserName);
         TextView tvLogout = findViewById(R.id.tvLogout);
 		tvLogout.setOnClickListener(this);
-		LinearLayout llSave = findViewById(R.id.llSave);
-		llSave.setOnClickListener(this);
-		LinearLayout llClearCache = findViewById(R.id.llClearCache);
-		llClearCache.setOnClickListener(this);
-		tvCache = findViewById(R.id.tvCache);
-		LinearLayout llVersion = findViewById(R.id.llVersion);
-		llVersion.setOnClickListener(this);
-        LinearLayout llIntro = findViewById(R.id.llIntro);
-		llIntro.setOnClickListener(this);
-        LinearLayout llHotline1 = findViewById(R.id.llHotline1);
-		llHotline1.setOnClickListener(this);
-		tvHotline1 = findViewById(R.id.tvHotline1);
-        LinearLayout llHotline2 = findViewById(R.id.llHotline2);
-		llHotline2.setOnClickListener(this);
-		tvHotline2 = findViewById(R.id.tvHotline2);
-        LinearLayout llFeedBack = findViewById(R.id.llFeedBack);
-		llFeedBack.setOnClickListener(this);
-        LinearLayout llStatistic = findViewById(R.id.llStatistic);
-		llStatistic.setOnClickListener(this);
-		TextView statisticDivider = findViewById(R.id.statisticDivider);
-        LinearLayout llRecommend = findViewById(R.id.llRecommend);
-		llRecommend.setOnClickListener(this);
-        LinearLayout llScreen = findViewById(R.id.llScreen);
-		llScreen.setOnClickListener(this);
-		LinearLayout llControl = findViewById(R.id.llControl);
-		llControl.setOnClickListener(this);
-		LinearLayout llProduct = findViewById(R.id.llProduct);
-		llProduct.setOnClickListener(this);
 
 		getDisplayWidthHeight();
 
 		ViewGroup.LayoutParams params = reRight.getLayoutParams();
-		params.width = width-150;
+		params.width = width-(int)CommonUtil.dip2px(this, 50);
 		reRight.setLayoutParams(params);
-		
-		if (TextUtils.equals(MyApplication.USERGROUP, "10") || TextUtils.equals(MyApplication.USERGROUP, "14")
-				|| TextUtils.equals(MyApplication.USERGROUP, "20") || TextUtils.equals(MyApplication.USERGROUP, "52")) {
-			llStatistic.setVisibility(View.VISIBLE);
-			statisticDivider.setVisibility(View.VISIBLE);
-		}else {
-			llStatistic.setVisibility(View.GONE);
-			statisticDivider.setVisibility(View.GONE);
-		}
 
 		if (!TextUtils.isEmpty(MyApplication.USERNAME)) {
 			tvUserName.setText(MyApplication.USERNAME);
@@ -255,23 +218,14 @@ public class ShawnMainActivity extends ShawnBaseActivity implements OnClickListe
 	}
 
 	private void getDisplayWidthHeight() {
-        DisplayMetrics dm = new DisplayMetrics();
-        getWindowManager().getDefaultDisplay().getMetrics(dm);
-        width = dm.widthPixels;
-        height = dm.heightPixels;
-        density = dm.density;
-    }
+		DisplayMetrics dm = new DisplayMetrics();
+		getWindowManager().getDefaultDisplay().getMetrics(dm);
+		width = dm.widthPixels;
+		height = dm.heightPixels;
+		density = dm.density;
+	}
 	
 	private void refresh() {
-		try {
-			String cache = DataCleanManager.getCacheSize(mContext);
-			if (!TextUtils.isEmpty(cache)) {
-				tvCache.setText(cache);
-			}
-		} catch (Exception e) {
-			e.printStackTrace();
-		} 
-		
 		llWarning.setVisibility(View.INVISIBLE);
 		checkAuthority();
 	}
@@ -298,7 +252,7 @@ public class ShawnMainActivity extends ShawnBaseActivity implements OnClickListe
 
 	@Override
 	public void onLocationChanged(AMapLocation amapLocation) {
-		if (amapLocation != null && amapLocation.getErrorCode() == 0) {
+		if (amapLocation != null && amapLocation.getErrorCode() == AMapLocation.LOCATION_SUCCESS) {
 			cityName = amapLocation.getCity()+amapLocation.getDistrict()+amapLocation.getStreet()+amapLocation.getStreetNum();
 			locationLatLng = new LatLng(amapLocation.getLatitude(), amapLocation.getLongitude());
 			tvLocation.setText(cityName);
@@ -389,7 +343,7 @@ public class ShawnMainActivity extends ShawnBaseActivity implements OnClickListe
 												String windDir = WeatherUtil.lastValue(l.getString("l4"));
 												if (!l.isNull("l3")) {
 													String windForce = WeatherUtil.lastValue(l.getString("l3"));
-													tvWind.setText(getString(WeatherUtil.getWindDirection(Integer.valueOf(windDir))) +
+													tvHumidity.setText(tvHumidity.getText().toString()+"  "+getString(WeatherUtil.getWindDirection(Integer.valueOf(windDir))) +
 															WeatherUtil.getFactWindForce(Integer.valueOf(windForce)));
 												}
 											}
@@ -401,7 +355,7 @@ public class ShawnMainActivity extends ShawnBaseActivity implements OnClickListe
 											if (!k.isNull("k3")) {
 												String num = WeatherUtil.lastValue(k.getString("k3"));
 												if (!TextUtils.isEmpty(num)) {
-													tvQuality.setText("AQI "+WeatherUtil.getAqi(mContext, Integer.valueOf(num))+" "+num);
+													tvHumidity.setText(tvHumidity.getText().toString()+"  "+"AQI "+WeatherUtil.getAqi(mContext, Integer.valueOf(num))+" "+num);
 													ivAqi.setImageResource(WeatherUtil.getAqiIcon(Integer.valueOf(num)));
 												}
 											}
@@ -419,7 +373,6 @@ public class ShawnMainActivity extends ShawnBaseActivity implements OnClickListe
 												dto.hourlyTime = itemObj.getString("jf");
 												hourlyList.add(dto);
 											}
-
 											hourView = new HourView(mContext);
 											hourView.setData(hourlyList, width*2/density, ShawnMainActivity.this);
 											llContainer1.removeAllViews();
@@ -484,16 +437,11 @@ public class ShawnMainActivity extends ShawnBaseActivity implements OnClickListe
 					}
 				});
 
-				runOnUiThread(new Runnable() {
-					@Override
-					public void run() {
-						//获取预警信息
-						String warningId = queryWarningIdByCityId(cityId);
-						if (!TextUtils.isEmpty(warningId)) {
-							OkHttpWarning(warningId);
-						}
-					}
-				});
+				//获取预警信息
+				String warningId = queryWarningIdByCityId(cityId);
+				if (!TextUtils.isEmpty(warningId)) {
+					OkHttpWarning(warningId);
+				}
 
 			}
 		}).start();
@@ -521,124 +469,124 @@ public class ShawnMainActivity extends ShawnBaseActivity implements OnClickListe
 	 * 获取预警信息
 	 */
 	private void OkHttpWarning(final String warningId) {
-		llWarning.removeAllViews();
+		runOnUiThread(new Runnable() {
+			@Override
+			public void run() {
+				llWarning.removeAllViews();
+			}
+		});
 		String wId = warningId.substring(0, 4);
 		if (warningId.startsWith("11") || warningId.startsWith("31") || warningId.startsWith("12") || warningId.startsWith("50")) {
 			wId = warningId.substring(0, 2);
 		}
 		final String url = "http://decision-admin.tianqi.cn/Home/extra/getwarns?order=0&areaid="+wId;
-		new Thread(new Runnable() {
+		OkHttpUtil.enqueue(new Request.Builder().url(url).build(), new Callback() {
 			@Override
-			public void run() {
-				OkHttpUtil.enqueue(new Request.Builder().url(url).build(), new Callback() {
+			public void onFailure(Call call, IOException e) {
+			}
+			@Override
+			public void onResponse(Call call, Response response) throws IOException {
+				if (!response.isSuccessful()) {
+					return;
+				}
+				final String result = response.body().string();
+				runOnUiThread(new Runnable() {
 					@Override
-					public void onFailure(Call call, IOException e) {
-					}
-					@Override
-					public void onResponse(Call call, Response response) throws IOException {
-						if (!response.isSuccessful()) {
-							return;
-						}
-						final String result = response.body().string();
-						runOnUiThread(new Runnable() {
-							@Override
-							public void run() {
-								if (!TextUtils.isEmpty(result)) {
-									try {
-										JSONObject object = new JSONObject(result);
-										if (!object.isNull("data")) {
-											List<WarningDto> warningList = new ArrayList<>();
-											JSONArray jsonArray = object.getJSONArray("data");
-											for (int i = 0; i < jsonArray.length(); i++) {
-												JSONArray tempArray = jsonArray.getJSONArray(i);
-												WarningDto dto = new WarningDto();
-												dto.html = tempArray.getString(1);
-												String[] array = dto.html.split("-");
-												String item0 = array[0];
-												String item1 = array[1];
-												String item2 = array[2];
+					public void run() {
+						if (!TextUtils.isEmpty(result)) {
+							try {
+								JSONObject object = new JSONObject(result);
+								if (!object.isNull("data")) {
+									List<WarningDto> warningList = new ArrayList<>();
+									JSONArray jsonArray = object.getJSONArray("data");
+									for (int i = 0; i < jsonArray.length(); i++) {
+										JSONArray tempArray = jsonArray.getJSONArray(i);
+										WarningDto dto = new WarningDto();
+										dto.html = tempArray.getString(1);
+										String[] array = dto.html.split("-");
+										String item0 = array[0];
+										String item1 = array[1];
+										String item2 = array[2];
 
-												dto.provinceId = item0.substring(0, 2);
-												dto.type = item2.substring(0, 5);
-												dto.color = item2.substring(5, 7);
-												dto.time = item1;
-												dto.lng = tempArray.getDouble(2);
-												dto.lat = tempArray.getDouble(3);
-												dto.name = tempArray.getString(0);
+										dto.provinceId = item0.substring(0, 2);
+										dto.type = item2.substring(0, 5);
+										dto.color = item2.substring(5, 7);
+										dto.time = item1;
+										dto.lng = tempArray.getDouble(2);
+										dto.lat = tempArray.getDouble(3);
+										dto.name = tempArray.getString(0);
 
-												if (!TextUtils.isEmpty(dto.name) && !dto.name.contains("解除")) {
-													if (warningId.startsWith("11") || warningId.startsWith("31") || warningId.startsWith("12") || warningId.startsWith("50")) {
-														if (TextUtils.equals(item0, warningId) || TextUtils.equals(item0, warningId.substring(0,2)+"0000")) {
-															warningList.add(dto);
-														}
-													}else {
-														if (TextUtils.equals(item0, warningId) || TextUtils.equals(item0, warningId.substring(0,4)+"00")) {
-															warningList.add(dto);
-														}
-													}
+										if (!TextUtils.isEmpty(dto.name) && !dto.name.contains("解除")) {
+											if (warningId.startsWith("11") || warningId.startsWith("31") || warningId.startsWith("12") || warningId.startsWith("50")) {
+												if (TextUtils.equals(item0, warningId) || TextUtils.equals(item0, warningId.substring(0,2)+"0000")) {
+													warningList.add(dto);
+												}
+											}else {
+												if (TextUtils.equals(item0, warningId) || TextUtils.equals(item0, warningId.substring(0,4)+"00")) {
+													warningList.add(dto);
 												}
 											}
-
-											llWarning.removeAllViews();
-                                            LinearLayout.LayoutParams params = new LinearLayout.LayoutParams((int)CommonUtil.dip2px(mContext, 30), (int)CommonUtil.dip2px(mContext, 30));
-											for (WarningDto dto : warningList) {
-												ImageView ivWarning = new ImageView(mContext);
-												ivWarning.setTag(dto);
-												Bitmap bitmap = null;
-												if (dto.color.equals(CONST.blue[0])) {
-													bitmap = CommonUtil.getImageFromAssetsFile(mContext,"warning/"+dto.type+CONST.blue[1]+CONST.imageSuffix);
-													if (bitmap == null) {
-														bitmap = CommonUtil.getImageFromAssetsFile(mContext,"warning/"+"default"+CONST.blue[1]+CONST.imageSuffix);
-													}
-												}else if (dto.color.equals(CONST.yellow[0])) {
-													bitmap = CommonUtil.getImageFromAssetsFile(mContext,"warning/"+dto.type+CONST.yellow[1]+CONST.imageSuffix);
-													if (bitmap == null) {
-														bitmap = CommonUtil.getImageFromAssetsFile(mContext,"warning/"+"default"+CONST.yellow[1]+CONST.imageSuffix);
-													}
-												}else if (dto.color.equals(CONST.orange[0])) {
-													bitmap = CommonUtil.getImageFromAssetsFile(mContext,"warning/"+dto.type+CONST.orange[1]+CONST.imageSuffix);
-													if (bitmap == null) {
-														bitmap = CommonUtil.getImageFromAssetsFile(mContext,"warning/"+"default"+CONST.orange[1]+CONST.imageSuffix);
-													}
-												}else if (dto.color.equals(CONST.red[0])) {
-													bitmap = CommonUtil.getImageFromAssetsFile(mContext,"warning/"+dto.type+CONST.red[1]+CONST.imageSuffix);
-													if (bitmap == null) {
-														bitmap = CommonUtil.getImageFromAssetsFile(mContext,"warning/"+"default"+CONST.red[1]+CONST.imageSuffix);
-													}
-												}
-												if (bitmap == null) {
-													bitmap = CommonUtil.getImageFromAssetsFile(mContext,"warning/"+"default"+CONST.imageSuffix);
-												}
-												ivWarning.setImageBitmap(bitmap);
-												ivWarning.setLayoutParams(params);
-												llWarning.addView(ivWarning);
-												llWarning.setVisibility(View.VISIBLE);
-
-												ivWarning.setOnClickListener(new OnClickListener() {
-													@Override
-													public void onClick(View v) {
-														WarningDto data = (WarningDto) v.getTag();
-														Intent intent = new Intent(mContext, ShawnWarningDetailActivity.class);
-														Bundle bundle = new Bundle();
-														bundle.putParcelable("data", data);
-														intent.putExtras(bundle);
-														startActivity(intent);
-													}
-												});
-
-											}
-
 										}
-									} catch (JSONException e) {
-										e.printStackTrace();
 									}
+
+									llWarning.removeAllViews();
+									LinearLayout.LayoutParams params = new LinearLayout.LayoutParams((int)CommonUtil.dip2px(mContext, 30), (int)CommonUtil.dip2px(mContext, 30));
+									for (WarningDto dto : warningList) {
+										ImageView ivWarning = new ImageView(mContext);
+										ivWarning.setTag(dto);
+										Bitmap bitmap = null;
+										if (dto.color.equals(CONST.blue[0])) {
+											bitmap = CommonUtil.getImageFromAssetsFile(mContext,"warning/"+dto.type+CONST.blue[1]+CONST.imageSuffix);
+											if (bitmap == null) {
+												bitmap = CommonUtil.getImageFromAssetsFile(mContext,"warning/"+"default"+CONST.blue[1]+CONST.imageSuffix);
+											}
+										}else if (dto.color.equals(CONST.yellow[0])) {
+											bitmap = CommonUtil.getImageFromAssetsFile(mContext,"warning/"+dto.type+CONST.yellow[1]+CONST.imageSuffix);
+											if (bitmap == null) {
+												bitmap = CommonUtil.getImageFromAssetsFile(mContext,"warning/"+"default"+CONST.yellow[1]+CONST.imageSuffix);
+											}
+										}else if (dto.color.equals(CONST.orange[0])) {
+											bitmap = CommonUtil.getImageFromAssetsFile(mContext,"warning/"+dto.type+CONST.orange[1]+CONST.imageSuffix);
+											if (bitmap == null) {
+												bitmap = CommonUtil.getImageFromAssetsFile(mContext,"warning/"+"default"+CONST.orange[1]+CONST.imageSuffix);
+											}
+										}else if (dto.color.equals(CONST.red[0])) {
+											bitmap = CommonUtil.getImageFromAssetsFile(mContext,"warning/"+dto.type+CONST.red[1]+CONST.imageSuffix);
+											if (bitmap == null) {
+												bitmap = CommonUtil.getImageFromAssetsFile(mContext,"warning/"+"default"+CONST.red[1]+CONST.imageSuffix);
+											}
+										}
+										if (bitmap == null) {
+											bitmap = CommonUtil.getImageFromAssetsFile(mContext,"warning/"+"default"+CONST.imageSuffix);
+										}
+										ivWarning.setImageBitmap(bitmap);
+										ivWarning.setLayoutParams(params);
+										llWarning.addView(ivWarning);
+										llWarning.setVisibility(View.VISIBLE);
+
+										ivWarning.setOnClickListener(new OnClickListener() {
+											@Override
+											public void onClick(View v) {
+												WarningDto data = (WarningDto) v.getTag();
+												Intent intent = new Intent(mContext, ShawnWarningDetailActivity.class);
+												Bundle bundle = new Bundle();
+												bundle.putParcelable("data", data);
+												intent.putExtras(bundle);
+												startActivity(intent);
+											}
+										});
+
+									}
+
 								}
+							} catch (JSONException e) {
+								e.printStackTrace();
 							}
-						});
+						}
 					}
 				});
 			}
-		}).start();
+		});
 	}
 
 	/**
@@ -956,6 +904,155 @@ public class ShawnMainActivity extends ShawnBaseActivity implements OnClickListe
 		});
 	}
 
+	private void initListView() {
+		final List<ShawnSettingDto> list = new ArrayList<>();
+		ShawnSettingDto dto = new ShawnSettingDto();
+		dto.setType(0);
+		dto.setDrawable(R.drawable.shawn_icon_collection_gray);
+		dto.setName("我的收藏");
+		dto.setValue("");
+		list.add(dto);
+		dto = new ShawnSettingDto();
+		dto.setType(1);
+		dto.setDrawable(R.drawable.shawn_icon_feedback);
+		dto.setName("意见反馈");
+		dto.setValue("");
+		list.add(dto);
+		dto = new ShawnSettingDto();
+		dto.setType(2);
+		dto.setDrawable(R.drawable.shawn_icon_cache);
+		dto.setName("清除缓存");
+		dto.setValue(DataCleanManager.getCacheSize(this));
+		list.add(dto);
+		dto = new ShawnSettingDto();
+		dto.setType(3);
+		dto.setDrawable(R.drawable.shawn_icon_brief_intro);
+		dto.setName("中国气象局简介");
+		dto.setValue("");
+		list.add(dto);
+
+		if (TextUtils.equals(MyApplication.USERGROUP, "10") || TextUtils.equals(MyApplication.USERGROUP, "14")
+				|| TextUtils.equals(MyApplication.USERGROUP, "20") || TextUtils.equals(MyApplication.USERGROUP, "52")) {
+			dto = new ShawnSettingDto();
+			dto.setType(4);
+			dto.setDrawable(R.drawable.shawn_icon_weekly_statistic);
+			dto.setName("周报统计");
+			dto.setValue("");
+			list.add(dto);
+		}
+
+		dto = new ShawnSettingDto();
+		dto.setType(5);
+		dto.setDrawable(R.drawable.shawn_icon_app_recommand);
+		dto.setName("应用推荐");
+		dto.setValue("");
+		list.add(dto);
+		dto = new ShawnSettingDto();
+		dto.setType(6);
+		dto.setDrawable(R.drawable.shawn_icon_about);
+		dto.setName("关于我们");
+		dto.setValue("");
+		list.add(dto);
+		dto = new ShawnSettingDto();
+		dto.setType(7);
+		dto.setDrawable(R.drawable.shawn_icon_control);
+		dto.setName("模块管理");
+		dto.setValue("");
+		list.add(dto);
+		dto = new ShawnSettingDto();
+		dto.setType(8);
+		dto.setDrawable(R.drawable.shawn_icon_product);
+		dto.setName("产品订阅");
+		dto.setValue("");
+		list.add(dto);
+		dto = new ShawnSettingDto();
+		dto.setType(9);
+		dto.setDrawable(R.drawable.shawn_icon_connection);
+		dto.setName("屏屏联动");
+		dto.setValue("");
+		list.add(dto);
+		dto = new ShawnSettingDto();
+		dto.setType(10);
+		dto.setDrawable(R.drawable.shawn_icon_hotline1);
+		dto.setName("气象服务热线");
+		dto.setValue("400-6000-121");
+		list.add(dto);
+		dto = new ShawnSettingDto();
+		dto.setType(11);
+		dto.setDrawable(R.drawable.shawn_icon_hotline2);
+		dto.setName("运行保障热线");
+		dto.setValue("010-68408068");
+		list.add(dto);
+
+		ListView listView = findViewById(R.id.listView);
+		sAdapter = new ShawnSettingAdapter(this, list);
+		listView.setAdapter(sAdapter);
+		listView.setOnItemClickListener(new OnItemClickListener() {
+			@Override
+			public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+				ShawnSettingDto data = list.get(position);
+				Intent intent;
+				switch (data.getType()) {
+					case 0:
+						intent = new Intent(mContext, ShawnCollectionActivity.class);
+						intent.putExtra(CONST.ACTIVITY_NAME, data.getName());
+						startActivity(intent);
+						break;
+					case 1:
+						intent = new Intent(mContext, ShawnFeedbackActivity.class);
+						intent.putExtra(CONST.ACTIVITY_NAME, data.getName());
+						startActivity(intent);
+						break;
+					case 2:
+						dialoaCache(true, getString(R.string.sure_delete_cache), data);
+						break;
+					case 3:
+						intent = new Intent(mContext, ShawnNewsDetailActivity.class);
+						intent.putExtra(CONST.ACTIVITY_NAME, data.getName());
+						intent.putExtra(CONST.WEB_URL, "http://www.cma.gov.cn/2011zwxx/2011zbmgk/201110/t20111026_117793.html");
+						startActivity(intent);
+						break;
+					case 4:
+						intent = new Intent(mContext, ShawnWebviewActivity.class);
+						intent.putExtra(CONST.ACTIVITY_NAME, data.getName());
+						intent.putExtra(CONST.WEB_URL, CONST.COUNTURL);
+						startActivity(intent);
+						break;
+					case 5:
+						intent = new Intent(mContext, ShawnWebviewActivity.class);
+						intent.putExtra(CONST.ACTIVITY_NAME, data.getName());
+						intent.putExtra(CONST.WEB_URL, CONST.RECOMMENDURL);
+						startActivity(intent);
+						break;
+					case 6:
+						intent = new Intent(mContext, ShawnAboutActivity.class);
+						intent.putExtra(CONST.ACTIVITY_NAME, data.getName());
+						startActivity(intent);
+						break;
+					case 7:
+						intent = new Intent(mContext, ShawnManageActivity.class);
+						Bundle bundle = new Bundle();
+						bundle.putParcelableArrayList("dataList", (ArrayList<? extends Parcelable>) intentList);
+						intent.putExtras(bundle);
+						startActivityForResult(intent, 1001);
+						break;
+					case 8:
+						startActivity(new Intent(mContext, ShawnProductOrderActivity.class));
+						break;
+					case 9:
+						startActivity(new Intent(mContext, ShawnConnectionActivity.class));
+						break;
+					case 10:
+						dialogDial("气象服务热线\n"+data.getValue(), "拨打");
+						break;
+					case 11:
+						dialogDial("运行保障热线\n"+data.getValue(), "拨打");
+						break;
+				}
+			}
+		});
+	}
+
 	/**
 	 * 登出对话框
 	 * @param content 内容
@@ -995,7 +1092,7 @@ public class ShawnMainActivity extends ShawnBaseActivity implements OnClickListe
 	 * @param content 内容
 	 * @param flag 0删除本地存储，1删除缓存
 	 */
-	private void dialoaCache(final boolean flag, String content, final TextView textView) {
+	private void dialoaCache(final boolean flag, String content, final ShawnSettingDto data) {
 		LayoutInflater inflater = (LayoutInflater) getSystemService(Context.LAYOUT_INFLATER_SERVICE);
 		View view = inflater.inflate(R.layout.shawn_dialog_cache, null);
 		TextView tvContent = view.findViewById(R.id.tvContent);
@@ -1019,19 +1116,12 @@ public class ShawnMainActivity extends ShawnBaseActivity implements OnClickListe
 				dialog.dismiss();
 				if (flag) {
 					DataCleanManager.clearCache(mContext);
-					try {
-						textView.setText(DataCleanManager.getCacheSize(mContext));
-					} catch (Exception e) {
-						e.printStackTrace();
+					data.setValue(DataCleanManager.getCacheSize(mContext));
+					if (sAdapter != null) {
+						sAdapter.notifyDataSetChanged();
 					}
 				}else {
-//					ChannelsManager.clearData(mContext);//清除保存在本地的频道数据
 					DataCleanManager.clearLocalSave(mContext);
-					try {
-						textView.setText(DataCleanManager.getLocalSaveSize(mContext));
-					} catch (Exception e) {
-						e.printStackTrace();
-					}
 				}
 			}
 		});
@@ -1140,64 +1230,8 @@ public class ShawnMainActivity extends ShawnBaseActivity implements OnClickListe
 				reScrollView.setVisibility(View.VISIBLE);
 				hScrollView2.setVisibility(View.GONE);
 				break;
-			case R.id.llSave:
-				intent = new Intent(mContext, ShawnCollectionActivity.class);
-				intent.putExtra(CONST.ACTIVITY_NAME, getString(R.string.setting_save));
-				startActivity(intent);
-				break;
-			case R.id.llClearCache:
-				dialoaCache(true, getString(R.string.sure_delete_cache), tvCache);
-				break;
-			case R.id.llVersion:
-				intent = new Intent(mContext, ShawnAboutActivity.class);
-				intent.putExtra(CONST.ACTIVITY_NAME, "关于我们");
-				startActivity(intent);
-				break;
 			case R.id.tvLogout:
 				dialogLogout(getString(R.string.sure_logout));
-				break;
-			case R.id.llIntro:
-				intent = new Intent(mContext, ShawnNewsDetailActivity.class);
-				intent.putExtra(CONST.ACTIVITY_NAME, "中国气象局简介");
-				intent.putExtra(CONST.WEB_URL, "http://www.cma.gov.cn/2011zwxx/2011zbmgk/201110/t20111026_117793.html");
-				startActivity(intent);
-				break;
-			case R.id.llFeedBack:
-				intent = new Intent(mContext, ShawnFeedbackActivity.class);
-				intent.putExtra(CONST.ACTIVITY_NAME, getString(R.string.setting_feedback));
-				intent.putExtra(CONST.INTENT_APPID, com.china.common.CONST.APPID);
-				startActivity(intent);
-				break;
-			case R.id.llHotline1:
-				dialogDial(getString(R.string.setting_hotline1)+"\n"+tvHotline1.getText().toString(), getString(R.string.dial));
-				break;
-			case R.id.llHotline2:
-				dialogDial(getString(R.string.setting_hotline2)+"\n"+tvHotline2.getText().toString(), getString(R.string.dial));
-				break;
-			case R.id.llStatistic:
-				intent = new Intent(mContext, ShawnWebviewActivity.class);
-				intent.putExtra(CONST.ACTIVITY_NAME, "周报统计");
-				intent.putExtra(CONST.WEB_URL, CONST.COUNTURL);
-				startActivity(intent);
-				break;
-			case R.id.llRecommend:
-				intent = new Intent(mContext, ShawnWebviewActivity.class);
-				intent.putExtra(CONST.ACTIVITY_NAME, "应用推荐");
-				intent.putExtra(CONST.WEB_URL, CONST.RECOMMENDURL);
-				startActivity(intent);
-				break;
-			case R.id.llScreen:
-				startActivity(new Intent(mContext, ConnectionActivity.class));
-				break;
-			case R.id.llControl:
-				intent = new Intent(mContext, ShawnManageActivity.class);
-				Bundle bundle = new Bundle();
-				bundle.putParcelableArrayList("dataList", (ArrayList<? extends Parcelable>) intentList);
-				intent.putExtras(bundle);
-				startActivityForResult(intent, 1001);
-				break;
-			case R.id.llProduct:
-				startActivity(new Intent(mContext, ShawnProductOrderActivity.class));
 				break;
 
 		default:
@@ -1224,24 +1258,12 @@ public class ShawnMainActivity extends ShawnBaseActivity implements OnClickListe
 		}
 	}
 
-	@Override
-    public void showNavigation(boolean show) {
-        onLayoutMeasure();
-    }
-
     /**
      * 判断navigation是否显示，重新计算页面布局
      */
     private void onLayoutMeasure() {
         getDisplayWidthHeight();
-
-        int statusBarHeight = -1;//状态栏高度
-        //获取status_bar_height资源的ID
-        int resourceId = getResources().getIdentifier("status_bar_height", "dimen", "android");
-        if (resourceId > 0) {
-            //根据资源ID获取响应的尺寸值
-            statusBarHeight = getResources().getDimensionPixelSize(resourceId);
-        }
+        int statusBarHeight = CommonUtil.statusBarHeight(this);//状态栏高度
         reTitle.measure(0, 0);
         int height1 = reTitle.getMeasuredHeight();
 		reFact.measure(0, 0);
@@ -1251,7 +1273,6 @@ public class ShawnMainActivity extends ShawnBaseActivity implements OnClickListe
             viewPager.measure(0, 0);
             height3 = (int)(30*density);
         }
-
         if (mAdapter != null) {
             mAdapter.height = height-statusBarHeight-height1-height2-height3;
             mAdapter.notifyDataSetChanged();
@@ -1261,11 +1282,11 @@ public class ShawnMainActivity extends ShawnBaseActivity implements OnClickListe
 	//需要申请的所有权限
 	private String[] allPermissions = new String[] {
 			Manifest.permission.ACCESS_COARSE_LOCATION,
-			Manifest.permission.CALL_PHONE
+			Manifest.permission.READ_PHONE_STATE
 	};
 
 	//拒绝的权限集合
-	public static List<String> deniedList = new ArrayList<>();
+	private static List<String> deniedList = new ArrayList<>();
 	/**
 	 * 申请定位权限
 	 */
@@ -1335,12 +1356,12 @@ public class ShawnMainActivity extends ShawnBaseActivity implements OnClickListe
 							getWeatherInfo();
 						}
 					}else {//只要有一个没有授权，就提示进入设置界面设置
-						AuthorityUtil.intentAuthorSetting(mContext, "\""+getString(R.string.app_name)+"\""+"需要使用您的位置权限、电话权限，是否前往设置？");
+						AuthorityUtil.intentAuthorSetting(mContext, "\""+getString(R.string.app_name)+"\""+"需要使用您的位置权限、设备信息权限，是否前往设置？");
 					}
 				}else {
 					for (String permission : permissions) {
 						if (!ActivityCompat.shouldShowRequestPermissionRationale(ShawnMainActivity.this, permission)) {
-							AuthorityUtil.intentAuthorSetting(mContext, "\""+getString(R.string.app_name)+"\""+"需要使用您的位置权限、电话权限，是否前往设置？");
+							AuthorityUtil.intentAuthorSetting(mContext, "\""+getString(R.string.app_name)+"\""+"需要使用您的位置权限、设备信息权限，是否前往设置？");
 							break;
 						}
 					}

@@ -172,7 +172,6 @@ public class ShawnWelcomeActivity extends ShawnBaseActivity {
 															if (!childObj.isNull("dataurl")) {
 																dto.dataUrl = childObj.getString("dataurl");
 															}
-
 															if (!childObj.isNull("child")) {
 																JSONArray childArray2 = childObj.getJSONArray("child");
 																for (int m = 0; m < childArray2.length(); m++) {
@@ -202,7 +201,6 @@ public class ShawnWelcomeActivity extends ShawnBaseActivity {
 																	dto.child.add(d);
 																}
 															}
-
 															data.child.add(dto);
 														}
 													}

@@ -13,11 +13,16 @@ public class DataCleanManager {
 	 * @param context
 	 * @throws Exception
 	 */
-	public static String getCacheSize(Context context) throws Exception {
-		long cacheSize = getFolderSize(context.getCacheDir());//内部缓存
-		if (Environment.getExternalStorageState().equals(Environment.MEDIA_MOUNTED)) {
-			long sdcardCacheSize = getFolderSize(context.getExternalCacheDir());//sdcard缓存
-			cacheSize += sdcardCacheSize;
+	public static String getCacheSize(Context context) {
+		long cacheSize = 0;//内部缓存
+		try {
+			cacheSize = getFolderSize(context.getCacheDir());
+			if (Environment.getExternalStorageState().equals(Environment.MEDIA_MOUNTED)) {
+				long sdcardCacheSize = getFolderSize(context.getExternalCacheDir());//sdcard缓存
+				cacheSize += sdcardCacheSize;
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
 		}
 		return getFormatSize(cacheSize);
 	}

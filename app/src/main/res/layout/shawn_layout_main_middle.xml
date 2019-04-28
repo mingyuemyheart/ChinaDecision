@@ -117,7 +117,7 @@
                             android:layout_height="wrap_content"
                             android:includeFontPadding="false"
                             android:textColor="@color/white"
-                            android:textSize="60dp"/>
+                            android:textSize="60sp"/>
 
                         <TextView
                             android:layout_width="wrap_content"
@@ -125,45 +125,26 @@
                             android:layout_marginStart="5dp"
                             android:text="℃"
                             android:textColor="@color/white"
-                            android:textSize="@dimen/level_4"/>
+                            android:textSize="@dimen/level_3"/>
                     </LinearLayout>
 
-                    <LinearLayout
-                        android:id="@+id/llHumidity"
-                        android:layout_width="match_parent"
+                    <TextView
+                        android:id="@+id/tvHumidity"
+                        android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
+                        android:layout_centerHorizontal="true"
+                        android:textColor="@color/white"
                         android:layout_below="@+id/llTemp"
-                        android:gravity="center_vertical|center">
+                        android:textSize="@dimen/level_4"/>
 
-                        <TextView
-                            android:id="@+id/tvHumidity"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:textColor="@color/white"
-                            android:textSize="@dimen/level_4"/>
-
-                        <TextView
-                            android:id="@+id/tvWind"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:layout_marginStart="10dp"
-                            android:textColor="@color/white"
-                            android:textSize="@dimen/level_4"/>
-
-                        <TextView
-                            android:id="@+id/tvQuality"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:layout_marginStart="10dp"
-                            android:textColor="@color/white"
-                            android:textSize="@dimen/level_4"/>
-
-                        <ImageView
-                            android:id="@+id/ivAqi"
-                            android:layout_width="15dp"
-                            android:layout_height="15dp"
-                            android:layout_marginStart="5dp"/>
-                    </LinearLayout>
+                    <ImageView
+                        android:id="@+id/ivAqi"
+                        android:layout_width="15dp"
+                        android:layout_height="15dp"
+                        android:layout_marginTop="2dp"
+                        android:layout_toEndOf="@+id/tvHumidity"
+                        android:layout_below="@+id/llTemp"
+                        android:layout_marginStart="5dp"/>
 
                     <LinearLayout
                         android:id="@+id/llWeather"
@@ -171,7 +152,7 @@
                         android:layout_height="wrap_content"
                         android:background="@drawable/shawn_bg_corner_weather"
                         android:orientation="horizontal"
-                        android:layout_below="@+id/llHumidity"
+                        android:layout_below="@+id/tvHumidity"
                         android:layout_centerHorizontal="true"
                         android:layout_marginTop="5dp"
                         android:paddingStart="10dp"

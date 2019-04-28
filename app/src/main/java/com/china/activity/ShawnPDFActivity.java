@@ -89,15 +89,15 @@ public class ShawnPDFActivity extends ShawnBaseActivity implements OnClickListen
 		tvFeedback = findViewById(R.id.tvFeedback);
 		tvFeedback.setOnClickListener(this);
 
-		title = getIntent().getStringExtra(CONST.ACTIVITY_NAME);
-		if (!TextUtils.isEmpty(title)) {
-			tvTitle.setText(title);
+		if (getIntent().hasExtra(CONST.ACTIVITY_NAME)) {
+			title = getIntent().getStringExtra(CONST.ACTIVITY_NAME);
+			if (!TextUtils.isEmpty(title)) {
+				tvTitle.setText(title);
+				if (TextUtils.equals(title, "春运气象服务专报")) {
+					ivShare.setVisibility(View.VISIBLE);
+				}
+			}
 		}
-
-		if (TextUtils.equals(title, "春运气象服务专报")) {
-			ivShare.setVisibility(View.VISIBLE);
-		}
-
 	}
 	
 	// 根据Unicode编码完美的判断中文汉字和符号
@@ -129,7 +129,9 @@ public class ShawnPDFActivity extends ShawnBaseActivity implements OnClickListen
 	
 	private void initPDFView() {
 		pdfView = findViewById(R.id.pdfView);
-
+		if (!getIntent().hasExtra(CONST.WEB_URL)) {
+			return;
+		}
 		dataUrl = getIntent().getStringExtra(CONST.WEB_URL);
 		if (TextUtils.isEmpty(dataUrl)) {
 			return;

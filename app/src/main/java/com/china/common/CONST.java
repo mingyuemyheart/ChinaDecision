@@ -16,13 +16,11 @@ public class CONST {
 	//showType类型，区分本地类或者图文
 	public static final String LOCAL = "local";
 	public static final String NEWS = "news";
-	public static final String NEWSPLUS = "news+";
 	public static final String PRODUCT = "product";
 	public static final String URL = "url";
 	public static final String PDF = "pdf";
 	
 	//intent传值的标示
-	public static final String INTENT_APPID = "intent_appid";
 	public static final String WEB_URL = "web_Url";//网页地址的标示
 	public static final String COLUMN_ID = "column_id";//栏目id
 	public static final String ACTIVITY_NAME = "activity_name";//界面名称

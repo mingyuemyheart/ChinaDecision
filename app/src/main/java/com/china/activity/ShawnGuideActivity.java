@@ -10,7 +10,7 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import com.china.R;
-import com.china.fragment.GuideFragment;
+import com.china.fragment.ShawnGuideFragment;
 import com.china.view.MainViewPager;
 
 import java.util.ArrayList;
@@ -35,7 +35,7 @@ public class ShawnGuideActivity extends Activity{
 	 */
 	private void initViewPager() {
 		for (int i = 0; i < 3; i++) {
-			Fragment fragment = new GuideFragment();
+			Fragment fragment = new ShawnGuideFragment();
 			Bundle bundle = new Bundle();
 			bundle.putInt("index", i);
 			fragment.setArguments(bundle);

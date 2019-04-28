@@ -176,6 +176,26 @@ OnMarkerClickListener, InfoWindowAdapter, OnCameraChangeListener, OnMapScreenSho
 	}
 
 	/**
+	 * 初始化高德地图
+	 */
+	private void initAmap(Bundle bundle) {
+		mapView = findViewById(R.id.mapView);
+		mapView.onCreate(bundle);
+		if (aMap == null) {
+			aMap = mapView.getMap();
+		}
+
+		aMap.moveCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(35.926628, 105.178100), zoom));
+		aMap.getUiSettings().setMyLocationButtonEnabled(false);// 设置默认定位按钮是否显示
+		aMap.getUiSettings().setZoomControlsEnabled(false);
+		aMap.getUiSettings().setRotateGesturesEnabled(false);
+		aMap.setOnMapClickListener(this);
+		aMap.setOnMarkerClickListener(this);
+		aMap.setInfoWindowAdapter(this);
+		aMap.setOnCameraChangeListener(this);
+	}
+
+	/**
 	 * 初始化控件
 	 */
 	private void initWidget() {
@@ -237,47 +257,26 @@ OnMarkerClickListener, InfoWindowAdapter, OnCameraChangeListener, OnMapScreenSho
 		ivLegend9 = findViewById(R.id.ivLegend9);
 		ivLegend10 = findViewById(R.id.ivLegend10);
 
-        refresh();
 		CommonUtil.showGuidePage(mContext, this.getClass().getName(), ivGuide);
 		String title = getIntent().getStringExtra(CONST.ACTIVITY_NAME);
 		if (title != null) {
 			tvTitle.setText(title);
 		}
+		refresh();
 		columnId = getIntent().getStringExtra(CONST.COLUMN_ID);
 		CommonUtil.submitClickCount(columnId, title);
     }
 	
 	private void refresh() {
 		loadingView.setVisibility(View.VISIBLE);
-		OkHttpWarning();
-		OkHttpTyphoonList();
-	}
-	
-	/**
-	 * 初始化高德地图
-	 */
-	private void initAmap(Bundle bundle) {
-		mapView = findViewById(R.id.mapView);
-		mapView.onCreate(bundle);
-		if (aMap == null) {
-			aMap = mapView.getMap();
-		}
-		
-		aMap.moveCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(35.926628, 105.178100), zoom));
-		aMap.getUiSettings().setMyLocationButtonEnabled(false);// 设置默认定位按钮是否显示
-		aMap.getUiSettings().setZoomControlsEnabled(false);
-		aMap.getUiSettings().setRotateGesturesEnabled(false);
-		aMap.setOnMapClickListener(this);
-		aMap.setOnMarkerClickListener(this);
-		aMap.setInfoWindowAdapter(this);
-		aMap.setOnCameraChangeListener(this);
-		aMap.setOnMapLoadedListener(new AMap.OnMapLoadedListener() {
+		new Thread(new Runnable() {
 			@Override
-			public void onMapLoaded() {
+			public void run() {
 				startLocation();
-				addLocationMarker();
+				OkHttpWarning();
+				OkHttpTyphoonList();
 			}
-		});
+		}).start();
 	}
 	
 	/**
@@ -298,10 +297,10 @@ OnMarkerClickListener, InfoWindowAdapter, OnCameraChangeListener, OnMapScreenSho
 
 	@Override
 	public void onLocationChanged(AMapLocation amapLocation) {
-		if (amapLocation != null && amapLocation.getErrorCode() == 0) {
+		if (amapLocation != null && amapLocation.getErrorCode() == AMapLocation.LOCATION_SUCCESS) {
 			locationLatLng = new LatLng(amapLocation.getLatitude(), amapLocation.getLongitude());
-			addLocationMarker();
         }
+		addLocationMarker();
 	}
 
 	/**
@@ -333,222 +332,234 @@ OnMarkerClickListener, InfoWindowAdapter, OnCameraChangeListener, OnMapScreenSho
 	 */
 	private void OkHttpWarning() {
 		final String url = "http://decision-admin.tianqi.cn/Home/extra/getwarns?order=0";
-		new Thread(new Runnable() {
+		OkHttpUtil.enqueue(new Request.Builder().url(url).build(), new Callback() {
 			@Override
-			public void run() {
-				OkHttpUtil.enqueue(new Request.Builder().url(url).build(), new Callback() {
+			public void onFailure(Call call, IOException e) {
+			}
+			@Override
+			public void onResponse(Call call, Response response) throws IOException {
+				if (!response.isSuccessful()) {
+					return;
+				}
+				final String result = response.body().string();
+				runOnUiThread(new Runnable() {
 					@Override
-					public void onFailure(Call call, IOException e) {
-					}
-					@Override
-					public void onResponse(Call call, Response response) throws IOException {
-						if (!response.isSuccessful()) {
-							return;
-						}
-						final String result = response.body().string();
-						runOnUiThread(new Runnable() {
-							@Override
-							public void run() {
-								if (!TextUtils.isEmpty(result)) {
-									try {
-										final JSONObject object = new JSONObject(result);
-										if (object != null) {
-											warningList.clear();
-											nationList.clear();
-											if (!object.isNull("data")) {
-												JSONArray jsonArray = object.getJSONArray("data");
-												for (int i = 0; i < jsonArray.length(); i++) {
-													JSONArray tempArray = jsonArray.getJSONArray(i);
-													WarningDto dto = new WarningDto();
-													dto.html = tempArray.getString(1);
-													String[] array = dto.html.split("-");
-													String item0 = array[0];
-													String item1 = array[1];
-													String item2 = array[2];
+					public void run() {
+						if (!TextUtils.isEmpty(result)) {
+							try {
+								warningList.clear();
+								nationList.clear();
+								JSONObject object = new JSONObject(result);
+								if (!object.isNull("data")) {
+									JSONArray jsonArray = object.getJSONArray("data");
+									for (int i = 0; i < jsonArray.length(); i++) {
+										JSONArray tempArray = jsonArray.getJSONArray(i);
+										WarningDto dto = new WarningDto();
+										dto.html = tempArray.getString(1);
+										String[] array = dto.html.split("-");
+										String item0 = array[0];
+										String item1 = array[1];
+										String item2 = array[2];
 
-													dto.item0 = item0;
-													dto.provinceId = item0.substring(0, 2);
-													dto.type = item2.substring(0, 5);
-													dto.color = item2.substring(5, 7);
-													dto.time = item1;
-													dto.lng = tempArray.getDouble(2);
-													dto.lat = tempArray.getDouble(3);
-													dto.name = tempArray.getString(0);
+										dto.item0 = item0;
+										dto.provinceId = item0.substring(0, 2);
+										dto.type = item2.substring(0, 5);
+										dto.color = item2.substring(5, 7);
+										dto.time = item1;
+										dto.lng = tempArray.getDouble(2);
+										dto.lat = tempArray.getDouble(3);
+										dto.name = tempArray.getString(0);
 
-													if (!dto.name.contains("解除") && !TextUtils.equals(item0, "000000")) {
-														warningList.add(dto);
-													}
+										if (!dto.name.contains("解除")) {
+											warningList.add(dto);
+										}
 
-													if (!TextUtils.isEmpty(item0)) {
-														if (!dto.name.contains("解除")) {
-															if (TextUtils.equals(item0, "000000")) {
-																nationList.add(dto);
-																nationMap.put(dto.type, dto.type);
-															}
-														}
-													}
+										if (!TextUtils.isEmpty(item0)) {
+											if (!dto.name.contains("解除")) {
+												if (TextUtils.equals(item0, "000000")) {
+													nationList.add(dto);
+													nationMap.put(dto.type, dto.type);
 												}
-
-												addWarningMarkers();
-
-												try {
-													String count = warningList.size()+"";
-													if (TextUtils.equals(count, "0")) {
-														String time = "";
-														if (!object.isNull("time")) {
-															long t = object.getLong("time");
-															time = sdf3.format(new Date(t*1000));
-														}
-														tvWarningStatistic.setText(time+", "+"当前生效预警"+count+"条");
-														ivList.setVisibility(View.GONE);
-														ivStatistic.setVisibility(View.GONE);
-														arcMenu.setVisibility(View.GONE);
-														reWarningStatistic.setVisibility(View.VISIBLE);
-														loadingView.setVisibility(View.GONE);
-														return;
-													}
-
-													String time = "";
-													if (!object.isNull("time")) {
-														long t = object.getLong("time");
-														time = sdf3.format(new Date(t*1000));
-													}
-													String str1 = time+", "+"当前生效预警";
-													String str2 = "条";
-													String warningInfo = str1+count+str2;
-													SpannableStringBuilder builder = new SpannableStringBuilder(warningInfo);
-													ForegroundColorSpan builderSpan1 = new ForegroundColorSpan(getResources().getColor(R.color.text_color3));
-													ForegroundColorSpan builderSpan2 = new ForegroundColorSpan(getResources().getColor(R.color.red));
-													ForegroundColorSpan builderSpan3 = new ForegroundColorSpan(getResources().getColor(R.color.text_color3));
-													builder.setSpan(builderSpan1, 0, str1.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
-													builder.setSpan(builderSpan2, str1.length(), str1.length()+count.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
-													builder.setSpan(builderSpan3, str1.length()+count.length(), str1.length()+count.length()+str2.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
-													tvWarningStatistic.setText(builder);
-													ivList.setVisibility(View.VISIBLE);
-													ivStatistic.setVisibility(View.VISIBLE);
-													arcMenu.setVisibility(View.VISIBLE);
-													reWarningStatistic.setVisibility(View.VISIBLE);
-													loadingView.setVisibility(View.GONE);
-
-													if (nationList.size() > 0) {
-														tvNation.setText("国家级预警"+nationList.size()+"条");
-														tvNation.setVisibility(View.VISIBLE);
-
-														handlerNationWarning();
-													}else {
-														tvNation.setVisibility(View.GONE);
-													}
-
-													//计算统计列表信息
-													int rnation = 0;int rpro = 0;int rcity = 0;int rdis = 0;
-													int onation = 0;int opro = 0;int ocity = 0;int odis = 0;
-													int ynation = 0;int ypro = 0;int ycity = 0;int ydis = 0;
-													int bnation = 0;int bpro = 0;int bcity = 0;int bdis = 0;
-													for (int i = 0; i < warningList.size(); i++) {
-														WarningDto dto = warningList.get(i);
-														if (TextUtils.equals(dto.color, "04")) {
-															if (TextUtils.equals(dto.item0, "000000")) {
-																rnation += 1;
-															}else if (TextUtils.equals(dto.item0.substring(dto.item0.length()-4, dto.item0.length()), "0000")) {
-																rpro += 1;
-															}else if (TextUtils.equals(dto.item0.substring(dto.item0.length()-2, dto.item0.length()), "00")) {
-																rcity += 1;
-															}else {
-																rdis += 1;
-															}
-														}else if (TextUtils.equals(dto.color, "03")) {
-															if (TextUtils.equals(dto.item0, "000000")) {
-																onation += 1;
-															}else if (TextUtils.equals(dto.item0.substring(dto.item0.length()-4, dto.item0.length()), "0000")) {
-																opro += 1;
-															}else if (TextUtils.equals(dto.item0.substring(dto.item0.length()-2, dto.item0.length()), "00")) {
-																ocity += 1;
-															}else {
-																odis += 1;
-															}
-														}else if (TextUtils.equals(dto.color, "02")) {
-															if (TextUtils.equals(dto.item0, "000000")) {
-																ynation += 1;
-															}else if (TextUtils.equals(dto.item0.substring(dto.item0.length()-4, dto.item0.length()), "0000")) {
-																ypro += 1;
-															}else if (TextUtils.equals(dto.item0.substring(dto.item0.length()-2, dto.item0.length()), "00")) {
-																ycity += 1;
-															}else {
-																ydis += 1;
-															}
-														}else if (TextUtils.equals(dto.color, "01")) {
-															if (TextUtils.equals(dto.item0, "000000")) {
-																bnation += 1;
-															}else if (TextUtils.equals(dto.item0.substring(dto.item0.length()-4, dto.item0.length()), "0000")) {
-																bpro += 1;
-															}else if (TextUtils.equals(dto.item0.substring(dto.item0.length()-2, dto.item0.length()), "00")) {
-																bcity += 1;
-															}else {
-																bdis += 1;
-															}
-														}
-													}
-
-													statisticList.clear();
-													WarningDto wDto = new WarningDto();
-													wDto.colorName = "预警"+warningList.size();
-													wDto.nationCount = "国家级"+(rnation+onation+ynation+bnation);
-													wDto.proCount = "省级"+(rpro+opro+ypro+bpro);
-													wDto.cityCount = "市级"+(rcity+ocity+ycity+bcity);
-													wDto.disCount = "县级"+(rdis+odis+ydis+bdis);
-													statisticList.add(wDto);
-
-													wDto = new WarningDto();
-													wDto.colorName = "红"+(rnation+rpro+rcity+rdis);
-													wDto.nationCount = rnation+"";
-													wDto.proCount = rpro+"";
-													wDto.cityCount = rcity+"";
-													wDto.disCount = rdis+"";
-													statisticList.add(wDto);
-
-													wDto = new WarningDto();
-													wDto.colorName = "橙"+(onation+opro+ocity+odis);
-													wDto.nationCount = onation+"";
-													wDto.proCount = opro+"";
-													wDto.cityCount = ocity+"";
-													wDto.disCount = odis+"";
-													statisticList.add(wDto);
-
-													wDto = new WarningDto();
-													wDto.colorName = "黄"+(ynation+ypro+ycity+ydis);
-													wDto.nationCount = ynation+"";
-													wDto.proCount = ypro+"";
-													wDto.cityCount = ycity+"";
-													wDto.disCount = ydis+"";
-													statisticList.add(wDto);
-
-													wDto = new WarningDto();
-													wDto.colorName = "蓝"+(bnation+bpro+bcity+bdis);
-													wDto.nationCount = bnation+"";
-													wDto.proCount = bpro+"";
-													wDto.cityCount = bcity+"";
-													wDto.disCount = bdis+"";
-													statisticList.add(wDto);
-
-													if (statisticAdapter != null) {
-														statisticAdapter.notifyDataSetChanged();
-													}
-												} catch (Exception e) {
-													e.printStackTrace();
-												}
-
 											}
 										}
-									} catch (JSONException e) {
+									}
+
+									addWarningMarkers();
+
+									try {
+										String count = warningList.size()+"";
+										if (TextUtils.equals(count, "0")) {
+											String time = "";
+											if (!object.isNull("time")) {
+												long t = object.getLong("time");
+												time = sdf3.format(new Date(t*1000));
+											}
+											tvWarningStatistic.setText(time+", "+"当前生效预警"+count+"条");
+											ivList.setVisibility(View.GONE);
+											ivStatistic.setVisibility(View.GONE);
+											arcMenu.setVisibility(View.GONE);
+											reWarningStatistic.setVisibility(View.VISIBLE);
+											loadingView.setVisibility(View.GONE);
+											return;
+										}
+
+										String time = "";
+										if (!object.isNull("time")) {
+											long t = object.getLong("time");
+											time = sdf3.format(new Date(t*1000));
+										}
+										String str1 = time+", "+"当前生效预警";
+										String str2 = "条";
+										String warningInfo = str1+count+str2;
+										SpannableStringBuilder builder = new SpannableStringBuilder(warningInfo);
+										ForegroundColorSpan builderSpan1 = new ForegroundColorSpan(getResources().getColor(R.color.text_color3));
+										ForegroundColorSpan builderSpan2 = new ForegroundColorSpan(getResources().getColor(R.color.red));
+										ForegroundColorSpan builderSpan3 = new ForegroundColorSpan(getResources().getColor(R.color.text_color3));
+										builder.setSpan(builderSpan1, 0, str1.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+										builder.setSpan(builderSpan2, str1.length(), str1.length()+count.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+										builder.setSpan(builderSpan3, str1.length()+count.length(), str1.length()+count.length()+str2.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+										tvWarningStatistic.setText(builder);
+										ivList.setVisibility(View.VISIBLE);
+										ivStatistic.setVisibility(View.VISIBLE);
+										arcMenu.setVisibility(View.VISIBLE);
+										reWarningStatistic.setVisibility(View.VISIBLE);
+										loadingView.setVisibility(View.GONE);
+
+										if (nationList.size() > 0) {
+											tvNation.setText("国家级预警"+nationList.size()+"条");
+											tvNation.setVisibility(View.VISIBLE);
+
+											handlerNationWarning();
+										}else {
+											tvNation.setVisibility(View.GONE);
+										}
+
+										//计算统计列表信息
+										int rnation = 0;int rpro = 0;int rcity = 0;int rdis = 0;
+										int onation = 0;int opro = 0;int ocity = 0;int odis = 0;
+										int ynation = 0;int ypro = 0;int ycity = 0;int ydis = 0;
+										int bnation = 0;int bpro = 0;int bcity = 0;int bdis = 0;
+										int wnation = 0;int wpro = 0;int wcity = 0;int wdis = 0;
+										for (int i = 0; i < warningList.size(); i++) {
+											WarningDto dto = warningList.get(i);
+											if (TextUtils.equals(dto.color, "04")) {
+												if (TextUtils.equals(dto.item0, "000000")) {
+													rnation += 1;
+												}else if (TextUtils.equals(dto.item0.substring(dto.item0.length()-4, dto.item0.length()), "0000")) {
+													rpro += 1;
+												}else if (TextUtils.equals(dto.item0.substring(dto.item0.length()-2, dto.item0.length()), "00")) {
+													rcity += 1;
+												}else {
+													rdis += 1;
+												}
+											}else if (TextUtils.equals(dto.color, "03")) {
+												if (TextUtils.equals(dto.item0, "000000")) {
+													onation += 1;
+												}else if (TextUtils.equals(dto.item0.substring(dto.item0.length()-4, dto.item0.length()), "0000")) {
+													opro += 1;
+												}else if (TextUtils.equals(dto.item0.substring(dto.item0.length()-2, dto.item0.length()), "00")) {
+													ocity += 1;
+												}else {
+													odis += 1;
+												}
+											}else if (TextUtils.equals(dto.color, "02")) {
+												if (TextUtils.equals(dto.item0, "000000")) {
+													ynation += 1;
+												}else if (TextUtils.equals(dto.item0.substring(dto.item0.length()-4, dto.item0.length()), "0000")) {
+													ypro += 1;
+												}else if (TextUtils.equals(dto.item0.substring(dto.item0.length()-2, dto.item0.length()), "00")) {
+													ycity += 1;
+												}else {
+													ydis += 1;
+												}
+											}else if (TextUtils.equals(dto.color, "01")) {
+												if (TextUtils.equals(dto.item0, "000000")) {
+													bnation += 1;
+												}else if (TextUtils.equals(dto.item0.substring(dto.item0.length()-4, dto.item0.length()), "0000")) {
+													bpro += 1;
+												}else if (TextUtils.equals(dto.item0.substring(dto.item0.length()-2, dto.item0.length()), "00")) {
+													bcity += 1;
+												}else {
+													bdis += 1;
+												}
+											}else if (TextUtils.equals(dto.color, "05")) {
+												if (TextUtils.equals(dto.item0, "000000")) {
+													wnation += 1;
+												}else if (TextUtils.equals(dto.item0.substring(dto.item0.length()-4, dto.item0.length()), "0000")) {
+													wpro += 1;
+												}else if (TextUtils.equals(dto.item0.substring(dto.item0.length()-2, dto.item0.length()), "00")) {
+													wcity += 1;
+												}else {
+													wdis += 1;
+												}
+											}
+										}
+
+										statisticList.clear();
+										WarningDto wDto = new WarningDto();
+										wDto.colorName = "预警"+warningList.size();
+										wDto.nationCount = "国家级"+(rnation+onation+ynation+bnation+wnation);
+										wDto.proCount = "省级"+(rpro+opro+ypro+bpro+wpro);
+										wDto.cityCount = "市级"+(rcity+ocity+ycity+bcity+wcity);
+										wDto.disCount = "县级"+(rdis+odis+ydis+bdis+wdis);
+										statisticList.add(wDto);
+
+										wDto = new WarningDto();
+										wDto.colorName = "红"+(rnation+rpro+rcity+rdis);
+										wDto.nationCount = rnation+"";
+										wDto.proCount = rpro+"";
+										wDto.cityCount = rcity+"";
+										wDto.disCount = rdis+"";
+										statisticList.add(wDto);
+
+										wDto = new WarningDto();
+										wDto.colorName = "橙"+(onation+opro+ocity+odis);
+										wDto.nationCount = onation+"";
+										wDto.proCount = opro+"";
+										wDto.cityCount = ocity+"";
+										wDto.disCount = odis+"";
+										statisticList.add(wDto);
+
+										wDto = new WarningDto();
+										wDto.colorName = "黄"+(ynation+ypro+ycity+ydis);
+										wDto.nationCount = ynation+"";
+										wDto.proCount = ypro+"";
+										wDto.cityCount = ycity+"";
+										wDto.disCount = ydis+"";
+										statisticList.add(wDto);
+
+										wDto = new WarningDto();
+										wDto.colorName = "蓝"+(bnation+bpro+bcity+bdis);
+										wDto.nationCount = bnation+"";
+										wDto.proCount = bpro+"";
+										wDto.cityCount = bcity+"";
+										wDto.disCount = bdis+"";
+										statisticList.add(wDto);
+
+										wDto = new WarningDto();
+										wDto.colorName = "未知"+(wnation+wpro+wcity+wdis);
+										wDto.nationCount = wnation+"";
+										wDto.proCount = wpro+"";
+										wDto.cityCount = wcity+"";
+										wDto.disCount = wdis+"";
+										statisticList.add(wDto);
+
+										if (statisticAdapter != null) {
+											statisticAdapter.notifyDataSetChanged();
+										}
+									} catch (Exception e) {
 										e.printStackTrace();
 									}
+
 								}
+							} catch (JSONException e) {
+								e.printStackTrace();
 							}
-						});
+						}
 					}
 				});
 			}
-		}).start();
+		});
 	}
 
 	/**
@@ -614,6 +625,9 @@ OnMarkerClickListener, InfoWindowAdapter, OnCameraChangeListener, OnMapScreenSho
 	 * @param dto
 	 */
 	private void addVisibleAreaMarker(WarningDto dto, Map<String, Marker> markers) {
+		if (TextUtils.equals(dto.item0, "000000")) {//国家级预警不绘制
+			return;
+		}
 		LayoutInflater inflater = (LayoutInflater) mContext.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
 		if (dto.lat > leftlatlng.latitude && dto.lat < rightLatlng.latitude && dto.lng > leftlatlng.longitude && dto.lng < rightLatlng.longitude) {
 			MarkerOptions optionsTemp = new MarkerOptions();
@@ -1401,92 +1415,89 @@ OnMarkerClickListener, InfoWindowAdapter, OnCameraChangeListener, OnMapScreenSho
 	 * 绘制预警图层
 	 * @param url
 	 */
-	private void drawWarningLayer(String url, final String type) {
-		OkHttpUtil.enqueue(new Request.Builder().url(url).build(), new Callback() {
-			@Override
-			public void onFailure(Call call, IOException e) {
-
-			}
-
-			@Override
-			public void onResponse(Call call, Response response) throws IOException {
-				if (!response.isSuccessful()) {
-					return;
-				}
-				String result = response.body().string();
-				if (!TextUtils.isEmpty(result)) {
-					try {
-						JSONObject obj = new JSONObject(result);
-						if (!obj.isNull("micaps14_"+type)) {
-							String dataUrl = obj.getString("micaps14_"+type);
-							OkHttpSpecialLayer(dataUrl, type);
-						}
-					} catch (JSONException e) {
-						e.printStackTrace();
-					}
-				}
-			}
-		});
-
-	}
-
-	private void OkHttpSpecialLayer(final String url, final String type) {
+	private void drawWarningLayer(final String url, final String type) {
 		new Thread(new Runnable() {
 			@Override
 			public void run() {
 				OkHttpUtil.enqueue(new Request.Builder().url(url).build(), new Callback() {
 					@Override
 					public void onFailure(Call call, IOException e) {
-
 					}
-
 					@Override
 					public void onResponse(Call call, Response response) throws IOException {
 						if (!response.isSuccessful()) {
 							return;
 						}
-						final String result = response.body().string();
-						runOnUiThread(new Runnable() {
-							@Override
-							public void run() {
-								if (!TextUtils.isEmpty(result)) {
-									try {
-										JSONObject obj = new JSONObject(result);
-										if (!obj.isNull("lines")) {
-											JSONArray lines = obj.getJSONArray("lines");
-											for (int i = 0; i < lines.length(); i++) {
-												JSONObject itemObj = lines.getJSONObject(i);
-												if (!itemObj.isNull("point")) {
-													JSONArray points = itemObj.getJSONArray("point");
-													PolylineOptions polylineOption = new PolylineOptions();
-													polylineOption.width(6).color(0xff406bbf);
-													for (int j = 0; j < points.length(); j++) {
-														JSONObject point = points.getJSONObject(j);
-														double lat = point.getDouble("y");
-														double lng = point.getDouble("x");
-														polylineOption.add(new LatLng(lat, lng));
-													}
-													Polyline p = aMap.addPolyline(polylineOption);
-													if (TextUtils.equals(type, warningType1)) {
-														polyline11.add(p);
-													}else if (TextUtils.equals(type, warningType2)) {
-														polyline21.add(p);
-													}else if (TextUtils.equals(type, warningType3)) {
-														polyline31.add(p);
-													}else if (TextUtils.equals(type, warningType4)) {
-														polyline41.add(p);
-													}else if (TextUtils.equals(type, warningType5)) {
-														polyline51.add(p);
-													}else if (TextUtils.equals(type, warningType7)) {
-														polyline71.add(p);
-													}else if (TextUtils.equals(type, warningType8)) {
-														polyline81.add(p);
-													}else if (TextUtils.equals(type, warningType9)) {
-														polyline91.add(p);
-													}else if (TextUtils.equals(type, warningType10)) {
-														polyline101.add(p);
-													}
-												}
+						String result = response.body().string();
+						if (!TextUtils.isEmpty(result)) {
+							try {
+								JSONObject obj = new JSONObject(result);
+								if (!obj.isNull("micaps14_"+type)) {
+									String dataUrl = obj.getString("micaps14_"+type);
+									OkHttpSpecialLayer(dataUrl, type);
+								}
+							} catch (JSONException e) {
+								e.printStackTrace();
+							}
+						}
+					}
+				});
+			}
+		}).start();
+	}
+
+	private void OkHttpSpecialLayer(final String url, final String type) {
+		OkHttpUtil.enqueue(new Request.Builder().url(url).build(), new Callback() {
+			@Override
+			public void onFailure(Call call, IOException e) {
+			}
+			@Override
+			public void onResponse(Call call, Response response) throws IOException {
+				if (!response.isSuccessful()) {
+					return;
+				}
+				final String result = response.body().string();
+				runOnUiThread(new Runnable() {
+					@Override
+					public void run() {
+						if (!TextUtils.isEmpty(result)) {
+							try {
+								JSONObject obj = new JSONObject(result);
+								if (!obj.isNull("lines")) {
+									JSONArray lines = obj.getJSONArray("lines");
+									for (int i = 0; i < lines.length(); i++) {
+										JSONObject itemObj = lines.getJSONObject(i);
+										if (!itemObj.isNull("point")) {
+											JSONArray points = itemObj.getJSONArray("point");
+											PolylineOptions polylineOption = new PolylineOptions();
+											polylineOption.width(6).color(0xff406bbf);
+											for (int j = 0; j < points.length(); j++) {
+												JSONObject point = points.getJSONObject(j);
+												double lat = point.getDouble("y");
+												double lng = point.getDouble("x");
+												polylineOption.add(new LatLng(lat, lng));
+											}
+											Polyline p = aMap.addPolyline(polylineOption);
+											if (TextUtils.equals(type, warningType1)) {
+												polyline11.add(p);
+											}else if (TextUtils.equals(type, warningType2)) {
+												polyline21.add(p);
+											}else if (TextUtils.equals(type, warningType3)) {
+												polyline31.add(p);
+											}else if (TextUtils.equals(type, warningType4)) {
+												polyline41.add(p);
+											}else if (TextUtils.equals(type, warningType5)) {
+												polyline51.add(p);
+											}else if (TextUtils.equals(type, warningType7)) {
+												polyline71.add(p);
+											}else if (TextUtils.equals(type, warningType8)) {
+												polyline81.add(p);
+											}else if (TextUtils.equals(type, warningType9)) {
+												polyline91.add(p);
+											}else if (TextUtils.equals(type, warningType10)) {
+												polyline101.add(p);
+											}
+										}
 //							if (!itemObj.isNull("flags")) {
 //								JSONObject flags = itemObj.getJSONObject("flags");
 //								String text = "";
@@ -1508,45 +1519,45 @@ OnMarkerClickListener, InfoWindowAdapter, OnCameraChangeListener, OnMapScreenSho
 //									textList1.add(t);
 //								}
 //							}
+									}
+								}
+								if (!obj.isNull("line_symbols")) {
+									JSONArray line_symbols = obj.getJSONArray("line_symbols");
+									for (int i = 0; i < line_symbols.length(); i++) {
+										JSONObject itemObj = line_symbols.getJSONObject(i);
+										if (!itemObj.isNull("items")) {
+											JSONArray items = itemObj.getJSONArray("items");
+											PolylineOptions polylineOption = new PolylineOptions();
+											polylineOption.width(6).color(0xff406bbf);
+											for (int j = 0; j < items.length(); j++) {
+												JSONObject item = items.getJSONObject(j);
+												double lat = item.getDouble("y");
+												double lng = item.getDouble("x");
+												polylineOption.add(new LatLng(lat, lng));
+											}
+											Polyline p = aMap.addPolyline(polylineOption);
+											if (TextUtils.equals(type, warningType1)) {
+												polyline12.add(p);
+											}else if (TextUtils.equals(type, warningType2)) {
+												polyline22.add(p);
+											}else if (TextUtils.equals(type, warningType3)) {
+												polyline32.add(p);
+											}else if (TextUtils.equals(type, warningType4)) {
+												polyline42.add(p);
+											}else if (TextUtils.equals(type, warningType5)) {
+												polyline52.add(p);
+											}else if (TextUtils.equals(type, warningType7)) {
+												polyline72.add(p);
+											}else if (TextUtils.equals(type, warningType8)) {
+												polyline82.add(p);
+											}else if (TextUtils.equals(type, warningType9)) {
+												polyline92.add(p);
+											}else if (TextUtils.equals(type, warningType10)) {
+												polyline102.add(p);
 											}
 										}
-										if (!obj.isNull("line_symbols")) {
-											JSONArray line_symbols = obj.getJSONArray("line_symbols");
-											for (int i = 0; i < line_symbols.length(); i++) {
-												JSONObject itemObj = line_symbols.getJSONObject(i);
-												if (!itemObj.isNull("items")) {
-													JSONArray items = itemObj.getJSONArray("items");
-													PolylineOptions polylineOption = new PolylineOptions();
-													polylineOption.width(6).color(0xff406bbf);
-													for (int j = 0; j < items.length(); j++) {
-														JSONObject item = items.getJSONObject(j);
-														double lat = item.getDouble("y");
-														double lng = item.getDouble("x");
-														polylineOption.add(new LatLng(lat, lng));
-													}
-													Polyline p = aMap.addPolyline(polylineOption);
-													if (TextUtils.equals(type, warningType1)) {
-														polyline12.add(p);
-													}else if (TextUtils.equals(type, warningType2)) {
-														polyline22.add(p);
-													}else if (TextUtils.equals(type, warningType3)) {
-														polyline32.add(p);
-													}else if (TextUtils.equals(type, warningType4)) {
-														polyline42.add(p);
-													}else if (TextUtils.equals(type, warningType5)) {
-														polyline52.add(p);
-													}else if (TextUtils.equals(type, warningType7)) {
-														polyline72.add(p);
-													}else if (TextUtils.equals(type, warningType8)) {
-														polyline82.add(p);
-													}else if (TextUtils.equals(type, warningType9)) {
-														polyline92.add(p);
-													}else if (TextUtils.equals(type, warningType10)) {
-														polyline102.add(p);
-													}
-												}
-											}
-										}
+									}
+								}
 //								if (!obj.isNull("symbols")) {
 //									JSONArray symbols = obj.getJSONArray("symbols");
 //									for (int i = 0; i < symbols.length(); i++) {
@@ -1578,48 +1589,48 @@ OnMarkerClickListener, InfoWindowAdapter, OnCameraChangeListener, OnMapScreenSho
 //										textList2.add(t);
 //									}
 //								}
-										if (!obj.isNull("areas")) {
-											JSONArray array = obj.getJSONArray("areas");
-											for (int i = 0; i < array.length(); i++) {
-												JSONObject itemObj = array.getJSONObject(i);
-												String color = itemObj.getString("c");
-												if (color.contains("#")) {
-													color = color.replace("#", "");
-												}
-												int r = Integer.parseInt(color.substring(0,2), 16);
-												int g = Integer.parseInt(color.substring(2,4), 16);
-												int b = Integer.parseInt(color.substring(4,6), 16);
-												if (!itemObj.isNull("items")) {
-													JSONArray items = itemObj.getJSONArray("items");
-													PolygonOptions polygonOption = new PolygonOptions();
-													polygonOption.strokeColor(Color.rgb(r, g, b)).fillColor(Color.rgb(r, g, b));
-													for (int j = 0; j < items.length(); j++) {
-														JSONObject item = items.getJSONObject(j);
-														double lat = item.getDouble("y");
-														double lng = item.getDouble("x");
-														polygonOption.add(new LatLng(lat, lng));
-													}
-													Polygon p = aMap.addPolygon(polygonOption);
-													if (TextUtils.equals(type, warningType1)) {
-														polygons13.add(p);
-													}else if (TextUtils.equals(type, warningType2)) {
-														polygons23.add(p);
-													}else if (TextUtils.equals(type, warningType3)) {
-														polygons33.add(p);
-													}else if (TextUtils.equals(type, warningType4)) {
-														polygons43.add(p);
-													}else if (TextUtils.equals(type, warningType5)) {
-														polygons53.add(p);
-													}else if (TextUtils.equals(type, warningType7)) {
-														polygons73.add(p);
-													}else if (TextUtils.equals(type, warningType8)) {
-														polygons83.add(p);
-													}else if (TextUtils.equals(type, warningType9)) {
-														polygons93.add(p);
-													}else if (TextUtils.equals(type, warningType10)) {
-														polygons103.add(p);
-													}
-												}
+								if (!obj.isNull("areas")) {
+									JSONArray array = obj.getJSONArray("areas");
+									for (int i = 0; i < array.length(); i++) {
+										JSONObject itemObj = array.getJSONObject(i);
+										String color = itemObj.getString("c");
+										if (color.contains("#")) {
+											color = color.replace("#", "");
+										}
+										int r = Integer.parseInt(color.substring(0,2), 16);
+										int g = Integer.parseInt(color.substring(2,4), 16);
+										int b = Integer.parseInt(color.substring(4,6), 16);
+										if (!itemObj.isNull("items")) {
+											JSONArray items = itemObj.getJSONArray("items");
+											PolygonOptions polygonOption = new PolygonOptions();
+											polygonOption.strokeColor(Color.rgb(r, g, b)).fillColor(Color.rgb(r, g, b));
+											for (int j = 0; j < items.length(); j++) {
+												JSONObject item = items.getJSONObject(j);
+												double lat = item.getDouble("y");
+												double lng = item.getDouble("x");
+												polygonOption.add(new LatLng(lat, lng));
+											}
+											Polygon p = aMap.addPolygon(polygonOption);
+											if (TextUtils.equals(type, warningType1)) {
+												polygons13.add(p);
+											}else if (TextUtils.equals(type, warningType2)) {
+												polygons23.add(p);
+											}else if (TextUtils.equals(type, warningType3)) {
+												polygons33.add(p);
+											}else if (TextUtils.equals(type, warningType4)) {
+												polygons43.add(p);
+											}else if (TextUtils.equals(type, warningType5)) {
+												polygons53.add(p);
+											}else if (TextUtils.equals(type, warningType7)) {
+												polygons73.add(p);
+											}else if (TextUtils.equals(type, warningType8)) {
+												polygons83.add(p);
+											}else if (TextUtils.equals(type, warningType9)) {
+												polygons93.add(p);
+											}else if (TextUtils.equals(type, warningType10)) {
+												polygons103.add(p);
+											}
+										}
 //							if (!itemObj.isNull("symbols")) {
 //								JSONObject symbols = itemObj.getJSONObject("symbols");
 //								String text = symbols.getString("text");
@@ -1638,18 +1649,16 @@ OnMarkerClickListener, InfoWindowAdapter, OnCameraChangeListener, OnMapScreenSho
 //									textList3.add(t);
 //								}
 //							}
-											}
-										}
-									} catch (JSONException e) {
-										e.printStackTrace();
 									}
 								}
+							} catch (JSONException e) {
+								e.printStackTrace();
 							}
-						});
+						}
 					}
 				});
 			}
-		}).start();
+		});
 	}
 
 	/**
@@ -1658,75 +1667,67 @@ OnMarkerClickListener, InfoWindowAdapter, OnCameraChangeListener, OnMapScreenSho
 	private void OkHttpTyphoonList() {
 		int currentYear = Integer.valueOf(sdf1.format(new Date()));
 		final String url = "http://decision-admin.tianqi.cn/Home/extra/gettyphoon/list/"+currentYear;
-		new Thread(new Runnable() {
+		OkHttpUtil.enqueue(new Request.Builder().url(url).build(), new Callback() {
 			@Override
-			public void run() {
-				OkHttpUtil.enqueue(new Request.Builder().url(url).build(), new Callback() {
+			public void onFailure(Call call, IOException e) {
+			}
+			@Override
+			public void onResponse(Call call, Response response) throws IOException {
+				if (!response.isSuccessful()) {
+					return;
+				}
+				final String requestResult = response.body().string();
+				runOnUiThread(new Runnable() {
 					@Override
-					public void onFailure(Call call, IOException e) {
-
-					}
-
-					@Override
-					public void onResponse(Call call, Response response) throws IOException {
-						if (!response.isSuccessful()) {
-							return;
-						}
-						final String requestResult = response.body().string();
-						runOnUiThread(new Runnable() {
-							@Override
-							public void run() {
-								if (!TextUtils.isEmpty(requestResult)) {
-									String c = "(";
-									String c2 = "})";
-									String result = requestResult.substring(requestResult.indexOf(c)+c.length(), requestResult.indexOf(c2)+1);
-									if (!TextUtils.isEmpty(result)) {
-										try {
-											JSONObject obj = new JSONObject(result);
-											if (!obj.isNull("typhoonList")) {
-												typhoonList.clear();
-												JSONArray array = obj.getJSONArray("typhoonList");
-												for (int i = 0; i < array.length(); i++) {
-													JSONArray itemArray = array.getJSONArray(i);
-													TyphoonDto dto = new TyphoonDto();
-													dto.id = itemArray.getString(0);
-													dto.enName = itemArray.getString(1);
-													dto.name = itemArray.getString(2);
-													dto.code = itemArray.getString(4);
-													dto.status = itemArray.getString(7);
-													//把活跃台风过滤出来存放
-													if (TextUtils.equals(dto.status, "start")) {
-														typhoonList.add(dto);
-														if (TextUtils.isEmpty(dto.id)) {
-															return;
-														}
-														String name = "";
-														if (TextUtils.equals(dto.enName, "nameless")) {
-															name = dto.code + " " + dto.enName;
-														}else {
-															name = dto.code + " " + dto.name + " " + dto.enName;
-														}
-														OkHttpTyphoonDetail("http://decision-admin.tianqi.cn/Home/extra/gettyphoon/view/"+dto.id, name);
-													}
+					public void run() {
+						if (!TextUtils.isEmpty(requestResult)) {
+							String c = "(";
+							String c2 = "})";
+							String result = requestResult.substring(requestResult.indexOf(c)+c.length(), requestResult.indexOf(c2)+1);
+							if (!TextUtils.isEmpty(result)) {
+								try {
+									JSONObject obj = new JSONObject(result);
+									if (!obj.isNull("typhoonList")) {
+										typhoonList.clear();
+										JSONArray array = obj.getJSONArray("typhoonList");
+										for (int i = 0; i < array.length(); i++) {
+											JSONArray itemArray = array.getJSONArray(i);
+											TyphoonDto dto = new TyphoonDto();
+											dto.id = itemArray.getString(0);
+											dto.enName = itemArray.getString(1);
+											dto.name = itemArray.getString(2);
+											dto.code = itemArray.getString(4);
+											dto.status = itemArray.getString(7);
+											//把活跃台风过滤出来存放
+											if (TextUtils.equals(dto.status, "start")) {
+												typhoonList.add(dto);
+												if (TextUtils.isEmpty(dto.id)) {
+													return;
 												}
-
-												if (typhoonList.size() > 0) {
-													iv6.setVisibility(View.VISIBLE);
+												String name;
+												if (TextUtils.equals(dto.enName, "nameless")) {
+													name = dto.code + " " + dto.enName;
+												}else {
+													name = dto.code + " " + dto.name + " " + dto.enName;
 												}
-
+												OkHttpTyphoonDetail("http://decision-admin.tianqi.cn/Home/extra/gettyphoon/view/"+dto.id, name);
 											}
-										} catch (JSONException e) {
-											e.printStackTrace();
 										}
 
+										if (typhoonList.size() > 0) {
+											iv6.setVisibility(View.VISIBLE);
+										}
 									}
+								} catch (JSONException e) {
+									e.printStackTrace();
 								}
+
 							}
-						});
+						}
 					}
 				});
 			}
-		}).start();
+		});
 	}
 
 	/**
@@ -1736,122 +1737,117 @@ OnMarkerClickListener, InfoWindowAdapter, OnCameraChangeListener, OnMapScreenSho
 		if (TextUtils.isEmpty(url)) {
 			return;
 		}
-		new Thread(new Runnable() {
+		OkHttpUtil.enqueue(new Request.Builder().url(url).build(), new Callback() {
 			@Override
-			public void run() {
-				OkHttpUtil.enqueue(new Request.Builder().url(url).build(), new Callback() {
+			public void onFailure(Call call, IOException e) {
+			}
+			@Override
+			public void onResponse(Call call, Response response) throws IOException {
+				if (!response.isSuccessful()) {
+					return;
+				}
+				final String requestResult = response.body().string();
+				runOnUiThread(new Runnable() {
 					@Override
-					public void onFailure(Call call, IOException e) {
-					}
-					@Override
-					public void onResponse(Call call, Response response) throws IOException {
-						if (!response.isSuccessful()) {
-							return;
-						}
-						final String requestResult = response.body().string();
-						runOnUiThread(new Runnable() {
-							@Override
-							public void run() {
-								if (!TextUtils.isEmpty(requestResult)) {
-									String c = "(";
-									String result = requestResult.substring(requestResult.indexOf(c)+c.length(), requestResult.indexOf(")"));
-									if (!TextUtils.isEmpty(result)) {
-										try {
-											JSONObject obj = new JSONObject(result);
-											if (!obj.isNull("typhoon")) {
-												JSONArray array = obj.getJSONArray("typhoon");
-												JSONArray itemArray = array.getJSONArray(8);
-												if (itemArray.length() > 0) {
-													JSONArray itemArray2 = itemArray.getJSONArray(itemArray.length()-1);
-													TyphoonDto dto = new TyphoonDto();
-													if (!TextUtils.isEmpty(name)) {
-														dto.name = name;
-													}
-													long longTime = itemArray2.getLong(2);
-													dto.time = sdf2.format(new Date(longTime));
+					public void run() {
+						if (!TextUtils.isEmpty(requestResult)) {
+							String c = "(";
+							String result = requestResult.substring(requestResult.indexOf(c)+c.length(), requestResult.indexOf(")"));
+							if (!TextUtils.isEmpty(result)) {
+								try {
+									JSONObject obj = new JSONObject(result);
+									if (!obj.isNull("typhoon")) {
+										JSONArray array = obj.getJSONArray("typhoon");
+										JSONArray itemArray = array.getJSONArray(8);
+										if (itemArray.length() > 0) {
+											JSONArray itemArray2 = itemArray.getJSONArray(itemArray.length()-1);
+											TyphoonDto dto = new TyphoonDto();
+											if (!TextUtils.isEmpty(name)) {
+												dto.name = name;
+											}
+											long longTime = itemArray2.getLong(2);
+											dto.time = sdf2.format(new Date(longTime));
 
-													dto.lng = itemArray2.getDouble(4);
-													dto.lat = itemArray2.getDouble(5);
-													dto.pressure = itemArray2.getString(6);
-													dto.max_wind_speed = itemArray2.getString(7);
-													dto.move_speed = itemArray2.getString(9);
-													String fx_string = itemArray2.getString(8);
-													if( !TextUtils.isEmpty(fx_string)){
-														String windDir = "";
-														for (int i = 0; i < fx_string.length(); i++) {
-															String item = fx_string.substring(i, i+1);
-															if (TextUtils.equals(item, "N")) {
-																item = "北";
-															}else if (TextUtils.equals(item, "S")) {
-																item = "南";
-															}else if (TextUtils.equals(item, "W")) {
-																item = "西";
-															}else if (TextUtils.equals(item, "E")) {
-																item = "东";
-															}
-															windDir = windDir+item;
-														}
-														dto.wind_dir = windDir;
+											dto.lng = itemArray2.getDouble(4);
+											dto.lat = itemArray2.getDouble(5);
+											dto.pressure = itemArray2.getString(6);
+											dto.max_wind_speed = itemArray2.getString(7);
+											dto.move_speed = itemArray2.getString(9);
+											String fx_string = itemArray2.getString(8);
+											if( !TextUtils.isEmpty(fx_string)){
+												String windDir = "";
+												for (int i = 0; i < fx_string.length(); i++) {
+													String item = fx_string.substring(i, i+1);
+													if (TextUtils.equals(item, "N")) {
+														item = "北";
+													}else if (TextUtils.equals(item, "S")) {
+														item = "南";
+													}else if (TextUtils.equals(item, "W")) {
+														item = "西";
+													}else if (TextUtils.equals(item, "E")) {
+														item = "东";
 													}
+													windDir = windDir+item;
+												}
+												dto.wind_dir = windDir;
+											}
 
-													String type = itemArray2.getString(3);
-													if (TextUtils.equals(type, "TD")) {//热带低压
-														type = "1";
-													}else if (TextUtils.equals(type, "TS")) {//热带风暴
-														type = "2";
-													}else if (TextUtils.equals(type, "STS")) {//强热带风暴
-														type = "3";
-													}else if (TextUtils.equals(type, "TY")) {//台风
-														type = "4";
-													}else if (TextUtils.equals(type, "STY")) {//强台风
-														type = "5";
-													}else if (TextUtils.equals(type, "SuperTY")) {//超强台风
-														type = "6";
-													}
-													dto.type = type;
-													dto.isFactPoint = true;
+											String type = itemArray2.getString(3);
+											if (TextUtils.equals(type, "TD")) {//热带低压
+												type = "1";
+											}else if (TextUtils.equals(type, "TS")) {//热带风暴
+												type = "2";
+											}else if (TextUtils.equals(type, "STS")) {//强热带风暴
+												type = "3";
+											}else if (TextUtils.equals(type, "TY")) {//台风
+												type = "4";
+											}else if (TextUtils.equals(type, "STY")) {//强台风
+												type = "5";
+											}else if (TextUtils.equals(type, "SuperTY")) {//超强台风
+												type = "6";
+											}
+											dto.type = type;
+											dto.isFactPoint = true;
 
-													JSONArray array10 = itemArray2.getJSONArray(10);
-													for (int m = 0; m < array10.length(); m++) {
-														JSONArray itemArray10 = array10.getJSONArray(m);
-														if (m == 0) {
-															dto.radius_7 = itemArray10.getString(1);
-														}else if (m == 1) {
-															dto.radius_10 = itemArray10.getString(1);
-														}
-													}
-
-													MarkerOptions tOption = new MarkerOptions();
-													tOption.title(name+"|"+dto.content(mContext));
-													tOption.snippet(markerType2);
-													tOption.position(new LatLng(dto.lat, dto.lng));
-													tOption.anchor(0.5f, 0.5f);
-													ArrayList<BitmapDescriptor> iconList = new ArrayList<>();
-													for (int i = 1; i <= 9; i++) {
-														iconList.add(BitmapDescriptorFactory.fromAsset("typhoon/typhoon_icon"+i+".png"));
-													}
-													tOption.icons(iconList);
-													tOption.period(6);
-													Marker marker = aMap.addMarker(tOption);
-													if (flag6) {
-														marker.setVisible(true);
-													}else {
-														marker.setVisible(false);
-													}
-													typhoonMarkers.add(marker);
+											JSONArray array10 = itemArray2.getJSONArray(10);
+											for (int m = 0; m < array10.length(); m++) {
+												JSONArray itemArray10 = array10.getJSONArray(m);
+												if (m == 0) {
+													dto.radius_7 = itemArray10.getString(1);
+												}else if (m == 1) {
+													dto.radius_10 = itemArray10.getString(1);
 												}
 											}
-										} catch (JSONException e) {
-											e.printStackTrace();
+
+											MarkerOptions tOption = new MarkerOptions();
+											tOption.title(name+"|"+dto.content(mContext));
+											tOption.snippet(markerType2);
+											tOption.position(new LatLng(dto.lat, dto.lng));
+											tOption.anchor(0.5f, 0.5f);
+											ArrayList<BitmapDescriptor> iconList = new ArrayList<>();
+											for (int i = 1; i <= 9; i++) {
+												iconList.add(BitmapDescriptorFactory.fromAsset("typhoon/typhoon_icon"+i+".png"));
+											}
+											tOption.icons(iconList);
+											tOption.period(6);
+											Marker marker = aMap.addMarker(tOption);
+											if (flag6) {
+												marker.setVisible(true);
+											}else {
+												marker.setVisible(false);
+											}
+											typhoonMarkers.add(marker);
 										}
 									}
+								} catch (JSONException e) {
+									e.printStackTrace();
 								}
 							}
-						});
+						}
 					}
 				});
 			}
-		}).start();
+		});
 	}
 
 	/**

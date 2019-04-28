@@ -1,9 +1,5 @@
 package com.china.activity;
 
-/**
- * zxing扫描二维码
- */
-
 import java.io.IOException;
 import java.util.Vector;
 
@@ -28,6 +24,10 @@ import com.mining.app.zxing.camera.CameraManager;
 import com.mining.app.zxing.decoding.CaptureActivityHandler;
 import com.mining.app.zxing.decoding.InactivityTimer;
 import com.mining.app.zxing.view.ViewfinderView;
+
+/**
+ * zxing扫描二维码
+ */
 public class ZXingActivity extends ShawnBaseActivity implements Callback {
 
 	private CaptureActivityHandler handler;
@@ -47,7 +47,7 @@ public class ZXingActivity extends ShawnBaseActivity implements Callback {
 		setContentView(R.layout.activity_zxing);
 		
 		CameraManager.init(getApplication());
-		viewfinderView = (ViewfinderView) findViewById(R.id.viewfinder_view);
+		viewfinderView = findViewById(R.id.viewfinder_view);
 		
 		hasSurface = false;
 		inactivityTimer = new InactivityTimer(this);
@@ -56,7 +56,7 @@ public class ZXingActivity extends ShawnBaseActivity implements Callback {
 	@Override
 	protected void onResume() {
 		super.onResume();
-		SurfaceView surfaceView = (SurfaceView) findViewById(R.id.preview_view);
+		SurfaceView surfaceView = findViewById(R.id.preview_view);
 		SurfaceHolder surfaceHolder = surfaceView.getHolder();
 		if (hasSurface) {
 			initCamera(surfaceHolder);

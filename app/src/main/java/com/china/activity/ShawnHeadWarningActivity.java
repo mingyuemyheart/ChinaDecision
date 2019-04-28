@@ -105,31 +105,27 @@ public class ShawnHeadWarningActivity extends ShawnBaseActivity implements OnCli
 		viewPager = findViewById(R.id.viewPager);
 		viewPager.setSlipping(true);//设置ViewPager是否可以滑动
 		viewPager.setOffscreenPageLimit(fragments.size());
-		viewPager.setOnPageChangeListener(new MyOnPageChangeListener());
+		viewPager.setOnPageChangeListener(new OnPageChangeListener() {
+			@Override
+			public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
+			}
+			@Override
+			public void onPageSelected(int position) {
+				for (int i = 0; i < warnList.size(); i++) {
+					if(i == position){
+						ivTips[i].setBackgroundResource(R.drawable.point_black);
+					}else{
+						ivTips[i].setBackgroundResource(R.drawable.point_gray);
+					}
+				}
+			}
+			@Override
+			public void onPageScrollStateChanged(int state) {
+			}
+		});
 		viewPager.setAdapter(new MyPagerAdapter());
 	}
 	
-	public class MyOnPageChangeListener implements OnPageChangeListener {
-		@Override
-		public void onPageSelected(int arg0) {
-			for (int i = 0; i < warnList.size(); i++) {
-				if(i == arg0){  
-					ivTips[i].setBackgroundResource(R.drawable.point_black);
-				}else{  
-					ivTips[i].setBackgroundResource(R.drawable.point_gray);
-				} 
-			}
-		}
-
-		@Override
-		public void onPageScrolled(int arg0, float arg1, int arg2) {
-		}
-
-		@Override
-		public void onPageScrollStateChanged(int arg0) {
-		}
-	}
-
 	private class MyPagerAdapter extends PagerAdapter {
 		@Override
 		public boolean isViewFromObject(View arg0, Object arg1) {
