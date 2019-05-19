@@ -81,7 +81,7 @@ import com.china.R;
 import com.china.adapter.ShawnTyphoonNameAdapter;
 import com.china.adapter.ShawnTyphoonYearAdapter;
 import com.china.adapter.ShawnWarningAdapter;
-import com.china.adapter.TyphoonPublishAdapter;
+import com.china.adapter.ShawnTyphoonPublishAdapter;
 import com.china.common.CONST;
 import com.china.dto.MinuteFallDto;
 import com.china.dto.TyphoonDto;
@@ -177,7 +177,7 @@ public class ShawnTyhpoonActivity extends ShawnBaseActivity implements OnClickLi
 	private Marker clickMarker,locationMarker;//被点击的marker
 	private List<Polygon> windCirclePolygons = new ArrayList<>();//风圈
 	private ListView publishListView;
-	private TyphoonPublishAdapter publishAdapter;
+	private ShawnTyphoonPublishAdapter publishAdapter;
 	private List<TyphoonDto> publishList = new ArrayList<>();
 	private ShawnTyphoonYearAdapter yearAdapter;
 	private List<TyphoonDto> yearList = new ArrayList<>();
@@ -674,7 +674,7 @@ public class ShawnTyhpoonActivity extends ShawnBaseActivity implements OnClickLi
 
 
 		publishListView = findViewById(R.id.publishListView);
-		publishAdapter = new TyphoonPublishAdapter(mContext, publishList);
+		publishAdapter = new ShawnTyphoonPublishAdapter(mContext, publishList);
 		publishListView.setAdapter(publishAdapter);
 		publishListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
 			@Override

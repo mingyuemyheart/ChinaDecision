@@ -280,8 +280,11 @@ public class ShawnLoginActivity extends ShawnBaseActivity implements OnClickList
 															if (!itemObj.isNull("time")) {
 																dto.time = itemObj.getString("time");
 															}
-															if (!itemObj.isNull("img")) {
-																dto.imgUrl = itemObj.getString("img");
+															if (!itemObj.isNull("flagImg")) {
+																dto.imgUrl = itemObj.getString("flagImg");
+															}
+															if (!itemObj.isNull("header")) {
+																dto.header = itemObj.getString("header");
 															}
 															pdfList.add(dto);
 														}

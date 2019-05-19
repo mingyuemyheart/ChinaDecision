@@ -19,6 +19,8 @@
     <uses-permission android:name="android.permission.REQUEST_INSTALL_PACKAGES" />
     <uses-feature android:name="android.hardware.camera" />
     <uses-feature android:name="android.hardware.camera.autofocus" />
+    <!--安卓8.0打开apk安装更新-->
+    <uses-permission android:name="android.permission.REQUEST_INSTALL_PACKAGES" />
 
     <!-- umeng -->
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
@@ -161,11 +163,11 @@
             android:configChanges="orientation|keyboard|keyboardHidden|screenSize" />
 
         <activity
-            android:name="com.china.activity.StationMonitorSearchActivity"
+            android:name="com.china.activity.ShawnFactAreaSearchActivity"
             android:screenOrientation="portrait" />
 
         <activity
-            android:name="com.china.activity.DisasterSpecialActivity"
+            android:name="com.china.activity.ShawnDisasterSpecialActivity"
             android:screenOrientation="portrait" />
 
         <activity
@@ -194,13 +196,8 @@
             android:screenOrientation="portrait" />
 
         <activity
-            android:name="com.china.activity.DecisionNewsActivity"
+            android:name="com.china.activity.ShawnDecisionNewsActivity"
             android:screenOrientation="portrait" />
-
-        <activity
-            android:name="com.china.activity.JPGActivity"
-            android:screenOrientation="sensor"
-            android:configChanges="orientation|keyboard|keyboardHidden|screenSize" />
 
         <activity
             android:name="com.china.activity.ShawnCollectionActivity"
@@ -212,27 +209,27 @@
             android:screenOrientation="portrait" />
 
         <activity
-            android:name="com.china.activity.DisasterReportActivity"
+            android:name="com.china.activity.ShawnDisasterReportActivity"
             android:launchMode="singleTask"
             android:screenOrientation="portrait" />
 
         <activity
-            android:name="com.china.activity.DisasterReportDetailActivity"
+            android:name="com.china.activity.ShawnDisasterReportDetailActivity"
             android:launchMode="singleTask"
             android:screenOrientation="portrait" />
 
         <activity
-            android:name="com.china.activity.WeatherMeetingActivity"
+            android:name="com.china.activity.ShawnWeatherMeetingActivity"
             android:screenOrientation="portrait" />
 
         <activity
-            android:name="com.china.activity.WeatherMeetingDetailActivity"
+            android:name="com.china.activity.ShawnWeatherMeetingDetailActivity"
             android:screenOrientation="sensor"
             android:configChanges="orientation|keyboard|keyboardHidden|screenSize"
             android:windowSoftInputMode="adjustResize" />
 
         <activity
-            android:name="com.china.activity.WeatherMeetingVideoActivity"
+            android:name="com.china.activity.ShawnWeatherMeetingVideoActivity"
             android:screenOrientation="sensor"
             android:configChanges="orientation|keyboard|keyboardHidden|screenSize"
             android:windowSoftInputMode="adjustResize" />
@@ -246,15 +243,15 @@
             android:screenOrientation="portrait" />
 
         <activity
-            android:name="com.china.activity.ZXingActivity"
+            android:name="com.china.activity.ShawnZXingActivity"
             android:screenOrientation="portrait" />
 
         <activity
-            android:name="com.china.activity.ScreenActivity"
+            android:name="com.china.activity.ShawnScreenActivity"
             android:screenOrientation="portrait" />
 
         <activity
-            android:name="com.china.activity.EmptyActivity"
+            android:name="com.china.activity.ShawnEmptyActivity"
             android:screenOrientation="portrait" />
 
         <activity
@@ -282,7 +279,7 @@
             android:screenOrientation="portrait" />
 
         <activity
-            android:name="com.china.activity.PointFactActivity"
+            android:name="com.china.activity.ShawnPointFactActivity"
             android:screenOrientation="portrait" />
 
         <activity
@@ -290,11 +287,11 @@
             android:screenOrientation="portrait" />
 
         <activity
-            android:name="com.china.activity.StreamFactActivity"
+            android:name="com.china.activity.ShawnStreamFactActivity"
             android:screenOrientation="portrait" />
 
         <activity
-            android:name="com.china.activity.StreamFactListActivity"
+            android:name="com.china.activity.ShawnStreamFactListActivity"
             android:screenOrientation="portrait" />
 
         <activity
@@ -331,6 +328,22 @@
         <activity
             android:name="com.china.activity.ShawnManageActivity"
             android:screenOrientation="portrait"/>
+
+        <activity
+            android:name="com.china.activity.ShawnFiveRainRankActivity"
+            android:screenOrientation="portrait" />
+
+        <activity
+            android:name="com.china.activity.ShawnFiveRainRankSearchActivity"
+            android:screenOrientation="portrait" />
+
+        <activity
+            android:name="com.china.activity.ShawnProductOrderActivity2"
+            android:screenOrientation="portrait" />
+
+        <activity
+            android:name="com.china.activity.ShawnProductOrderSubmitActivity2"
+            android:screenOrientation="portrait" />
 
 
         <!--umeng share-->

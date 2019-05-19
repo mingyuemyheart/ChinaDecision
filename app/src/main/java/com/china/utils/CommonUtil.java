@@ -10,17 +10,7 @@ import android.graphics.Bitmap;
 import android.graphics.Bitmap.Config;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
-import android.graphics.Color;
-import android.graphics.Paint;
-import android.graphics.PaintFlagsDrawFilter;
-import android.graphics.Path;
 import android.graphics.Picture;
-import android.graphics.PorterDuff.Mode;
-import android.graphics.PorterDuffXfermode;
-import android.graphics.Rect;
-import android.graphics.RectF;
-import android.graphics.drawable.BitmapDrawable;
-import android.graphics.drawable.Drawable;
 import android.location.LocationManager;
 import android.provider.Settings;
 import android.text.TextUtils;
@@ -28,9 +18,7 @@ import android.util.Base64;
 import android.util.Log;
 import android.view.View;
 import android.view.WindowManager;
-import android.view.inputmethod.InputMethodManager;
 import android.webkit.WebView;
-import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.ListAdapter;
 import android.widget.ListView;
@@ -57,8 +45,6 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.net.HttpURLConnection;
-import java.net.URL;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.text.ParseException;
@@ -126,10 +112,9 @@ public class CommonUtil {
 		SimpleDateFormat f = new SimpleDateFormat("yyyyMMdd");
 		String[] weekDays = { "星期日", "星期一", "星期二", "星期三", "星期四", "星期五", "星期六" };
 		Calendar cal = Calendar.getInstance(); // 获得一个日历
-		Date datet = null;
 		try {
-			datet = f.parse(datetime);
-			cal.setTime(datet);
+			Date date = f.parse(datetime);
+			cal.setTime(date);
 		} catch (ParseException e) {
 			e.printStackTrace();
 		}
@@ -156,189 +141,6 @@ public class CommonUtil {
 	}
 	
 	/**
-	 * 获取圆角图片
-	 * @param bitmap
-	 * @param corner
-	 * @return
-	 */
-	public static Bitmap getRoundedCornerBitmap(Bitmap bitmap, int corner) {
-		try {
-			Bitmap output = Bitmap.createBitmap(bitmap.getWidth(), bitmap.getHeight(), Config.ARGB_8888);
-			Canvas canvas = new Canvas(output);
-			final Paint paint = new Paint();
-			final Rect rect = new Rect(0, 0, bitmap.getWidth(), bitmap.getHeight());
-			final RectF rectF = new RectF(new Rect(0, 0, bitmap.getWidth(), bitmap.getHeight()));
-			paint.setAntiAlias(true);
-			canvas.drawARGB(0, 0, 0, 0);
-			paint.setColor(Color.BLACK);
-			canvas.drawRoundRect(rectF, corner, corner, paint);
-			paint.setXfermode(new PorterDuffXfermode(Mode.SRC_IN));
-
-			final Rect src = new Rect(0, 0, bitmap.getWidth(), bitmap.getHeight());
-			canvas.drawBitmap(bitmap, src, rect, paint);
-			bitmap.recycle();
-			return output;
-		} catch (Exception e) {
-			return bitmap;
-		}
-	}
-	
-	/**
-	 * 隐藏虚拟键盘
-	 * @param editText 输入框
-	 * @param context 上下文
-	 */
-	public static void hideInputSoft(EditText editText, Context context) {
-		InputMethodManager imm = (InputMethodManager) context.getSystemService(Context.INPUT_METHOD_SERVICE);
-		imm.hideSoftInputFromWindow(editText.getWindowToken(), 0);
-	}
-
-	/**
-	 * 显示虚拟键盘
-	 * @param context 上下文
-	 */
-	public static void showInputSoft(Context context) {
-		InputMethodManager imm = (InputMethodManager) context.getSystemService(Context.INPUT_METHOD_SERVICE);
-		imm.toggleSoftInput(0, InputMethodManager.HIDE_NOT_ALWAYS);
-	}
-	
-	/**
-	 * 转换图片成圆形
-	 * 
-	 * @param bitmap
-	 *            传入Bitmap对象
-	 * @return
-	 */
-	public static Bitmap toRoundBitmap(Bitmap bitmap) {
-		if (bitmap == null) {
-			return null;
-		}
-		int width = bitmap.getWidth();
-		int height = bitmap.getHeight();
-		float roundPx;
-		float left, top, right, bottom, dst_left, dst_top, dst_right, dst_bottom;
-		if (width <= height) {
-			roundPx = width / 2;
-			top = 0;
-			bottom = width;
-			left = 0;
-			right = width;
-			height = width;
-			dst_left = 0;
-			dst_top = 0;
-			dst_right = width;
-			dst_bottom = width;
-		} else {
-			roundPx = height / 2;
-			float clip = (width - height) / 2;
-			left = clip;
-			right = width - clip;
-			top = 0;
-			bottom = height;
-			width = height;
-			dst_left = 0;
-			dst_top = 0;
-			dst_right = height;
-			dst_bottom = height;
-		}
-		Bitmap output = Bitmap.createBitmap(width, height, Config.ARGB_8888);
-		Canvas canvas = new Canvas(output);
-		final int color = 0xff424242;
-		final Paint paint = new Paint();
-		final Rect src = new Rect((int) left, (int) top, (int) right, (int) bottom);
-		final Rect dst = new Rect((int) dst_left, (int) dst_top, (int) dst_right, (int) dst_bottom);
-		final RectF rectF = new RectF(dst);
-		paint.setAntiAlias(true);
-		canvas.drawARGB(0, 0, 0, 0);
-		paint.setColor(color);
-		canvas.drawRoundRect(rectF, roundPx, roundPx, paint);
-		paint.setXfermode(new PorterDuffXfermode(Mode.SRC_IN));
-		canvas.drawBitmap(bitmap, src, dst, paint);
-		return output;
-	}
-	
-	/**
-     * 获取网落图片资源 
-     * @param url
-     * @return
-     */
-	public static Bitmap getHttpBitmap(String url) {
-		URL myFileURL;
-		Bitmap bitmap = null;
-		try {
-			myFileURL = new URL(url);
-			// 获得连接
-			HttpURLConnection conn = (HttpURLConnection) myFileURL.openConnection();
-			// 设置超时时间为6000毫秒，conn.setConnectionTiem(0);表示没有时间限制
-			conn.setConnectTimeout(6000);
-			// 连接设置获得数据流
-			conn.setDoInput(true);
-			// 不使用缓存
-			conn.setUseCaches(false);
-			// 这句可有可无，没有影响
-			conn.connect();
-			// 得到数据流
-			InputStream is = conn.getInputStream();
-			// 解析得到图片
-			bitmap = BitmapFactory.decodeStream(is);
-			// 关闭数据流
-			is.close();
-		} catch (Exception e) {
-			e.printStackTrace();
-		} catch (OutOfMemoryError e) {
-			e.printStackTrace();
-		}
-		return bitmap;
-	}
-	
-	/**
-	 * 转换图片成六边形
-	 * @return
-	 */
-	public static Bitmap getHexagonShape(Bitmap bitmap) {
-		int targetWidth = bitmap.getWidth();
-		int targetHeight = bitmap.getHeight();
-		Bitmap targetBitmap = Bitmap.createBitmap(targetWidth, targetHeight, Config.ARGB_8888);
-
-		float radius = targetHeight / 2;
-		float triangleHeight = (float) (Math.sqrt(3) * radius / 2);
-		float centerX = targetWidth / 2;
-		float centerY = targetHeight / 2;
-		
-		Canvas canvas = new Canvas(targetBitmap);
-		canvas.setDrawFilter(new PaintFlagsDrawFilter(0, Paint.FILTER_BITMAP_FLAG|Paint.ANTI_ALIAS_FLAG));
-		Path path = new Path();
-		path.moveTo(centerX, centerY + radius);
-		path.lineTo(centerX - triangleHeight, centerY + radius / 2);
-		path.lineTo(centerX - triangleHeight, centerY - radius / 2);
-		path.lineTo(centerX, centerY - radius);
-		path.lineTo(centerX + triangleHeight, centerY - radius / 2);
-		path.lineTo(centerX + triangleHeight, centerY + radius / 2);
-		path.moveTo(centerX, centerY + radius);
-		canvas.clipPath(path);
-		canvas.drawBitmap(bitmap, new Rect(0, 0, targetWidth, targetHeight), new Rect(0, 0, targetWidth, targetHeight), null);
-		return targetBitmap;
-	}
-
-	/**
-	 * 把本地的drawable转换成六边形图片
-	 * @param drawable
-	 * @return
-	 */
-	public static Bitmap drawableToBitmap(Drawable drawable) {
-		if (drawable instanceof BitmapDrawable) {
-			return ((BitmapDrawable) drawable).getBitmap();
-		}
-
-		Bitmap bitmap = Bitmap.createBitmap(drawable.getIntrinsicWidth(), drawable.getIntrinsicHeight(), Config.ARGB_8888);
-		Canvas canvas = new Canvas(bitmap);
-		drawable.setBounds(0, 0, canvas.getWidth(), canvas.getHeight());
-		drawable.draw(canvas);
-
-		return bitmap;
-	}
-	
-	/**
 	 * 读取assets下文件
 	 * @param fileName
 	 * @return
@@ -348,7 +150,7 @@ public class CommonUtil {
 		try {
 			InputStreamReader inputReader = new InputStreamReader(context.getResources().getAssets().open(fileName));
 			BufferedReader bufReader = new BufferedReader(inputReader);
-			String line = "";
+			String line;
 			while ((line = bufReader.readLine()) != null)
 				Result += line;
 			return Result;
@@ -494,10 +296,10 @@ public class CommonUtil {
         bitmap1 = Bitmap.createScaledBitmap(bitmap1, width, width*bitmap1.getHeight()/bitmap1.getWidth(), true);
     	bitmap2 = Bitmap.createScaledBitmap(bitmap2, width, width*bitmap2.getHeight()/bitmap2.getWidth(), true);
     	
-    	Bitmap bitmap = null;
-        Canvas canvas = null;
+    	Bitmap bitmap;
+        Canvas canvas;
         if (isCover) {
-        	int height = bitmap1.getHeight();
+        	int height;
         	if (bitmap1.getHeight() > bitmap2.getHeight()) {
 				height = bitmap1.getHeight();
 			}else {
@@ -586,7 +388,7 @@ public class CommonUtil {
      * @param context
      * @return true 表示开启
      */ 
-    public static final boolean isLocationOpen(final Context context) { 
+    public static boolean isLocationOpen(final Context context) {
         LocationManager locationManager  = (LocationManager) context.getSystemService(Context.LOCATION_SERVICE); 
         // 通过GPS卫星定位，定位级别可以精确到街（通过24颗卫星定位，在室外和空旷的地方定位准确、速度快） 
         boolean gps = locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER); 
@@ -659,7 +461,7 @@ public class CommonUtil {
 		SharedPreferences sp = context.getSharedPreferences(className, Context.MODE_PRIVATE);
 		SharedPreferences.Editor editor = sp.edit();
 		editor.putBoolean("isShowGuide", false);
-		editor.commit();
+		editor.apply();
 	}
 
 	/**
@@ -879,8 +681,7 @@ public class CommonUtil {
 
         c.add(Calendar.DAY_OF_MONTH, i);
         SimpleDateFormat sdf1 = new SimpleDateFormat("yyyyMMdd");
-        String date = sdf1.format(c.getTime());
-        return date;
+        return sdf1.format(c.getTime());
     }
 
     /**

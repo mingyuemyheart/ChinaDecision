@@ -1484,9 +1484,9 @@ public class ShawnFactActivity extends ShawnBaseActivity implements OnClickListe
      */
     private View getTextBitmap(int value, StationMonitorDto dto) {
         LayoutInflater inflater = (LayoutInflater) getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-        View view = inflater.inflate(R.layout.station_monitor_item, null);
+        View view = inflater.inflate(R.layout.shawn_fact_marker_info, null);
         if (value == typeWind) {
-            view = inflater.inflate(R.layout.station_monitor_item_wind, null);
+            view = inflater.inflate(R.layout.shawn_fact_marker_info_wind, null);
         }
         if (view == null) {
             return null;
@@ -2616,7 +2616,7 @@ public class ShawnFactActivity extends ShawnBaseActivity implements OnClickListe
             case R.id.ivArea:
                 reContent.setVisibility(View.GONE);
 
-                Intent intentMap = new Intent(mContext, StationMonitorSearchActivity.class);
+                Intent intentMap = new Intent(mContext, ShawnFactAreaSearchActivity.class);
                 intentMap.putExtra(CONST.ACTIVITY_NAME, getString(R.string.selecte_area));
                 startActivityForResult(intentMap, 0);
                 break;

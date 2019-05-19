@@ -48,8 +48,7 @@ public class SecretUrlUtil {
         buffer.append("appid=").append(APPID.substring(0, 6));
         buffer.append("&");
         buffer.append("key=").append(key.substring(0, key.length() - 3));
-        String result = buffer.toString();
-        return result;
+        return buffer.toString();
     }
 
     /**
@@ -74,8 +73,7 @@ public class SecretUrlUtil {
         buffer.append("appid=").append(APPID.substring(0, 6));
         buffer.append("&");
         buffer.append("key=").append(key.substring(0, key.length() - 3));
-        String result = buffer.toString();
-        return result;
+        return buffer.toString();
     }
 
     /**
@@ -99,8 +97,7 @@ public class SecretUrlUtil {
         buffer.append("appid=").append(APPID.substring(0, 6));
         buffer.append("&");
         buffer.append("key=").append(key.substring(0, key.length() - 3));
-        String result = buffer.toString();
-        return result;
+        return buffer.toString();
     }
 
     /**
@@ -129,8 +126,7 @@ public class SecretUrlUtil {
         buffer.append("appid=").append(APPID.substring(0, 6));
         buffer.append("&");
         buffer.append("key=").append(key.substring(0, key.length() - 3));
-        String result = buffer.toString();
-        return result;
+        return buffer.toString();
     }
 
     /**
@@ -156,8 +152,7 @@ public class SecretUrlUtil {
         buffer.append("appid=").append(APPID.substring(0, 6));
         buffer.append("&");
         buffer.append("key=").append(key.substring(0, key.length() - 3));
-        String result = buffer.toString();
-        return result;
+        return buffer.toString();
     }
 
     /**
@@ -188,8 +183,7 @@ public class SecretUrlUtil {
         buffer.append("appid=").append("fec60dca880595d7".subSequence(0, 6));
         buffer.append("&");
         buffer.append("key=").append(key.substring(0, key.length()-3));
-        String result = buffer.toString();
-        return result;
+        return buffer.toString();
     }
 
     /**
@@ -220,8 +214,7 @@ public class SecretUrlUtil {
         buffer.append("appid=").append(APPID.substring(0, 6));
         buffer.append("&");
         buffer.append("key=").append(key.substring(0, key.length() - 3));
-        String result = buffer.toString();
-        return result;
+        return buffer.toString();
     }
 
     /**
@@ -249,8 +242,7 @@ public class SecretUrlUtil {
         buffer.append("appid=").append(APPID.substring(0, 6));
         buffer.append("&");
         buffer.append("key=").append(key.substring(0, key.length() - 3));
-        String result = buffer.toString();
-        return result;
+        return buffer.toString();
     }
 
     /**
@@ -278,8 +270,7 @@ public class SecretUrlUtil {
         buffer.append("appid=").append(APPID.substring(0, 6));
         buffer.append("&");
         buffer.append("key=").append(key.substring(0, key.length() - 3));
-        String result = buffer.toString();
-        return result;
+        return buffer.toString();
     }
 
     /**
@@ -309,8 +300,7 @@ public class SecretUrlUtil {
         buffer.append("appid=").append(APPID.substring(0, 6));
         buffer.append("&");
         buffer.append("key=").append(key.substring(0, key.length() - 3));
-        String result = buffer.toString();
-        return result;
+        return buffer.toString();
     }
 
     /**
@@ -342,8 +332,7 @@ public class SecretUrlUtil {
         buffer.append("appid=").append(APPID.substring(0, 6));
         buffer.append("&");
         buffer.append("key=").append(key.substring(0, key.length() - 3));
-        String result = buffer.toString();
-        return result;
+        return buffer.toString();
     }
 
     /**
@@ -374,8 +363,7 @@ public class SecretUrlUtil {
 
         buffer.append("&");
         buffer.append("key=").append(key.substring(0, key.length() - 3));
-        String result = buffer.toString();
-        return result;
+        return buffer.toString();
     }
 
     /**
@@ -393,8 +381,7 @@ public class SecretUrlUtil {
             mac.init(signingKey);
             rawHmac = mac.doFinal(src.getBytes("UTF-8"));
             String encodeStr = Base64.encodeToString(rawHmac, Base64.DEFAULT);
-            String keySrc = URLEncoder.encode(encodeStr, "UTF-8");
-            return keySrc;
+            return URLEncoder.encode(encodeStr, "UTF-8");
         }catch(Exception e){
             Log.e("SceneException", e.getMessage(), e);
         }

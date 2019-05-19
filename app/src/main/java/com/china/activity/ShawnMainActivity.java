@@ -123,6 +123,8 @@ public class ShawnMainActivity extends ShawnBaseActivity implements OnClickListe
 	private List<NewsDto> pdfList = new ArrayList<>();
 	private MainViewPager viewPager;
 	private List<Fragment> fragments = new ArrayList<>();
+	private ImageView[] ivTips;//装载点的数组
+	private ViewGroup viewGroup;
 	
 	//侧拉页面
 	private DrawerLayout drawerlayout;
@@ -195,6 +197,7 @@ public class ShawnMainActivity extends ShawnBaseActivity implements OnClickListe
 		llContainer2 = findViewById(R.id.llContainer2);
 		reFact = findViewById(R.id.reFact);
 		llContainer3 = findViewById(R.id.llContainer3);
+		viewGroup = findViewById(R.id.viewGroup);
 
 		//侧拉页面
 		drawerlayout = findViewById(R.id.drawerlayout);
@@ -595,20 +598,54 @@ public class ShawnMainActivity extends ShawnBaseActivity implements OnClickListe
 	private void initViewPager() {
 		pdfList.clear();
 		pdfList.addAll(getIntent().getExtras().<NewsDto>getParcelableArrayList("pdfList"));
+		ivTips = new ImageView[pdfList.size()];
+		viewGroup.removeAllViews();
 		for (int i = 0; i < pdfList.size(); i++) {
 			Fragment fragment = new ShawnPdfFragment();
 			Bundle bundle = new Bundle();
 			bundle.putParcelable("data", pdfList.get(i));
 			fragment.setArguments(bundle);
 			fragments.add(fragment);
+
+			ImageView imageView = new ImageView(mContext);
+			imageView.setLayoutParams(new ViewGroup.LayoutParams(5, 5));
+			ivTips[i] = imageView;
+			if(i == 0){
+				ivTips[i].setBackgroundResource(R.drawable.point_black);
+			}else{
+				ivTips[i].setBackgroundResource(R.drawable.point_gray);
+			}
+			LinearLayout.LayoutParams layoutParams = new LinearLayout.LayoutParams(new ViewGroup.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT));
+			layoutParams.leftMargin = 10;
+			layoutParams.rightMargin = 10;
+			viewGroup.addView(imageView, layoutParams);
 		}
 
 		viewPager = findViewById(R.id.viewPager);
 		if (pdfList.size() == 0) {
 			viewPager.setVisibility(View.GONE);
+			viewGroup.setVisibility(View.GONE);
 		}
 		viewPager.setSlipping(true);//设置ViewPager是否可以滑动
 		viewPager.setOffscreenPageLimit(fragments.size());
+		viewPager.setOnPageChangeListener(new ViewPager.OnPageChangeListener() {
+			@Override
+			public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
+			}
+			@Override
+			public void onPageSelected(int position) {
+				for (int i = 0; i < pdfList.size(); i++) {
+					if(i == position){
+						ivTips[i].setBackgroundResource(R.drawable.point_black);
+					}else{
+						ivTips[i].setBackgroundResource(R.drawable.point_gray);
+					}
+				}
+			}
+			@Override
+			public void onPageScrollStateChanged(int state) {
+			}
+		});
 		viewPager.setAdapter(new MyPagerAdapter());
 
 		if (fragments.size() > 1) {
@@ -617,7 +654,7 @@ public class ShawnMainActivity extends ShawnBaseActivity implements OnClickListe
 	}
 
 	private final int AUTO_PLUS = 1001;
-	private static final int PHOTO_CHANGE_TIME = 2000;//定时变量
+	private static final int PHOTO_CHANGE_TIME = 3000;//定时变量
 	private int index_plus = 0;
 	@SuppressLint("HandlerLeak")
 	private Handler mHandler = new Handler() {
@@ -789,7 +826,7 @@ public class ShawnMainActivity extends ShawnBaseActivity implements OnClickListe
 					startActivity(intent);
 				}else if (TextUtils.equals(dto.showType, CONST.LOCAL)) {
 					if (TextUtils.equals(dto.id, "1")) {//灾情信息
-						intent = new Intent(mContext, DisasterSpecialActivity.class);
+						intent = new Intent(mContext, ShawnDisasterSpecialActivity.class);
 						intent.putExtra(CONST.COLUMN_ID, dto.columnId);
 						intent.putExtra(CONST.ACTIVITY_NAME, dto.name);
 						intent.putExtra(CONST.WEB_URL, dto.dataUrl);
@@ -800,7 +837,7 @@ public class ShawnMainActivity extends ShawnBaseActivity implements OnClickListe
 						intent.putExtra(CONST.ACTIVITY_NAME, dto.name);
 						startActivity(intent);
 					}else if (TextUtils.equals(dto.id, "3")) {//决策专报
-						intent = new Intent(mContext, DecisionNewsActivity.class);
+						intent = new Intent(mContext, ShawnDecisionNewsActivity.class);
 						intent.putExtra(CONST.COLUMN_ID, dto.columnId);
 						intent.putExtra(CONST.ACTIVITY_NAME, dto.name);
 						intent.putExtra(CONST.WEB_URL, dto.dataUrl);
@@ -837,7 +874,7 @@ public class ShawnMainActivity extends ShawnBaseActivity implements OnClickListe
 						intent.putExtra(CONST.ACTIVITY_NAME, dto.name);
 						startActivity(intent);
 					}else if (TextUtils.equals(dto.id, "107")) {//视频会商
-						intent = new Intent(mContext, WeatherMeetingActivity.class);
+						intent = new Intent(mContext, ShawnWeatherMeetingActivity.class);
 						intent.putExtra(CONST.ACTIVITY_NAME, dto.name);
 						startActivity(intent);
 					}else if (TextUtils.equals(dto.id, "109")) {//天气图分析
@@ -845,7 +882,7 @@ public class ShawnMainActivity extends ShawnBaseActivity implements OnClickListe
 						intent.putExtra(CONST.ACTIVITY_NAME, dto.name);
 						startActivity(intent);
 					}else if (TextUtils.equals(dto.id, "110")) {//格点实况
-                        intent = new Intent(mContext, PointFactActivity.class);
+                        intent = new Intent(mContext, ShawnPointFactActivity.class);
                         intent.putExtra(CONST.ACTIVITY_NAME, dto.name);
                         startActivity(intent);
                     }else if (TextUtils.equals(dto.id, "111")) {//综合预报
@@ -853,7 +890,15 @@ public class ShawnMainActivity extends ShawnBaseActivity implements OnClickListe
 						intent.putExtra(CONST.ACTIVITY_NAME, dto.name);
 						startActivity(intent);
 					}else if (TextUtils.equals(dto.id, "112")) {//强对流天气实况（新）
-						intent = new Intent(mContext, StreamFactActivity.class);
+						intent = new Intent(mContext, ShawnStreamFactActivity.class);
+						intent.putExtra(CONST.ACTIVITY_NAME, dto.name);
+						startActivity(intent);
+					}else if (TextUtils.equals(dto.id, "113")) {//产品定制
+						intent = new Intent(mContext, ShawnProductOrderActivity2.class);
+						intent.putExtra(CONST.ACTIVITY_NAME, dto.name);
+						startActivity(intent);
+					}else if (TextUtils.equals(dto.id, "114")) {//5天降水量统计
+						intent = new Intent(mContext, ShawnFiveRainRankActivity.class);
 						intent.putExtra(CONST.ACTIVITY_NAME, dto.name);
 						startActivity(intent);
 					}else if (TextUtils.equals(dto.id, "201")) {//城市天气预报
@@ -882,18 +927,18 @@ public class ShawnMainActivity extends ShawnBaseActivity implements OnClickListe
 						intent.putExtra(CONST.ACTIVITY_NAME, dto.name);
 						startActivity(intent);
 					}else if (TextUtils.equals(dto.id, "301")) {//灾情专报
-						intent = new Intent(mContext, DisasterSpecialActivity.class);
+						intent = new Intent(mContext, ShawnDisasterSpecialActivity.class);
 						intent.putExtra(CONST.COLUMN_ID, dto.columnId);
 						intent.putExtra(CONST.ACTIVITY_NAME, dto.name);
 						intent.putExtra(CONST.WEB_URL, dto.dataUrl);
 						startActivity(intent);
 					}else if (TextUtils.equals(dto.id, "302")) {//灾情直报
-						intent = new Intent(mContext, DisasterReportActivity.class);
+						intent = new Intent(mContext, ShawnDisasterReportActivity.class);
 						intent.putExtra(CONST.COLUMN_ID, dto.columnId);
 						intent.putExtra(CONST.ACTIVITY_NAME, dto.name);
 						startActivity(intent);
 					}else if (TextUtils.equals(dto.id, "601")) {//视频直播
-						intent = new Intent(mContext, WeatherMeetingActivity.class);
+						intent = new Intent(mContext, ShawnWeatherMeetingActivity.class);
 						intent.putExtra(CONST.ACTIVITY_NAME, dto.name);
 						startActivity(intent);
 					}else if (TextUtils.equals(dto.id, "-1")) {

@@ -22,7 +22,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.china.R;
-import com.china.adapter.StationMonitorRankSearchAdapter;
+import com.china.adapter.ShawnFactRankSearchAdapter;
 import com.china.dto.StationMonitorDto;
 import com.china.manager.DBManager;
 import com.china.utils.CommonUtil;
@@ -51,7 +51,7 @@ public class ShawnFactRankSearchActivity extends ShawnBaseActivity implements On
 	private String startTime, endTime,provinceName;
 	private RelativeLayout reLayout;
 	private boolean startOrEnd = true;//true为start
-	private StationMonitorRankSearchAdapter proAdapter;
+	private ShawnFactRankSearchAdapter proAdapter;
 	private List<StationMonitorDto> proList = new ArrayList<>();
 	private LinearLayout llContainer1;
 	private ImageView ivGuide;//引导页
@@ -326,7 +326,7 @@ public class ShawnFactRankSearchActivity extends ShawnBaseActivity implements On
 		proList.add(dto);
 		queryProvince(proList);
 		GridView gridView1 = findViewById(R.id.gridView1);
-		proAdapter = new StationMonitorRankSearchAdapter(mContext, proList);
+		proAdapter = new ShawnFactRankSearchAdapter(mContext, proList);
 		gridView1.setAdapter(proAdapter);
 		gridView1.setOnItemClickListener(new OnItemClickListener() {
 			@Override

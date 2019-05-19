@@ -58,9 +58,14 @@ public class FactManager {
 
 	public FactManager(Context context) {
 		this.context = context;
-		OkHttpNewLayer();
-		OkHttpLayer();
-		OkHttpLegend();
+		new Thread(new Runnable() {
+			@Override
+			public void run() {
+				OkHttpNewLayer();
+				OkHttpLayer();
+				OkHttpLegend();
+			}
+		}).start();
 	}
 
 	/**
@@ -68,113 +73,108 @@ public class FactManager {
 	 */
 	private void OkHttpLayer() {
 		final String url = "http://decision-admin.tianqi.cn/Home/extra/decision_skjclayers";
-		new Thread(new Runnable() {
+		OkHttpUtil.enqueue(new Request.Builder().url(url).build(), new Callback() {
 			@Override
-			public void run() {
-				OkHttpUtil.enqueue(new Request.Builder().url(url).build(), new Callback() {
-					@Override
-					public void onFailure(Call call, IOException e) {
-					}
-					@Override
-					public void onResponse(Call call, Response response) throws IOException {
-						if (!response.isSuccessful()) {
+			public void onFailure(Call call, IOException e) {
+			}
+			@Override
+			public void onResponse(Call call, Response response) throws IOException {
+				if (!response.isSuccessful()) {
+					return;
+				}
+				String result = response.body().string();
+				if (!TextUtils.isEmpty(result)) {
+					try {
+						JSONArray array = new JSONArray(result);
+						if (array.length() <= 0) {
 							return;
 						}
-						String result = response.body().string();
-						if (!TextUtils.isEmpty(result)) {
-							try {
-								JSONArray array = new JSONArray(result);
-								if (array.length() <= 0) {
-									return;
-								}
-								JSONObject obj = array.getJSONObject(0);
-								if (!obj.isNull("precipitation1h")) {
-									String precipitation1hJson = obj.getString("precipitation1h");
-									if (!TextUtils.isEmpty(precipitation1hJson)) {
-										OkHttpRain1(precipitation1hJson);
-									}
-								}
-								if (!obj.isNull("rainfall3")) {
-									String precipitation3hJson = obj.getString("rainfall3");
-									if (!TextUtils.isEmpty(precipitation3hJson)) {
-										OkHttpRain3(precipitation3hJson);
-									}
-								}
-								if (!obj.isNull("rainfall6")) {
-									String precipitation6hJson = obj.getString("rainfall6");
-									if (!TextUtils.isEmpty(precipitation6hJson)) {
-										OkHttpRain6(precipitation6hJson);
-									}
-								}
-								if (!obj.isNull("rainfall12")) {
-									String precipitation12hJson = obj.getString("rainfall12");
-									if (!TextUtils.isEmpty(precipitation12hJson)) {
-										OkHttpRain12(precipitation12hJson);
-									}
-								}
-								if (!obj.isNull("rainfall24")) {
-									String precipitation24hJson = obj.getString("rainfall24");
-									if (!TextUtils.isEmpty(precipitation24hJson)) {
-										OkHttpRain24(precipitation24hJson);
-									}
-								}
-								if (!obj.isNull("balltemp")) {
-									String balltempJson = obj.getString("balltemp");
-									if (!TextUtils.isEmpty(balltempJson)) {
-										OkHttpTemp1(balltempJson);
-									}
-								}
-								if (!obj.isNull("tempmax")) {
-									String balltempMaxJson = obj.getString("tempmax");
-									if (!TextUtils.isEmpty(balltempMaxJson)) {
-										OkHttpTemp24Max(balltempMaxJson);
-									}
-								}
-								if (!obj.isNull("tempmin")) {
-									String balltempMinJson = obj.getString("tempmin");
-									if (!TextUtils.isEmpty(balltempMinJson)) {
-										OkHttpTemp24Min(balltempMinJson);
-									}
-								}
-								if (!obj.isNull("tempchange")) {
-									String balltempChangeJson = obj.getString("tempchange");
-									if (!TextUtils.isEmpty(balltempChangeJson)) {
-										OkHttpTemp24Change(balltempChangeJson);
-									}
-								}
-								if (!obj.isNull("humidity")) {
-									String humidityJson = obj.getString("humidity");
-									if (!TextUtils.isEmpty(humidityJson)) {
-										OkHttpHumidity(humidityJson);
-									}
-								}
-								if (!obj.isNull("windspeed")) {
-									String windspeedJson = obj.getString("windspeed");
-									if (!TextUtils.isEmpty(windspeedJson)) {
-										OkHttpWind(windspeedJson);
-									}
-
-								}
-								if (!obj.isNull("visibility")) {
-									String visibilityJson = obj.getString("visibility");
-									if (!TextUtils.isEmpty(visibilityJson)) {
-										OkHttpVisible(visibilityJson);
-									}
-								}
-								if (!obj.isNull("airpressure")) {
-									String airpressureJson = obj.getString("airpressure");
-									if (!TextUtils.isEmpty(airpressureJson)) {
-										OkHttpPressure(airpressureJson);
-									}
-								}
-							} catch (JSONException e) {
-								e.printStackTrace();
+						JSONObject obj = array.getJSONObject(0);
+						if (!obj.isNull("precipitation1h")) {
+							String precipitation1hJson = obj.getString("precipitation1h");
+							if (!TextUtils.isEmpty(precipitation1hJson)) {
+								OkHttpRain1(precipitation1hJson);
 							}
 						}
+						if (!obj.isNull("rainfall3")) {
+							String precipitation3hJson = obj.getString("rainfall3");
+							if (!TextUtils.isEmpty(precipitation3hJson)) {
+								OkHttpRain3(precipitation3hJson);
+							}
+						}
+						if (!obj.isNull("rainfall6")) {
+							String precipitation6hJson = obj.getString("rainfall6");
+							if (!TextUtils.isEmpty(precipitation6hJson)) {
+								OkHttpRain6(precipitation6hJson);
+							}
+						}
+						if (!obj.isNull("rainfall12")) {
+							String precipitation12hJson = obj.getString("rainfall12");
+							if (!TextUtils.isEmpty(precipitation12hJson)) {
+								OkHttpRain12(precipitation12hJson);
+							}
+						}
+						if (!obj.isNull("rainfall24")) {
+							String precipitation24hJson = obj.getString("rainfall24");
+							if (!TextUtils.isEmpty(precipitation24hJson)) {
+								OkHttpRain24(precipitation24hJson);
+							}
+						}
+						if (!obj.isNull("balltemp")) {
+							String balltempJson = obj.getString("balltemp");
+							if (!TextUtils.isEmpty(balltempJson)) {
+								OkHttpTemp1(balltempJson);
+							}
+						}
+						if (!obj.isNull("tempmax")) {
+							String balltempMaxJson = obj.getString("tempmax");
+							if (!TextUtils.isEmpty(balltempMaxJson)) {
+								OkHttpTemp24Max(balltempMaxJson);
+							}
+						}
+						if (!obj.isNull("tempmin")) {
+							String balltempMinJson = obj.getString("tempmin");
+							if (!TextUtils.isEmpty(balltempMinJson)) {
+								OkHttpTemp24Min(balltempMinJson);
+							}
+						}
+						if (!obj.isNull("tempchange")) {
+							String balltempChangeJson = obj.getString("tempchange");
+							if (!TextUtils.isEmpty(balltempChangeJson)) {
+								OkHttpTemp24Change(balltempChangeJson);
+							}
+						}
+						if (!obj.isNull("humidity")) {
+							String humidityJson = obj.getString("humidity");
+							if (!TextUtils.isEmpty(humidityJson)) {
+								OkHttpHumidity(humidityJson);
+							}
+						}
+						if (!obj.isNull("windspeed")) {
+							String windspeedJson = obj.getString("windspeed");
+							if (!TextUtils.isEmpty(windspeedJson)) {
+								OkHttpWind(windspeedJson);
+							}
+
+						}
+						if (!obj.isNull("visibility")) {
+							String visibilityJson = obj.getString("visibility");
+							if (!TextUtils.isEmpty(visibilityJson)) {
+								OkHttpVisible(visibilityJson);
+							}
+						}
+						if (!obj.isNull("airpressure")) {
+							String airpressureJson = obj.getString("airpressure");
+							if (!TextUtils.isEmpty(airpressureJson)) {
+								OkHttpPressure(airpressureJson);
+							}
+						}
+					} catch (JSONException e) {
+						e.printStackTrace();
 					}
-				});
+				}
 			}
-		}).start();
+		});
 	}
 
 	/**
@@ -182,29 +182,24 @@ public class FactManager {
 	 * @param url
 	 */
 	private void OkHttpRain1(final String url) {
-		new Thread(new Runnable() {
+		OkHttpUtil.enqueue(new Request.Builder().url(url).build(), new Callback() {
 			@Override
-			public void run() {
-				OkHttpUtil.enqueue(new Request.Builder().url(url).build(), new Callback() {
-					@Override
-					public void onFailure(Call call, IOException e) {
-					}
-					@Override
-					public void onResponse(Call call, Response response) throws IOException {
-						if (!response.isSuccessful()) {
-							return;
-						}
-						String result = response.body().string();
-						if (!TextUtils.isEmpty(result)) {
-							precipitation1hResult = result;
-							Intent intent = new Intent();
-							intent.setAction(BROAD_RAIN1_COMPLETE);
-							context.sendBroadcast(intent);
-						}
-					}
-				});
+			public void onFailure(Call call, IOException e) {
 			}
-		}).start();
+			@Override
+			public void onResponse(Call call, Response response) throws IOException {
+				if (!response.isSuccessful()) {
+					return;
+				}
+				String result = response.body().string();
+				if (!TextUtils.isEmpty(result)) {
+					precipitation1hResult = result;
+					Intent intent = new Intent();
+					intent.setAction(BROAD_RAIN1_COMPLETE);
+					context.sendBroadcast(intent);
+				}
+			}
+		});
 	}
 
 	/**
@@ -212,26 +207,21 @@ public class FactManager {
 	 * @param url
 	 */
 	private void OkHttpRain3(final String url) {
-		new Thread(new Runnable() {
+		OkHttpUtil.enqueue(new Request.Builder().url(url).build(), new Callback() {
 			@Override
-			public void run() {
-				OkHttpUtil.enqueue(new Request.Builder().url(url).build(), new Callback() {
-					@Override
-					public void onFailure(Call call, IOException e) {
-					}
-					@Override
-					public void onResponse(Call call, Response response) throws IOException {
-						if (!response.isSuccessful()) {
-							return;
-						}
-						String result = response.body().string();
-						if (!TextUtils.isEmpty(result)) {
-							precipitation3hResult = result;
-						}
-					}
-				});
+			public void onFailure(Call call, IOException e) {
 			}
-		}).start();
+			@Override
+			public void onResponse(Call call, Response response) throws IOException {
+				if (!response.isSuccessful()) {
+					return;
+				}
+				String result = response.body().string();
+				if (!TextUtils.isEmpty(result)) {
+					precipitation3hResult = result;
+				}
+			}
+		});
 	}
 
 	/**
@@ -239,26 +229,21 @@ public class FactManager {
 	 * @param url
 	 */
 	private void OkHttpRain6(final String url) {
-		new Thread(new Runnable() {
+		OkHttpUtil.enqueue(new Request.Builder().url(url).build(), new Callback() {
 			@Override
-			public void run() {
-				OkHttpUtil.enqueue(new Request.Builder().url(url).build(), new Callback() {
-					@Override
-					public void onFailure(Call call, IOException e) {
-					}
-					@Override
-					public void onResponse(Call call, Response response) throws IOException {
-						if (!response.isSuccessful()) {
-							return;
-						}
-						String result = response.body().string();
-						if (!TextUtils.isEmpty(result)) {
-							precipitation6hResult = result;
-						}
-					}
-				});
+			public void onFailure(Call call, IOException e) {
 			}
-		}).start();
+			@Override
+			public void onResponse(Call call, Response response) throws IOException {
+				if (!response.isSuccessful()) {
+					return;
+				}
+				String result = response.body().string();
+				if (!TextUtils.isEmpty(result)) {
+					precipitation6hResult = result;
+				}
+			}
+		});
 	}
 
 	/**
@@ -266,26 +251,21 @@ public class FactManager {
 	 * @param url
 	 */
 	private void OkHttpRain12(final String url) {
-		new Thread(new Runnable() {
+		OkHttpUtil.enqueue(new Request.Builder().url(url).build(), new Callback() {
 			@Override
-			public void run() {
-				OkHttpUtil.enqueue(new Request.Builder().url(url).build(), new Callback() {
-					@Override
-					public void onFailure(Call call, IOException e) {
-					}
-					@Override
-					public void onResponse(Call call, Response response) throws IOException {
-						if (!response.isSuccessful()) {
-							return;
-						}
-						String result = response.body().string();
-						if (!TextUtils.isEmpty(result)) {
-							precipitation12hResult = result;
-						}
-					}
-				});
+			public void onFailure(Call call, IOException e) {
 			}
-		}).start();
+			@Override
+			public void onResponse(Call call, Response response) throws IOException {
+				if (!response.isSuccessful()) {
+					return;
+				}
+				String result = response.body().string();
+				if (!TextUtils.isEmpty(result)) {
+					precipitation12hResult = result;
+				}
+			}
+		});
 	}
 
 	/**
@@ -293,26 +273,21 @@ public class FactManager {
 	 * @param url
 	 */
 	private void OkHttpRain24(final String url) {
-		new Thread(new Runnable() {
+		OkHttpUtil.enqueue(new Request.Builder().url(url).build(), new Callback() {
 			@Override
-			public void run() {
-				OkHttpUtil.enqueue(new Request.Builder().url(url).build(), new Callback() {
-					@Override
-					public void onFailure(Call call, IOException e) {
-					}
-					@Override
-					public void onResponse(Call call, Response response) throws IOException {
-						if (!response.isSuccessful()) {
-							return;
-						}
-						String result = response.body().string();
-						if (!TextUtils.isEmpty(result)) {
-							precipitation24hResult = result;
-						}
-					}
-				});
+			public void onFailure(Call call, IOException e) {
 			}
-		}).start();
+			@Override
+			public void onResponse(Call call, Response response) throws IOException {
+				if (!response.isSuccessful()) {
+					return;
+				}
+				String result = response.body().string();
+				if (!TextUtils.isEmpty(result)) {
+					precipitation24hResult = result;
+				}
+			}
+		});
 	}
 
 	/**
@@ -320,26 +295,21 @@ public class FactManager {
 	 * @param url
 	 */
 	private void OkHttpTemp1(final String url) {
-		new Thread(new Runnable() {
+		OkHttpUtil.enqueue(new Request.Builder().url(url).build(), new Callback() {
 			@Override
-			public void run() {
-				OkHttpUtil.enqueue(new Request.Builder().url(url).build(), new Callback() {
-					@Override
-					public void onFailure(Call call, IOException e) {
-					}
-					@Override
-					public void onResponse(Call call, Response response) throws IOException {
-						if (!response.isSuccessful()) {
-							return;
-						}
-						String result = response.body().string();
-						if (!TextUtils.isEmpty(result)) {
-							balltempResult = result;
-						}
-					}
-				});
+			public void onFailure(Call call, IOException e) {
 			}
-		}).start();
+			@Override
+			public void onResponse(Call call, Response response) throws IOException {
+				if (!response.isSuccessful()) {
+					return;
+				}
+				String result = response.body().string();
+				if (!TextUtils.isEmpty(result)) {
+					balltempResult = result;
+				}
+			}
+		});
 	}
 
 	/**
@@ -347,26 +317,21 @@ public class FactManager {
 	 * @param url
 	 */
 	private void OkHttpTemp24Max(final String url) {
-		new Thread(new Runnable() {
+		OkHttpUtil.enqueue(new Request.Builder().url(url).build(), new Callback() {
 			@Override
-			public void run() {
-				OkHttpUtil.enqueue(new Request.Builder().url(url).build(), new Callback() {
-					@Override
-					public void onFailure(Call call, IOException e) {
-					}
-					@Override
-					public void onResponse(Call call, Response response) throws IOException {
-						if (!response.isSuccessful()) {
-							return;
-						}
-						String result = response.body().string();
-						if (!TextUtils.isEmpty(result)) {
-							balltempMaxResult = result;
-						}
-					}
-				});
+			public void onFailure(Call call, IOException e) {
 			}
-		}).start();
+			@Override
+			public void onResponse(Call call, Response response) throws IOException {
+				if (!response.isSuccessful()) {
+					return;
+				}
+				String result = response.body().string();
+				if (!TextUtils.isEmpty(result)) {
+					balltempMaxResult = result;
+				}
+			}
+		});
 	}
 
 	/**
@@ -374,26 +339,21 @@ public class FactManager {
 	 * @param url
 	 */
 	private void OkHttpTemp24Min(final String url) {
-		new Thread(new Runnable() {
+		OkHttpUtil.enqueue(new Request.Builder().url(url).build(), new Callback() {
 			@Override
-			public void run() {
-				OkHttpUtil.enqueue(new Request.Builder().url(url).build(), new Callback() {
-					@Override
-					public void onFailure(Call call, IOException e) {
-					}
-					@Override
-					public void onResponse(Call call, Response response) throws IOException {
-						if (!response.isSuccessful()) {
-							return;
-						}
-						String result = response.body().string();
-						if (!TextUtils.isEmpty(result)) {
-							balltempMinResult = result;
-						}
-					}
-				});
+			public void onFailure(Call call, IOException e) {
 			}
-		}).start();
+			@Override
+			public void onResponse(Call call, Response response) throws IOException {
+				if (!response.isSuccessful()) {
+					return;
+				}
+				String result = response.body().string();
+				if (!TextUtils.isEmpty(result)) {
+					balltempMinResult = result;
+				}
+			}
+		});
 	}
 
 	/**
@@ -401,26 +361,21 @@ public class FactManager {
 	 * @param url
 	 */
 	private void OkHttpTemp24Change(final String url) {
-		new Thread(new Runnable() {
+		OkHttpUtil.enqueue(new Request.Builder().url(url).build(), new Callback() {
 			@Override
-			public void run() {
-				OkHttpUtil.enqueue(new Request.Builder().url(url).build(), new Callback() {
-					@Override
-					public void onFailure(Call call, IOException e) {
-					}
-					@Override
-					public void onResponse(Call call, Response response) throws IOException {
-						if (!response.isSuccessful()) {
-							return;
-						}
-						String result = response.body().string();
-						if (!TextUtils.isEmpty(result)) {
-							balltempChangeResult = result;
-						}
-					}
-				});
+			public void onFailure(Call call, IOException e) {
 			}
-		}).start();
+			@Override
+			public void onResponse(Call call, Response response) throws IOException {
+				if (!response.isSuccessful()) {
+					return;
+				}
+				String result = response.body().string();
+				if (!TextUtils.isEmpty(result)) {
+					balltempChangeResult = result;
+				}
+			}
+		});
 	}
 
 	/**
@@ -428,26 +383,21 @@ public class FactManager {
 	 * @param url
 	 */
 	private void OkHttpHumidity(final String url) {
-		new Thread(new Runnable() {
+		OkHttpUtil.enqueue(new Request.Builder().url(url).build(), new Callback() {
 			@Override
-			public void run() {
-				OkHttpUtil.enqueue(new Request.Builder().url(url).build(), new Callback() {
-					@Override
-					public void onFailure(Call call, IOException e) {
-					}
-					@Override
-					public void onResponse(Call call, Response response) throws IOException {
-						if (!response.isSuccessful()) {
-							return;
-						}
-						String result = response.body().string();
-						if (!TextUtils.isEmpty(result)) {
-							humidityResult = result;
-						}
-					}
-				});
+			public void onFailure(Call call, IOException e) {
 			}
-		}).start();
+			@Override
+			public void onResponse(Call call, Response response) throws IOException {
+				if (!response.isSuccessful()) {
+					return;
+				}
+				String result = response.body().string();
+				if (!TextUtils.isEmpty(result)) {
+					humidityResult = result;
+				}
+			}
+		});
 	}
 
 	/**
@@ -455,26 +405,21 @@ public class FactManager {
 	 * @param url
 	 */
 	private void OkHttpWind(final String url) {
-		new Thread(new Runnable() {
+		OkHttpUtil.enqueue(new Request.Builder().url(url).build(), new Callback() {
 			@Override
-			public void run() {
-				OkHttpUtil.enqueue(new Request.Builder().url(url).build(), new Callback() {
-					@Override
-					public void onFailure(Call call, IOException e) {
-					}
-					@Override
-					public void onResponse(Call call, Response response) throws IOException {
-						if (!response.isSuccessful()) {
-							return;
-						}
-						String result = response.body().string();
-						if (!TextUtils.isEmpty(result)) {
-							windspeedResult = result;
-						}
-					}
-				});
+			public void onFailure(Call call, IOException e) {
 			}
-		}).start();
+			@Override
+			public void onResponse(Call call, Response response) throws IOException {
+				if (!response.isSuccessful()) {
+					return;
+				}
+				String result = response.body().string();
+				if (!TextUtils.isEmpty(result)) {
+					windspeedResult = result;
+				}
+			}
+		});
 	}
 
 	/**
@@ -482,26 +427,21 @@ public class FactManager {
 	 * @param url
 	 */
 	private void OkHttpVisible(final String url) {
-		new Thread(new Runnable() {
+		OkHttpUtil.enqueue(new Request.Builder().url(url).build(), new Callback() {
 			@Override
-			public void run() {
-				OkHttpUtil.enqueue(new Request.Builder().url(url).build(), new Callback() {
-					@Override
-					public void onFailure(Call call, IOException e) {
-					}
-					@Override
-					public void onResponse(Call call, Response response) throws IOException {
-						if (!response.isSuccessful()) {
-							return;
-						}
-						String result = response.body().string();
-						if (!TextUtils.isEmpty(result)) {
-							visibilityResult = result;
-						}
-					}
-				});
+			public void onFailure(Call call, IOException e) {
 			}
-		}).start();
+			@Override
+			public void onResponse(Call call, Response response) throws IOException {
+				if (!response.isSuccessful()) {
+					return;
+				}
+				String result = response.body().string();
+				if (!TextUtils.isEmpty(result)) {
+					visibilityResult = result;
+				}
+			}
+		});
 	}
 
 	/**
@@ -509,26 +449,21 @@ public class FactManager {
 	 * @param url
 	 */
 	private void OkHttpPressure(final String url) {
-		new Thread(new Runnable() {
+		OkHttpUtil.enqueue(new Request.Builder().url(url).build(), new Callback() {
 			@Override
-			public void run() {
-				OkHttpUtil.enqueue(new Request.Builder().url(url).build(), new Callback() {
-					@Override
-					public void onFailure(Call call, IOException e) {
-					}
-					@Override
-					public void onResponse(Call call, Response response) throws IOException {
-						if (!response.isSuccessful()) {
-							return;
-						}
-						String result = response.body().string();
-						if (!TextUtils.isEmpty(result)) {
-							airpressureResult = result;
-						}
-					}
-				});
+			public void onFailure(Call call, IOException e) {
 			}
-		}).start();
+			@Override
+			public void onResponse(Call call, Response response) throws IOException {
+				if (!response.isSuccessful()) {
+					return;
+				}
+				String result = response.body().string();
+				if (!TextUtils.isEmpty(result)) {
+					airpressureResult = result;
+				}
+			}
+		});
 	}
 
 	/**
@@ -536,115 +471,110 @@ public class FactManager {
 	 */
 	private void OkHttpNewLayer() {
 		final String url = "http://decision-admin.tianqi.cn/Home/extra/decision_new_skjclayers";
-		new Thread(new Runnable() {
+		OkHttpUtil.enqueue(new Request.Builder().url(url).build(), new Callback() {
 			@Override
-			public void run() {
-				OkHttpUtil.enqueue(new Request.Builder().url(url).build(), new Callback() {
-					@Override
-					public void onFailure(Call call, IOException e) {
-					}
-					@Override
-					public void onResponse(Call call, Response response) throws IOException {
-						if (!response.isSuccessful()) {
+			public void onFailure(Call call, IOException e) {
+			}
+			@Override
+			public void onResponse(Call call, Response response) throws IOException {
+				if (!response.isSuccessful()) {
+					return;
+				}
+				String result = response.body().string();
+				if (!TextUtils.isEmpty(result)) {
+					try {
+						JSONArray array = new JSONArray(result);
+						if (array.length() <= 0) {
 							return;
 						}
-						String result = response.body().string();
-						if (!TextUtils.isEmpty(result)) {
-							try {
-								JSONArray array = new JSONArray(result);
-								if (array.length() <= 0) {
-									return;
-								}
-								JSONObject obj = array.getJSONObject(0);
-								if (!obj.isNull("precipitation1h")) {
-									JSONObject itemObj = obj.getJSONObject("precipitation1h");
-									if (!itemObj.isNull("imgurl")) {
-										precipitation1hImg = itemObj.getString("imgurl");
-										Intent intent = new Intent();
-										intent.setAction(BROAD_RAIN1_COMPLETE);
-										context.sendBroadcast(intent);
-									}
-								}
-								if (!obj.isNull("rainfall3")) {
-									JSONObject itemObj = obj.getJSONObject("rainfall3");
-									if (!itemObj.isNull("imgurl")) {
-										precipitation3hImg = itemObj.getString("imgurl");
-									}
-								}
-								if (!obj.isNull("rainfall6")) {
-									JSONObject itemObj = obj.getJSONObject("rainfall6");
-									if (!itemObj.isNull("imgurl")) {
-										precipitation6hImg = itemObj.getString("imgurl");
-									}
-								}
-								if (!obj.isNull("rainfall12")) {
-									JSONObject itemObj = obj.getJSONObject("rainfall12");
-									if (!itemObj.isNull("imgurl")) {
-										precipitation12hImg = itemObj.getString("imgurl");
-									}
-								}
-								if (!obj.isNull("rainfall24")) {
-									JSONObject itemObj = obj.getJSONObject("rainfall24");
-									if (!itemObj.isNull("imgurl")) {
-										precipitation24hImg = itemObj.getString("imgurl");
-									}
-								}
-								if (!obj.isNull("balltemp")) {
-									JSONObject itemObj = obj.getJSONObject("balltemp");
-									if (!itemObj.isNull("imgurl")) {
-										balltempImg = itemObj.getString("imgurl");
-									}
-								}
-								if (!obj.isNull("tempmax")) {
-									JSONObject itemObj = obj.getJSONObject("tempmax");
-									if (!itemObj.isNull("imgurl")) {
-										balltempMaxImg = itemObj.getString("imgurl");
-									}
-								}
-								if (!obj.isNull("tempmin")) {
-									JSONObject itemObj = obj.getJSONObject("tempmin");
-									if (!itemObj.isNull("imgurl")) {
-										balltempMinImg = itemObj.getString("imgurl");
-									}
-								}
-								if (!obj.isNull("tempchange")) {
-									JSONObject itemObj = obj.getJSONObject("tempchange");
-									if (!itemObj.isNull("imgurl")) {
-										balltempChangeImg = itemObj.getString("imgurl");
-									}
-								}
-								if (!obj.isNull("humidity")) {
-									JSONObject itemObj = obj.getJSONObject("humidity");
-									if (!itemObj.isNull("imgurl")) {
-										humidityImg = itemObj.getString("imgurl");
-									}
-								}
-								if (!obj.isNull("windspeed")) {
-									JSONObject itemObj = obj.getJSONObject("windspeed");
-									if (!itemObj.isNull("imgurl")) {
-										windspeedImg = itemObj.getString("imgurl");
-									}
-								}
-								if (!obj.isNull("visibility")) {
-									JSONObject itemObj = obj.getJSONObject("visibility");
-									if (!itemObj.isNull("imgurl")) {
-										visibilityImg = itemObj.getString("imgurl");
-									}
-								}
-								if (!obj.isNull("airpressure")) {
-									JSONObject itemObj = obj.getJSONObject("airpressure");
-									if (!itemObj.isNull("imgurl")) {
-										airpressureImg = itemObj.getString("imgurl");
-									}
-								}
-							} catch (JSONException e) {
-								e.printStackTrace();
+						JSONObject obj = array.getJSONObject(0);
+						if (!obj.isNull("precipitation1h")) {
+							JSONObject itemObj = obj.getJSONObject("precipitation1h");
+							if (!itemObj.isNull("imgurl")) {
+								precipitation1hImg = itemObj.getString("imgurl");
+								Intent intent = new Intent();
+								intent.setAction(BROAD_RAIN1_COMPLETE);
+								context.sendBroadcast(intent);
 							}
 						}
+						if (!obj.isNull("rainfall3")) {
+							JSONObject itemObj = obj.getJSONObject("rainfall3");
+							if (!itemObj.isNull("imgurl")) {
+								precipitation3hImg = itemObj.getString("imgurl");
+							}
+						}
+						if (!obj.isNull("rainfall6")) {
+							JSONObject itemObj = obj.getJSONObject("rainfall6");
+							if (!itemObj.isNull("imgurl")) {
+								precipitation6hImg = itemObj.getString("imgurl");
+							}
+						}
+						if (!obj.isNull("rainfall12")) {
+							JSONObject itemObj = obj.getJSONObject("rainfall12");
+							if (!itemObj.isNull("imgurl")) {
+								precipitation12hImg = itemObj.getString("imgurl");
+							}
+						}
+						if (!obj.isNull("rainfall24")) {
+							JSONObject itemObj = obj.getJSONObject("rainfall24");
+							if (!itemObj.isNull("imgurl")) {
+								precipitation24hImg = itemObj.getString("imgurl");
+							}
+						}
+						if (!obj.isNull("balltemp")) {
+							JSONObject itemObj = obj.getJSONObject("balltemp");
+							if (!itemObj.isNull("imgurl")) {
+								balltempImg = itemObj.getString("imgurl");
+							}
+						}
+						if (!obj.isNull("tempmax")) {
+							JSONObject itemObj = obj.getJSONObject("tempmax");
+							if (!itemObj.isNull("imgurl")) {
+								balltempMaxImg = itemObj.getString("imgurl");
+							}
+						}
+						if (!obj.isNull("tempmin")) {
+							JSONObject itemObj = obj.getJSONObject("tempmin");
+							if (!itemObj.isNull("imgurl")) {
+								balltempMinImg = itemObj.getString("imgurl");
+							}
+						}
+						if (!obj.isNull("tempchange")) {
+							JSONObject itemObj = obj.getJSONObject("tempchange");
+							if (!itemObj.isNull("imgurl")) {
+								balltempChangeImg = itemObj.getString("imgurl");
+							}
+						}
+						if (!obj.isNull("humidity")) {
+							JSONObject itemObj = obj.getJSONObject("humidity");
+							if (!itemObj.isNull("imgurl")) {
+								humidityImg = itemObj.getString("imgurl");
+							}
+						}
+						if (!obj.isNull("windspeed")) {
+							JSONObject itemObj = obj.getJSONObject("windspeed");
+							if (!itemObj.isNull("imgurl")) {
+								windspeedImg = itemObj.getString("imgurl");
+							}
+						}
+						if (!obj.isNull("visibility")) {
+							JSONObject itemObj = obj.getJSONObject("visibility");
+							if (!itemObj.isNull("imgurl")) {
+								visibilityImg = itemObj.getString("imgurl");
+							}
+						}
+						if (!obj.isNull("airpressure")) {
+							JSONObject itemObj = obj.getJSONObject("airpressure");
+							if (!itemObj.isNull("imgurl")) {
+								airpressureImg = itemObj.getString("imgurl");
+							}
+						}
+					} catch (JSONException e) {
+						e.printStackTrace();
 					}
-				});
+				}
 			}
-		}).start();
+		});
 	}
 
 	/**
@@ -652,165 +582,160 @@ public class FactManager {
 	 */
 	private void OkHttpLegend() {
 		final String url = "http://decision-admin.tianqi.cn/Home/extra/decision_skjctuli";
-		new Thread(new Runnable() {
+		OkHttpUtil.enqueue(new Request.Builder().url(url).build(), new Callback() {
 			@Override
-			public void run() {
-				OkHttpUtil.enqueue(new Request.Builder().url(url).build(), new Callback() {
-					@Override
-					public void onFailure(Call call, IOException e) {
-					}
-					@Override
-					public void onResponse(Call call, Response response) throws IOException {
-						if (!response.isSuccessful()) {
-							return;
+			public void onFailure(Call call, IOException e) {
+			}
+			@Override
+			public void onResponse(Call call, Response response) throws IOException {
+				if (!response.isSuccessful()) {
+					return;
+				}
+				String result = response.body().string();
+				if (!TextUtils.isEmpty(result)) {
+					try {
+						JSONObject obj = new JSONObject(result);
+						if (!obj.isNull("jc_1xsjs")) {
+							precipitation1hLegend = obj.getString("jc_1xsjs");
+							Intent intent = new Intent();
+							intent.setAction(BROAD_RAIN1_LEGEND_COMPLETE);
+							context.sendBroadcast(intent);
 						}
-						String result = response.body().string();
-						if (!TextUtils.isEmpty(result)) {
-							try {
-								JSONObject obj = new JSONObject(result);
-								if (!obj.isNull("jc_1xsjs")) {
-									precipitation1hLegend = obj.getString("jc_1xsjs");
-									Intent intent = new Intent();
-									intent.setAction(BROAD_RAIN1_LEGEND_COMPLETE);
-									context.sendBroadcast(intent);
-								}
-								if (!obj.isNull("jc_3xsjs")) {
-									precipitation3hLegend = obj.getString("jc_3xsjs");
-								}
-								if (!obj.isNull("jc_6xsjs")) {
-									precipitation6hLegend = obj.getString("jc_6xsjs");
-								}
-								if (!obj.isNull("jc_12xsjs")) {
-									precipitation12hLegend = obj.getString("jc_12xsjs");
-								}
-								if (!obj.isNull("jc_24xsjs")) {
-									precipitation24hLegend = obj.getString("jc_24xsjs");
-								}
-								if (!obj.isNull("jc_wdtl")) {
-									balltempLegend = obj.getString("jc_wdtl");
-								}
-								if (!obj.isNull("jc_maxqw")) {
-									balltempMaxLegend = obj.getString("jc_maxqw");
-								}
-								if (!obj.isNull("jc_minqw")) {
-									balltempMinLegend = obj.getString("jc_minqw");
-								}
-								if (!obj.isNull("jc_changeqw")) {
-									balltempChangeLegend = obj.getString("jc_changeqw");
-								}
-								if (!obj.isNull("jc_xdsdtl")) {
-									humidityLegend = obj.getString("jc_xdsdtl");
-								}
-								if (!obj.isNull("jc_fltl")) {
-									windspeedLegend = obj.getString("jc_fltl");
-								}
-								if (!obj.isNull("jc_njdtl")) {
-									visibilityLegend = obj.getString("jc_njdtl");
-								}
-								if (!obj.isNull("jc_qytl")) {
-									airpressureLegend = obj.getString("jc_qytl");
-								}
+						if (!obj.isNull("jc_3xsjs")) {
+							precipitation3hLegend = obj.getString("jc_3xsjs");
+						}
+						if (!obj.isNull("jc_6xsjs")) {
+							precipitation6hLegend = obj.getString("jc_6xsjs");
+						}
+						if (!obj.isNull("jc_12xsjs")) {
+							precipitation12hLegend = obj.getString("jc_12xsjs");
+						}
+						if (!obj.isNull("jc_24xsjs")) {
+							precipitation24hLegend = obj.getString("jc_24xsjs");
+						}
+						if (!obj.isNull("jc_wdtl")) {
+							balltempLegend = obj.getString("jc_wdtl");
+						}
+						if (!obj.isNull("jc_maxqw")) {
+							balltempMaxLegend = obj.getString("jc_maxqw");
+						}
+						if (!obj.isNull("jc_minqw")) {
+							balltempMinLegend = obj.getString("jc_minqw");
+						}
+						if (!obj.isNull("jc_changeqw")) {
+							balltempChangeLegend = obj.getString("jc_changeqw");
+						}
+						if (!obj.isNull("jc_xdsdtl")) {
+							humidityLegend = obj.getString("jc_xdsdtl");
+						}
+						if (!obj.isNull("jc_fltl")) {
+							windspeedLegend = obj.getString("jc_fltl");
+						}
+						if (!obj.isNull("jc_njdtl")) {
+							visibilityLegend = obj.getString("jc_njdtl");
+						}
+						if (!obj.isNull("jc_qytl")) {
+							airpressureLegend = obj.getString("jc_qytl");
+						}
 
-								if (!obj.isNull("jb_1xsjs")) {
-									precipitation1hColor.clear();
-									JSONArray array = obj.getJSONArray("jb_1xsjs");
-									for (int i = 0; i < array.length(); i++) {
-										precipitation1hColor.add(array.getString(i));
-									}
-								}
-								if (!obj.isNull("jb_3xsjs")) {
-									precipitation3hColor.clear();
-									JSONArray array = obj.getJSONArray("jb_3xsjs");
-									for (int i = 0; i < array.length(); i++) {
-										precipitation3hColor.add(array.getString(i));
-									}
-								}
-								if (!obj.isNull("jb_6xsjs")) {
-									precipitation6hColor.clear();
-									JSONArray array = obj.getJSONArray("jb_6xsjs");
-									for (int i = 0; i < array.length(); i++) {
-										precipitation6hColor.add(array.getString(i));
-									}
-								}
-								if (!obj.isNull("jb_12xsjs")) {
-									precipitation12hColor.clear();
-									JSONArray array = obj.getJSONArray("jb_12xsjs");
-									for (int i = 0; i < array.length(); i++) {
-										precipitation12hColor.add(array.getString(i));
-									}
-								}
-								if (!obj.isNull("jb_24xsjs")) {
-									precipitation24hColor.clear();
-									JSONArray array = obj.getJSONArray("jb_24xsjs");
-									for (int i = 0; i < array.length(); i++) {
-										precipitation24hColor.add(array.getString(i));
-									}
-								}
-								if (!obj.isNull("jb_fltl")) {
-									windspeedColor.clear();
-									JSONArray array = obj.getJSONArray("jb_fltl");
-									for (int i = 0; i < array.length(); i++) {
-										windspeedColor.add(array.getString(i));
-									}
-								}
-								if (!obj.isNull("jb_njdtl")) {
-									visibilityColor.clear();
-									JSONArray array = obj.getJSONArray("jb_njdtl");
-									for (int i = 0; i < array.length(); i++) {
-										visibilityColor.add(array.getString(i));
-									}
-								}
-								if (!obj.isNull("jb_qytl")) {
-									airpressureColor.clear();
-									JSONArray array = obj.getJSONArray("jb_qytl");
-									for (int i = 0; i < array.length(); i++) {
-										airpressureColor.add(array.getString(i));
-									}
-								}
-								if (!obj.isNull("jb_wdtl")) {
-									balltempColor.clear();
-									JSONArray array = obj.getJSONArray("jb_wdtl");
-									for (int i = 0; i < array.length(); i++) {
-										balltempColor.add(array.getString(i));
-									}
-								}
-								if (!obj.isNull("jb_maxqw")) {
-									balltempMaxColor.clear();
-									JSONArray array = obj.getJSONArray("jb_maxqw");
-									for (int i = 0; i < array.length(); i++) {
-										balltempMaxColor.add(array.getString(i));
-									}
-								}
-								if (!obj.isNull("jb_minqw")) {
-									balltempMinColor.clear();
-									JSONArray array = obj.getJSONArray("jb_minqw");
-									for (int i = 0; i < array.length(); i++) {
-										balltempMinColor.add(array.getString(i));
-									}
-								}
-								if (!obj.isNull("jb_changeqw")) {
-									balltempChangeColor.clear();
-									JSONArray array = obj.getJSONArray("jb_changeqw");
-									for (int i = 0; i < array.length(); i++) {
-										balltempChangeColor.add(array.getString(i));
-									}
-								}
-								if (!obj.isNull("jb_xdsdtl")) {
-									humidityColor.clear();
-									JSONArray array = obj.getJSONArray("jb_xdsdtl");
-									for (int i = 0; i < array.length(); i++) {
-										humidityColor.add(array.getString(i));
-									}
-								}
-
-							} catch (JSONException e) {
-								e.printStackTrace();
+						if (!obj.isNull("jb_1xsjs")) {
+							precipitation1hColor.clear();
+							JSONArray array = obj.getJSONArray("jb_1xsjs");
+							for (int i = 0; i < array.length(); i++) {
+								precipitation1hColor.add(array.getString(i));
 							}
 						}
+						if (!obj.isNull("jb_3xsjs")) {
+							precipitation3hColor.clear();
+							JSONArray array = obj.getJSONArray("jb_3xsjs");
+							for (int i = 0; i < array.length(); i++) {
+								precipitation3hColor.add(array.getString(i));
+							}
+						}
+						if (!obj.isNull("jb_6xsjs")) {
+							precipitation6hColor.clear();
+							JSONArray array = obj.getJSONArray("jb_6xsjs");
+							for (int i = 0; i < array.length(); i++) {
+								precipitation6hColor.add(array.getString(i));
+							}
+						}
+						if (!obj.isNull("jb_12xsjs")) {
+							precipitation12hColor.clear();
+							JSONArray array = obj.getJSONArray("jb_12xsjs");
+							for (int i = 0; i < array.length(); i++) {
+								precipitation12hColor.add(array.getString(i));
+							}
+						}
+						if (!obj.isNull("jb_24xsjs")) {
+							precipitation24hColor.clear();
+							JSONArray array = obj.getJSONArray("jb_24xsjs");
+							for (int i = 0; i < array.length(); i++) {
+								precipitation24hColor.add(array.getString(i));
+							}
+						}
+						if (!obj.isNull("jb_fltl")) {
+							windspeedColor.clear();
+							JSONArray array = obj.getJSONArray("jb_fltl");
+							for (int i = 0; i < array.length(); i++) {
+								windspeedColor.add(array.getString(i));
+							}
+						}
+						if (!obj.isNull("jb_njdtl")) {
+							visibilityColor.clear();
+							JSONArray array = obj.getJSONArray("jb_njdtl");
+							for (int i = 0; i < array.length(); i++) {
+								visibilityColor.add(array.getString(i));
+							}
+						}
+						if (!obj.isNull("jb_qytl")) {
+							airpressureColor.clear();
+							JSONArray array = obj.getJSONArray("jb_qytl");
+							for (int i = 0; i < array.length(); i++) {
+								airpressureColor.add(array.getString(i));
+							}
+						}
+						if (!obj.isNull("jb_wdtl")) {
+							balltempColor.clear();
+							JSONArray array = obj.getJSONArray("jb_wdtl");
+							for (int i = 0; i < array.length(); i++) {
+								balltempColor.add(array.getString(i));
+							}
+						}
+						if (!obj.isNull("jb_maxqw")) {
+							balltempMaxColor.clear();
+							JSONArray array = obj.getJSONArray("jb_maxqw");
+							for (int i = 0; i < array.length(); i++) {
+								balltempMaxColor.add(array.getString(i));
+							}
+						}
+						if (!obj.isNull("jb_minqw")) {
+							balltempMinColor.clear();
+							JSONArray array = obj.getJSONArray("jb_minqw");
+							for (int i = 0; i < array.length(); i++) {
+								balltempMinColor.add(array.getString(i));
+							}
+						}
+						if (!obj.isNull("jb_changeqw")) {
+							balltempChangeColor.clear();
+							JSONArray array = obj.getJSONArray("jb_changeqw");
+							for (int i = 0; i < array.length(); i++) {
+								balltempChangeColor.add(array.getString(i));
+							}
+						}
+						if (!obj.isNull("jb_xdsdtl")) {
+							humidityColor.clear();
+							JSONArray array = obj.getJSONArray("jb_xdsdtl");
+							for (int i = 0; i < array.length(); i++) {
+								humidityColor.add(array.getString(i));
+							}
+						}
+
+					} catch (JSONException e) {
+						e.printStackTrace();
 					}
-				});
+				}
 			}
-		}).start();
+		});
 	}
 
 	public static int pointColor(int value, String number) {

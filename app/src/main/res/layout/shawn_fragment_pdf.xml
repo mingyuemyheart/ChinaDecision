@@ -1,24 +1,29 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-              android:layout_width="match_parent"
-              android:layout_height="wrap_content"
-              android:gravity="center_vertical">
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:gravity="center_vertical"
+    android:orientation="horizontal">
 
     <ImageView
-        android:id="@+id/imageView"
-        android:layout_width="40dp"
-        android:layout_height="25dp"
+        android:layout_width="15dp"
+        android:layout_height="15dp"
         android:layout_marginStart="10dp"
         android:scaleType="fitXY"
-        android:src="@drawable/iv_pdf"/>
+        android:src="@drawable/shawn_icon_month_news" />
 
     <TextView
         android:id="@+id/tvTitle"
-        android:layout_width="match_parent"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginStart="10dp"
         android:singleLine="true"
         android:textColor="@color/text_color3"
-        android:textSize="@dimen/level_4"/>
+        android:textSize="@dimen/level_4" />
+
+    <ImageView
+        android:id="@+id/imageView"
+        android:layout_width="24dp"
+        android:layout_height="12dp"
+        android:layout_marginStart="5dp" />
 
 </LinearLayout>

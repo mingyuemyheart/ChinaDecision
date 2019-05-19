@@ -10,7 +10,6 @@ import com.china.R;
 
 public class MyDialog2 extends Dialog {
 
-	
 	public MyDialog2(Context context) {
 		super(context);
 	}
@@ -28,7 +27,7 @@ public class MyDialog2 extends Dialog {
 		super.onCreate(savedInstanceState);
 		setStyle(Window.FEATURE_NO_TITLE);
 		getWindow().setBackgroundDrawableResource(R.color.transparent);
-		setContentView(R.layout.layout_dialog2);
+		setContentView(R.layout.shawn_layout_dialog2);
 	}
 	
 }

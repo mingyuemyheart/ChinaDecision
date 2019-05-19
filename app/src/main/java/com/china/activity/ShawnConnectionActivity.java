@@ -79,12 +79,12 @@ public class ShawnConnectionActivity extends ShawnBaseActivity implements OnClic
 	 */
 	private void checkCameraAuthority() {
 		if (Build.VERSION.SDK_INT < 23) {
-			startActivityForResult(new Intent(mContext, ZXingActivity.class), 1000);
+			startActivityForResult(new Intent(mContext, ShawnZXingActivity.class), 1000);
 		}else {
 			if (ContextCompat.checkSelfPermission(mContext, Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) {
 				ActivityCompat.requestPermissions(ShawnConnectionActivity.this, new String[]{Manifest.permission.CAMERA}, AuthorityUtil.AUTHOR_CAMERA);
 			}else {
-				startActivityForResult(new Intent(mContext, ZXingActivity.class), 1000);
+				startActivityForResult(new Intent(mContext, ShawnZXingActivity.class), 1000);
 			}
 		}
 	}
@@ -95,7 +95,7 @@ public class ShawnConnectionActivity extends ShawnBaseActivity implements OnClic
 		switch (requestCode) {
 			case AuthorityUtil.AUTHOR_CAMERA:
 				if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-					startActivityForResult(new Intent(mContext, ZXingActivity.class), 1000);
+					startActivityForResult(new Intent(mContext, ShawnZXingActivity.class), 1000);
 				}else {
 					if (!ActivityCompat.shouldShowRequestPermissionRationale(ShawnConnectionActivity.this, Manifest.permission.CAMERA)) {
 						AuthorityUtil.intentAuthorSetting(mContext, "\""+getString(R.string.app_name)+"\""+"需要使用相机权限，是否前往设置？");
@@ -142,7 +142,7 @@ public class ShawnConnectionActivity extends ShawnBaseActivity implements OnClic
 								obj.put("commond", "hideQR");
 								socket.emit("hideQR", obj);
 
-								startActivity(new Intent(mContext, ScreenActivity.class));
+								startActivity(new Intent(mContext, ShawnScreenActivity.class));
 							} catch (URISyntaxException e) {
 								e.printStackTrace();
 							} catch (JSONException e) {

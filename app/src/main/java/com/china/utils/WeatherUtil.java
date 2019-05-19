@@ -17,11 +17,10 @@ public class WeatherUtil {
 	 * @param values
 	 * @return
 	 */
-	public static final String lastValue(String values) {
+	public static String lastValue(String values) {
 		String temp = values.replaceAll(NONE, "");
 		String[] vs = TextUtils.isEmpty(temp) ? null : temp.split(SEPARATER);
-		String value = (vs == null || vs.length <= 0) ? null : vs[vs.length - 1];
-		return value;
+		return (vs == null || vs.length <= 0) ? null : vs[vs.length - 1];
 	}
 	
 	/**
@@ -190,7 +189,7 @@ public class WeatherUtil {
 	 * @param code
 	 * @return
 	 */
-	public static final int getWindDirection(int code) {
+	public static int getWindDirection(int code) {
 		int id = 0;
 		switch (code) {
 		case 0:
@@ -235,7 +234,7 @@ public class WeatherUtil {
 	 * @param code
 	 * @return
 	 */
-	public static final float getWindDegree(int code) {
+	public static float getWindDegree(int code) {
 		float degree = 0;
 		switch (code) {
 			case 0:
@@ -280,7 +279,7 @@ public class WeatherUtil {
 	 * @param code
 	 * @return
 	 */
-	public static final String getFactWindForce(int code) {
+	public static String getFactWindForce(int code) {
 		String force = "微风";
 		switch (code) {
 		case 0:
@@ -334,7 +333,7 @@ public class WeatherUtil {
 	 * @param speed
 	 * @return
 	 */
-	public static final String getHourWindForce(float speed) {
+	public static String getHourWindForce(float speed) {
 		String force = "微风";
 		if (speed <= 0.2) {
 			force = "微风";
@@ -383,7 +382,7 @@ public class WeatherUtil {
 	 * @param code
 	 * @return
 	 */
-	public static final String getDayWindForce(int code) {
+	public static String getDayWindForce(int code) {
 		String force = "微风";
 		switch (code) {
 		case 0:
@@ -429,7 +428,7 @@ public class WeatherUtil {
 	 * @param code
 	 * @return
 	 */
-	public static final Bitmap getWindBitmap(Context context, int code) {
+	public static Bitmap getWindBitmap(Context context, int code) {
 		Bitmap bitmap = null;
 		switch (code) {
 			case 0:
@@ -473,7 +472,7 @@ public class WeatherUtil {
 	 * @param code
 	 * @return
 	 */
-	public static final Bitmap getWindBitmapWhite(Context context, int code) {
+	public static Bitmap getWindBitmapWhite(Context context, int code) {
 		Bitmap bitmap = null;
 		switch (code) {
 			case 0:
@@ -517,7 +516,7 @@ public class WeatherUtil {
 	 * @param code 天气现象编号
 	 * @return
 	 */
-	public static final Bitmap getDayBitmap(Context context, int code) {
+	public static Bitmap getDayBitmap(Context context, int code) {
 		Bitmap bitmap = null;
 		if (code == 0) {
 			bitmap = BitmapFactory.decodeResource(context.getResources(), R.drawable.day00_mini);
@@ -602,7 +601,6 @@ public class WeatherUtil {
 		}else if (code == 58) {
 			bitmap = BitmapFactory.decodeResource(context.getResources(), R.drawable.day18_mini);
 		}
-
 		return bitmap;
 	}
 
@@ -612,7 +610,7 @@ public class WeatherUtil {
 	 * @param code 天气现象编号
 	 * @return
 	 */
-	public static final Bitmap getDayBitmapWhite(Context context, int code) {
+	public static Bitmap getDayBitmapWhite(Context context, int code) {
 		Bitmap bitmap = null;
 		if (code == 0) {
 			bitmap = BitmapFactory.decodeResource(context.getResources(), R.drawable.day00_mini_white);
@@ -697,7 +695,6 @@ public class WeatherUtil {
 		}else if (code == 58) {
 			bitmap = BitmapFactory.decodeResource(context.getResources(), R.drawable.day18_mini_white);
 		}
-
 		return bitmap;
 	}
 	
@@ -707,7 +704,7 @@ public class WeatherUtil {
 	 * @param code 天气现象编号
 	 * @return
 	 */
-	public static final Bitmap getNightBitmap(Context context, int code) {
+	public static Bitmap getNightBitmap(Context context, int code) {
 		Bitmap bitmap = null;
 		if (code == 0) {
 			bitmap = BitmapFactory.decodeResource(context.getResources(), R.drawable.night00_mini);
@@ -792,7 +789,6 @@ public class WeatherUtil {
 		}else if (code == 58) {
 			bitmap = BitmapFactory.decodeResource(context.getResources(), R.drawable.day18_mini);
 		}
-
 		return bitmap;
 	}
 
@@ -802,7 +798,7 @@ public class WeatherUtil {
 	 * @param code 天气现象编号
 	 * @return
 	 */
-	public static final Bitmap getNightBitmapWhite(Context context, int code) {
+	public static Bitmap getNightBitmapWhite(Context context, int code) {
 		Bitmap bitmap = null;
 		if (code == 0) {
 			bitmap = BitmapFactory.decodeResource(context.getResources(), R.drawable.night00_mini_white);
@@ -887,7 +883,6 @@ public class WeatherUtil {
 		}else if (code == 58) {
 			bitmap = BitmapFactory.decodeResource(context.getResources(), R.drawable.day18_mini_white);
 		}
-
 		return bitmap;
 	}
 
@@ -919,7 +914,7 @@ public class WeatherUtil {
 	 * @param code
 	 * @return
 	 */
-	public static final int getDisasterClass(int code) {
+	public static int getDisasterClass(int code) {
 		int id = 21;
 		switch (code) {
 		case 1:

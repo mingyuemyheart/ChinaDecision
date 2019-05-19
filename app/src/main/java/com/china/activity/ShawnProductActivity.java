@@ -143,7 +143,7 @@ public class ShawnProductActivity extends ShawnBaseActivity implements OnClickLi
 						intent.putExtra(CONST.ACTIVITY_NAME, dto.name);
 						startActivity(intent);
 					}else if (TextUtils.equals(dto.id, "107")) {//视频会商
-						intent = new Intent(mContext, WeatherMeetingActivity.class);
+						intent = new Intent(mContext, ShawnWeatherMeetingActivity.class);
 						intent.putExtra(CONST.ACTIVITY_NAME, dto.name);
 						startActivity(intent);
 					}else if (TextUtils.equals(dto.id, "109")) {//天气图分析
@@ -151,7 +151,7 @@ public class ShawnProductActivity extends ShawnBaseActivity implements OnClickLi
 						intent.putExtra(CONST.ACTIVITY_NAME, dto.name);
 						startActivity(intent);
 					}else if (TextUtils.equals(dto.id, "110")) {//格点实况
-						intent = new Intent(mContext, PointFactActivity.class);
+						intent = new Intent(mContext, ShawnPointFactActivity.class);
 						intent.putExtra(CONST.ACTIVITY_NAME, dto.name);
 						startActivity(intent);
 					}else if (TextUtils.equals(dto.id, "111")) {//综合预报
@@ -159,7 +159,7 @@ public class ShawnProductActivity extends ShawnBaseActivity implements OnClickLi
 						intent.putExtra(CONST.ACTIVITY_NAME, dto.name);
 						startActivity(intent);
 					}else if (TextUtils.equals(dto.id, "112")) {//强对流天气实况（新）
-						intent = new Intent(mContext, StreamFactActivity.class);
+						intent = new Intent(mContext, ShawnStreamFactActivity.class);
 						intent.putExtra(CONST.ACTIVITY_NAME, dto.name);
 						startActivity(intent);
 					}else if (TextUtils.equals(dto.id, "201")) {//城市天气预报
@@ -188,18 +188,18 @@ public class ShawnProductActivity extends ShawnBaseActivity implements OnClickLi
 						intent.putExtra(CONST.ACTIVITY_NAME, dto.name);
 						startActivity(intent);
 					}else if (TextUtils.equals(dto.id, "301")) {//灾情专报
-						intent = new Intent(mContext, DisasterSpecialActivity.class);
+						intent = new Intent(mContext, ShawnDisasterSpecialActivity.class);
 						intent.putExtra(CONST.COLUMN_ID, dto.columnId);
 						intent.putExtra(CONST.ACTIVITY_NAME, dto.name);
 						intent.putExtra(CONST.WEB_URL, dto.dataUrl);
 						startActivity(intent);
 					}else if (TextUtils.equals(dto.id, "302")) {//灾情直报
-						intent = new Intent(mContext, DisasterReportActivity.class);
+						intent = new Intent(mContext, ShawnDisasterReportActivity.class);
 						intent.putExtra(CONST.COLUMN_ID, dto.columnId);
 						intent.putExtra(CONST.ACTIVITY_NAME, dto.name);
 						startActivity(intent);
 					}else if (TextUtils.equals(dto.id, "601")) {//视频直播
-						intent = new Intent(mContext, WeatherMeetingActivity.class);
+						intent = new Intent(mContext, ShawnWeatherMeetingActivity.class);
 						intent.putExtra(CONST.ACTIVITY_NAME, dto.name);
 						startActivity(intent);
 					}else if (TextUtils.equals(dto.id, "-1")) {

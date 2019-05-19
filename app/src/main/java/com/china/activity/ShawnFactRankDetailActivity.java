@@ -27,12 +27,12 @@ import com.china.R;
 import com.china.common.CONST;
 import com.china.dto.StationMonitorDto;
 import com.china.dto.WarningDto;
-import com.china.fragment.StationDetailHumidityFragment;
-import com.china.fragment.StationDetailPressureFragment;
-import com.china.fragment.StationDetailRainFragment;
-import com.china.fragment.StationDetailTempFragment;
-import com.china.fragment.StationDetailVisibilityFragment;
-import com.china.fragment.StationDetailWindFragment;
+import com.china.fragment.ShawnFactDetailHumidityFragmetn;
+import com.china.fragment.ShawnFactDetailPressureFragment;
+import com.china.fragment.ShawnFactDetailRainFragment;
+import com.china.fragment.ShawnFactDetailTempFragment;
+import com.china.fragment.ShawnFactDetailVisibleFragment;
+import com.china.fragment.ShawnFactDetailWindFragment;
 import com.china.manager.DBManager;
 import com.china.utils.CommonUtil;
 import com.china.utils.OkHttpUtil;
@@ -143,14 +143,13 @@ public class ShawnFactRankDetailActivity extends ShawnBaseActivity implements On
 		String stationId = getIntent().getStringExtra("stationId");
 		if (!TextUtils.isEmpty(stationId)) {
 			tvTitle.setText(title+" - "+stationId);
-			
-			String interfaceType = getIntent().getStringExtra("interface");
-			OkHttpDetail(stationId, interfaceType);
-			
+
 			String warningId = queryWarningIdByStationId(stationId);
 			if (!TextUtils.isEmpty(warningId)) {
 				OkHttpWarning("http://decision-admin.tianqi.cn/Home/extra/getwarns?order=0&areaid="+warningId);
 			}
+
+			OkHttpDetail(stationId, getIntent().getStringExtra("interface"));
 		}
 	}
 	
@@ -167,101 +166,23 @@ public class ShawnFactRankDetailActivity extends ShawnBaseActivity implements On
 	}
 	
 	/**
-	 * 根据站点id查询预警id
-	 * @param stationId
-	 */
-	private String queryWarningIdByStationId(String stationId) {
-		String warningId = null;
-		DBManager dbManager = new DBManager(mContext);
-		dbManager.openDateBase();
-		SQLiteDatabase database = SQLiteDatabase.openOrCreateDatabase(DBManager.DB_PATH + "/" + DBManager.DB_NAME, null);
-		try {
-			if (database != null && database.isOpen()) {
-				Cursor cursor = database.rawQuery("select * from " + DBManager.TABLE_NAME1 + " where SID = " + stationId, null);
-				for (int i = 0; i < cursor.getCount(); i++) {
-					cursor.moveToPosition(i);
-					warningId = cursor.getString(cursor.getColumnIndex("WARNID"));
-				}
-				cursor.close();
-				dbManager.closeDatabase();
-			}
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-		return warningId;
-	}
-	
-	/**
-	 * 获取预警信息
-	 */
-	private void OkHttpWarning(final String url) {
-		new Thread(new Runnable() {
-			@Override
-			public void run() {
-				OkHttpUtil.enqueue(new Request.Builder().url(url).build(), new Callback() {
-					@Override
-					public void onFailure(Call call, IOException e) {
-					}
-					@Override
-					public void onResponse(Call call, Response response) throws IOException {
-						if (!response.isSuccessful()) {return;}
-						String result = response.body().string();
-						if (!TextUtils.isEmpty(result)) {
-							try {
-								JSONObject object = new JSONObject(result);
-								if (!object.isNull("data")) {
-									warningList.clear();
-									JSONArray jsonArray = object.getJSONArray("data");
-									for (int i = 0; i < jsonArray.length(); i++) {
-										JSONArray tempArray = jsonArray.getJSONArray(i);
-										WarningDto dto = new WarningDto();
-										dto.html = tempArray.getString(1);
-										String[] array = dto.html.split("-");
-										String item0 = array[0];
-										String item1 = array[1];
-										String item2 = array[2];
-
-										dto.provinceId = item0.substring(0, 2);
-										dto.type = item2.substring(0, 5);
-										dto.color = item2.substring(5, 7);
-										dto.time = item1;
-										dto.lng = tempArray.getDouble(2);
-										dto.lat = tempArray.getDouble(3);
-										dto.name = tempArray.getString(0);
-
-										if (!dto.name.contains("解除")) {
-											warningList.add(dto);
-										}
-									}
-								}
-							} catch (JSONException e) {
-								e.printStackTrace();
-							}
-						}
-					}
-				});
-			}
-		}).start();
-	}
-	
-	/**
 	 * 初始化viewPager
 	 */
 	private void initViewPager(StationMonitorDto data) {
 		Fragment fragment = null;
 		for (int i = 0; i < 6; i++) {
 			if (i == 0) {
-				fragment = new StationDetailRainFragment();
+				fragment = new ShawnFactDetailRainFragment();
 			}else if (i == 1) {
-				fragment = new StationDetailTempFragment();
+				fragment = new ShawnFactDetailTempFragment();
 			}else if (i == 2) {
-				fragment = new StationDetailHumidityFragment();
+				fragment = new ShawnFactDetailHumidityFragmetn();
 			}else if (i == 3) {
-				fragment = new StationDetailWindFragment();
+				fragment = new ShawnFactDetailWindFragment();
 			}else if (i == 4) {
-				fragment = new StationDetailVisibilityFragment();
+				fragment = new ShawnFactDetailVisibleFragment();
 			}else if (i == 5) {
-				fragment = new StationDetailPressureFragment();
+				fragment = new ShawnFactDetailPressureFragment();
 			}
 			Bundle bundle = new Bundle();
 			bundle.putParcelable("data", data);
@@ -472,6 +393,84 @@ public class ShawnFactRankDetailActivity extends ShawnBaseActivity implements On
 			}
 			return fragment.getView();
 		}
+	}
+
+	/**
+	 * 根据站点id查询预警id
+	 * @param stationId
+	 */
+	private String queryWarningIdByStationId(String stationId) {
+		String warningId = null;
+		DBManager dbManager = new DBManager(mContext);
+		dbManager.openDateBase();
+		SQLiteDatabase database = SQLiteDatabase.openOrCreateDatabase(DBManager.DB_PATH + "/" + DBManager.DB_NAME, null);
+		try {
+			if (database != null && database.isOpen()) {
+				Cursor cursor = database.rawQuery("select * from " + DBManager.TABLE_NAME1 + " where SID = " + stationId, null);
+				for (int i = 0; i < cursor.getCount(); i++) {
+					cursor.moveToPosition(i);
+					warningId = cursor.getString(cursor.getColumnIndex("WARNID"));
+				}
+				cursor.close();
+				dbManager.closeDatabase();
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return warningId;
+	}
+
+	/**
+	 * 获取预警信息
+	 */
+	private void OkHttpWarning(final String url) {
+		new Thread(new Runnable() {
+			@Override
+			public void run() {
+				OkHttpUtil.enqueue(new Request.Builder().url(url).build(), new Callback() {
+					@Override
+					public void onFailure(Call call, IOException e) {
+					}
+					@Override
+					public void onResponse(Call call, Response response) throws IOException {
+						if (!response.isSuccessful()) {return;}
+						String result = response.body().string();
+						if (!TextUtils.isEmpty(result)) {
+							try {
+								JSONObject object = new JSONObject(result);
+								if (!object.isNull("data")) {
+									warningList.clear();
+									JSONArray jsonArray = object.getJSONArray("data");
+									for (int i = 0; i < jsonArray.length(); i++) {
+										JSONArray tempArray = jsonArray.getJSONArray(i);
+										WarningDto dto = new WarningDto();
+										dto.html = tempArray.getString(1);
+										String[] array = dto.html.split("-");
+										String item0 = array[0];
+										String item1 = array[1];
+										String item2 = array[2];
+
+										dto.provinceId = item0.substring(0, 2);
+										dto.type = item2.substring(0, 5);
+										dto.color = item2.substring(5, 7);
+										dto.time = item1;
+										dto.lng = tempArray.getDouble(2);
+										dto.lat = tempArray.getDouble(3);
+										dto.name = tempArray.getString(0);
+
+										if (!dto.name.contains("解除")) {
+											warningList.add(dto);
+										}
+									}
+								}
+							} catch (JSONException e) {
+								e.printStackTrace();
+							}
+						}
+					}
+				});
+			}
+		}).start();
 	}
 	
 	/**

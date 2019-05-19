@@ -232,11 +232,27 @@
 
                 </RelativeLayout>
 
+                <RelativeLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content">
+
                 <com.china.view.MainViewPager
                     android:id="@+id/viewPager"
                     android:layout_width="match_parent"
                     android:layout_height="30dp"
                     android:layout_gravity="center"/>
+
+                <LinearLayout
+                    android:id="@+id/viewGroup"
+                    android:layout_width="wrap_content"
+                    android:layout_height="8dp"
+                    android:layout_alignParentBottom="true"
+                    android:layout_marginEnd="15dp"
+                    android:layout_alignParentEnd="true"
+                    android:orientation="horizontal" >
+                </LinearLayout>
+
+                </RelativeLayout>
 
                 <TextView
                     android:layout_width="match_parent"

@@ -28,7 +28,7 @@ import android.os.Message;
 import android.util.Log;
 
 import com.china.R;
-import com.china.activity.ZXingActivity;
+import com.china.activity.ShawnZXingActivity;
 import com.google.zxing.BarcodeFormat;
 import com.google.zxing.Result;
 import com.mining.app.zxing.camera.CameraManager;
@@ -41,7 +41,7 @@ public final class CaptureActivityHandler extends Handler {
 
   private static final String TAG = CaptureActivityHandler.class.getSimpleName();
 
-  private final ZXingActivity activity;
+  private final ShawnZXingActivity activity;
   private final DecodeThread decodeThread;
   private State state;
 
@@ -51,8 +51,8 @@ public final class CaptureActivityHandler extends Handler {
     DONE
   }
 
-  public CaptureActivityHandler(ZXingActivity activity, Vector<BarcodeFormat> decodeFormats,
-      String characterSet) {
+  public CaptureActivityHandler(ShawnZXingActivity activity, Vector<BarcodeFormat> decodeFormats,
+                                String characterSet) {
     this.activity = activity;
     decodeThread = new DecodeThread(activity, decodeFormats, characterSet, new ViewfinderResultPointCallback(activity.getViewfinderView()));
     decodeThread.start();

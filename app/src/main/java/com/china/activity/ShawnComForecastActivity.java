@@ -41,9 +41,8 @@ import com.china.common.CONST;
 import com.china.utils.AuthorityUtil;
 import com.china.utils.CommonUtil;
 import com.china.utils.OkHttpUtil;
+import com.squareup.picasso.Picasso;
 import com.tendcloud.tenddata.TCAgent;
-
-import net.tsz.afinal.FinalBitmap;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -621,8 +620,7 @@ public class ShawnComForecastActivity extends ShawnBaseActivity implements OnCli
 												}
 
 												if (!TextUtils.isEmpty(tags[1])) {
-													FinalBitmap finalBitmap = FinalBitmap.create(mContext);
-													finalBitmap.display(ivLegend, tags[1], null, 0);
+													Picasso.get().load(tags[1]).into(ivLegend);
 												}
 												for (int i = 0; i < array.length(); i++) {
 													JSONObject itemObj = array.getJSONObject(i);
@@ -721,8 +719,7 @@ public class ShawnComForecastActivity extends ShawnBaseActivity implements OnCli
 										}
 
 										if (!TextUtils.isEmpty(tags[1])) {
-											FinalBitmap finalBitmap = FinalBitmap.create(mContext);
-											finalBitmap.display(ivLegend, tags[1], null, 0);
+											Picasso.get().load(tags[1]).into(ivLegend);
 										}
 										for (int i = 0; i < array.length(); i++) {
 											JSONObject itemObj = array.getJSONObject(i);

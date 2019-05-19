@@ -132,9 +132,9 @@ public class AutoUpdateUtil {
 	
 	private static class UpdateDto {
 		public String version = "";
-		public String update_info = "";
-		public String dl_url = "";
-		public int versionCode = 0;
+		private String update_info = "";
+		private String dl_url = "";
+		private int versionCode = 0;
 	}
 
 	private static void updateDialog(final UpdateDto dto) {

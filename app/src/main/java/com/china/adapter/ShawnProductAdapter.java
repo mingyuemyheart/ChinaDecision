@@ -14,8 +14,8 @@ import android.widget.TextView;
 
 import com.china.R;
 import com.china.common.ColumnData;
-
-import net.tsz.afinal.FinalBitmap;
+import com.china.view.RoundTransform;
+import com.squareup.picasso.Picasso;
 
 import java.util.List;
 
@@ -82,8 +82,7 @@ public class ShawnProductAdapter extends BaseAdapter{
 		}
 
 		if (!TextUtils.isEmpty(dto.icon)) {
-			FinalBitmap finalBitmap = FinalBitmap.create(mContext);
-			finalBitmap.display(mHolder.icon, dto.icon, null, (int)(5*density));
+			Picasso.get().load(dto.icon).transform(new RoundTransform((int)(5*density))).into(mHolder.icon);
 		}else {
 			mHolder.icon.setImageResource(R.drawable.shawn_icon_seat_bitmap);
 		}

@@ -141,49 +141,51 @@ public class ShawnProductActivity2 extends ShawnBaseActivity implements OnClickL
 		});
 	}
 	
-	private void OkHttpList(String url) {
-		OkHttpUtil.enqueue(new Request.Builder().url(url).build(), new Callback() {
+	private void OkHttpList(final String url) {
+		new Thread(new Runnable() {
 			@Override
-			public void onFailure(Call call, IOException e) {
-			}
-			@Override
-			public void onResponse(Call call, Response response) throws IOException {
-				if (!response.isSuccessful()) {
-					return;
-				}
-				final String result = response.body().string();
-				runOnUiThread(new Runnable() {
+			public void run() {
+				OkHttpUtil.enqueue(new Request.Builder().url(url).build(), new Callback() {
 					@Override
-					public void run() {
-						if (!TextUtils.isEmpty(result)) {
-							try {
-								JSONObject obj = new JSONObject(result);
-								if (!obj.isNull("l")) {
-									JSONArray array = new JSONArray(obj.getString("l"));
-									for (int i = 0; i < array.length(); i++) {
-										JSONObject itemObj = array.getJSONObject(i);
-										ColumnData dto = new ColumnData();
-										dto.name = itemObj.getString("l1");
-										dto.dataUrl = itemObj.getString("l2");
-										dto.icon = itemObj.getString("l4");
-										dataList.add(dto);
+					public void onFailure(Call call, IOException e) {
+					}
+					@Override
+					public void onResponse(Call call, Response response) throws IOException {
+						if (!response.isSuccessful()) {
+							return;
+						}
+						final String result = response.body().string();
+						runOnUiThread(new Runnable() {
+							@Override
+							public void run() {
+								if (!TextUtils.isEmpty(result)) {
+									try {
+										JSONObject obj = new JSONObject(result);
+										if (!obj.isNull("l")) {
+											JSONArray array = new JSONArray(obj.getString("l"));
+											for (int i = 0; i < array.length(); i++) {
+												JSONObject itemObj = array.getJSONObject(i);
+												ColumnData dto = new ColumnData();
+												dto.name = itemObj.getString("l1");
+												dto.dataUrl = itemObj.getString("l2");
+												dto.icon = itemObj.getString("l4");
+												dataList.add(dto);
+											}
+										}
+										if (mAdapter != null) {
+											mAdapter.notifyDataSetChanged();
+										}
+									} catch (JSONException e1) {
+										e1.printStackTrace();
 									}
 								}
-
-								if (mAdapter != null) {
-									mAdapter.notifyDataSetChanged();
-								}
-
-							} catch (JSONException e1) {
-								e1.printStackTrace();
+								loadingView.setVisibility(View.GONE);
 							}
-						}
-
-						loadingView.setVisibility(View.GONE);
+						});
 					}
 				});
 			}
-		});
+		}).start();
 	}
 
 	@Override

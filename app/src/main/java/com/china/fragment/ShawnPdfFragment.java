@@ -15,8 +15,7 @@ import com.china.R;
 import com.china.activity.ShawnPDFActivity;
 import com.china.common.CONST;
 import com.china.dto.NewsDto;
-
-import net.tsz.afinal.FinalBitmap;
+import com.squareup.picasso.Picasso;
 
 /**
  * 首页pdf文档
@@ -45,14 +44,11 @@ public class ShawnPdfFragment extends Fragment implements View.OnClickListener{
 
         data = getArguments().getParcelable("data");
         if (data != null) {
-            if (!TextUtils.isEmpty(data.imgUrl)) {
-                FinalBitmap finalBitmap = FinalBitmap.create(getActivity());
-                finalBitmap.display(imageView, data.imgUrl, null, 0);
-            }else {
-                imageView.setImageResource(R.drawable.iv_pdf);
-            }
             if (!TextUtils.isEmpty(data.title)) {
-                tvTitle.setText(data.title);
+                tvTitle.setText("【"+data.header+"】"+data.title);
+            }
+            if (!TextUtils.isEmpty(data.imgUrl)) {
+                Picasso.get().load(data.imgUrl).into(imageView);
             }
         }
     }

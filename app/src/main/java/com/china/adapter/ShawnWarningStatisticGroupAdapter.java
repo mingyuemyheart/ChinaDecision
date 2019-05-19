@@ -184,7 +184,7 @@ public class ShawnWarningStatisticGroupAdapter extends BaseExpandableListAdapter
     public View getChildView(int groupPosition, int childPosition, boolean isLastChild, View convertView, ViewGroup parent) {
         ChildHolder childHolder;
         if(convertView == null){
-            convertView = mInflater.inflate(R.layout.adapter_warning_statistic_child, null);
+            convertView = mInflater.inflate(R.layout.shawn_adapter_warning_statistic_child, null);
             childHolder = new ChildHolder();
             childHolder.tvAreaName = convertView.findViewById(R.id.tvAreaName);
             childHolder.tvShortName = convertView.findViewById(R.id.tvShortName);

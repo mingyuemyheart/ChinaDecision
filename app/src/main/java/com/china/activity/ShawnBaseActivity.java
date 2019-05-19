@@ -13,8 +13,7 @@ import com.github.nkzawa.socketio.client.Socket;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-
-public class ShawnBaseActivity extends Activity{
+public class ShawnBaseActivity extends Activity {
 	
 	private MyDialog2 mDialog = null;
 	private Context mContext = null;
@@ -34,7 +33,7 @@ public class ShawnBaseActivity extends Activity{
 		}
 		mDialog.show();
 	}
-	
+
 	public void cancelDialog() {
 		if (mDialog != null) {
 			mDialog.dismiss();
