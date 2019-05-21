@@ -33,7 +33,7 @@ import okhttp3.Response;
 public class ShawnServiceFeedbackActivity extends ShawnBaseActivity implements View.OnClickListener {
 
     private Context context;
-    private float selectedNumber1,selectedNumber2,selectedNumber3;
+    private float selectedNumber1,selectedNumber2,selectedNumber3,selectedNumber4;
     private EditText etContent;
 
     @Override
@@ -55,6 +55,7 @@ public class ShawnServiceFeedbackActivity extends ShawnBaseActivity implements V
         MyRatingBar ratingBar1 = findViewById(R.id.ratingBar1);
         MyRatingBar ratingBar2 = findViewById(R.id.ratingBar2);
         MyRatingBar ratingBar3 = findViewById(R.id.ratingBar3);
+        MyRatingBar ratingBar4 = findViewById(R.id.ratingBar4);
 
         ratingBar1.setOnStarChangeListener(new MyRatingBar.OnStarChangeListener() {
             @Override
@@ -72,6 +73,12 @@ public class ShawnServiceFeedbackActivity extends ShawnBaseActivity implements V
             @Override
             public void OnStarChanged(float selectedNumber, int position) {
                 selectedNumber3 = selectedNumber;
+            }
+        });
+        ratingBar4.setOnStarChangeListener(new MyRatingBar.OnStarChangeListener() {
+            @Override
+            public void OnStarChanged(float selectedNumber, int position) {
+                selectedNumber4 = selectedNumber;
             }
         });
     }
@@ -102,6 +109,7 @@ public class ShawnServiceFeedbackActivity extends ShawnBaseActivity implements V
                 builder.add("whole", selectedNumber1+"");
                 builder.add("service", selectedNumber2+"");
                 builder.add("timely", selectedNumber3+"");
+                builder.add("practicality", selectedNumber4+"");
                 builder.add("content", etContent.getText().toString());
                 final RequestBody body = builder.build();
                 new Thread(new Runnable() {

@@ -66,7 +66,7 @@ public class ShawnPDFActivity extends ShawnBaseActivity implements OnClickListen
 	private String title = "春运气象服务专报";
 	private String dataUrl = "";
 	private MyRatingBar ratingBar;
-	private boolean isShowDialog = false;
+	private Dialog remarkDialog;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -79,6 +79,7 @@ public class ShawnPDFActivity extends ShawnBaseActivity implements OnClickListen
 	private void init() {
 		initWidget();
 		initPDFView();
+		dialogRemark();
 	}
 
 	private void initWidget() {
@@ -256,29 +257,25 @@ public class ShawnPDFActivity extends ShawnBaseActivity implements OnClickListen
 	 * 评价对话框
 	 */
 	private void dialogRemark() {
-		isShowDialog = true;
 		LayoutInflater inflater = (LayoutInflater) getSystemService(Context.LAYOUT_INFLATER_SERVICE);
 		View view = inflater.inflate(R.layout.shawn_dialog_remark, null);
 		TextView tvNegtive = view.findViewById(R.id.tvNegtive);
 		TextView tvPositive = view.findViewById(R.id.tvPositive);
 
-		final Dialog dialog = new Dialog(mContext, R.style.CustomProgressDialog);
-		dialog.setContentView(view);
-		dialog.show();
+		remarkDialog = new Dialog(mContext, R.style.CustomProgressDialog);
+		remarkDialog.setContentView(view);
 
 		tvNegtive.setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View arg0) {
-				dialog.dismiss();
-				isShowDialog = false;
+				remarkDialog.dismiss();
 				finish();
 			}
 		});
 		tvPositive.setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View arg0) {
-				dialog.dismiss();
-				isShowDialog = false;
+				remarkDialog.dismiss();
 				Intent intent = new Intent(mContext, ShawnServiceFeedbackActivity.class);
 				intent.putExtra(CONST.WEB_URL, dataUrl);
 				startActivityForResult(intent, 1001);
@@ -291,16 +288,16 @@ public class ShawnPDFActivity extends ShawnBaseActivity implements OnClickListen
 		if (keyCode == KeyEvent.KEYCODE_BACK) {
 			if (!TextUtils.isEmpty(title)) {
 				if (title.startsWith("两办刊物") || title.startsWith("灾害预警")) {
-
+					return true;
 				}else {
-					if (!isShowDialog) {
-						dialogRemark();
+					if (remarkDialog != null && !remarkDialog.isShowing()) {
+						remarkDialog.show();
 						return false;
 					}
 				}
 			}else {
-				if (!isShowDialog) {
-					dialogRemark();
+				if (remarkDialog != null && !remarkDialog.isShowing()) {
+					remarkDialog.show();
 					return false;
 				}
 			}
@@ -312,7 +309,21 @@ public class ShawnPDFActivity extends ShawnBaseActivity implements OnClickListen
 	public void onClick(View v) {
 		switch (v.getId()) {
 			case R.id.llBack:
-				finish();
+				if (!TextUtils.isEmpty(title)) {
+					if (title.startsWith("两办刊物") || title.startsWith("灾害预警")) {
+						finish();
+					}else {
+						if (remarkDialog != null && !remarkDialog.isShowing()) {
+							remarkDialog.show();
+							return;
+						}
+					}
+				}else {
+					if (remarkDialog != null && !remarkDialog.isShowing()) {
+						remarkDialog.show();
+						return;
+					}
+				}
 				break;
 			case R.id.tvFeedback:
 				Intent intent = new Intent(this, ShawnServiceFeedbackActivity.class);

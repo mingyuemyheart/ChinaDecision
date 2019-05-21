@@ -71,7 +71,7 @@
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="服务专业性"
+        android:text="服务准确性"
         android:textColor="@color/text_color3"
         android:textSize="@dimen/level_4"
         android:layout_marginStart="30dp"
@@ -130,9 +130,45 @@
 
     </LinearLayout>
 
+    <LinearLayout
+        android:id="@+id/ll3"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:layout_marginTop="10dp"
+        android:layout_marginBottom="10dp"
+        android:layout_below="@+id/ll2"
+        android:gravity="center_vertical">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="信息实用性"
+            android:textColor="@color/text_color3"
+            android:textSize="@dimen/level_4"
+            android:layout_marginStart="30dp"
+            android:layout_marginEnd="30dp"/>
+
+        <com.china.view.MyRatingBar
+            xmlns:app="http://schemas.android.com/apk/res-auto"
+            android:id="@+id/ratingBar4"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            app:selectedNumber="0"
+            app:starDistance="10dp"
+            app:starEmptyRes="@drawable/shawn_icon_ratingbar"
+            app:starHeight="25dp"
+            app:starIsFull="false"
+            app:starSelectedRes="@drawable/shawn_icon_ratingbar_press"
+            app:starWidth="25dp"
+            app:startTotalNumber="5"/>
+
+    </LinearLayout>
+
     <EditText
         android:id="@+id/etContent"
-        android:layout_below="@+id/ll2"
+        android:layout_below="@+id/ll3"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_margin="30dp"

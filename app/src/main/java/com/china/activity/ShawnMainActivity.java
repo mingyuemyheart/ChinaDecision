@@ -164,9 +164,7 @@ public class ShawnMainActivity extends ShawnBaseActivity implements OnClickListe
 	 * 初始化控件
 	 */
 	private void initWidget() {
-		if (!TextUtils.equals(MyApplication.USERGROUP, "17")) {//大众用户不使用自动更新，使用应用市场更新
-			AutoUpdateUtil.checkUpdate(ShawnMainActivity.this, mContext, "52", getString(R.string.app_name), true);
-		}
+		checkStorageAuthority();
 		reTitle = findViewById(R.id.reTitle);
 		ImageView ivAdd = findViewById(R.id.ivAdd);
 		ivAdd.setOnClickListener(this);
@@ -1381,6 +1379,29 @@ public class ShawnMainActivity extends ShawnBaseActivity implements OnClickListe
 		}
 	}
 
+	/**
+	 * 申请存储权限
+	 */
+	private void checkStorageAuthority() {
+		if (Build.VERSION.SDK_INT < 23) {
+			try {
+				if (!TextUtils.equals(MyApplication.USERGROUP, "17")) {//大众用户不使用自动更新，使用应用市场更新
+					AutoUpdateUtil.checkUpdate(ShawnMainActivity.this, mContext, "52", getString(R.string.app_name), true);
+				}
+			} catch (SecurityException e) {
+				e.printStackTrace();
+			}
+		}else {
+			if (ContextCompat.checkSelfPermission(mContext, Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
+				ActivityCompat.requestPermissions(ShawnMainActivity.this, new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, AuthorityUtil.AUTHOR_STORAGE);
+			}else {
+				if (!TextUtils.equals(MyApplication.USERGROUP, "17")) {//大众用户不使用自动更新，使用应用市场更新
+					AutoUpdateUtil.checkUpdate(ShawnMainActivity.this, mContext, "52", getString(R.string.app_name), true);
+				}
+			}
+		}
+	}
+
 	@Override
 	public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
 		super.onRequestPermissionsResult(requestCode, permissions, grantResults);
@@ -1422,6 +1443,21 @@ public class ShawnMainActivity extends ShawnBaseActivity implements OnClickListe
 				}else {
 					if (!ActivityCompat.shouldShowRequestPermissionRationale(ShawnMainActivity.this, Manifest.permission.CALL_PHONE)) {
 						AuthorityUtil.intentAuthorSetting(mContext, "\""+getString(R.string.app_name)+"\""+"需要使用电话权限，是否前往设置？");
+					}
+				}
+				break;
+			case AuthorityUtil.AUTHOR_STORAGE:
+				if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+					try {
+						if (!TextUtils.equals(MyApplication.USERGROUP, "17")) {//大众用户不使用自动更新，使用应用市场更新
+							AutoUpdateUtil.checkUpdate(ShawnMainActivity.this, mContext, "52", getString(R.string.app_name), true);
+						}
+					} catch (SecurityException e) {
+						e.printStackTrace();
+					}
+				}else {
+					if (!ActivityCompat.shouldShowRequestPermissionRationale(ShawnMainActivity.this, Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
+						AuthorityUtil.intentAuthorSetting(mContext, "\""+getString(R.string.app_name)+"\""+"需要使用存储权限，是否前往设置？");
 					}
 				}
 				break;
