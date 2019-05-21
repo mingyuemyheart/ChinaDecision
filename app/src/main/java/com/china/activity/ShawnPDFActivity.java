@@ -2,6 +2,7 @@ package com.china.activity;
 
 import android.Manifest;
 import android.annotation.SuppressLint;
+import android.app.Dialog;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
@@ -15,6 +16,8 @@ import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.text.TextUtils;
 import android.util.Log;
+import android.view.KeyEvent;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.ImageView;
@@ -63,6 +66,7 @@ public class ShawnPDFActivity extends ShawnBaseActivity implements OnClickListen
 	private String title = "春运气象服务专报";
 	private String dataUrl = "";
 	private MyRatingBar ratingBar;
+	private boolean isShowDialog = false;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -226,19 +230,17 @@ public class ShawnPDFActivity extends ShawnBaseActivity implements OnClickListen
 									.onPageChange(new OnPageChangeListener() {
 										@Override
 										public void onPageChanged(int page, int pageCount) {
-											if (page >= pageCount-1) {
-												if (!TextUtils.isEmpty(title)) {
-													if (title.contains("两办刊物") || title.contains("灾害预警")) {
-														ratingBar.setVisibility(View.GONE);
-														tvFeedback.setVisibility(View.GONE);
-													}else {
-														ratingBar.setVisibility(View.VISIBLE);
-														tvFeedback.setVisibility(View.VISIBLE);
-													}
+											if (!TextUtils.isEmpty(title)) {
+												if (title.startsWith("两办刊物") || title.startsWith("灾害预警")) {
+													ratingBar.setVisibility(View.GONE);
+													tvFeedback.setVisibility(View.GONE);
 												}else {
 													ratingBar.setVisibility(View.VISIBLE);
 													tvFeedback.setVisibility(View.VISIBLE);
 												}
+											}else {
+												ratingBar.setVisibility(View.VISIBLE);
+												tvFeedback.setVisibility(View.VISIBLE);
 											}
 										}
 									})
@@ -247,8 +249,64 @@ public class ShawnPDFActivity extends ShawnBaseActivity implements OnClickListen
 					}
 				}
 			}
-		};
+		}
 	};
+
+	/**
+	 * 评价对话框
+	 */
+	private void dialogRemark() {
+		isShowDialog = true;
+		LayoutInflater inflater = (LayoutInflater) getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+		View view = inflater.inflate(R.layout.shawn_dialog_remark, null);
+		TextView tvNegtive = view.findViewById(R.id.tvNegtive);
+		TextView tvPositive = view.findViewById(R.id.tvPositive);
+
+		final Dialog dialog = new Dialog(mContext, R.style.CustomProgressDialog);
+		dialog.setContentView(view);
+		dialog.show();
+
+		tvNegtive.setOnClickListener(new OnClickListener() {
+			@Override
+			public void onClick(View arg0) {
+				dialog.dismiss();
+				isShowDialog = false;
+				finish();
+			}
+		});
+		tvPositive.setOnClickListener(new OnClickListener() {
+			@Override
+			public void onClick(View arg0) {
+				dialog.dismiss();
+				isShowDialog = false;
+				Intent intent = new Intent(mContext, ShawnServiceFeedbackActivity.class);
+				intent.putExtra(CONST.WEB_URL, dataUrl);
+				startActivityForResult(intent, 1001);
+			}
+		});
+	}
+
+	@Override
+	public boolean onKeyDown(int keyCode, KeyEvent event) {
+		if (keyCode == KeyEvent.KEYCODE_BACK) {
+			if (!TextUtils.isEmpty(title)) {
+				if (title.startsWith("两办刊物") || title.startsWith("灾害预警")) {
+
+				}else {
+					if (!isShowDialog) {
+						dialogRemark();
+						return false;
+					}
+				}
+			}else {
+				if (!isShowDialog) {
+					dialogRemark();
+					return false;
+				}
+			}
+		}
+		return super.onKeyDown(keyCode, event);
+	}
 
 	@Override
 	public void onClick(View v) {
@@ -294,6 +352,7 @@ public class ShawnPDFActivity extends ShawnBaseActivity implements OnClickListen
 					if (tvFeedback != null) {
 						tvFeedback.setVisibility(View.GONE);
 					}
+					finish();
 					break;
 			}
 		}

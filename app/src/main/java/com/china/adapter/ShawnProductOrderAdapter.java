@@ -76,7 +76,7 @@ public class ShawnProductOrderAdapter extends BaseAdapter{
 			}
 			if (TextUtils.equals(dto.status, "0")) {
 				mHolder.imageView.setImageResource(R.drawable.shawn_icon_dsp);
-			}else if (TextUtils.equals(dto.status, "2")) {
+			}else {
 				mHolder.imageView.setImageResource(R.drawable.shawn_icon_ysp);
 			}
 		} catch (IndexOutOfBoundsException e) {

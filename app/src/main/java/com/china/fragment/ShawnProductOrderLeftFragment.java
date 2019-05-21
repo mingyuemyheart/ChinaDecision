@@ -181,8 +181,7 @@ public class ShawnProductOrderLeftFragment extends Fragment {
                                                 dataList1.add(dto);
                                                 if (TextUtils.equals(dto.status, "0")) {//待审批
                                                     dataList2.add(dto);
-                                                }
-                                                if (TextUtils.equals(dto.status, "2")) {//已审批
+                                                }else {//已审批
                                                     dataList3.add(dto);
                                                 }
                                             }

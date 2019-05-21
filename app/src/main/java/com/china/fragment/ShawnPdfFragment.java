@@ -45,7 +45,7 @@ public class ShawnPdfFragment extends Fragment implements View.OnClickListener{
         data = getArguments().getParcelable("data");
         if (data != null) {
             if (!TextUtils.isEmpty(data.title)) {
-                tvTitle.setText("【"+data.header+"】"+data.title);
+                tvTitle.setText(data.title);
             }
             if (!TextUtils.isEmpty(data.imgUrl)) {
                 Picasso.get().load(data.imgUrl).into(imageView);

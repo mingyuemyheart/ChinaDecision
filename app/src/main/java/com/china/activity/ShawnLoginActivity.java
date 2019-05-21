@@ -271,8 +271,11 @@ public class ShawnLoginActivity extends ShawnBaseActivity implements OnClickList
 														for (int i = 0; i < newsArray.length(); i++) {
 															JSONObject itemObj = newsArray.getJSONObject(i);
 															NewsDto dto = new NewsDto();
+															if (!itemObj.isNull("header")) {
+																dto.header = "【"+itemObj.getString("header")+"】";
+															}
 															if (!itemObj.isNull("name")) {
-																dto.title = itemObj.getString("name");
+																dto.title = dto.header+itemObj.getString("name");
 															}
 															if (!itemObj.isNull("url")) {
 																dto.detailUrl = itemObj.getString("url");
@@ -282,9 +285,6 @@ public class ShawnLoginActivity extends ShawnBaseActivity implements OnClickList
 															}
 															if (!itemObj.isNull("flagImg")) {
 																dto.imgUrl = itemObj.getString("flagImg");
-															}
-															if (!itemObj.isNull("header")) {
-																dto.header = itemObj.getString("header");
 															}
 															pdfList.add(dto);
 														}
