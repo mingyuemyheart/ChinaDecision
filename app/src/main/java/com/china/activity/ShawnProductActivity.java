@@ -162,6 +162,14 @@ public class ShawnProductActivity extends ShawnBaseActivity implements OnClickLi
 						intent = new Intent(mContext, ShawnStreamFactActivity.class);
 						intent.putExtra(CONST.ACTIVITY_NAME, dto.name);
 						startActivity(intent);
+					}else if (TextUtils.equals(dto.id, "113")) {//产品定制
+						intent = new Intent(mContext, ShawnProductOrderActivity2.class);
+						intent.putExtra(CONST.ACTIVITY_NAME, dto.name);
+						startActivity(intent);
+					}else if (TextUtils.equals(dto.id, "114")) {//5天降水量统计
+						intent = new Intent(mContext, ShawnFiveRainRankActivity.class);
+						intent.putExtra(CONST.ACTIVITY_NAME, dto.name);
+						startActivity(intent);
 					}else if (TextUtils.equals(dto.id, "201")) {//城市天气预报
 						intent = new Intent(mContext, ShawnCityForecastActivity.class);
 						intent.putExtra(CONST.COLUMN_ID, dto.columnId);
