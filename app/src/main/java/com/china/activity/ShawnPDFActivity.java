@@ -231,18 +231,8 @@ public class ShawnPDFActivity extends ShawnBaseActivity implements OnClickListen
 									.onPageChange(new OnPageChangeListener() {
 										@Override
 										public void onPageChanged(int page, int pageCount) {
-											if (!TextUtils.isEmpty(title)) {
-												if (title.startsWith("两办刊物") || title.startsWith("灾害预警")) {
-													ratingBar.setVisibility(View.GONE);
-													tvFeedback.setVisibility(View.GONE);
-												}else {
-													ratingBar.setVisibility(View.VISIBLE);
-													tvFeedback.setVisibility(View.VISIBLE);
-												}
-											}else {
-												ratingBar.setVisibility(View.VISIBLE);
-												tvFeedback.setVisibility(View.VISIBLE);
-											}
+											ratingBar.setVisibility(View.VISIBLE);
+											tvFeedback.setVisibility(View.VISIBLE);
 										}
 									})
 									.load();
@@ -286,20 +276,9 @@ public class ShawnPDFActivity extends ShawnBaseActivity implements OnClickListen
 	@Override
 	public boolean onKeyDown(int keyCode, KeyEvent event) {
 		if (keyCode == KeyEvent.KEYCODE_BACK) {
-			if (!TextUtils.isEmpty(title)) {
-				if (title.startsWith("两办刊物") || title.startsWith("灾害预警")) {
-					return true;
-				}else {
-					if (remarkDialog != null && !remarkDialog.isShowing()) {
-						remarkDialog.show();
-						return false;
-					}
-				}
-			}else {
-				if (remarkDialog != null && !remarkDialog.isShowing()) {
-					remarkDialog.show();
-					return false;
-				}
+			if (remarkDialog != null && !remarkDialog.isShowing()) {
+				remarkDialog.show();
+				return false;
 			}
 		}
 		return super.onKeyDown(keyCode, event);
@@ -309,20 +288,11 @@ public class ShawnPDFActivity extends ShawnBaseActivity implements OnClickListen
 	public void onClick(View v) {
 		switch (v.getId()) {
 			case R.id.llBack:
-				if (!TextUtils.isEmpty(title)) {
-					if (title.startsWith("两办刊物") || title.startsWith("灾害预警")) {
-						finish();
-					}else {
-						if (remarkDialog != null && !remarkDialog.isShowing()) {
-							remarkDialog.show();
-							return;
-						}
-					}
+				if (remarkDialog != null && !remarkDialog.isShowing()) {
+					remarkDialog.show();
+					return;
 				}else {
-					if (remarkDialog != null && !remarkDialog.isShowing()) {
-						remarkDialog.show();
-						return;
-					}
+					finish();
 				}
 				break;
 			case R.id.tvFeedback:
