@@ -339,6 +339,10 @@
             android:screenOrientation="portrait"/>
 
         <activity
+            android:name="com.china.activity.ShawnFiveRainActivity"
+            android:screenOrientation="portrait" />
+
+        <activity
             android:name="com.china.activity.ShawnFiveRainRankActivity"
             android:screenOrientation="portrait" />
 

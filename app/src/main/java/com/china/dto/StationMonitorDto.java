@@ -64,6 +64,10 @@ public class StationMonitorDto implements Parcelable{
 	public float x = 0;//x轴坐标点
 	public float y = 0;//y轴坐标点
 
+	//5天降水量统计
+	public String imgUrl,startTime,endTime;
+	public double leftLat = 0,leftLng = 0,rightLat = 0,rightLng = 0;
+
 
 	//格点预报用到
 	public List<StationMonitorDto> itemList = new ArrayList<>();
@@ -130,6 +134,13 @@ public class StationMonitorDto implements Parcelable{
 		dest.writeTypedList(this.dataList);
 		dest.writeFloat(this.x);
 		dest.writeFloat(this.y);
+		dest.writeString(this.imgUrl);
+		dest.writeString(this.startTime);
+		dest.writeString(this.endTime);
+		dest.writeDouble(this.leftLat);
+		dest.writeDouble(this.leftLng);
+		dest.writeDouble(this.rightLat);
+		dest.writeDouble(this.rightLng);
 		dest.writeTypedList(this.itemList);
 	}
 
@@ -186,6 +197,13 @@ public class StationMonitorDto implements Parcelable{
 		this.dataList = in.createTypedArrayList(StationMonitorDto.CREATOR);
 		this.x = in.readFloat();
 		this.y = in.readFloat();
+		this.imgUrl = in.readString();
+		this.startTime = in.readString();
+		this.endTime = in.readString();
+		this.leftLat = in.readDouble();
+		this.leftLng = in.readDouble();
+		this.rightLat = in.readDouble();
+		this.rightLng = in.readDouble();
 		this.itemList = in.createTypedArrayList(StationMonitorDto.CREATOR);
 	}
 

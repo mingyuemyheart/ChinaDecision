@@ -46,7 +46,7 @@ import okhttp3.Response;
 public class ShawnFiveRainRankActivity extends ShawnBaseActivity implements OnClickListener{
 	
 	private Context mContext;
-	private TextView tvArea;
+	private TextView tvArea,tvTime;
 	private LinearLayout llPrompt;
 	private String startTime,endTime,provinceName = "",areaName = "全国";
 	private ListView mListView;
@@ -73,8 +73,9 @@ public class ShawnFiveRainRankActivity extends ShawnBaseActivity implements OnCl
 		LinearLayout llBack = findViewById(R.id.llBack);
 		llBack.setOnClickListener(this);
 		TextView tvTitle = findViewById(R.id.tvTitle);
+		tvTitle.setText("五天降水量排行");
 		tvArea = findViewById(R.id.tvArea);
-		TextView tvTime = findViewById(R.id.tvTime);
+		tvTime = findViewById(R.id.tvTime);
 		llPrompt = findViewById(R.id.llPrompt);
 		ImageView ivMapSearch = findViewById(R.id.ivMapSearch);
 		ivMapSearch.setOnClickListener(this);
@@ -83,22 +84,10 @@ public class ShawnFiveRainRankActivity extends ShawnBaseActivity implements OnCl
 		ivShare.setOnClickListener(this);
 		ivShare.setVisibility(View.VISIBLE);
 
-		if (getIntent().hasExtra(CONST.ACTIVITY_NAME)) {
-			String title = getIntent().getStringExtra(CONST.ACTIVITY_NAME);
-			if (!TextUtils.isEmpty(title)) {
-				tvTitle.setText(title);
-			}
-		}
-
-		try {
-			endTime = sdf3.format(new Date());
-			startTime = sdf3.format(new Date().getTime()-1000*60*60*24*5);
-			tvTime.setText(sdf4.format(sdf3.parse(startTime))+" - "+sdf4.format(sdf3.parse(endTime)));
-			tvArea.setText("全国");
-			OkHttpList();
-		} catch (ParseException e) {
-			e.printStackTrace();
-		}
+		endTime = sdf3.format(new Date());
+		startTime = sdf3.format(new Date().getTime()-1000*60*60*24*5);
+		tvArea.setText("全国");
+		OkHttpList();
 	}
 
 	private void initListView() {
@@ -144,7 +133,11 @@ public class ShawnFiveRainRankActivity extends ShawnBaseActivity implements OnCl
 										if (!obj5.isNull("rainfallmax")) {
 											dataList.clear();
 											JSONArray itemArray = obj5.getJSONArray("rainfallmax");
-											for (int i = 0; i < itemArray.length(); i++) {
+											int length = itemArray.length();
+											if (length > 30) {
+												length = 30;
+											}
+											for (int i = 0; i < length; i++) {
 												JSONObject itemObj = itemArray.getJSONObject(i);
 												StationMonitorDto dto = new StationMonitorDto();
 												dto.provinceName = itemObj.getString("province");
@@ -154,6 +147,18 @@ public class ShawnFiveRainRankActivity extends ShawnBaseActivity implements OnCl
 												dto.stationId = itemObj.getString("stationid");
 												dataList.add(dto);
 											}
+										}
+										JSONObject obj6 = array.getJSONObject(6);
+										if (!obj6.isNull("starttime")) {
+											startTime = obj6.getString("starttime");
+										}
+										if (!obj6.isNull("endtime")) {
+											endTime = obj6.getString("endtime");
+										}
+										try {
+											tvTime.setText(sdf4.format(sdf3.parse(startTime))+" - "+sdf4.format(sdf3.parse(endTime)));
+										} catch (ParseException e) {
+											e.printStackTrace();
 										}
 										if (mAdapter != null) {
 											mAdapter.notifyDataSetChanged();

@@ -896,7 +896,8 @@ public class ShawnMainActivity extends ShawnBaseActivity implements OnClickListe
 						intent.putExtra(CONST.ACTIVITY_NAME, dto.name);
 						startActivity(intent);
 					}else if (TextUtils.equals(dto.id, "114")) {//5天降水量统计
-						intent = new Intent(mContext, ShawnFiveRainRankActivity.class);
+						intent = new Intent(mContext, ShawnFiveRainActivity.class);
+						intent.putExtra(CONST.COLUMN_ID, dto.columnId);
 						intent.putExtra(CONST.ACTIVITY_NAME, dto.name);
 						startActivity(intent);
 					}else if (TextUtils.equals(dto.id, "201")) {//城市天气预报
