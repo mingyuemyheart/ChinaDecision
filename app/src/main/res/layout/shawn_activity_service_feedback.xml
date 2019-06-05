@@ -71,7 +71,7 @@
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="服务准确性"
+        android:text="信息准确性"
         android:textColor="@color/text_color3"
         android:textSize="@dimen/level_4"
         android:layout_marginStart="30dp"
@@ -107,7 +107,7 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="信息及时性"
+            android:text="服务及时性"
             android:textColor="@color/text_color3"
             android:textSize="@dimen/level_4"
             android:layout_marginStart="30dp"
@@ -143,7 +143,7 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="信息实用性"
+            android:text="服务实用性"
             android:textColor="@color/text_color3"
             android:textSize="@dimen/level_4"
             android:layout_marginStart="30dp"

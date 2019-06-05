@@ -12,12 +12,12 @@ android {
         applicationId "com.china"
         minSdkVersion 19
         targetSdkVersion 27
-        versionCode 139
-        versionName "3.3.5.1"
+        versionCode 141
+        versionName "3.3.5.3"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
 
         ndk {
-            abiFilters 'armeabi-v7a', 'armeabi'
+            abiFilters 'armeabi-v7a'
         }
     }
 
