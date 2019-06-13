@@ -484,7 +484,7 @@ public class ShawnTyhpoonActivity extends ShawnBaseActivity implements OnClickLi
 	 * 获取预警信息
 	 */
 	private void OkHttpWarning() {
-		final String url = "http://decision-admin.tianqi.cn/Home/extra/getwarns?order=0";
+		final String url = "https://decision-admin.tianqi.cn/Home/work2019/getwarns?order=0";
 		new Thread(new Runnable() {
 			@Override
 			public void run() {

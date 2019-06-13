@@ -146,7 +146,7 @@ public class ShawnFactRankDetailActivity extends ShawnBaseActivity implements On
 
 			String warningId = queryWarningIdByStationId(stationId);
 			if (!TextUtils.isEmpty(warningId)) {
-				OkHttpWarning("http://decision-admin.tianqi.cn/Home/extra/getwarns?order=0&areaid="+warningId);
+				OkHttpWarning("https://decision-admin.tianqi.cn/Home/work2019/getwarns?order=0&areaid="+warningId);
 			}
 
 			OkHttpDetail(stationId, getIntent().getStringExtra("interface"));

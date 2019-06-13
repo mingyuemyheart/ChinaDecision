@@ -480,7 +480,7 @@ public class ShawnMainActivity extends ShawnBaseActivity implements OnClickListe
 		if (warningId.startsWith("11") || warningId.startsWith("31") || warningId.startsWith("12") || warningId.startsWith("50")) {
 			wId = warningId.substring(0, 2);
 		}
-		final String url = "http://decision-admin.tianqi.cn/Home/extra/getwarns?order=0&areaid="+wId;
+		final String url = "https://decision-admin.tianqi.cn/Home/work2019/getwarns?order=0&areaid="+wId;
 		OkHttpUtil.enqueue(new Request.Builder().url(url).build(), new Callback() {
 			@Override
 			public void onFailure(Call call, IOException e) {

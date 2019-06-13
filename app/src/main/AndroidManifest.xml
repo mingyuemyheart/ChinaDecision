@@ -19,8 +19,6 @@
     <uses-permission android:name="android.permission.REQUEST_INSTALL_PACKAGES" />
     <uses-feature android:name="android.hardware.camera" />
     <uses-feature android:name="android.hardware.camera.autofocus" />
-    <!--安卓8.0打开apk安装更新-->
-    <uses-permission android:name="android.permission.REQUEST_INSTALL_PACKAGES" />
 
     <!-- umeng -->
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />

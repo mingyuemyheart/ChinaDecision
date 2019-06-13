@@ -106,7 +106,7 @@ public class ShawnReserveCityActivity extends ShawnBaseActivity implements View.
         new Thread(new Runnable() {
             @Override
             public void run() {
-                final String url = "http://decision-admin.tianqi.cn/Home/extra/getwarns?order=0";
+                final String url = "https://decision-admin.tianqi.cn/Home/work2019/getwarns?order=0";
                 OkHttpUtil.enqueue(new Request.Builder().url(url).build(), new Callback() {
                     @Override
                     public void onFailure(Call call, IOException e) {

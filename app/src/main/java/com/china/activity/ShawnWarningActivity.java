@@ -104,7 +104,7 @@ OnMarkerClickListener, InfoWindowAdapter, OnCameraChangeListener, OnMapScreenSho
 	private RelativeLayout reShare,reWarningStatistic;
 	private MapView mapView;//高德地图
 	private AMap aMap;//高德地图
-	private float zoom = 3.7f, zoom1 = 6.5f, zoom2 = 8.5f;
+	private float zoom = 3.7f, zoom1 = 6.0f, zoom2 = 8.0f;
 	private ArcMenu arcMenu;
 	private boolean blue = true, yellow = true, orange = true, red = true;
 	private List<WarningDto> warningList = new ArrayList<>();
@@ -331,7 +331,7 @@ OnMarkerClickListener, InfoWindowAdapter, OnCameraChangeListener, OnMapScreenSho
 	 * 获取预警信息
 	 */
 	private void OkHttpWarning() {
-		final String url = "http://decision-admin.tianqi.cn/Home/extra/getwarns?order=0";
+		final String url = "https://decision-admin.tianqi.cn/Home/work2019/getwarns";
 		OkHttpUtil.enqueue(new Request.Builder().url(url).build(), new Callback() {
 			@Override
 			public void onFailure(Call call, IOException e) {
