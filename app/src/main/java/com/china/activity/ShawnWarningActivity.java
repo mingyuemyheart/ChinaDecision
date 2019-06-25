@@ -19,6 +19,7 @@ import android.text.SpannableStringBuilder;
 import android.text.TextUtils;
 import android.text.style.ForegroundColorSpan;
 import android.util.DisplayMetrics;
+import android.util.Log;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -119,6 +120,8 @@ OnMarkerClickListener, InfoWindowAdapter, OnCameraChangeListener, OnMapScreenSho
 	private SimpleDateFormat sdf1 = new SimpleDateFormat("yyyy", Locale.CHINA);
 	private SimpleDateFormat sdf2 = new SimpleDateFormat("yyyyMMddHH", Locale.CHINA);
 	private SimpleDateFormat sdf3 = new SimpleDateFormat("yyyy-MM-dd HH:mm", Locale.CHINA);
+	private SimpleDateFormat sdf4 = new SimpleDateFormat("MM月dd日HH时", Locale.CHINA);
+	private SimpleDateFormat sdf5 = new SimpleDateFormat("dd日HH时", Locale.CHINA);
 
 	//预警统计列表
 	private ListView listView;
@@ -126,6 +129,7 @@ OnMarkerClickListener, InfoWindowAdapter, OnCameraChangeListener, OnMapScreenSho
 	private List<WarningDto> statisticList = new ArrayList<>();
 	
 	//国家级预警图层
+	private TextView tvName, tvTime;
 	private HashMap<String, String> nationMap = new HashMap<>();
 	private LinearLayout llLegend;
 	private ImageView iv1, iv2, iv3, iv4, iv5, iv6, iv7, iv8, iv9, iv10, ivLegend1, ivLegend2, ivLegend3, ivLegend4, ivLegend5, ivLegend7, ivLegend8, ivLegend9, ivLegend10;
@@ -256,6 +260,8 @@ OnMarkerClickListener, InfoWindowAdapter, OnCameraChangeListener, OnMapScreenSho
 		ivLegend8 = findViewById(R.id.ivLegend8);
 		ivLegend9 = findViewById(R.id.ivLegend9);
 		ivLegend10 = findViewById(R.id.ivLegend10);
+		tvName = findViewById(R.id.tvName);
+		tvTime = findViewById(R.id.tvTime);
 
 		CommonUtil.showGuidePage(mContext, this.getClass().getName(), ivGuide);
 		String title = getIntent().getStringExtra(CONST.ACTIVITY_NAME);
@@ -1098,6 +1104,7 @@ OnMarkerClickListener, InfoWindowAdapter, OnCameraChangeListener, OnMapScreenSho
 				flag2 = true;
 				iv2.setImageResource(R.drawable.shawn_icon_warning_rain_open);
 				ivLegend2.setVisibility(View.VISIBLE);
+
 			}else {
 				removeWarningLayer(warningType2);
 				flag2 = false;
@@ -1463,6 +1470,19 @@ OnMarkerClickListener, InfoWindowAdapter, OnCameraChangeListener, OnMapScreenSho
 						if (!TextUtils.isEmpty(result)) {
 							try {
 								JSONObject obj = new JSONObject(result);
+								if (TextUtils.equals(type, warningType2)) {
+									if (!obj.isNull("mtime")) {
+										long time = obj.getLong("mtime");
+										long nTime = time+1000*60*60*24;
+										tvTime.setText(sdf4.format(time)+" - "+sdf5.format(nTime));
+										tvTime.setVisibility(View.VISIBLE);
+										tvName.setVisibility(View.VISIBLE);
+									}
+								}else {
+									tvName.setVisibility(View.GONE);
+									tvTime.setVisibility(View.GONE);
+								}
+
 								if (!obj.isNull("lines")) {
 									JSONArray lines = obj.getJSONArray("lines");
 									for (int i = 0; i < lines.length(); i++) {

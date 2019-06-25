@@ -62,6 +62,30 @@
             android:layout_marginEnd="5dp"
             android:src="@drawable/shawn_icon_warning_location"/>
 
+        <TextView
+            android:id="@+id/tvName"
+            android:visibility="gone"
+            android:textStyle="bold"
+            android:layout_below="@+id/reWarningStatistic"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerHorizontal="true"
+            android:text="全国强降雨落区预报"
+            android:textColor="@color/text_color3"
+            android:textSize="@dimen/level_3"
+            android:layout_marginTop="10dp"/>
+
+        <TextView
+            android:id="@+id/tvTime"
+            android:visibility="gone"
+            android:layout_below="@+id/tvName"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerHorizontal="true"
+            android:textColor="@color/text_color3"
+            android:textSize="@dimen/level_4"
+            android:layout_marginTop="5dp"/>
+
         <ImageView
             android:id="@+id/iv1"
             android:layout_width="35dp"

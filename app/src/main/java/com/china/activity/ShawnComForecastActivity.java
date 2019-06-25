@@ -491,7 +491,7 @@ public class ShawnComForecastActivity extends ShawnBaseActivity implements OnCli
 												String validhour = itemObj.getString("validhour");
 												String startaddhour = itemObj.getString("startaddhour");
                                                 ivDizhi.setTag(dataurl+","+img+","+name+","+validhour+","+startaddhour);
-                                                OkHttpDetail(ivDizhi, false);
+												OkHttpDizhi(ivDizhi, false);
                                             }else {
                                                 ivDizhi.setAlpha(0.5f);
                                             }
@@ -745,6 +745,108 @@ public class ShawnComForecastActivity extends ShawnBaseActivity implements OnCli
 													Polygon polygon = aMap.addPolygon(polygonOption);
 													polygons.add(polygon);
 												}
+											}
+										}
+									}
+
+								} catch (JSONException e) {
+									e.printStackTrace();
+								}
+							}
+						});
+					}
+				});
+			}
+		}).start();
+	}
+
+	/**
+	 * 绘制单要素图层
+	 */
+	private void OkHttpDizhi(final View view, final boolean draw) {
+		final String[] tags = String .valueOf(view.getTag()).split(",");
+		if (tags.length <= 0 || TextUtils.isEmpty(tags[0])) {
+			runOnUiThread(new Runnable() {
+				@Override
+				public void run() {
+					view.setAlpha(0.5f);
+				}
+			});
+			return;
+		}
+
+		new Thread(new Runnable() {
+			@Override
+			public void run() {
+				OkHttpUtil.enqueue(new Request.Builder().url(tags[0]).build(), new Callback() {
+					@Override
+					public void onFailure(Call call, IOException e) {
+
+					}
+
+					@Override
+					public void onResponse(Call call, Response response) throws IOException {
+						if (!response.isSuccessful()) {
+							return;
+						}
+						final String result = response.body().string();
+						runOnUiThread(new Runnable() {
+							@Override
+							public void run() {
+								if (!draw) {
+									return;
+								}
+								clearPolygons();
+								try {
+									JSONObject obj = new JSONObject(result);
+
+									if (!obj.isNull("time")) {
+										long time = obj.getLong("time");
+										if (!TextUtils.isEmpty(tags[3])) {
+											int validhour = Integer.parseInt(tags[3])*1000*60*60;
+											int starthour = Integer.parseInt(tags[4])*1000*60*60;
+											tvTime.setText(sdf1.format(time+starthour)+" - "+sdf1.format(time+starthour+validhour));
+										}
+									}
+
+									if (!obj.isNull("areas")) {
+										JSONArray array = obj.getJSONArray("areas");
+										if (array.length() <= 0) {
+											view.setAlpha(0.5f);
+											return;
+										}
+										if (!draw) {
+											return;
+										}
+										clearPolygons();
+										if (!TextUtils.isEmpty(tags[2])) {
+											tvName.setText(tags[2]);
+										}
+
+										if (!TextUtils.isEmpty(tags[1])) {
+											Picasso.get().load(tags[1]).into(ivLegend);
+										}
+										for (int i = 0; i < array.length(); i++) {
+											JSONObject itemObj = array.getJSONObject(i);
+											String color = itemObj.getString("c");
+											if (color.contains("#")) {
+												color = color.replace("#", "");
+											}
+											int r = Integer.parseInt(color.substring(0,2), 16);
+											int g = Integer.parseInt(color.substring(2,4), 16);
+											int b = Integer.parseInt(color.substring(4,6), 16);
+											if (!itemObj.isNull("items")) {
+												JSONArray items = itemObj.getJSONArray("items");
+												PolygonOptions polygonOption = new PolygonOptions();
+												polygonOption.strokeColor(Color.rgb(r, g, b)).fillColor(Color.rgb(r, g, b));
+												for (int j = 0; j < items.length(); j++) {
+													JSONObject item = items.getJSONObject(j);
+													double lat = item.getDouble("y");
+													double lng = item.getDouble("x");
+													polygonOption.add(new LatLng(lat, lng));
+												}
+												Polygon polygon = aMap.addPolygon(polygonOption);
+												polygons.add(polygon);
 											}
 										}
 									}
@@ -1081,7 +1183,7 @@ public class ShawnComForecastActivity extends ShawnBaseActivity implements OnCli
 				ivHaze.setImageResource(R.drawable.com_haze);
 				ivQiangduiliu.setImageResource(R.drawable.com_qiangduiliu);
 
-				OkHttpDetail(ivDizhi, true);
+				OkHttpDizhi(ivDizhi, true);
 				break;
 			case R.id.ivHaze:
 				ivHighTemp.setImageResource(R.drawable.com_hightemp);
