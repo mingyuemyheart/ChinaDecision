@@ -769,7 +769,7 @@ public class ShawnTyhpoonActivity extends ShawnBaseActivity implements OnClickLi
 	 */
 	private void OkHttpTyphoonList(final int currentYear, final int selectYear) {
 		loadingView.setVisibility(View.VISIBLE);
-		final String url = "http://decision-admin.tianqi.cn/Home/other/zs_get_tflist/year/"+selectYear;
+		final String url = "http://decision-admin.tianqi.cn/Home/other/decision_get_zstflist/year/"+selectYear;
 		new Thread(new Runnable() {
 			@Override
 			public void run() {
@@ -816,17 +816,20 @@ public class ShawnTyhpoonActivity extends ShawnBaseActivity implements OnClickLi
 												}
 												if (!itemObj.isNull("status")) {
 													dto.status = itemObj.getString("status");
-													dto.isSelected = true;//生效台风默认选中状态
+													if (TextUtils.equals(dto.status, "1")) {
+														dto.isSelected = true;//生效台风默认选中状态
+													}else {
+														dto.isSelected = false;
+													}
 												}else {
 													dto.status = "0";
+													dto.isSelected = false;
 												}
-												if (!dto.code.contains("****")) {
-													nameList.add(dto);
+												nameList.add(dto);
 
-													//把活跃台风过滤出来存放
-													if (TextUtils.equals(dto.status, "1")) {
-														startList.add(dto);
-													}
+												//把活跃台风过滤出来存放
+												if (TextUtils.equals(dto.status, "1")) {
+													startList.add(dto);
 												}
 
 											}
@@ -952,7 +955,7 @@ public class ShawnTyhpoonActivity extends ShawnBaseActivity implements OnClickLi
 	 */
 	private void OkHttpTyphoonDetailBABJ(final String publishName, final String publishCode, final String typhoonId, final String typhoonName) {
 		loadingView.setVisibility(View.VISIBLE);
-		final String url = "http://decision-admin.tianqi.cn/Home/extra/gettyphoon/view/"+typhoonId;
+		final String url = "http://decision-admin.tianqi.cn/Home/other/gettyphoon/view/"+typhoonId;
 		new Thread(new Runnable() {
 			@Override
 			public void run() {
