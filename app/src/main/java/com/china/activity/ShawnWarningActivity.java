@@ -129,11 +129,12 @@ OnMarkerClickListener, InfoWindowAdapter, OnCameraChangeListener, OnMapScreenSho
 	private List<WarningDto> statisticList = new ArrayList<>();
 	
 	//国家级预警图层
-	private TextView tvName, tvTime;
+	private TextView tvName1, tvName2, tvName3, tvName4, tvName5, tvName6, tvName7, tvName8, tvName9, tvName10;
+	private String layerTime12,layerTime24;
 	private HashMap<String, String> nationMap = new HashMap<>();
 	private LinearLayout llLegend;
 	private ImageView iv1, iv2, iv3, iv4, iv5, iv6, iv7, iv8, iv9, iv10, ivLegend1, ivLegend2, ivLegend3, ivLegend4, ivLegend5, ivLegend7, ivLegend8, ivLegend9, ivLegend10;
-	private boolean flag1 = false, flag2 = false, flag3 = false, flag4 = false, flag5 = false, flag6 = false, flag7 = false, flag8 = false, flag9 = false, flag10 = false;
+	private List<Boolean> flags = new ArrayList<>();
 	private String warningType1 = "fog", warningType2 = "baoyu", warningType3 = "shachen", warningType4 = "daxue", warningType5 = "gaowen",
 			warningType7 = "lengkongqi", warningType8 = "lengkongqi", warningType9 = "wind", warningType10 = "thunderstorm";
 	private List<Polyline> polyline11 = new ArrayList<>();
@@ -260,8 +261,20 @@ OnMarkerClickListener, InfoWindowAdapter, OnCameraChangeListener, OnMapScreenSho
 		ivLegend8 = findViewById(R.id.ivLegend8);
 		ivLegend9 = findViewById(R.id.ivLegend9);
 		ivLegend10 = findViewById(R.id.ivLegend10);
-		tvName = findViewById(R.id.tvName);
-		tvTime = findViewById(R.id.tvTime);
+		tvName1 = findViewById(R.id.tvName1);
+		tvName2 = findViewById(R.id.tvName2);
+		tvName3 = findViewById(R.id.tvName3);
+		tvName4 = findViewById(R.id.tvName4);
+		tvName5 = findViewById(R.id.tvName5);
+		tvName6 = findViewById(R.id.tvName6);
+		tvName7 = findViewById(R.id.tvName7);
+		tvName8 = findViewById(R.id.tvName8);
+		tvName9 = findViewById(R.id.tvName9);
+		tvName10 = findViewById(R.id.tvName10);
+
+		for (int i = 0; i < 10; i++) {
+			flags.add(false);
+		}
 
 		CommonUtil.showGuidePage(mContext, this.getClass().getName(), ivGuide);
 		String title = getIntent().getStringExtra(CONST.ACTIVITY_NAME);
@@ -1086,136 +1099,146 @@ OnMarkerClickListener, InfoWindowAdapter, OnCameraChangeListener, OnMapScreenSho
 			aMap.getMapScreenShot(ShawnWarningActivity.this);
 			break;
 		case R.id.iv1:
-			if (!flag1) {
+			if (!flags.get(0)) {
 				drawWarningLayer(SecretUrlUtil.warningLayer(warningType1), warningType1);
-				flag1 = true;
+				flags.set(0, true);
 				iv1.setImageResource(R.drawable.shawn_icon_warning_fog_open);
 				ivLegend1.setVisibility(View.VISIBLE);
 			}else {
 				removeWarningLayer(warningType1);
-				flag1 = false;
+				flags.set(0, false);
 				iv1.setImageResource(R.drawable.shawn_icon_warning_fog_close);
 				ivLegend1.setVisibility(View.GONE);
+				tvName1.setVisibility(View.GONE);
 			}
 			break;
 		case R.id.iv2:
-			if (!flag2) {
+			if (!flags.get(1)) {
 				drawWarningLayer(SecretUrlUtil.warningLayer(warningType2), warningType2);
-				flag2 = true;
+				flags.set(1, true);
 				iv2.setImageResource(R.drawable.shawn_icon_warning_rain_open);
 				ivLegend2.setVisibility(View.VISIBLE);
 
 			}else {
 				removeWarningLayer(warningType2);
-				flag2 = false;
+				flags.set(1, false);
 				iv2.setImageResource(R.drawable.shawn_icon_warning_rain_close);
 				ivLegend2.setVisibility(View.GONE);
+				tvName2.setVisibility(View.GONE);
 			}
 			break;
 		case R.id.iv3:
-			if (!flag3) {
+			if (!flags.get(2)) {
 				drawWarningLayer(SecretUrlUtil.warningLayer(warningType3), warningType3);
-				flag3 = true;
+				flags.set(2, true);
 				iv3.setImageResource(R.drawable.shawn_icon_warning_sand_open);
 				ivLegend3.setVisibility(View.VISIBLE);
 			}else {
 				removeWarningLayer(warningType3);
-				flag3 = false;
+				flags.set(2, false);
 				iv3.setImageResource(R.drawable.shawn_icon_warning_sand_close);
 				ivLegend3.setVisibility(View.GONE);
+				tvName3.setVisibility(View.GONE);
 			}
 			break;
 		case R.id.iv4:
-			if (!flag4) {
+			if (!flags.get(3)) {
 				drawWarningLayer(SecretUrlUtil.warningLayer(warningType4), warningType4);
-				flag4 = true;
+				flags.set(3, true);
 				iv4.setImageResource(R.drawable.shawn_icon_warning_snow_open);
 				ivLegend4.setVisibility(View.VISIBLE);
 			}else {
 				removeWarningLayer(warningType4);
-				flag4 = false;
+				flags.set(3, false);
 				iv4.setImageResource(R.drawable.shawn_icon_warning_snow_close);
 				ivLegend4.setVisibility(View.GONE);
+				tvName4.setVisibility(View.GONE);
 			}
 			break;
 		case R.id.iv5:
-			if (!flag5) {
+			if (!flags.get(4)) {
 				drawWarningLayer(SecretUrlUtil.warningLayer(warningType5), warningType5);
-				flag5 = true;
+				flags.set(4, true);
 				iv5.setImageResource(R.drawable.shawn_icon_warning_temp_open);
 				ivLegend5.setVisibility(View.VISIBLE);
 			}else {
 				removeWarningLayer(warningType5);
-				flag5 = false;
+				flags.set(4, false);
 				iv5.setImageResource(R.drawable.shawn_icon_warning_temp_close);
 				ivLegend5.setVisibility(View.GONE);
+				tvName5.setVisibility(View.GONE);
 			}
 			break;
 		case R.id.iv6:
-			if (!flag6) {
+			if (!flags.get(5)) {
 				for (int i = 0; i < typhoonMarkers.size(); i++) {
 					typhoonMarkers.get(i).setVisible(true);
 				}
-				flag6 = true;
+				flags.set(5, true);
 				iv6.setImageResource(R.drawable.shawn_icon_warning_typhoon_open);
 			}else {
 				for (int i = 0; i < typhoonMarkers.size(); i++) {
 					typhoonMarkers.get(i).setVisible(false);
 				}
-				flag6 = false;
+				flags.set(5, false);
 				iv6.setImageResource(R.drawable.shawn_icon_warning_typhoon_close);
 			}
 			break;
 		case R.id.iv7:
-			if (!flag7) {
+			if (!flags.get(6)) {
 				drawWarningLayer(SecretUrlUtil.warningLayer(warningType7), warningType7);
-				flag7 = true;
+				flags.set(6, true);
 				iv7.setImageResource(R.drawable.shawn_icon_warning_wind_open);
 				ivLegend7.setVisibility(View.VISIBLE);
 			}else {
 				removeWarningLayer(warningType7);
-				flag7 = false;
+				flags.set(6, false);
 				iv7.setImageResource(R.drawable.shawn_icon_warning_wind_open);
 				ivLegend7.setVisibility(View.GONE);
+				tvName7.setVisibility(View.GONE);
+
 			}
 			break;
 		case R.id.iv8:
-			if (!flag8) {
+			if (!flags.get(7)) {
 				drawWarningLayer(SecretUrlUtil.warningLayer(warningType8), warningType8);
-				flag8 = true;
+				flags.set(7, true);
 				iv8.setImageResource(R.drawable.shawn_icon_warning_hanchao_open);
 				ivLegend8.setVisibility(View.VISIBLE);
 			}else {
 				removeWarningLayer(warningType8);
-				flag8 = false;
+				flags.set(7, false);
 				iv8.setImageResource(R.drawable.shawn_icon_warning_hanchao_close);
 				ivLegend8.setVisibility(View.GONE);
+				tvName8.setVisibility(View.GONE);
 			}
 			break;
 		case R.id.iv9:
-			if (!flag9) {
+			if (!flags.get(8)) {
 				drawWarningLayer(SecretUrlUtil.warningLayer(warningType9), warningType9);
-				flag9 = true;
+				flags.set(8, true);
 				iv9.setImageResource(R.drawable.shawn_icon_warning_wind_open);
 				ivLegend9.setVisibility(View.VISIBLE);
 			}else {
 				removeWarningLayer(warningType9);
-				flag9 = false;
+				flags.set(8, false);
 				iv9.setImageResource(R.drawable.shawn_icon_warning_wind_close);
 				ivLegend9.setVisibility(View.GONE);
+				tvName9.setVisibility(View.GONE);
 			}
 			break;
 		case R.id.iv10:
-			if (!flag10) {
+			if (!flags.get(9)) {
 				drawWarningLayer(SecretUrlUtil.warningLayer(warningType10), warningType10);
-				flag10 = true;
+				flags.set(9, true);
 				iv10.setImageResource(R.drawable.shawn_icon_warning_qiangduiliu_open);
 				ivLegend10.setVisibility(View.VISIBLE);
 			}else {
 				removeWarningLayer(warningType10);
-				flag10 = false;
+				flags.set(9, false);
 				iv10.setImageResource(R.drawable.shawn_icon_warning_qiangduiliu_close);
 				ivLegend10.setVisibility(View.GONE);
+				tvName10.setVisibility(View.GONE);
 			}
 			break;
 
@@ -1470,18 +1493,63 @@ OnMarkerClickListener, InfoWindowAdapter, OnCameraChangeListener, OnMapScreenSho
 						if (!TextUtils.isEmpty(result)) {
 							try {
 								JSONObject obj = new JSONObject(result);
-								if (TextUtils.equals(type, warningType2)) {
-									if (!obj.isNull("mtime")) {
-										long time = obj.getLong("mtime");
-										long nTime = time+1000*60*60*24;
-										tvTime.setText(sdf4.format(time)+" - "+sdf5.format(nTime));
-										tvTime.setVisibility(View.VISIBLE);
-										tvName.setVisibility(View.VISIBLE);
+
+								int selected = 0;
+								for (int i = 0; i < flags.size(); i++) {
+									if (flags.get(i)) {
+										selected++;
 									}
-								}else {
-									tvName.setVisibility(View.GONE);
-									tvTime.setVisibility(View.GONE);
 								}
+								String enter;
+								if (selected == 1) {
+									enter = "\n";
+								}else {
+									enter = "";
+								}
+
+                                if (!obj.isNull("mtime")) {
+                                    long time = obj.getLong("mtime");
+                                    long time12 = time+1000*60*60*12;
+                                    long time24 = time+1000*60*60*24;
+                                    layerTime12 = sdf4.format(time)+" - "+sdf5.format(time12);
+                                    layerTime24 = sdf4.format(time)+" - "+sdf5.format(time24);
+                                }
+
+
+//									tvName1.setText("全国强降雨落区预报" + enter + layerTime24);
+								tvName2.setText("全国强降雨落区预报" + enter + layerTime24);
+//									tvName3.setText("全国强降雨落区预报" + enter + layerTime24);
+//									tvName4.setText("全国强降雨落区预报" + enter + layerTime24);
+								tvName5.setText("全国高温区域预报" + enter + layerTime12);
+//									tvName7.setText("全国强降雨落区预报" + enter + layerTime24);
+//									tvName8.setText("全国强降雨落区预报" + enter + layerTime24);
+//									tvName9.setText("全国强降雨落区预报" + enter + layerTime24);
+//									tvName10.setText("全国强降雨落区预报" + enter + layerTime12);
+
+//								if (TextUtils.equals(type, warningType1)) {
+//									tvName1.setVisibility(View.VISIBLE);
+//								}else
+
+									if (TextUtils.equals(type, warningType2)) {
+									tvName2.setVisibility(View.VISIBLE);
+                                }
+//									else if (TextUtils.equals(type, warningType3)) {
+//									tvName3.setVisibility(View.VISIBLE);
+//								}else if (TextUtils.equals(type, warningType4)) {
+//									tvName4.setVisibility(View.VISIBLE);
+//								}
+									else if (TextUtils.equals(type, warningType5)) {
+									tvName5.setVisibility(View.VISIBLE);
+                                }
+//									else if (TextUtils.equals(type, warningType7)) {
+//									tvName7.setVisibility(View.VISIBLE);
+//								}else if (TextUtils.equals(type, warningType8)) {
+//									tvName8.setVisibility(View.VISIBLE);
+//								}else if (TextUtils.equals(type, warningType9)) {
+//									tvName9.setVisibility(View.VISIBLE);
+//								}else if (TextUtils.equals(type, warningType10)) {
+//									tvName10.setVisibility(View.VISIBLE);
+//								}
 
 								if (!obj.isNull("lines")) {
 									JSONArray lines = obj.getJSONArray("lines");
@@ -1686,7 +1754,7 @@ OnMarkerClickListener, InfoWindowAdapter, OnCameraChangeListener, OnMapScreenSho
 	 */
 	private void OkHttpTyphoonList() {
 		int currentYear = Integer.valueOf(sdf1.format(new Date()));
-		final String url = "http://decision-admin.tianqi.cn/Home/extra/gettyphoon/list/"+currentYear;
+		final String url = "http://decision-admin.tianqi.cn/Home/other/gettyphoon/list/"+currentYear;
 		OkHttpUtil.enqueue(new Request.Builder().url(url).build(), new Callback() {
 			@Override
 			public void onFailure(Call call, IOException e) {
@@ -1730,7 +1798,7 @@ OnMarkerClickListener, InfoWindowAdapter, OnCameraChangeListener, OnMapScreenSho
 												}else {
 													name = dto.code + " " + dto.name + " " + dto.enName;
 												}
-												OkHttpTyphoonDetail("http://decision-admin.tianqi.cn/Home/extra/gettyphoon/view/"+dto.id, name);
+												OkHttpTyphoonDetail("http://decision-admin.tianqi.cn/Home/other/gettyphoon/view/"+dto.id, name);
 											}
 										}
 
@@ -1851,7 +1919,7 @@ OnMarkerClickListener, InfoWindowAdapter, OnCameraChangeListener, OnMapScreenSho
 											tOption.icons(iconList);
 											tOption.period(6);
 											Marker marker = aMap.addMarker(tOption);
-											if (flag6) {
+											if (flags.get(5)) {
 												marker.setVisible(true);
 											}else {
 												marker.setVisible(false);

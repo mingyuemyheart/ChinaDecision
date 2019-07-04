@@ -789,7 +789,7 @@ public class ShawnWaitWindActivity extends ShawnBaseActivity implements OnClickL
      * 获取当年的台风列表信息
      */
     private void OkHttpTyphoonList(int year) {
-        final String url = "http://decision-admin.tianqi.cn/Home/extra/gettyphoon/list/"+year;
+        final String url = "http://decision-admin.tianqi.cn/Home/other/gettyphoon/list/"+year;
         new Thread(new Runnable() {
             @Override
             public void run() {
@@ -860,7 +860,7 @@ public class ShawnWaitWindActivity extends ShawnBaseActivity implements OnClickL
      * 获取台风详情
      */
     private void OkHttpTyphoonDetail(String typhoonId, final String name) {
-        final String url = "http://decision-admin.tianqi.cn/Home/extra/gettyphoon/view/"+typhoonId;
+        final String url = "http://decision-admin.tianqi.cn/Home/other/gettyphoon/view/"+typhoonId;
         new Thread(new Runnable() {
             @Override
             public void run() {
