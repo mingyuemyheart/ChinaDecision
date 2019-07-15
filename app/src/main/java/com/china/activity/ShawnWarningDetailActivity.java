@@ -105,7 +105,7 @@ public class ShawnWarningDetailActivity extends ShawnBaseActivity implements OnC
 	 * 获取预警详情
 	 */
 	private void OkHttpWarningDetail(final String html) {
-		final String url = "http://decision.tianqi.cn/alarm12379/content2/"+html;
+		final String url = "https://decision-admin.tianqi.cn/Home/work2019/getDetailWarn/identifier/"+html;
 		new Thread(new Runnable() {
 			@Override
 			public void run() {
