@@ -3,6 +3,7 @@ package com.china.activity;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.net.http.SslError;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.widget.SwipeRefreshLayout;
@@ -10,6 +11,7 @@ import android.text.TextUtils;
 import android.view.KeyEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
+import android.webkit.SslErrorHandler;
 import android.webkit.WebChromeClient;
 import android.webkit.WebSettings;
 import android.webkit.WebSettings.LayoutAlgorithm;
@@ -135,7 +137,10 @@ public class ShawnNewsDetailActivity extends ShawnBaseActivity implements OnClic
 		webSettings = webView.getSettings();
 		
 		//支持javascript
-		webSettings.setJavaScriptEnabled(true); 
+		webSettings.setJavaScriptEnabled(true);
+		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+			webView.getSettings().setMixedContentMode(WebSettings.MIXED_CONTENT_ALWAYS_ALLOW);
+		}
 		// 设置可以支持缩放 
 		webSettings.setSupportZoom(true); 
 		// 设置出现缩放工具
@@ -171,6 +176,12 @@ public class ShawnNewsDetailActivity extends ShawnBaseActivity implements OnClic
 				super.onPageFinished(view, url);
 				refreshLayout.setRefreshing(false);
 				reBottom.setVisibility(View.VISIBLE);
+			}
+
+			@Override
+			public void onReceivedSslError(WebView view, SslErrorHandler handler, SslError error) {
+				super.onReceivedSslError(view, handler, error);
+				handler.proceed();
 			}
 		});
 	}
