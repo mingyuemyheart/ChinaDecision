@@ -229,7 +229,7 @@ public class CommonUtil {
             }
             yPos = childHeight +yPos;
         }
-        canvas.save(Canvas.ALL_SAVE_FLAG);
+        canvas.save();
         canvas.restore();
         clearCanvas(canvas);
         return bitmap;
