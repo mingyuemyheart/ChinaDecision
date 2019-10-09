@@ -1,7 +1,7 @@
 apply plugin: 'com.android.application'
 
 android {
-    compileSdkVersion 27
+    compileSdkVersion 28
     //png图片命名带有数字则编译不通过使用一下声明
     aaptOptions.cruncherEnabled = false
     aaptOptions.useNewCruncher = false
@@ -11,10 +11,11 @@ android {
     defaultConfig {
         applicationId "com.china"
         minSdkVersion 19
-        targetSdkVersion 27
-        versionCode 147
-        versionName "3.3.5.9"
+        targetSdkVersion 28
+        versionCode 152
+        versionName "3.4.0"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
+        multiDexEnabled true
 
         ndk {
             abiFilters 'armeabi-v7a'
@@ -63,8 +64,8 @@ android {
 
 dependencies {
     implementation fileTree(include: ['*.jar'], dir: 'libs')
-    implementation 'com.android.support:appcompat-v7:27.1.0'
-    implementation 'com.android.support:support-v4:27.1.0'
+    implementation 'com.android.support:appcompat-v7:28.0.0'
+    implementation 'com.android.support:support-v4:28.0.0'
     implementation files('libs/exoplayer_lib.jar')
     //视频会商用到
     implementation files('libs/zxing.jar')
@@ -74,12 +75,12 @@ dependencies {
     implementation project(':android-pdf-viewer')
     implementation files('libs/SaaS_AppAnalytics_Android_SDK_V4.0.15.jar')
     implementation files('libs/ChinaWeatherAPI.jar')
-    implementation 'com.squareup.okhttp3:okhttp:3.11.0'
-    implementation 'com.squareup.okio:okio:1.14.1'
+    implementation 'com.squareup.okhttp3:okhttp:4.0.1'
+    implementation 'com.squareup.okio:okio:2.2.2'
     implementation 'com.wang.avi:library:1.0.0'
     implementation 'com.amap.api:3dmap:5.7.0'
     implementation 'com.amap.api:search:5.7.0'
-    implementation 'com.amap.api:location:3.7.0'
+    implementation 'com.amap.api:location:4.7.0'
     implementation files('libs/umeng-common-1.5.3.jar')
     implementation files('libs/umeng-share-core-6.9.3.jar')
     implementation files('libs/umeng-sharetool-6.9.3.jar')

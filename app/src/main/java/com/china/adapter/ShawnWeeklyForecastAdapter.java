@@ -28,7 +28,6 @@ public class ShawnWeeklyForecastAdapter extends BaseAdapter{
 	private List<WeatherDto> mArrayList;
 	private SimpleDateFormat sdf1 = new SimpleDateFormat("yyyyMMdd", Locale.CHINA);
 	private SimpleDateFormat sdf2 = new SimpleDateFormat("MM/dd", Locale.CHINA);
-	public long foreDate = 0, currentDate = 0;
 
 	private final class ViewHolder{
 		TextView tvWeek,tvDate,tvHighPhe,tvHighTemp,tvHighWind,tvLowPhe,tvLowTemp,tvLowWind;
@@ -80,27 +79,7 @@ public class ShawnWeeklyForecastAdapter extends BaseAdapter{
 		}
 		
 		WeatherDto dto = mArrayList.get(position);
-		String week = dto.week;
-		if (currentDate > foreDate) {
-			if (position == 0) {
-				week = "昨天";
-			}else if (position == 1) {
-				week = "今天";
-			}else if (position == 2) {
-				week = "明天";
-			}else {
-				week = "周"+week.substring(week.length()-1, week.length());
-			}
-		}else {
-			if (position == 0) {
-				week = "今天";
-			}else if (position == 1) {
-				week = "明天";
-			}else {
-				week = "周"+week.substring(week.length()-1, week.length());
-			}
-		}
-		mHolder.tvWeek.setText(week);
+		mHolder.tvWeek.setText(dto.week);
 		try {
 			mHolder.tvDate.setText(sdf2.format(sdf1.parse(dto.date)));
 		} catch (ParseException e) {

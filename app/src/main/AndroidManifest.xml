@@ -40,6 +40,9 @@
         android:theme="@style/AppTheme"
         android:networkSecurityConfig="@xml/network_security_config">
 
+        <!--解决android28以后无法使用apache http协议-->
+        <uses-library android:name="org.apache.http.legacy" android:required="false"/>
+
         <!-- 自动更新下载完成广播 -->
         <receiver android:name="com.china.utils.AutoUpdateBroadcastReceiver" >
             <intent-filter>

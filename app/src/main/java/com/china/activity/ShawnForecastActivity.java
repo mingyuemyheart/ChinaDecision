@@ -187,7 +187,6 @@ public class ShawnForecastActivity extends ShawnBaseActivity implements OnClickL
 											weeklyList.clear();
 											JSONObject f = obj.getJSONObject("f");
 											String f0 = f.getString("f0");
-
 											long foreDate = 0,currentDate = 0;
 											try {
 												String fTime = sdf3.format(sdf1.parse(f0));
@@ -201,9 +200,6 @@ public class ShawnForecastActivity extends ShawnBaseActivity implements OnClickL
 												JSONArray f1 = f.getJSONArray("f1");
 												for (int i = 0; i < f1.length(); i++) {
 													WeatherDto dto = new WeatherDto();
-
-													dto.week = CommonUtil.getWeek(i);//星期几
-													dto.date = CommonUtil.getDate(f0, i);//日期
 
 													JSONObject weeklyObj = f1.getJSONObject(i);
 													//晚上
@@ -220,24 +216,36 @@ public class ShawnForecastActivity extends ShawnBaseActivity implements OnClickL
 													dto.highWindDir = Integer.valueOf(weeklyObj.getString("fe"));
 													dto.highWindForce = Integer.valueOf(weeklyObj.getString("fg"));
 
-													weeklyList.add(dto);
-
 													if (currentDate > foreDate) {
-														if (i == 1) {
+														if (i == 0) {
+															dto.week = "昨天";
+														}else if (i == 1) {
+															dto.week = "今天";
 															tvFactInfo.setText(dto.highTemp+"℃"+"/"+dto.lowTemp+"℃"+"\n");
+														}else if (i == 2) {
+															dto.week = "明天";
+														}else {
+															dto.week = CommonUtil.getWeek(i-1);//星期几
 														}
+														dto.date = CommonUtil.getDate(f0, i);//日期
 													}else {
 														if (i == 0) {
+															dto.week = "今天";
 															tvFactInfo.setText(dto.highTemp+"℃"+"/"+dto.lowTemp+"℃"+"\n");
+														}else if (i == 1) {
+															dto.week = "明天";
+														}else {
+															dto.week = CommonUtil.getWeek(i);//星期几
 														}
+														dto.date = CommonUtil.getDate(f0, i);//日期
 													}
+
+													weeklyList.add(dto);
 												}
 											}
 
 											//一周预报列表
 											if (mAdapter != null) {
-												mAdapter.foreDate = foreDate;
-												mAdapter.currentDate = currentDate;
 												mAdapter.notifyDataSetChanged();
 											}
 

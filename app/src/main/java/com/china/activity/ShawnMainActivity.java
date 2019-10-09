@@ -80,9 +80,13 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.IOException;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Date;
 import java.util.List;
+import java.util.Locale;
 
 import cn.com.weather.api.WeatherAPI;
 import cn.com.weather.beans.Weather;
@@ -118,6 +122,8 @@ public class ShawnMainActivity extends ShawnBaseActivity implements OnClickListe
 	private HourItemView hourItemView;
 	private List<WeatherDto> tempList = new ArrayList<>();
 	private VerticalSwipeRefreshLayout refreshLayout;//下拉刷新布局
+	private SimpleDateFormat sdf1 = new SimpleDateFormat("yyyyMMddHHmm", Locale.CHINA);
+	private SimpleDateFormat sdf3 = new SimpleDateFormat("yyyyMMdd", Locale.CHINA);
 
 	//首页pdf文档
 	private List<NewsDto> pdfList = new ArrayList<>();
@@ -138,6 +144,10 @@ public class ShawnMainActivity extends ShawnBaseActivity implements OnClickListe
         setContentView(R.layout.shawn_activity_main);
         mContext = this;
 		initRefreshLayout();
+		checkMultiAuthority();
+	}
+
+	private void init() {
 		initWidget();
 		initViewPager();
 		initGridView();
@@ -155,7 +165,7 @@ public class ShawnMainActivity extends ShawnBaseActivity implements OnClickListe
 		refreshLayout.setOnRefreshListener(new OnRefreshListener() {
 			@Override
 			public void onRefresh() {
-				refresh();
+				init();
 			}
 		});
 	}
@@ -164,7 +174,6 @@ public class ShawnMainActivity extends ShawnBaseActivity implements OnClickListe
 	 * 初始化控件
 	 */
 	private void initWidget() {
-		checkStorageAuthority();
 		reTitle = findViewById(R.id.reTitle);
 		ImageView ivAdd = findViewById(R.id.ivAdd);
 		ivAdd.setOnClickListener(this);
@@ -214,8 +223,9 @@ public class ShawnMainActivity extends ShawnBaseActivity implements OnClickListe
 		if (!TextUtils.isEmpty(MyApplication.USERNAME)) {
 			tvUserName.setText(MyApplication.USERNAME);
 		}
-		
-		refresh();
+
+		llWarning.setVisibility(View.INVISIBLE);
+		startLocation();
 	}
 
 	private void getDisplayWidthHeight() {
@@ -226,11 +236,6 @@ public class ShawnMainActivity extends ShawnBaseActivity implements OnClickListe
 		density = dm.density;
 	}
 	
-	private void refresh() {
-		llWarning.setVisibility(View.INVISIBLE);
-		checkAuthority();
-	}
-
 	/**
 	 * 开始定位
 	 */
@@ -385,6 +390,13 @@ public class ShawnMainActivity extends ShawnBaseActivity implements OnClickListe
 											llContainer2.removeAllViews();
 											JSONObject f = obj.getJSONObject("f");
 											String f0 = f.getString("f0");
+											long foreDate = 0,currentDate = 0;
+											try {
+												foreDate = sdf3.parse(sdf3.format(sdf1.parse(f0))).getTime();
+												currentDate = sdf3.parse(sdf3.format(new Date())).getTime();
+											} catch (ParseException e) {
+												e.printStackTrace();
+											}
 											JSONArray f1 = f.getJSONArray("f1");
 											for (int i = 0; i < f1.length(); i++) {
 												String week = CommonUtil.getWeek(i);//星期几
@@ -406,13 +418,27 @@ public class ShawnMainActivity extends ShawnBaseActivity implements OnClickListe
 												ImageView ivPheHigh = view.findViewById(R.id.ivPheHigh);
 												ImageView ivPheLow = view.findViewById(R.id.ivPheLow);
 												TextView tvTemp = view.findViewById(R.id.tvTemp);
-												if (i == 0) {
-													tvWeek.setText("今天");
-												}else if (i == 1) {
-													tvWeek.setText("明天");
+
+												if (currentDate > foreDate) {
+													if (i == 0) {
+														tvWeek.setText("昨天");
+													}else if (i == 1) {
+														tvWeek.setText("今天");
+													}else if (i == 2) {
+														tvWeek.setText("明天");
+													}else {
+														tvWeek.setText(CommonUtil.getWeek(i-1));
+													}
 												}else {
-													tvWeek.setText(week);
+													if (i == 0) {
+														tvWeek.setText("今天");
+													}else if (i == 1) {
+														tvWeek.setText("明天");
+													}else {
+														tvWeek.setText(CommonUtil.getWeek(i));
+													}
 												}
+
 												ivPheHigh.setImageBitmap(WeatherUtil.getDayBitmap(mContext, highPheCode));
 												ivPheLow.setImageBitmap(WeatherUtil.getNightBitmap(mContext, lowPheCode));
 												tvTemp.setText(highTemp+getString(R.string.unit_degree)+"/"+lowTemp+getString(R.string.unit_degree));
@@ -1307,7 +1333,6 @@ public class ShawnMainActivity extends ShawnBaseActivity implements OnClickListe
      */
     private void onLayoutMeasure() {
         getDisplayWidthHeight();
-        int statusBarHeight = CommonUtil.statusBarHeight(this);//状态栏高度
         reTitle.measure(0, 0);
         int height1 = reTitle.getMeasuredHeight();
 		reFact.measure(0, 0);
@@ -1318,7 +1343,7 @@ public class ShawnMainActivity extends ShawnBaseActivity implements OnClickListe
             height3 = (int)(30*density);
         }
         if (mAdapter != null) {
-            mAdapter.height = height-statusBarHeight-height1-height2-height3;
+            mAdapter.height = height-height1-height2-height3;
             mAdapter.notifyDataSetChanged();
         }
     }
@@ -1326,7 +1351,8 @@ public class ShawnMainActivity extends ShawnBaseActivity implements OnClickListe
 	//需要申请的所有权限
 	private String[] allPermissions = new String[] {
 			Manifest.permission.ACCESS_COARSE_LOCATION,
-			Manifest.permission.READ_PHONE_STATE
+			Manifest.permission.READ_PHONE_STATE,
+			Manifest.permission.WRITE_EXTERNAL_STORAGE
 	};
 
 	//拒绝的权限集合
@@ -1334,13 +1360,9 @@ public class ShawnMainActivity extends ShawnBaseActivity implements OnClickListe
 	/**
 	 * 申请定位权限
 	 */
-	private void checkAuthority() {
+	private void checkMultiAuthority() {
 		if (Build.VERSION.SDK_INT < 23) {
-			if (CommonUtil.isLocationOpen(mContext)) {
-				startLocation();
-			}else {
-				getWeatherInfo();
-			}
+			init();
 		}else {
 			deniedList.clear();
 			for (String permission : allPermissions) {
@@ -1349,14 +1371,10 @@ public class ShawnMainActivity extends ShawnBaseActivity implements OnClickListe
 				}
 			}
 			if (deniedList.isEmpty()) {//所有权限都授予
-				if (CommonUtil.isLocationOpen(mContext)) {
-					startLocation();
-				}else {
-					getWeatherInfo();
-				}
+				init();
 			}else {
 				String[] permissions = deniedList.toArray(new String[deniedList.size()]);//将list转成数组
-				ActivityCompat.requestPermissions(ShawnMainActivity.this, permissions, AuthorityUtil.AUTHOR_LOCATION);
+				ActivityCompat.requestPermissions(this, permissions, AuthorityUtil.AUTHOR_MULTI);
 			}
 		}
 	}
@@ -1373,32 +1391,9 @@ public class ShawnMainActivity extends ShawnBaseActivity implements OnClickListe
 			}
 		}else {
 			if (ContextCompat.checkSelfPermission(mContext, Manifest.permission.CALL_PHONE) != PackageManager.PERMISSION_GRANTED) {
-				ActivityCompat.requestPermissions(ShawnMainActivity.this, new String[]{Manifest.permission.CALL_PHONE}, AuthorityUtil.AUTHOR_PHONE);
+				ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.CALL_PHONE}, AuthorityUtil.AUTHOR_PHONE);
 			}else {
 				startActivity(new Intent(Intent.ACTION_CALL, Uri.parse("tel:"+dialNumber)));
-			}
-		}
-	}
-
-	/**
-	 * 申请存储权限
-	 */
-	private void checkStorageAuthority() {
-		if (Build.VERSION.SDK_INT < 23) {
-			try {
-				if (!TextUtils.equals(MyApplication.USERGROUP, "17")) {//大众用户不使用自动更新，使用应用市场更新
-					AutoUpdateUtil.checkUpdate(ShawnMainActivity.this, mContext, "52", getString(R.string.app_name), true);
-				}
-			} catch (SecurityException e) {
-				e.printStackTrace();
-			}
-		}else {
-			if (ContextCompat.checkSelfPermission(mContext, Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
-				ActivityCompat.requestPermissions(ShawnMainActivity.this, new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, AuthorityUtil.AUTHOR_STORAGE);
-			}else {
-				if (!TextUtils.equals(MyApplication.USERGROUP, "17")) {//大众用户不使用自动更新，使用应用市场更新
-					AutoUpdateUtil.checkUpdate(ShawnMainActivity.this, mContext, "52", getString(R.string.app_name), true);
-				}
 			}
 		}
 	}
@@ -1407,7 +1402,7 @@ public class ShawnMainActivity extends ShawnBaseActivity implements OnClickListe
 	public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
 		super.onRequestPermissionsResult(requestCode, permissions, grantResults);
 		switch (requestCode) {
-			case AuthorityUtil.AUTHOR_LOCATION:
+			case AuthorityUtil.AUTHOR_MULTI:
 				if (grantResults.length > 0) {
 					boolean isAllGranted = true;//是否全部授权
 					for (int gResult : grantResults) {
@@ -1417,18 +1412,14 @@ public class ShawnMainActivity extends ShawnBaseActivity implements OnClickListe
 						}
 					}
 					if (isAllGranted) {//所有权限都授予
-						if (CommonUtil.isLocationOpen(mContext)) {
-							startLocation();
-						}else {
-							getWeatherInfo();
-						}
+						init();
 					}else {//只要有一个没有授权，就提示进入设置界面设置
-						AuthorityUtil.intentAuthorSetting(mContext, "\""+getString(R.string.app_name)+"\""+"需要使用您的位置权限、设备信息权限，是否前往设置？");
+						AuthorityUtil.intentAuthorSetting(mContext, "\""+getString(R.string.app_name)+"\""+"需要使用您的位置权限、设备信息权限、存储权限，是否前往设置？");
 					}
 				}else {
 					for (String permission : permissions) {
-						if (!ActivityCompat.shouldShowRequestPermissionRationale(ShawnMainActivity.this, permission)) {
-							AuthorityUtil.intentAuthorSetting(mContext, "\""+getString(R.string.app_name)+"\""+"需要使用您的位置权限、设备信息权限，是否前往设置？");
+						if (!ActivityCompat.shouldShowRequestPermissionRationale(this, permission)) {
+							AuthorityUtil.intentAuthorSetting(mContext, "\""+getString(R.string.app_name)+"\""+"需要使用您的位置权限、设备信息权限、存储权限，是否前往设置？");
 							break;
 						}
 					}
@@ -1442,23 +1433,8 @@ public class ShawnMainActivity extends ShawnBaseActivity implements OnClickListe
 						e.printStackTrace();
 					}
 				}else {
-					if (!ActivityCompat.shouldShowRequestPermissionRationale(ShawnMainActivity.this, Manifest.permission.CALL_PHONE)) {
+					if (!ActivityCompat.shouldShowRequestPermissionRationale(this, Manifest.permission.CALL_PHONE)) {
 						AuthorityUtil.intentAuthorSetting(mContext, "\""+getString(R.string.app_name)+"\""+"需要使用电话权限，是否前往设置？");
-					}
-				}
-				break;
-			case AuthorityUtil.AUTHOR_STORAGE:
-				if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-					try {
-						if (!TextUtils.equals(MyApplication.USERGROUP, "17")) {//大众用户不使用自动更新，使用应用市场更新
-							AutoUpdateUtil.checkUpdate(ShawnMainActivity.this, mContext, "52", getString(R.string.app_name), true);
-						}
-					} catch (SecurityException e) {
-						e.printStackTrace();
-					}
-				}else {
-					if (!ActivityCompat.shouldShowRequestPermissionRationale(ShawnMainActivity.this, Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
-						AuthorityUtil.intentAuthorSetting(mContext, "\""+getString(R.string.app_name)+"\""+"需要使用存储权限，是否前往设置？");
 					}
 				}
 				break;
