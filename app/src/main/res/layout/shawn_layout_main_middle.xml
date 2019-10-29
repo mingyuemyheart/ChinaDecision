@@ -132,7 +132,27 @@
                         android:id="@+id/tvHumidity"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
+                        android:textColor="@color/white"
+                        android:layout_below="@+id/llTemp"
+                        android:layout_marginEnd="5dp"
+                        android:layout_toStartOf="@+id/tvWind"
+                        android:textSize="@dimen/level_4"/>
+
+                    <TextView
+                        android:id="@+id/tvWind"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
                         android:layout_centerHorizontal="true"
+                        android:textColor="@color/white"
+                        android:layout_below="@+id/llTemp"
+                        android:textSize="@dimen/level_4"/>
+
+                    <TextView
+                        android:id="@+id/tvAqi"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_toEndOf="@+id/tvWind"
+                        android:layout_marginStart="5dp"
                         android:textColor="@color/white"
                         android:layout_below="@+id/llTemp"
                         android:textSize="@dimen/level_4"/>
@@ -142,7 +162,7 @@
                         android:layout_width="15dp"
                         android:layout_height="15dp"
                         android:layout_marginTop="2dp"
-                        android:layout_toEndOf="@+id/tvHumidity"
+                        android:layout_toEndOf="@+id/tvAqi"
                         android:layout_below="@+id/llTemp"
                         android:layout_marginStart="5dp"/>
 

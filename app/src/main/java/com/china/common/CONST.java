@@ -42,4 +42,7 @@ public class CONST {
 	public static String[] orange = {"03", "_orange"};
 	public static String[] red = {"04", "_red"};
 
+	//广播
+	public static String BROADCAST_FACT = "broadcast_fact";//格点实况
+
 }

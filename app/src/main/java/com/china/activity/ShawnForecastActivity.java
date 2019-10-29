@@ -2,6 +2,7 @@ package com.china.activity;
 
 import android.Manifest;
 import android.content.Context;
+import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -23,18 +24,22 @@ import android.widget.TextView;
 
 import com.china.R;
 import com.china.adapter.ShawnWeeklyForecastAdapter;
+import com.china.common.MyApplication;
 import com.china.dto.WeatherDto;
 import com.china.utils.AuthorityUtil;
 import com.china.utils.CommonUtil;
+import com.china.utils.OkHttpUtil;
 import com.china.utils.WeatherUtil;
 import com.china.view.ScrollviewListview;
 import com.china.view.WeeklyView;
 import com.wang.avi.AVLoadingIndicatorView;
 
+import org.jetbrains.annotations.NotNull;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.IOException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -46,6 +51,10 @@ import cn.com.weather.api.WeatherAPI;
 import cn.com.weather.beans.Weather;
 import cn.com.weather.constants.Constants.Language;
 import cn.com.weather.listener.AsyncResponseHandler;
+import okhttp3.Call;
+import okhttp3.Callback;
+import okhttp3.Request;
+import okhttp3.Response;
 
 /**
  * 天气预报
@@ -255,6 +264,17 @@ public class ShawnForecastActivity extends ShawnBaseActivity implements OnClickL
 											llContainer2.removeAllViews();
 											llContainer2.addView(weeklyView, width*2, (int)(CommonUtil.dip2px(mContext, 400)));
 
+											//空气质量
+											if (!obj.isNull("k")) {
+												JSONObject k = obj.getJSONObject("k");
+												if (!k.isNull("k3")) {
+													String num = WeatherUtil.lastValue(k.getString("k3"));
+													if (!TextUtils.isEmpty(num)) {
+														tvFactInfo.setText(tvFactInfo.getText().toString()+"空气质量 "+WeatherUtil.getAqi(mContext, Integer.valueOf(num))+" "+num+"\n");
+													}
+												}
+											}
+
 											//实况信息
 											if (!obj.isNull("l")) {
 												JSONObject l = obj.getJSONObject("l");
@@ -274,34 +294,28 @@ public class ShawnForecastActivity extends ShawnBaseActivity implements OnClickL
 													}
 													tvPhe.setText(getString(WeatherUtil.getWeatherId(Integer.valueOf(weatherCode))));
 												}
-												if (!l.isNull("l1")) {
-													String factTemp = WeatherUtil.lastValue(l.getString("l1"));
-													tvTemp.setText(factTemp);
-												}
-												if (!l.isNull("l2")) {
-													String humidity = WeatherUtil.lastValue(l.getString("l2"));
-													tvFactInfo.setText(tvFactInfo.getText().toString()+"相对湿度 "+humidity + getString(R.string.unit_percent)+"\n");
-												}
-												if (!l.isNull("l4")) {
-													String windDir = WeatherUtil.lastValue(l.getString("l4"));
-													if (!l.isNull("l3")) {
-														String windForce = WeatherUtil.lastValue(l.getString("l3"));
-														if (!TextUtils.isEmpty(windDir) && !TextUtils.isEmpty(windForce)) {
-															tvFactInfo.setText(tvFactInfo.getText().toString()+getString(WeatherUtil.getWindDirection(Integer.valueOf(windDir)))+
-																	" " + WeatherUtil.getFactWindForce(Integer.valueOf(windForce))+"\n");
+
+												if (!MyApplication.FACTENABLE) {
+													if (!l.isNull("l1")) {
+														String factTemp = WeatherUtil.lastValue(l.getString("l1"));
+														tvTemp.setText(factTemp);
+													}
+													if (!l.isNull("l2")) {
+														String humidity = WeatherUtil.lastValue(l.getString("l2"));
+														tvFactInfo.setText(tvFactInfo.getText().toString()+"相对湿度 "+humidity + getString(R.string.unit_percent)+"\n");
+													}
+													if (!l.isNull("l4")) {
+														String windDir = WeatherUtil.lastValue(l.getString("l4"));
+														if (!l.isNull("l3")) {
+															String windForce = WeatherUtil.lastValue(l.getString("l3"));
+															if (!TextUtils.isEmpty(windDir) && !TextUtils.isEmpty(windForce)) {
+																tvFactInfo.setText(tvFactInfo.getText().toString()+getString(WeatherUtil.getWindDirection(Integer.valueOf(windDir)))+
+																		" " + WeatherUtil.getFactWindForce(Integer.valueOf(windForce))+"\n");
+															}
 														}
 													}
-												}
-											}
-
-											//空气质量
-											if (!obj.isNull("k")) {
-												JSONObject k = obj.getJSONObject("k");
-												if (!k.isNull("k3")) {
-													String num = WeatherUtil.lastValue(k.getString("k3"));
-													if (!TextUtils.isEmpty(num)) {
-														tvFactInfo.setText(tvFactInfo.getText().toString()+"空气质量 "+WeatherUtil.getAqi(mContext, Integer.valueOf(num))+" "+num);
-													}
+												} else {
+													OkHttpFact();
 												}
 											}
 
@@ -322,6 +336,64 @@ public class ShawnForecastActivity extends ShawnBaseActivity implements OnClickL
 					@Override
 					public void onError(Throwable error, String content) {
 						super.onError(error, content);
+					}
+				});
+			}
+		}).start();
+	}
+
+	private void OkHttpFact() {
+		new Thread(new Runnable() {
+			@Override
+			public void run() {
+				double lat = getIntent().getDoubleExtra("lat", 0);
+				double lng = getIntent().getDoubleExtra("lng", 0);
+				final String url = "http://123.56.215.19:8008/lsb/api?elements=TEM,PRE,RHU,WINS,WIND,WEA&interfaceId=getSurfEleInLocationByTime&lat="+lat+"&lon="+lng+"&apikey=AxEkluey201exDxyBoxUeYSw&nsukey=IGzynTgkKQ1Hfa3iJTwv4lci%2F%2F13c%2FQm3p83hih8xiri%2Bc5bm0ia85VASrEHrZRsgj6nlBF1U6F3m5PDkUd6oPtd7itR8p%2BwpJi7yIE%2FVcBsCwya6rhj%2BP%2BhBPCCyrb%2BsyYZLhRk5pkL73jJKE%2Ff4O7PWGPRwVtgQAqgFQ1XEXROJp7qMek79o6%2BiukbiCuY";
+				OkHttpUtil.enqueue(new Request.Builder().url(url).build(), new Callback() {
+					@Override
+					public void onFailure(@NotNull Call call, @NotNull IOException e) {
+					}
+					@Override
+					public void onResponse(@NotNull Call call, @NotNull Response response) throws IOException {
+						if (!response.isSuccessful()) {
+							return;
+						}
+						final String result = response.body().string();
+						runOnUiThread(new Runnable() {
+							@Override
+							public void run() {
+								if (!TextUtils.isEmpty(result)) {
+									try {
+										JSONObject obj = new JSONObject(result);
+										if (!obj.isNull("DS")) {
+											JSONArray array = obj.getJSONArray("DS");
+											if (array.length() > 0) {
+												JSONObject itemObj = array.getJSONObject(0);
+												if (!itemObj.isNull("TEM")) {
+													tvTemp.setText(itemObj.getString("TEM"));
+												}
+												if (!itemObj.isNull("RHU")) {
+													String humidity = itemObj.getString("RHU");
+													tvFactInfo.setText(tvFactInfo.getText().toString()+"相对湿度 "+humidity + getString(R.string.unit_percent)+"\n");
+												}
+												if (!itemObj.isNull("WIND")) {
+													int windDir = (int)Float.parseFloat(itemObj.getString("WIND"));
+													int windForce = (int)Float.parseFloat(itemObj.getString("WINS"));
+													String dir = getString(WeatherUtil.getWindDirection(windDir));
+													if (TextUtils.isEmpty(dir)) {
+														dir = "无持续风向";
+													}
+													tvFactInfo.setText(tvFactInfo.getText().toString()+dir+
+															" " + WeatherUtil.getFactWindForce(windForce)+"\n");
+												}
+											}
+										}
+									} catch (JSONException e) {
+										e.printStackTrace();
+									}
+								}
+							}
+						});
 					}
 				});
 			}

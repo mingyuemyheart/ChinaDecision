@@ -5,8 +5,10 @@ import android.annotation.SuppressLint;
 import android.app.Dialog;
 import android.app.Fragment;
 import android.app.FragmentTransaction;
+import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
@@ -75,6 +77,7 @@ import com.china.view.MyHorizontalScrollView.ScrollListener;
 import com.china.view.ScrollviewGridview;
 import com.china.view.VerticalSwipeRefreshLayout;
 
+import org.jetbrains.annotations.NotNull;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -103,7 +106,7 @@ import okhttp3.Response;
 public class ShawnMainActivity extends ShawnBaseActivity implements OnClickListener, AMapLocationListener {
 	
 	private Context mContext;
-	private TextView tvLocation,tvTime,tvTemperature,tvHumidity,tvFifteen,tvHour;
+	private TextView tvLocation,tvTime,tvTemperature,tvHumidity,tvWind,tvAqi,tvFifteen,tvHour;
 	private RelativeLayout reTitle,reFact,reScrollView;
 	private LinearLayout llWarning,llContainer1,llContainer2,llContainer3;
 	private ImageView ivAqi;
@@ -124,6 +127,7 @@ public class ShawnMainActivity extends ShawnBaseActivity implements OnClickListe
 	private VerticalSwipeRefreshLayout refreshLayout;//下拉刷新布局
 	private SimpleDateFormat sdf1 = new SimpleDateFormat("yyyyMMddHHmm", Locale.CHINA);
 	private SimpleDateFormat sdf3 = new SimpleDateFormat("yyyyMMdd", Locale.CHINA);
+	private MyBroadCastReceiver mReceiver;
 
 	//首页pdf文档
 	private List<NewsDto> pdfList = new ArrayList<>();
@@ -144,7 +148,25 @@ public class ShawnMainActivity extends ShawnBaseActivity implements OnClickListe
         setContentView(R.layout.shawn_activity_main);
         mContext = this;
 		initRefreshLayout();
+		initBroadCast();
 		checkMultiAuthority();
+	}
+
+	private void initBroadCast() {
+    	mReceiver = new MyBroadCastReceiver();
+		IntentFilter intentFilter = new IntentFilter();
+		intentFilter.addAction(CONST.BROADCAST_FACT);
+		registerReceiver(mReceiver, intentFilter);
+	}
+
+	private class MyBroadCastReceiver extends BroadcastReceiver {
+		@Override
+		public void onReceive(Context context, Intent intent) {
+			if (TextUtils.equals(intent.getAction(), CONST.BROADCAST_FACT)) {
+				refreshLayout.setRefreshing(true);
+				init();
+			}
+		}
 	}
 
 	private void init() {
@@ -191,6 +213,8 @@ public class ShawnMainActivity extends ShawnBaseActivity implements OnClickListe
 		llWarning.setOnClickListener(this);
 		tvTemperature = findViewById(R.id.tvTemperature);
 		tvHumidity = findViewById(R.id.tvHumidity);
+		tvWind = findViewById(R.id.tvWind);
+		tvAqi = findViewById(R.id.tvAqi);
 		tvFifteen = findViewById(R.id.tvFifteen);
 		tvFifteen.setOnClickListener(this);
 		tvHour = findViewById(R.id.tvHour);
@@ -331,27 +355,30 @@ public class ShawnMainActivity extends ShawnBaseActivity implements OnClickListe
 													tvTime.setText(time+"发布");
 												}
 											}
-											if (!l.isNull("l1")) {
-												String factTemp = WeatherUtil.lastValue(l.getString("l1"));
-												if (!TextUtils.isEmpty(factTemp)) {
+
+											if (!MyApplication.FACTENABLE) {
+												if (!l.isNull("l1")) {
+													String factTemp = WeatherUtil.lastValue(l.getString("l1"));
 													tvTemperature.setText(factTemp);
 												}
-											}
-											if (!l.isNull("l2")) {
-												String humidity = WeatherUtil.lastValue(l.getString("l2"));
-												if (TextUtils.isEmpty(humidity) || TextUtils.equals(humidity, "null")) {
-													tvHumidity.setText("湿度"+"--");
-												}else {
-													tvHumidity.setText("湿度"+humidity+getString(R.string.unit_percent));
+												if (!l.isNull("l2")) {
+													String humidity = WeatherUtil.lastValue(l.getString("l2"));
+													if (TextUtils.isEmpty(humidity) || TextUtils.equals(humidity, "null")) {
+														tvHumidity.setText("湿度"+"--");
+													}else {
+														tvHumidity.setText("湿度"+humidity+getString(R.string.unit_percent));
+													}
 												}
-											}
-											if (!l.isNull("l4")) {
-												String windDir = WeatherUtil.lastValue(l.getString("l4"));
-												if (!l.isNull("l3")) {
-													String windForce = WeatherUtil.lastValue(l.getString("l3"));
-													tvHumidity.setText(tvHumidity.getText().toString()+"  "+getString(WeatherUtil.getWindDirection(Integer.valueOf(windDir))) +
-															WeatherUtil.getFactWindForce(Integer.valueOf(windForce)));
+												if (!l.isNull("l4")) {
+													String windDir = WeatherUtil.lastValue(l.getString("l4"));
+													if (!l.isNull("l3")) {
+														String windForce = WeatherUtil.lastValue(l.getString("l3"));
+														tvWind.setText(getString(WeatherUtil.getWindDirection(Integer.valueOf(windDir))) + " " +
+																WeatherUtil.getFactWindForce(Integer.valueOf(windForce)));
+													}
 												}
+											} else {
+												OkHttpFact();
 											}
 										}
 
@@ -361,7 +388,7 @@ public class ShawnMainActivity extends ShawnBaseActivity implements OnClickListe
 											if (!k.isNull("k3")) {
 												String num = WeatherUtil.lastValue(k.getString("k3"));
 												if (!TextUtils.isEmpty(num)) {
-													tvHumidity.setText(tvHumidity.getText().toString()+"  "+"AQI "+WeatherUtil.getAqi(mContext, Integer.valueOf(num))+" "+num);
+													tvAqi.setText("AQI "+WeatherUtil.getAqi(mContext, Integer.valueOf(num))+" "+num);
 													ivAqi.setImageResource(WeatherUtil.getAqiIcon(Integer.valueOf(num)));
 												}
 											}
@@ -470,6 +497,61 @@ public class ShawnMainActivity extends ShawnBaseActivity implements OnClickListe
 					OkHttpWarning(warningId);
 				}
 
+			}
+		}).start();
+	}
+
+	private void OkHttpFact() {
+		new Thread(new Runnable() {
+			@Override
+			public void run() {
+				final String url = "http://123.56.215.19:8008/lsb/api?elements=TEM,PRE,RHU,WINS,WIND,WEA&interfaceId=getSurfEleInLocationByTime&lat="+locationLatLng.latitude+"&lon="+locationLatLng.longitude+"&apikey=AxEkluey201exDxyBoxUeYSw&nsukey=IGzynTgkKQ1Hfa3iJTwv4lci%2F%2F13c%2FQm3p83hih8xiri%2Bc5bm0ia85VASrEHrZRsgj6nlBF1U6F3m5PDkUd6oPtd7itR8p%2BwpJi7yIE%2FVcBsCwya6rhj%2BP%2BhBPCCyrb%2BsyYZLhRk5pkL73jJKE%2Ff4O7PWGPRwVtgQAqgFQ1XEXROJp7qMek79o6%2BiukbiCuY";
+				OkHttpUtil.enqueue(new Request.Builder().url(url).build(), new Callback() {
+					@Override
+					public void onFailure(@NotNull Call call, @NotNull IOException e) {
+					}
+					@Override
+					public void onResponse(@NotNull Call call, @NotNull Response response) throws IOException {
+						if (!response.isSuccessful()) {
+							return;
+						}
+						final String result = response.body().string();
+						runOnUiThread(new Runnable() {
+							@Override
+							public void run() {
+								if (!TextUtils.isEmpty(result)) {
+									try {
+										JSONObject obj = new JSONObject(result);
+										if (!obj.isNull("DS")) {
+											JSONArray array = obj.getJSONArray("DS");
+											if (array.length() > 0) {
+												JSONObject itemObj = array.getJSONObject(0);
+												if (!itemObj.isNull("TEM")) {
+													tvTemperature.setText(itemObj.getString("TEM"));
+												}
+												if (!itemObj.isNull("RHU")) {
+													String humidity = itemObj.getString("RHU");
+													tvHumidity.setText("湿度 "+humidity + getString(R.string.unit_percent));
+												}
+												if (!itemObj.isNull("WIND")) {
+													int windDir = (int)Float.parseFloat(itemObj.getString("WIND"));
+													int windForce = (int)Float.parseFloat(itemObj.getString("WINS"));
+													String dir = getString(WeatherUtil.getWindDirection(windDir));
+													if (TextUtils.isEmpty(dir)) {
+														dir = "无持续风向";
+													}
+													tvWind.setText(dir + " " + WeatherUtil.getFactWindForce(windForce));
+												}
+											}
+										}
+									} catch (JSONException e) {
+										e.printStackTrace();
+									}
+								}
+							}
+						});
+					}
+				});
 			}
 		}).start();
 	}
@@ -620,10 +702,12 @@ public class ShawnMainActivity extends ShawnBaseActivity implements OnClickListe
 	 * 初始化viewPager
 	 */
 	private void initViewPager() {
+		mHandler.removeMessages(AUTO_PLUS);
 		pdfList.clear();
 		pdfList.addAll(getIntent().getExtras().<NewsDto>getParcelableArrayList("pdfList"));
 		ivTips = new ImageView[pdfList.size()];
 		viewGroup.removeAllViews();
+		fragments.clear();
 		for (int i = 0; i < pdfList.size(); i++) {
 			Fragment fragment = new ShawnPdfFragment();
 			Bundle bundle = new Bundle();
@@ -1036,6 +1120,12 @@ public class ShawnMainActivity extends ShawnBaseActivity implements OnClickListe
 		dto.setValue("");
 		list.add(dto);
 		dto = new ShawnSettingDto();
+		dto.setType(12);
+		dto.setDrawable(R.drawable.shawn_icon_product);
+		dto.setName("格点实况");
+		dto.setValue("");
+		list.add(dto);
+		dto = new ShawnSettingDto();
 		dto.setType(9);
 		dto.setDrawable(R.drawable.shawn_icon_connection);
 		dto.setName("屏屏联动");
@@ -1117,6 +1207,9 @@ public class ShawnMainActivity extends ShawnBaseActivity implements OnClickListe
 						break;
 					case 11:
 						dialogDial("运行保障热线\n"+data.getValue(), "拨打");
+						break;
+					case 12:
+
 						break;
 				}
 			}
@@ -1274,6 +1367,8 @@ public class ShawnMainActivity extends ShawnBaseActivity implements OnClickListe
 				intent = new Intent(mContext, ShawnForecastActivity.class);
 				intent.putExtra("cityName", cityName);
 				intent.putExtra("cityId", cityId);
+				intent.putExtra("lat", locationLatLng.latitude);
+				intent.putExtra("lng", locationLatLng.longitude);
 				startActivity(intent);
 				break;
 			case R.id.ivAdd:
