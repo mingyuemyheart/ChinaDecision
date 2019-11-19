@@ -7,6 +7,7 @@ import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -95,7 +96,7 @@ public class ShawnWarningDetailFragment extends Fragment{
 	 * 获取预警详情
 	 */
 	private void OkHttpWarningDetail(final String html) {
-		final String url = "http://decision.tianqi.cn/alarm12379/content2/"+html;
+		final String url = "https://decision-admin.tianqi.cn/Home/work2019/getDetailWarn/identifier/"+html;
 		new Thread(new Runnable() {
 			@Override
 			public void run() {

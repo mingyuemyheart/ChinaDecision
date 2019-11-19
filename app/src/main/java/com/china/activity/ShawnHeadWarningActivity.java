@@ -71,7 +71,7 @@ public class ShawnHeadWarningActivity extends ShawnBaseActivity implements OnCli
 	private void initViewPager() {
 		warnList.clear();
 		warnList.addAll(getIntent().getExtras().<WarningDto>getParcelableArrayList("warningList"));
-		
+
 		for (int i = 0; i < warnList.size(); i++) {
 			WarningDto dto = warnList.get(i);
 			Fragment fragment = new ShawnWarningDetailFragment();

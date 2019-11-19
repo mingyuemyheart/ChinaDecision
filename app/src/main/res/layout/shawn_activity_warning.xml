@@ -174,10 +174,36 @@
         </LinearLayout>
 
         <ImageView
-            android:id="@+id/iv1"
+            android:id="@+id/ivCentral"
             android:layout_width="35dp"
             android:layout_height="35dp"
             android:layout_below="@+id/reWarningStatistic"
+            android:layout_marginStart="5dp"
+            android:layout_marginTop="15dp"
+            android:src="@drawable/shawn_icon_warning_zhongyang"
+            android:visibility="gone" />
+
+        <TextView
+            android:id="@+id/tvCentrolCount"
+            android:layout_width="15dp"
+            android:layout_height="15dp"
+            android:background="@drawable/bg_circle_red"
+            android:textColor="@color/white"
+            android:textSize="@dimen/level_6"
+            android:gravity="center"
+            android:layout_below="@+id/reWarningStatistic"
+            android:layout_marginStart="5dp"
+            android:layout_marginTop="15dp"
+            android:layout_alignEnd="@+id/ivCentral"
+            android:translationX="7.5dp"
+            android:translationY="-7.5dp"
+            android:visibility="gone"/>
+
+        <ImageView
+            android:id="@+id/iv1"
+            android:layout_width="35dp"
+            android:layout_height="35dp"
+            android:layout_below="@+id/ivCentral"
             android:layout_marginStart="5dp"
             android:layout_marginTop="5dp"
             android:src="@drawable/shawn_icon_warning_fog_close"

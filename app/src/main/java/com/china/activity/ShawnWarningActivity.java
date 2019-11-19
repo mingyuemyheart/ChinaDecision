@@ -101,7 +101,7 @@ OnMarkerClickListener, InfoWindowAdapter, OnCameraChangeListener, OnMapScreenSho
 	private Context mContext;
 	private LatLng locationLatLng = new LatLng(39.904030, 116.407526);
 	private AVLoadingIndicatorView loadingView;
-	private TextView tvTitle,tvWarningStatistic,tvNation;
+	private TextView tvTitle,tvWarningStatistic,tvNation,tvCentrolCount;
 	private RelativeLayout reShare,reWarningStatistic;
 	private MapView mapView;//高德地图
 	private AMap aMap;//高德地图
@@ -112,7 +112,7 @@ OnMarkerClickListener, InfoWindowAdapter, OnCameraChangeListener, OnMapScreenSho
 	private List<WarningDto> nationList = new ArrayList<>();
 	private Map<String, Marker> markerMap = new LinkedHashMap<>();//按html区分
 	private boolean isExpandMap = false;//是否放大地图
-	private ImageView ivList,ivStatistic,ivGuide,ivArrow;
+	private ImageView ivList,ivStatistic,ivGuide,ivArrow,ivCentral;
     private LatLng leftlatlng = new LatLng(-16.305714763804854,75.13831436634065);
     private LatLng rightLatlng = new LatLng(63.681687310440864,135.21788656711578);
 	private Marker locationMarker,selectMarker;
@@ -127,6 +127,7 @@ OnMarkerClickListener, InfoWindowAdapter, OnCameraChangeListener, OnMapScreenSho
 	private ListView listView;
 	private ShawnWarningStatisticAdapter statisticAdapter;
 	private List<WarningDto> statisticList = new ArrayList<>();
+	private List<WarningDto> centrolList = new ArrayList<>();
 	
 	//国家级预警图层
 	private TextView tvName1, tvName2, tvName3, tvName4, tvName5, tvName6, tvName7, tvName8, tvName9, tvName10;
@@ -231,7 +232,11 @@ OnMarkerClickListener, InfoWindowAdapter, OnCameraChangeListener, OnMapScreenSho
 		tvNation.setOnClickListener(this);
 		ivGuide = findViewById(R.id.ivGuide);
 		ivGuide.setOnClickListener(this);
+		ivCentral = findViewById(R.id.ivCentral);
+		ivCentral.setOnClickListener(this);
 		llLegend = findViewById(R.id.llLegend);
+		tvCentrolCount = findViewById(R.id.tvCentrolCount);
+		tvCentrolCount.setOnClickListener(this);
 		iv1 = findViewById(R.id.iv1);
 		iv1.setOnClickListener(this);
 		iv2 = findViewById(R.id.iv2);
@@ -368,6 +373,7 @@ OnMarkerClickListener, InfoWindowAdapter, OnCameraChangeListener, OnMapScreenSho
 							try {
 								warningList.clear();
 								nationList.clear();
+								centrolList.clear();
 								JSONObject object = new JSONObject(result);
 								if (!object.isNull("data")) {
 									JSONArray jsonArray = object.getJSONArray("data");
@@ -399,8 +405,21 @@ OnMarkerClickListener, InfoWindowAdapter, OnCameraChangeListener, OnMapScreenSho
 													nationList.add(dto);
 													nationMap.put(dto.type, dto.type);
 												}
+												if (dto.name.startsWith("中央气象台")) {
+													centrolList.add(dto);
+												}
 											}
 										}
+									}
+
+									if (centrolList.size() > 0) {
+										ivCentral.setVisibility(View.VISIBLE);
+										tvCentrolCount.setText(centrolList.size()+"");
+										tvCentrolCount.setVisibility(View.VISIBLE);
+									} else {
+										ivCentral.setVisibility(View.GONE);
+										tvCentrolCount.setText("");
+										tvCentrolCount.setVisibility(View.GONE);
 									}
 
 									addWarningMarkers();
@@ -1092,6 +1111,14 @@ OnMarkerClickListener, InfoWindowAdapter, OnCameraChangeListener, OnMapScreenSho
 			intent = new Intent(mContext, ShawnHeadWarningActivity.class);
 			bundle = new Bundle();
 			bundle.putParcelableArrayList("warningList", (ArrayList<? extends Parcelable>) nationList);
+			intent.putExtras(bundle);
+			startActivity(intent);
+			break;
+		case R.id.ivCentral:
+		case R.id.tvCentrolCount:
+			intent = new Intent(mContext, ShawnHeadWarningActivity.class);
+			bundle = new Bundle();
+			bundle.putParcelableArrayList("warningList", (ArrayList<? extends Parcelable>) centrolList);
 			intent.putExtras(bundle);
 			startActivity(intent);
 			break;
