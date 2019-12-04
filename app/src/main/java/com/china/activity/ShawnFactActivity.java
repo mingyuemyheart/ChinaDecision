@@ -85,6 +85,8 @@ import com.squareup.picasso.Target;
 import com.tendcloud.tenddata.TCAgent;
 import com.wang.avi.AVLoadingIndicatorView;
 
+import net.tsz.afinal.FinalBitmap;
+
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -174,7 +176,8 @@ public class ShawnFactActivity extends ShawnBaseActivity implements OnClickListe
                 drawNationDataToMap(value, LOADTYPE1);
             }else if (TextUtils.equals(intent.getAction(), FactManager.BROAD_RAIN1_LEGEND_COMPLETE)) {
                 if (!TextUtils.isEmpty(FactManager.precipitation1hLegend)) {
-                    Picasso.get().load(FactManager.precipitation1hLegend).into(ivLegend);
+                    FinalBitmap finalBitmap = FinalBitmap.create(context);
+                    finalBitmap.display(ivLegend, FactManager.precipitation1hLegend, null, 0);
                 }
             }
         }
@@ -2080,7 +2083,8 @@ public class ShawnFactActivity extends ShawnBaseActivity implements OnClickListe
                 tvWindSpeed2.setBackgroundColor(getResources().getColor(R.color.transparent));
 
                 if (!TextUtils.isEmpty(FactManager.precipitation1hLegend)) {
-                    Picasso.get().load(FactManager.precipitation1hLegend).into(ivLegend);
+                    FinalBitmap finalBitmap = FinalBitmap.create(this);
+                    finalBitmap.display(ivLegend, FactManager.precipitation1hLegend, null, 0);
                 }
                 pastTime = 60 * 60 * 1000;
                 value = 1;
@@ -2122,7 +2126,8 @@ public class ShawnFactActivity extends ShawnBaseActivity implements OnClickListe
                 tvWindSpeed2.setBackgroundColor(getResources().getColor(R.color.transparent));
 
                 if (!TextUtils.isEmpty(FactManager.precipitation3hLegend)) {
-                    Picasso.get().load(FactManager.precipitation3hLegend).into(ivLegend);
+                    FinalBitmap finalBitmap = FinalBitmap.create(this);
+                    finalBitmap.display(ivLegend, FactManager.precipitation3hLegend, null, 0);
                 }
                 pastTime = 3 * 60 * 60 * 1000;
                 value = 13;
@@ -2164,7 +2169,8 @@ public class ShawnFactActivity extends ShawnBaseActivity implements OnClickListe
                 tvWindSpeed2.setBackgroundColor(getResources().getColor(R.color.transparent));
 
                 if (!TextUtils.isEmpty(FactManager.precipitation6hLegend)) {
-                    Picasso.get().load(FactManager.precipitation6hLegend).into(ivLegend);
+                    FinalBitmap finalBitmap = FinalBitmap.create(this);
+                    finalBitmap.display(ivLegend, FactManager.precipitation6hLegend, null, 0);
                 }
                 pastTime = 6 * 60 * 60 * 1000;
                 value = 16;
@@ -2206,7 +2212,8 @@ public class ShawnFactActivity extends ShawnBaseActivity implements OnClickListe
                 tvWindSpeed2.setBackgroundColor(getResources().getColor(R.color.transparent));
 
                 if (!TextUtils.isEmpty(FactManager.precipitation12hLegend)) {
-                    Picasso.get().load(FactManager.precipitation12hLegend).into(ivLegend);
+                    FinalBitmap finalBitmap = FinalBitmap.create(this);
+                    finalBitmap.display(ivLegend, FactManager.precipitation12hLegend, null, 0);
                 }
                 pastTime = 12 * 60 * 60 * 1000;
                 value = 112;
@@ -2248,7 +2255,8 @@ public class ShawnFactActivity extends ShawnBaseActivity implements OnClickListe
                 tvWindSpeed2.setBackgroundColor(getResources().getColor(R.color.transparent));
 
                 if (!TextUtils.isEmpty(FactManager.precipitation24hLegend)) {
-                    Picasso.get().load(FactManager.precipitation24hLegend).into(ivLegend);
+                    FinalBitmap finalBitmap = FinalBitmap.create(this);
+                    finalBitmap.display(ivLegend, FactManager.precipitation24hLegend, null, 0);
                 }
                 pastTime = 24 * 60 * 60 * 1000;
                 value = 124;
@@ -2310,7 +2318,8 @@ public class ShawnFactActivity extends ShawnBaseActivity implements OnClickListe
                 tvWindSpeed2.setBackgroundColor(getResources().getColor(R.color.transparent));
 
                 if (!TextUtils.isEmpty(FactManager.balltempLegend)) {
-                    Picasso.get().load(FactManager.balltempLegend).into(ivLegend);
+                    FinalBitmap finalBitmap = FinalBitmap.create(this);
+                    finalBitmap.display(ivLegend, FactManager.balltempLegend, null, 0);
                 }
                 pastTime = 60 * 60 * 1000;
                 value = 21;
@@ -2351,7 +2360,8 @@ public class ShawnFactActivity extends ShawnBaseActivity implements OnClickListe
                 tvWindSpeed2.setBackgroundColor(getResources().getColor(R.color.transparent));
 
                 if (!TextUtils.isEmpty(FactManager.balltempMaxLegend)) {
-                    Picasso.get().load(FactManager.balltempMaxLegend).into(ivLegend);
+                    FinalBitmap finalBitmap = FinalBitmap.create(this);
+                    finalBitmap.display(ivLegend, FactManager.balltempMaxLegend, null, 0);
                 }
                 pastTime = 24 * 60 * 60 * 1000;
                 value = 22;
@@ -2392,7 +2402,8 @@ public class ShawnFactActivity extends ShawnBaseActivity implements OnClickListe
                 tvWindSpeed2.setBackgroundColor(getResources().getColor(R.color.transparent));
 
                 if (!TextUtils.isEmpty(FactManager.balltempMinLegend)) {
-                    Picasso.get().load(FactManager.balltempMinLegend).into(ivLegend);
+                    FinalBitmap finalBitmap = FinalBitmap.create(this);
+                    finalBitmap.display(ivLegend, FactManager.balltempMinLegend, null, 0);
                 }
                 pastTime = 24 * 60 * 60 * 1000;
                 value = 23;
@@ -2433,7 +2444,8 @@ public class ShawnFactActivity extends ShawnBaseActivity implements OnClickListe
                 tvWindSpeed2.setBackgroundColor(getResources().getColor(R.color.transparent));
 
                 if (!TextUtils.isEmpty(FactManager.balltempChangeLegend)) {
-                    Picasso.get().load(FactManager.balltempChangeLegend).into(ivLegend);
+                    FinalBitmap finalBitmap = FinalBitmap.create(this);
+                    finalBitmap.display(ivLegend, FactManager.balltempChangeLegend, null, 0);
                 }
                 pastTime = 24 * 60 * 60 * 1000;
                 value = 24;
@@ -2489,7 +2501,8 @@ public class ShawnFactActivity extends ShawnBaseActivity implements OnClickListe
                 tvWindSpeed2.setBackgroundColor(getResources().getColor(R.color.transparent));
 
                 if (!TextUtils.isEmpty(FactManager.humidityLegend)) {
-                    Picasso.get().load(FactManager.humidityLegend).into(ivLegend);
+                    FinalBitmap finalBitmap = FinalBitmap.create(this);
+                    finalBitmap.display(ivLegend, FactManager.humidityLegend, null, 0);
                 }
                 pastTime = 60 * 60 * 1000;
                 value = 3;
@@ -2523,7 +2536,8 @@ public class ShawnFactActivity extends ShawnBaseActivity implements OnClickListe
                 tvWindSpeed2.setBackgroundColor(getResources().getColor(R.color.transparent));
 
                 if (!TextUtils.isEmpty(FactManager.visibilityLegend)) {
-                    Picasso.get().load(FactManager.visibilityLegend).into(ivLegend);
+                    FinalBitmap finalBitmap = FinalBitmap.create(this);
+                    finalBitmap.display(ivLegend, FactManager.visibilityLegend, null, 0);
                 }
                 pastTime = 60 * 60 * 1000;
                 value = 4;
@@ -2557,7 +2571,8 @@ public class ShawnFactActivity extends ShawnBaseActivity implements OnClickListe
                 tvWindSpeed2.setBackgroundColor(getResources().getColor(R.color.transparent));
 
                 if (!TextUtils.isEmpty(FactManager.airpressureLegend)) {
-                    Picasso.get().load(FactManager.airpressureLegend).into(ivLegend);
+                    FinalBitmap finalBitmap = FinalBitmap.create(this);
+                    finalBitmap.display(ivLegend, FactManager.airpressureLegend, null, 0);
                 }
                 pastTime = 60 * 60 * 1000;
                 value = 5;
@@ -2591,7 +2606,8 @@ public class ShawnFactActivity extends ShawnBaseActivity implements OnClickListe
                 tvWindSpeed2.setBackgroundResource(R.drawable.bg_layer_button);
 
                 if (!TextUtils.isEmpty(FactManager.windspeedLegend)) {
-                    Picasso.get().load(FactManager.windspeedLegend).into(ivLegend);
+                    FinalBitmap finalBitmap = FinalBitmap.create(this);
+                    finalBitmap.display(ivLegend, FactManager.windspeedLegend, null, 0);
                 }
                 pastTime = 60 * 60 * 1000;
                 value = 6;

@@ -12,8 +12,8 @@ android {
         applicationId "com.china"
         minSdkVersion 19
         targetSdkVersion 28
-        versionCode 154
-        versionName "3.4.2"
+        versionCode 155
+        versionName "3.4.3"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
         multiDexEnabled true
 
@@ -92,4 +92,5 @@ dependencies {
     implementation files('libs/umeng-share-wechat-simplify-6.9.3.jar')
     implementation 'com.squareup.picasso:picasso:2.71828'
     implementation files('libs/uk-co-senab-photoview.jar')
+    implementation files('libs/scene-final.jar')
 }

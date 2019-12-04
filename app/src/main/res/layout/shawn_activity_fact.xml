@@ -287,7 +287,8 @@
                 android:id="@+id/ivLegend"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:visibility="visible"/>
+                android:visibility="visible"
+                android:adjustViewBounds="true"/>
         </LinearLayout>
 
         <RelativeLayout
