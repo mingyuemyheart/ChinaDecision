@@ -94,7 +94,7 @@ public class ShawnWarningStatisticScreenAreaActivity extends ShawnBaseActivity i
             cityAdapter.notifyDataSetChanged();
 
             if (!TextUtils.isEmpty(arg0.toString().trim())) {
-                OkHttpArea("http://decision.tianqi.cn/alarm12379/hisgrepcityclild.php?k="+arg0.toString().trim());
+                OkHttpArea("http://testdecision.tianqi.cn/alarm12379/hisgrepcityclild.php?k="+arg0.toString().trim());
             }
 
         }

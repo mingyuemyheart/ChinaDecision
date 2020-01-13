@@ -28,6 +28,8 @@ import java.io.InputStream;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 public class WaitWindView2 extends View {
 
@@ -38,10 +40,11 @@ public class WaitWindView2 extends View {
 	private int maxLife = 100;//长度，粒子的最大生命周期
 	private Bitmap bitmap;//每一帧图像承载对象
 	private Canvas tempCanvas;
-	private WindThread mThread;
 	private ShawnWaitWindActivity activity;
 	private WindData windData;
 	private List<ImageView> images = new ArrayList<>();//存放位图的list
+
+	private ExecutorService executorService = Executors.newFixedThreadPool(10);
 
 	//高配
 	private int partileCount = 1200;//绘制粒子个数
@@ -128,22 +131,16 @@ public class WaitWindView2 extends View {
 			System.gc();
 		}
 
-		if (mThread != null) {
-			mThread.cancel();
-			mThread = null;
-		}
-		mThread = new WindThread();
-		mThread.start();
+		executorService.submit(runnable);
 	}
 
-	private class WindThread extends Thread {
+	private Runnable runnable = new Runnable() {
 		static final int STATE_START = 0;
 		static final int STATE_CANCEL = 1;
 		private int state;
 
 		@Override
 		public void run() {
-			super.run();
 			this.state = STATE_START;
 			while (true) {
 				if (state == STATE_CANCEL) {
@@ -162,7 +159,7 @@ public class WaitWindView2 extends View {
 		public void cancel() {
 			this.state = STATE_CANCEL;
 		}
-	}
+	};
 
 	@Override
 	protected void onDraw(Canvas canvas) {

@@ -49,7 +49,7 @@ public class ShawnWarningStatisticActivity extends ShawnBaseActivity implements 
     private List<WarningDto> groupList = new ArrayList<>();
     private List<List<WarningDto>> childList = new ArrayList<>();
     private String areaName = "全国",areaId,startTime, endTime;
-    private String baseUrl = "http://decision.tianqi.cn/alarm12379/hisalarmcount.php?format=1";
+    private String baseUrl = "http://testdecision.tianqi.cn/alarm12379/hisalarmcount.php?format=1";
     private AVLoadingIndicatorView loadingView;
 
     @Override
