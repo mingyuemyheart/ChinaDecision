@@ -196,6 +196,7 @@ public class ShawnMainActivity extends ShawnBaseActivity implements OnClickListe
 	 * 初始化控件
 	 */
 	private void initWidget() {
+		checkStorageAuthority();
 		reTitle = findViewById(R.id.reTitle);
 		ImageView ivAdd = findViewById(R.id.ivAdd);
 		ivAdd.setOnClickListener(this);
@@ -1489,6 +1490,29 @@ public class ShawnMainActivity extends ShawnBaseActivity implements OnClickListe
 				ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.CALL_PHONE}, AuthorityUtil.AUTHOR_PHONE);
 			}else {
 				startActivity(new Intent(Intent.ACTION_CALL, Uri.parse("tel:"+dialNumber)));
+			}
+		}
+	}
+
+	/**
+	 * 申请存储权限
+	 */
+	private void checkStorageAuthority() {
+		if (Build.VERSION.SDK_INT < 23) {
+			try {
+				if (!TextUtils.equals(MyApplication.USERGROUP, "17")) {//大众用户不使用自动更新，使用应用市场更新
+					AutoUpdateUtil.checkUpdate(ShawnMainActivity.this, mContext, "52", getString(R.string.app_name), true);
+				}
+			} catch (SecurityException e) {
+				e.printStackTrace();
+			}
+		}else {
+			if (ContextCompat.checkSelfPermission(mContext, Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
+				ActivityCompat.requestPermissions(ShawnMainActivity.this, new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, AuthorityUtil.AUTHOR_STORAGE);
+			}else {
+				if (!TextUtils.equals(MyApplication.USERGROUP, "17")) {//大众用户不使用自动更新，使用应用市场更新
+					AutoUpdateUtil.checkUpdate(ShawnMainActivity.this, mContext, "52", getString(R.string.app_name), true);
+				}
 			}
 		}
 	}
