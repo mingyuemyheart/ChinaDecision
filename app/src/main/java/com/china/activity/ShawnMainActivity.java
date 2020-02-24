@@ -171,7 +171,6 @@ public class ShawnMainActivity extends ShawnBaseActivity implements OnClickListe
 
 	private void init() {
 		initWidget();
-		initViewPager();
 		initGridView();
 		initListView();
 	}
@@ -288,7 +287,81 @@ public class ShawnMainActivity extends ShawnBaseActivity implements OnClickListe
 			locationLatLng = new LatLng(amapLocation.getLatitude(), amapLocation.getLongitude());
 			tvLocation.setText(cityName);
 			OkHttpGeo(locationLatLng.longitude, locationLatLng.latitude);
+
+			String pro = amapLocation.getProvince();
+			if (pro.startsWith("北京") || pro.startsWith("天津") || pro.startsWith("上海") || pro.startsWith("重庆")) {
+				okHttpInfo(amapLocation.getCity(), amapLocation.getDistrict());
+			} else {
+				okHttpInfo(amapLocation.getProvince(), amapLocation.getCity());
+			}
         }
+	}
+
+	/**
+	 * 获取疫情
+	 */
+	private void okHttpInfo(final String pro, final String city) {
+		final String url = String.format("http://warn-wx.tianqi.cn/Test/getwhqydata?pro=%s&city=%s", pro, city);
+		new Thread(new Runnable() {
+			@Override
+			public void run() {
+				OkHttpUtil.enqueue(new Request.Builder().url(url).build(), new Callback() {
+					@Override
+					public void onFailure(Call call, IOException e) {
+						runOnUiThread(new Runnable() {
+							@Override
+							public void run() {
+								pdfList.clear();
+								initViewPager();
+							}
+						});
+					}
+					@Override
+					public void onResponse(Call call, Response response) throws IOException {
+						if (!response.isSuccessful()) {
+							return;
+						}
+						final String result = response.body().string();
+						runOnUiThread(new Runnable() {
+							@Override
+							public void run() {
+								if (!TextUtils.isEmpty(result)) {
+									try {
+										JSONObject obj = new JSONObject(result);
+										String proCount = "";
+										if (!obj.isNull("total_pro")) {
+											JSONObject proObj = obj.getJSONObject("total_pro");
+											if (!proObj.isNull("confirm")) {
+												proCount = proObj.getString("confirm");
+											}
+										}
+										String cityCount = "";
+										if (!obj.isNull("total")) {
+											JSONObject cityObj = obj.getJSONObject("total");
+											if (!cityObj.isNull("confirm")) {
+												cityCount = cityObj.getString("confirm");
+											}
+										}
+
+										pdfList.clear();
+										NewsDto dto = new NewsDto();
+										dto.header = "【最新疫情】";
+										dto.title = dto.header+String.format("%s确诊%s例，%s确诊%s例。", city, cityCount, pro, proCount);
+										dto.detailUrl = "https://voice.baidu.com/act/newpneumonia/newpneumonia?fraz=partner&paaz=gjyj";
+										dto.showType = CONST.URL;
+										dto.imgUrl = "http://decision-admin.tianqi.cn/infomes/data/common/images/img_new@2x.png";
+										pdfList.add(dto);
+									} catch (JSONException e) {
+										e.printStackTrace();
+									}
+								}
+								initViewPager();
+							}
+						});
+					}
+				});
+			}
+		}).start();
 	}
 
 	/**
@@ -704,15 +777,15 @@ public class ShawnMainActivity extends ShawnBaseActivity implements OnClickListe
 	 */
 	private void initViewPager() {
 		mHandler.removeMessages(AUTO_PLUS);
-		pdfList.clear();
 		pdfList.addAll(getIntent().getExtras().<NewsDto>getParcelableArrayList("pdfList"));
 		ivTips = new ImageView[pdfList.size()];
 		viewGroup.removeAllViews();
 		fragments.clear();
 		for (int i = 0; i < pdfList.size(); i++) {
+			NewsDto data = pdfList.get(i);
 			Fragment fragment = new ShawnPdfFragment();
 			Bundle bundle = new Bundle();
-			bundle.putParcelable("data", pdfList.get(i));
+			bundle.putParcelable("data", data);
 			fragment.setArguments(bundle);
 			fragments.add(fragment);
 
@@ -1144,6 +1217,18 @@ public class ShawnMainActivity extends ShawnBaseActivity implements OnClickListe
 		dto.setName("运行保障热线");
 		dto.setValue("010-68408068");
 		list.add(dto);
+		dto = new ShawnSettingDto();
+		dto.setType(13);
+		dto.setDrawable(R.drawable.shawn_icon_product);
+		dto.setName("用户协议");
+		dto.setValue("");
+		list.add(dto);
+		dto = new ShawnSettingDto();
+		dto.setType(14);
+		dto.setDrawable(R.drawable.shawn_icon_product);
+		dto.setName("隐私政策");
+		dto.setValue("");
+		list.add(dto);
 
 		ListView listView = findViewById(R.id.listView);
 		sAdapter = new ShawnSettingAdapter(this, list);
@@ -1211,6 +1296,18 @@ public class ShawnMainActivity extends ShawnBaseActivity implements OnClickListe
 						break;
 					case 12:
 
+						break;
+					case 13:
+						intent = new Intent(mContext, ShawnWebviewActivity.class);
+						intent.putExtra(CONST.ACTIVITY_NAME, "用户协议");
+						intent.putExtra(CONST.WEB_URL, "http://decision-admin.tianqi.cn/Public/share/chinaweather_links/yhxy.html");
+						startActivity(intent);
+						break;
+					case 14:
+						intent = new Intent(mContext, ShawnWebviewActivity.class);
+						intent.putExtra(CONST.ACTIVITY_NAME, "隐私政策");
+						intent.putExtra(CONST.WEB_URL, "http://decision-admin.tianqi.cn/Public/share/chinaweather_links/yszc.html");
+						startActivity(intent);
 						break;
 				}
 			}

@@ -1,5 +1,6 @@
 package com.china.activity;
 
+import android.app.Dialog;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -8,6 +9,9 @@ import android.os.Handler;
 import android.os.Parcelable;
 import android.text.TextUtils;
 import android.view.KeyEvent;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.china.R;
@@ -57,7 +61,76 @@ public class ShawnWelcomeActivity extends ShawnBaseActivity {
 		//点击Home键后再点击APP图标，APP重启而不是回到原来界面
 
 		mContext = this;
+		if (!policyFlag()) {
+			promptDialog();
+		}else {
+			init();
+		}
+	}
 
+	/**
+	 * 温馨提示对话框
+	 */
+	private void promptDialog() {
+		LayoutInflater inflater = (LayoutInflater) getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+		View view = inflater.inflate(R.layout.prompt_dialog, null);
+		TextView tvProtocal = view.findViewById(R.id.tvProtocal);
+		TextView tvPolicy = view.findViewById(R.id.tvPolicy);
+		TextView tvNegtive = view.findViewById(R.id.tvNegtive);
+		TextView tvPositive = view.findViewById(R.id.tvPositive);
+
+		final Dialog dialog = new Dialog(mContext, R.style.CustomProgressDialog);
+		dialog.setContentView(view);
+		dialog.show();
+
+		tvProtocal.setOnClickListener(new View.OnClickListener() {
+			@Override
+			public void onClick(View view) {
+				Intent intent = new Intent(mContext, ShawnWebviewActivity.class);
+				intent.putExtra(CONST.ACTIVITY_NAME, "用户协议");
+				intent.putExtra(CONST.WEB_URL, "http://decision-admin.tianqi.cn/Public/share/chinaweather_links/yhxy.html");
+				startActivity(intent);
+			}
+		});
+		tvPolicy.setOnClickListener(new View.OnClickListener() {
+			@Override
+			public void onClick(View view) {
+				Intent intent = new Intent(mContext, ShawnWebviewActivity.class);
+				intent.putExtra(CONST.ACTIVITY_NAME, "隐私政策");
+				intent.putExtra(CONST.WEB_URL, "http://decision-admin.tianqi.cn/Public/share/chinaweather_links/yszc.html");
+				startActivity(intent);
+			}
+		});
+		tvNegtive.setOnClickListener(new View.OnClickListener() {
+			@Override
+			public void onClick(View arg0) {
+				dialog.dismiss();
+				finish();
+			}
+		});
+		tvPositive.setOnClickListener(new View.OnClickListener() {
+			@Override
+			public void onClick(View arg0) {
+				dialog.dismiss();
+				savePolicyFlag();
+				init();
+			}
+		});
+	}
+
+	private void savePolicyFlag() {
+		SharedPreferences sp = getSharedPreferences("policy", Context.MODE_PRIVATE);
+		SharedPreferences.Editor editor = sp.edit();
+		editor.putBoolean("isShow", true);
+		editor.apply();
+	}
+
+	private boolean policyFlag() {
+		SharedPreferences sp = getSharedPreferences("policy", Context.MODE_PRIVATE);
+		return sp.getBoolean("isShow", false);
+	}
+
+	private void init() {
 		new Handler().postDelayed(new Runnable() {
 			@Override
 			public void run() {
@@ -76,7 +149,6 @@ public class ShawnWelcomeActivity extends ShawnBaseActivity {
 				}
 			}
 		}, 1000);
-
 	}
 
 	/**

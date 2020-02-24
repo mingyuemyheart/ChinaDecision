@@ -14,6 +14,7 @@
     <color name="white">#ffffff</color>
     <color name="black">#000000</color>
     <color name="gray">#d9d9d9</color>
+    <color name="orange">#fd8612</color>
     <color name="light_gray">#f0eff5</color>
     <color name="indicator_bar">#5754FD</color>
     <color name="divider_color">#8021E40C</color>

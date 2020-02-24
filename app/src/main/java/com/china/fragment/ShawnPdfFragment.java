@@ -13,6 +13,7 @@ import android.widget.TextView;
 
 import com.china.R;
 import com.china.activity.ShawnPDFActivity;
+import com.china.activity.ShawnWebviewActivity;
 import com.china.common.CONST;
 import com.china.dto.NewsDto;
 import com.squareup.picasso.Picasso;
@@ -58,12 +59,19 @@ public class ShawnPdfFragment extends Fragment implements View.OnClickListener{
         switch (v.getId()) {
             case R.id.imageView:
             case R.id.tvTitle:
-                Intent intent = new Intent(getActivity(), ShawnPDFActivity.class);
+                Intent intent = null;
                 if (data != null) {
+                    if (TextUtils.equals(data.showType, CONST.URL)) {
+                        intent = new Intent(getActivity(), ShawnWebviewActivity.class);
+                    } else {
+                        intent = new Intent(getActivity(), ShawnPDFActivity.class);
+                    }
                     intent.putExtra(CONST.ACTIVITY_NAME, data.title);
                     intent.putExtra(CONST.WEB_URL, data.detailUrl);
                 }
-                startActivity(intent);
+                if (intent != null) {
+                    startActivity(intent);
+                }
                 break;
         }
     }

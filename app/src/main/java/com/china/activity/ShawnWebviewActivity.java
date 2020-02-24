@@ -3,10 +3,10 @@ package com.china.activity;
 import android.net.http.SslError;
 import android.os.Build;
 import android.os.Bundle;
-import android.support.v4.widget.SwipeRefreshLayout;
 import android.text.TextUtils;
 import android.view.View;
 import android.view.View.OnClickListener;
+import android.webkit.GeolocationPermissions;
 import android.webkit.SslErrorHandler;
 import android.webkit.WebChromeClient;
 import android.webkit.WebSettings;
@@ -33,34 +33,15 @@ public class ShawnWebviewActivity extends ShawnBaseActivity implements OnClickLi
 	private WebView webView;
 	private String dataUrl;
 	private ImageView ivShare;
-	private SwipeRefreshLayout refreshLayout;//下拉刷新布局
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.shawn_activity_webview);
-		initRefreshLayout();
 		initWidget();
 		initWebView();
 	}
 
-	/**
-	 * 初始化下拉刷新布局
-	 */
-	private void initRefreshLayout() {
-		refreshLayout = findViewById(R.id.refreshLayout);
-		refreshLayout.setColorSchemeResources(CONST.color1, CONST.color2, CONST.color3, CONST.color4);
-		refreshLayout.setProgressViewEndTarget(true, 300);
-		refreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
-			@Override
-			public void onRefresh() {
-				if (webView != null && !TextUtils.isEmpty(dataUrl)) {
-					loadUrl();
-				}
-			}
-		});
-	}
-	
 	/**
 	 * 初始化控件
 	 */
@@ -91,6 +72,9 @@ public class ShawnWebviewActivity extends ShawnBaseActivity implements OnClickLi
 		
 		//支持javascript
 		webSettings.setJavaScriptEnabled(true);
+		webSettings.setJavaScriptCanOpenWindowsAutomatically(true);
+		webSettings.setDomStorageEnabled(true);
+		webSettings.setGeolocationEnabled(true);
 		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
 			webView.getSettings().setMixedContentMode(WebSettings.MIXED_CONTENT_ALWAYS_ALLOW);
 		}
@@ -106,16 +90,18 @@ public class ShawnWebviewActivity extends ShawnBaseActivity implements OnClickLi
 		webSettings.setLoadWithOverviewMode(true);
 //		webView.loadUrl(url);
 		loadUrl();
-		
+
 		webView.setWebChromeClient(new WebChromeClient() {
 			@Override
 			public void onReceivedTitle(WebView view, String title) {
 				super.onReceivedTitle(view, title);
-//				if (title != null) {
-//					tvTitle.setText(title);
-//				}
 			}
 		});
+
+		webView.setWebChromeClient(new WebChromeClient() {
+			public void onGeolocationPermissionsShowPrompt(String origin, GeolocationPermissions.Callback callback) {
+				callback.invoke(origin, true, false);
+			}});
 		
 		webView.setWebViewClient(new WebViewClient() {
 			@Override
@@ -128,7 +114,6 @@ public class ShawnWebviewActivity extends ShawnBaseActivity implements OnClickLi
 			@Override
 			public void onPageFinished(WebView view, String url) {
 				super.onPageFinished(view, url);
-				refreshLayout.setRefreshing(false);
 				ivShare.setVisibility(View.VISIBLE);
 			}
 
@@ -164,7 +149,7 @@ public class ShawnWebviewActivity extends ShawnBaseActivity implements OnClickLi
 			if (TextUtils.equals(dataUrl, CONST.COUNTURL)) {
 				CommonUtil.share(ShawnWebviewActivity.this, getString(R.string.app_name), tvTitle.getText().toString(), null, CONST.COUNTURL);
 			}else if (TextUtils.equals(dataUrl, CONST.RECOMMENDURL)) {
-				CommonUtil.share(ShawnWebviewActivity.this, getString(R.string.app_name), tvTitle.getText().toString(), null, CONST.RECOMMENDURL);
+				CommonUtil.share(ShawnWebviewActivity.this, getString(R.string.app_name), tvTitle.getText().toString(), null, "http://testdecision.tianqi.cn/describe/index.html");
 			}
 	        break;
 
