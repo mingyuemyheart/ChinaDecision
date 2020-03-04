@@ -50,6 +50,7 @@ import com.china.utils.SecretUrlUtil;
 import com.china.utils.WeatherUtil;
 import com.wang.avi.AVLoadingIndicatorView;
 
+import org.jetbrains.annotations.NotNull;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -64,10 +65,6 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
-import cn.com.weather.api.WeatherAPI;
-import cn.com.weather.beans.Weather;
-import cn.com.weather.constants.Constants;
-import cn.com.weather.listener.AsyncResponseHandler;
 import okhttp3.Call;
 import okhttp3.Callback;
 import okhttp3.Request;
@@ -310,74 +307,85 @@ public class ShawnCityForecastActivity extends ShawnBaseActivity implements OnCl
         if (TextUtils.isEmpty(dto.cityId)) {
             return;
         }
-        WeatherAPI.getWeather2(mContext, dto.cityId, Constants.Language.ZH_CN, new AsyncResponseHandler() {
+        new Thread(new Runnable() {
             @Override
-            public void onComplete(final Weather content) {
-                super.onComplete(content);
-                if (content != null) {
-                    try {
-                        JSONObject obj = new JSONObject(content.toString());
+            public void run() {
+                OkHttpUtil.enqueue(new Request.Builder().url(String.format("https://videoshfcx.tianqi.cn/dav_tqwy/ty_weather/data/%s.html", dto.cityId)).build(), new Callback() {
+                    @Override
+                    public void onFailure(@NotNull Call call, @NotNull IOException e) {
+                    }
+                    @Override
+                    public void onResponse(@NotNull Call call, @NotNull Response response) throws IOException {
+                        if (!response.isSuccessful()) {
+                            return;
+                        }
+                        final String result = response.body().string();
+                        runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                if (!TextUtils.isEmpty(result)) {
+                                    try {
+                                        JSONObject obj = new JSONObject(result);
 
-                        //15天预报
-                        if (!obj.isNull("f")) {
-                            JSONObject f = obj.getJSONObject("f");
+                                        //15天预报
+                                        if (!obj.isNull("f")) {
+                                            JSONObject f = obj.getJSONObject("f");
 
-                            final String f0 = f.getString("f0");
-                            runOnUiThread(new Runnable() {
-                                @Override
-                                public void run() {
-                                    if (!TextUtils.isEmpty(f0)) {
-                                        try {
-                                            tvTime.setText(sdf2.format(sdf1.parse(f0)));
-                                            tvTime.setVisibility(View.VISIBLE);
-                                        } catch (ParseException e) {
-                                            e.printStackTrace();
+                                            final String f0 = f.getString("f0");
+                                            if (!TextUtils.isEmpty(f0)) {
+                                                try {
+                                                    tvTime.setText(sdf2.format(sdf1.parse(f0)));
+                                                    tvTime.setVisibility(View.VISIBLE);
+                                                } catch (ParseException e) {
+                                                    e.printStackTrace();
+                                                }
+                                            }
+
+                                            if (!f.isNull("f1")) {
+                                                JSONArray f1 = f.getJSONArray("f1");
+                                                JSONObject weeklyObj = f1.getJSONObject(0);
+                                                //晚上
+                                                dto.lowPheCode = Integer.valueOf(weeklyObj.getString("fb"));
+                                                dto.lowPhe = getString(WeatherUtil.getWeatherId(Integer.valueOf(weeklyObj.getString("fb"))));
+                                                dto.lowTemp = Integer.valueOf(weeklyObj.getString("fd"));
+                                                dto.lowWindDir = Integer.valueOf(weeklyObj.getString("ff"));
+                                                dto.lowWindForce = Integer.valueOf(weeklyObj.getString("fh"));
+
+                                                //白天
+                                                dto.highPheCode = Integer.valueOf(weeklyObj.getString("fa"));
+                                                dto.highPhe = getString(WeatherUtil.getWeatherId(Integer.valueOf(weeklyObj.getString("fa"))));
+                                                dto.highTemp = Integer.valueOf(weeklyObj.getString("fc"));
+                                                dto.highWindDir = Integer.valueOf(weeklyObj.getString("fe"));
+                                                dto.highWindForce = Integer.valueOf(weeklyObj.getString("fg"));
+
+                                                MarkerOptions options = new MarkerOptions();
+                                                options.title(dto.cityName+","+dto.highPheCode+","+dto.highTemp+","+dto.highWindDir+","+dto.highWindForce
+                                                        +","+dto.lowPheCode+","+dto.lowTemp+","+dto.lowWindDir+","+dto.lowWindForce+","+dto.cityId);
+                                                options.snippet(dto.level);
+                                                options.anchor(0.5f, 1.0f);
+                                                options.position(new LatLng(dto.lat, dto.lng));
+                                                int currentHour = Integer.valueOf(sdf3.format(new Date()));
+                                                if (currentHour >= 5 && currentHour < 18) {
+                                                    options.icon(BitmapDescriptorFactory.fromView(getTextBitmap(dto.highPheCode)));
+                                                }else {
+                                                    options.icon(BitmapDescriptorFactory.fromView(getTextBitmap(dto.lowPheCode)));
+                                                }
+                                                Marker marker = aMap.addMarker(options);
+                                                markerMap.put(dto.cityId, marker);
+                                                markerExpandAnimation(marker);
+
+                                            }
                                         }
+                                    }catch (JSONException e) {
+                                        e.printStackTrace();
                                     }
                                 }
-                            });
-
-                            if (!f.isNull("f1")) {
-                                JSONArray f1 = f.getJSONArray("f1");
-                                JSONObject weeklyObj = f1.getJSONObject(0);
-                                //晚上
-                                dto.lowPheCode = Integer.valueOf(weeklyObj.getString("fb"));
-                                dto.lowPhe = getString(WeatherUtil.getWeatherId(Integer.valueOf(weeklyObj.getString("fb"))));
-                                dto.lowTemp = Integer.valueOf(weeklyObj.getString("fd"));
-                                dto.lowWindDir = Integer.valueOf(weeklyObj.getString("ff"));
-                                dto.lowWindForce = Integer.valueOf(weeklyObj.getString("fh"));
-
-                                //白天
-                                dto.highPheCode = Integer.valueOf(weeklyObj.getString("fa"));
-                                dto.highPhe = getString(WeatherUtil.getWeatherId(Integer.valueOf(weeklyObj.getString("fa"))));
-                                dto.highTemp = Integer.valueOf(weeklyObj.getString("fc"));
-                                dto.highWindDir = Integer.valueOf(weeklyObj.getString("fe"));
-                                dto.highWindForce = Integer.valueOf(weeklyObj.getString("fg"));
-
-                                MarkerOptions options = new MarkerOptions();
-                                options.title(dto.cityName+","+dto.highPheCode+","+dto.highTemp+","+dto.highWindDir+","+dto.highWindForce
-                                        +","+dto.lowPheCode+","+dto.lowTemp+","+dto.lowWindDir+","+dto.lowWindForce+","+dto.cityId);
-                                options.snippet(dto.level);
-                                options.anchor(0.5f, 1.0f);
-                                options.position(new LatLng(dto.lat, dto.lng));
-                                int currentHour = Integer.valueOf(sdf3.format(new Date()));
-                                if (currentHour >= 5 && currentHour < 18) {
-                                    options.icon(BitmapDescriptorFactory.fromView(getTextBitmap(dto.highPheCode)));
-                                }else {
-                                    options.icon(BitmapDescriptorFactory.fromView(getTextBitmap(dto.lowPheCode)));
-                                }
-                                Marker marker = aMap.addMarker(options);
-                                markerMap.put(dto.cityId, marker);
-                                markerExpandAnimation(marker);
-
                             }
-                        }
-                    }catch (JSONException e) {
-                        e.printStackTrace();
+                        });
                     }
-                }
+                });
             }
-        });
+        }).start();
     }
 
     /**
@@ -532,7 +540,7 @@ public class ShawnCityForecastActivity extends ShawnBaseActivity implements OnCl
                 aMap.getMapScreenShot(this);
                 break;
             case R.id.ivMapSearch:
-                startActivity(new Intent(mContext, ShawnCityActivity.class));
+                startActivity(new Intent(mContext, CityActivity.class));
                 break;
 
             default:

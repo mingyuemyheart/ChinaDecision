@@ -111,7 +111,7 @@ public class ShawnWeatherInfoActivity extends ShawnBaseActivity implements OnCli
 				NewsDto dto = dataList.get(arg2);
 				Intent intent;
 				if (TextUtils.equals(showType, CONST.PDF)) {
-					intent = new Intent(mContext, ShawnPDFActivity.class);
+					intent = new Intent(mContext, PDFActivity.class);
 					intent.putExtra(CONST.ACTIVITY_NAME, dto.title);
 					intent.putExtra(CONST.WEB_URL, dto.detailUrl);
 					startActivity(intent);

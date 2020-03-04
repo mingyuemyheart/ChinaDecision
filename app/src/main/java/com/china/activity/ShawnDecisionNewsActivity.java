@@ -105,7 +105,7 @@ public class ShawnDecisionNewsActivity extends ShawnBaseActivity implements OnCl
 			@Override
 			public void onItemClick(AdapterView<?> arg0, View arg1, int arg2, long arg3) {
 				DisasterDto dto = dataList.get(arg2);
-				Intent intent = new Intent(mContext, ShawnPDFActivity.class);
+				Intent intent = new Intent(mContext, PDFActivity.class);
 				intent.putExtra(CONST.ACTIVITY_NAME, dto.title);
 				intent.putExtra(CONST.WEB_URL, dto.url);
 				intent.putExtra(CONST.IMG_URL, dto.imgUrl);

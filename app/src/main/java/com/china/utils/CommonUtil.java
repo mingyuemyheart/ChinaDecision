@@ -184,7 +184,7 @@ public class CommonUtil {
         // 获取scrollview实际高度  
         for (int i = 0; i < scrollView.getChildCount(); i++) {  
         	height += scrollView.getChildAt(i).getHeight();  
-        	scrollView.getChildAt(i).setBackgroundColor(0xffffff);  
+        	scrollView.getChildAt(i).setBackgroundColor(0xffffffff);
         }  
         // 创建对应大小的bitmap  
         Bitmap bitmap = Bitmap.createBitmap(scrollView.getWidth(), height, Config.ARGB_8888);  

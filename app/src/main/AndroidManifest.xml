@@ -68,7 +68,7 @@
         <service android:name="com.amap.api.location.APSService" />
 
         <activity
-            android:name="com.china.activity.ShawnWelcomeActivity"
+            android:name="com.china.activity.WelcomeActivity"
             android:theme="@style/SplashTheme" >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -93,17 +93,17 @@
             android:screenOrientation="portrait" />
 
         <activity
-            android:name="com.china.activity.ShawnGuideActivity"
+            android:name="com.china.activity.GuideActivity"
             android:theme="@android:style/Theme.Light.NoTitleBar.Fullscreen"
             android:screenOrientation="portrait" />
 
         <activity
-            android:name="com.china.activity.ShawnLoginActivity"
+            android:name="com.china.activity.LoginActivity"
             android:launchMode="singleTask"
             android:screenOrientation="portrait" />
 
         <activity
-            android:name="com.china.activity.ShawnCityActivity"
+            android:name="com.china.activity.CityActivity"
             android:launchMode="singleTask"
             android:screenOrientation="portrait" />
 
@@ -120,7 +120,7 @@
             android:screenOrientation="portrait" />
 
         <activity
-            android:name="com.china.activity.ShawnWebviewActivity"
+            android:name="com.china.activity.WebviewActivity"
             android:screenOrientation="portrait" />
 
         <activity
@@ -190,7 +190,7 @@
             android:screenOrientation="portrait" />
 
         <activity
-            android:name="com.china.activity.ShawnWarningDetailActivity"
+            android:name="com.china.activity.WarningDetailActivity"
             android:screenOrientation="portrait" />
 
         <activity
@@ -215,7 +215,7 @@
             android:screenOrientation="portrait" />
 
         <activity
-            android:name="com.china.activity.ShawnPDFActivity"
+            android:name="com.china.activity.PDFActivity"
             android:launchMode="singleTask"
             android:screenOrientation="portrait" />
 
@@ -246,7 +246,7 @@
             android:windowSoftInputMode="adjustResize" />
 
         <activity
-            android:name="com.china.activity.ShawnAboutActivity"
+            android:name="com.china.activity.AboutActivity"
             android:screenOrientation="portrait" />
 
         <activity
@@ -306,7 +306,7 @@
             android:screenOrientation="portrait" />
 
         <activity
-            android:name="com.china.activity.ShawnHeadWarningActivity"
+            android:name="com.china.activity.WarningHeaderActivity"
             android:screenOrientation="portrait" />
 
         <activity

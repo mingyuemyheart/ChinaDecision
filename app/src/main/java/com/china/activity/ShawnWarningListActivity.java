@@ -181,7 +181,7 @@ public class ShawnWarningListActivity extends ShawnBaseActivity implements OnCli
 			@Override
 			public void onItemClick(AdapterView<?> arg0, View arg1, int arg2, long arg3) {
 				WarningDto data = showList.get(arg2);
-				Intent intentDetail = new Intent(mContext, ShawnWarningDetailActivity.class);
+				Intent intentDetail = new Intent(mContext, WarningDetailActivity.class);
 				intentDetail.putExtra(CONST.COLUMN_ID, columnId);
 				Bundle bundle = new Bundle();
 				bundle.putParcelable("data", data);

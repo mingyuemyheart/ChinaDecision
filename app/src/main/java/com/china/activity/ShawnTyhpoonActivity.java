@@ -545,7 +545,7 @@ public class ShawnTyhpoonActivity extends ShawnBaseActivity implements OnClickLi
 														ivWarning.setOnClickListener(new OnClickListener() {
 															@Override
 															public void onClick(View v) {
-																Intent intentDetail = new Intent(mContext, ShawnWarningDetailActivity.class);
+																Intent intentDetail = new Intent(mContext, WarningDetailActivity.class);
 																Bundle bundle = new Bundle();
 																bundle.putParcelable("data", dto);
 																intentDetail.putExtras(bundle);
@@ -2129,7 +2129,7 @@ public class ShawnTyhpoonActivity extends ShawnBaseActivity implements OnClickLi
 	}
 
 	private void intentDetail(WarningDto data) {
-		Intent intentDetail = new Intent(mContext, ShawnWarningDetailActivity.class);
+		Intent intentDetail = new Intent(mContext, WarningDetailActivity.class);
 		String columnId = getIntent().getStringExtra(CONST.COLUMN_ID);
 		intentDetail.putExtra(CONST.COLUMN_ID, columnId);
 		Bundle bundle = new Bundle();

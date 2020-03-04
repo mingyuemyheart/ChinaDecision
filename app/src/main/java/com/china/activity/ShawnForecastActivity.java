@@ -2,7 +2,6 @@ package com.china.activity;
 
 import android.Manifest;
 import android.content.Context;
-import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -47,10 +46,6 @@ import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 
-import cn.com.weather.api.WeatherAPI;
-import cn.com.weather.beans.Weather;
-import cn.com.weather.constants.Constants.Language;
-import cn.com.weather.listener.AsyncResponseHandler;
 import okhttp3.Call;
 import okhttp3.Callback;
 import okhttp3.Request;
@@ -146,14 +141,19 @@ public class ShawnForecastActivity extends ShawnBaseActivity implements OnClickL
 		new Thread(new Runnable() {
 			@Override
 			public void run() {
-				WeatherAPI.getWeather2(mContext, cityId, Language.ZH_CN, new AsyncResponseHandler() {
+				OkHttpUtil.enqueue(new Request.Builder().url(String.format("https://videoshfcx.tianqi.cn/dav_tqwy/ty_weather/data/%s.html", cityId)).build(), new Callback() {
 					@Override
-					public void onComplete(final Weather content) {
-						super.onComplete(content);
+					public void onFailure(@NotNull Call call, @NotNull IOException e) {
+					}
+					@Override
+					public void onResponse(@NotNull Call call, @NotNull Response response) throws IOException {
+						if (!response.isSuccessful()) {
+							return;
+						}
+						final String result = response.body().string();
 						runOnUiThread(new Runnable() {
 							@Override
 							public void run() {
-								String result = content.toString();
 								if (!TextUtils.isEmpty(result)) {
 									try {
 										JSONObject obj = new JSONObject(result);
@@ -328,14 +328,8 @@ public class ShawnForecastActivity extends ShawnBaseActivity implements OnClickL
 
 								scrollView.setVisibility(View.VISIBLE);
 								loadingView.setVisibility(View.GONE);
-
 							}
 						});
-					}
-
-					@Override
-					public void onError(Throwable error, String content) {
-						super.onError(error, content);
 					}
 				});
 			}

@@ -19,7 +19,6 @@ import android.text.SpannableStringBuilder;
 import android.text.TextUtils;
 import android.text.style.ForegroundColorSpan;
 import android.util.DisplayMetrics;
-import android.util.Log;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -909,7 +908,7 @@ OnMarkerClickListener, InfoWindowAdapter, OnCameraChangeListener, OnMapScreenSho
 	}
 	
 	private void intentDetail(WarningDto data) {
-		Intent intentDetail = new Intent(mContext, ShawnWarningDetailActivity.class);
+		Intent intentDetail = new Intent(mContext, WarningDetailActivity.class);
 		intentDetail.putExtra(CONST.COLUMN_ID, columnId);
 		Bundle bundle = new Bundle();
 		bundle.putParcelable("data", data);
@@ -1108,7 +1107,7 @@ OnMarkerClickListener, InfoWindowAdapter, OnCameraChangeListener, OnMapScreenSho
 			break;
 		case R.id.tvNation:
 			setNormalEmit("2", "");
-			intent = new Intent(mContext, ShawnHeadWarningActivity.class);
+			intent = new Intent(mContext, WarningHeaderActivity.class);
 			bundle = new Bundle();
 			bundle.putParcelableArrayList("warningList", (ArrayList<? extends Parcelable>) nationList);
 			intent.putExtras(bundle);
@@ -1116,7 +1115,7 @@ OnMarkerClickListener, InfoWindowAdapter, OnCameraChangeListener, OnMapScreenSho
 			break;
 		case R.id.ivCentral:
 		case R.id.tvCentrolCount:
-			intent = new Intent(mContext, ShawnHeadWarningActivity.class);
+			intent = new Intent(mContext, WarningHeaderActivity.class);
 			bundle = new Bundle();
 			bundle.putParcelableArrayList("warningList", (ArrayList<? extends Parcelable>) centrolList);
 			intent.putExtras(bundle);

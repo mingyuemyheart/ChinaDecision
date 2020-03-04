@@ -15,8 +15,8 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.china.R;
-import com.china.activity.ShawnHeadWarningActivity;
-import com.china.activity.ShawnWarningDetailActivity;
+import com.china.activity.WarningHeaderActivity;
+import com.china.activity.WarningDetailActivity;
 import com.china.common.CONST;
 import com.china.dto.CityDto;
 import com.china.dto.WarningDto;
@@ -147,7 +147,7 @@ public class ShawnReserveCityAdapter extends BaseAdapter{
 			mHolder.ivWarning.setOnClickListener(new View.OnClickListener() {
 				@Override
 				public void onClick(View v) {
-					Intent intentDetail = new Intent(mContext, ShawnWarningDetailActivity.class);
+					Intent intentDetail = new Intent(mContext, WarningDetailActivity.class);
 					Bundle bundle = new Bundle();
 					bundle.putParcelable("data", data);
 					intentDetail.putExtras(bundle);
@@ -161,7 +161,7 @@ public class ShawnReserveCityAdapter extends BaseAdapter{
 			mHolder.tvCount.setOnClickListener(new View.OnClickListener() {
 				@Override
 				public void onClick(View v) {
-					Intent intent = new Intent(mContext, ShawnHeadWarningActivity.class);
+					Intent intent = new Intent(mContext, WarningHeaderActivity.class);
 					Bundle bundle = new Bundle();
 					bundle.putParcelableArrayList("warningList", (ArrayList<? extends Parcelable>) dto.warningList);
 					intent.putExtras(bundle);

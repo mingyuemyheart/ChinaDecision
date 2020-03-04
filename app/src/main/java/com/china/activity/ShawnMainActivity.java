@@ -60,7 +60,7 @@ import com.china.dto.NewsDto;
 import com.china.dto.ShawnSettingDto;
 import com.china.dto.WarningDto;
 import com.china.dto.WeatherDto;
-import com.china.fragment.ShawnPdfFragment;
+import com.china.fragment.PdfFragment;
 import com.china.manager.DBManager;
 import com.china.manager.DataCleanManager;
 import com.china.utils.AuthorityUtil;
@@ -408,14 +408,19 @@ public class ShawnMainActivity extends ShawnBaseActivity implements OnClickListe
 		new Thread(new Runnable() {
 			@Override
 			public void run() {
-				WeatherAPI.getWeather2(mContext, cityId, Language.ZH_CN, new AsyncResponseHandler() {
+				OkHttpUtil.enqueue(new Request.Builder().url(String.format("https://videoshfcx.tianqi.cn/dav_tqwy/ty_weather/data/%s.html", cityId)).build(), new Callback() {
 					@Override
-					public void onComplete(final Weather content) {
-						super.onComplete(content);
+					public void onFailure(@NotNull Call call, @NotNull IOException e) {
+					}
+					@Override
+					public void onResponse(@NotNull Call call, @NotNull Response response) throws IOException {
+						if (!response.isSuccessful()) {
+							return;
+						}
+						final String result = response.body().string();
 						runOnUiThread(new Runnable() {
 							@Override
 							public void run() {
-								String result = content.toString();
 								if (!TextUtils.isEmpty(result)) {
 									try {
 										JSONObject obj = new JSONObject(result);
@@ -557,11 +562,6 @@ public class ShawnMainActivity extends ShawnBaseActivity implements OnClickListe
 
 							}
 						});
-					}
-
-					@Override
-					public void onError(Throwable error, String content) {
-						super.onError(error, content);
 					}
 				});
 
@@ -751,7 +751,7 @@ public class ShawnMainActivity extends ShawnBaseActivity implements OnClickListe
 											@Override
 											public void onClick(View v) {
 												WarningDto data = (WarningDto) v.getTag();
-												Intent intent = new Intent(mContext, ShawnWarningDetailActivity.class);
+												Intent intent = new Intent(mContext, WarningDetailActivity.class);
 												Bundle bundle = new Bundle();
 												bundle.putParcelable("data", data);
 												intent.putExtras(bundle);
@@ -783,7 +783,7 @@ public class ShawnMainActivity extends ShawnBaseActivity implements OnClickListe
 		fragments.clear();
 		for (int i = 0; i < pdfList.size(); i++) {
 			NewsDto data = pdfList.get(i);
-			Fragment fragment = new ShawnPdfFragment();
+			Fragment fragment = new PdfFragment();
 			Bundle bundle = new Bundle();
 			bundle.putParcelable("data", data);
 			fragment.setArguments(bundle);
@@ -1259,19 +1259,19 @@ public class ShawnMainActivity extends ShawnBaseActivity implements OnClickListe
 						startActivity(intent);
 						break;
 					case 4:
-						intent = new Intent(mContext, ShawnWebviewActivity.class);
+						intent = new Intent(mContext, WebviewActivity.class);
 						intent.putExtra(CONST.ACTIVITY_NAME, data.getName());
 						intent.putExtra(CONST.WEB_URL, CONST.COUNTURL);
 						startActivity(intent);
 						break;
 					case 5:
-						intent = new Intent(mContext, ShawnWebviewActivity.class);
+						intent = new Intent(mContext, WebviewActivity.class);
 						intent.putExtra(CONST.ACTIVITY_NAME, data.getName());
 						intent.putExtra(CONST.WEB_URL, CONST.RECOMMENDURL);
 						startActivity(intent);
 						break;
 					case 6:
-						intent = new Intent(mContext, ShawnAboutActivity.class);
+						intent = new Intent(mContext, AboutActivity.class);
 						intent.putExtra(CONST.ACTIVITY_NAME, data.getName());
 						startActivity(intent);
 						break;
@@ -1298,13 +1298,13 @@ public class ShawnMainActivity extends ShawnBaseActivity implements OnClickListe
 
 						break;
 					case 13:
-						intent = new Intent(mContext, ShawnWebviewActivity.class);
+						intent = new Intent(mContext, WebviewActivity.class);
 						intent.putExtra(CONST.ACTIVITY_NAME, "用户协议");
 						intent.putExtra(CONST.WEB_URL, "http://decision-admin.tianqi.cn/Public/share/chinaweather_links/yhxy.html");
 						startActivity(intent);
 						break;
 					case 14:
-						intent = new Intent(mContext, ShawnWebviewActivity.class);
+						intent = new Intent(mContext, WebviewActivity.class);
 						intent.putExtra(CONST.ACTIVITY_NAME, "隐私政策");
 						intent.putExtra(CONST.WEB_URL, "http://decision-admin.tianqi.cn/Public/share/chinaweather_links/yszc.html");
 						startActivity(intent);
@@ -1342,7 +1342,7 @@ public class ShawnMainActivity extends ShawnBaseActivity implements OnClickListe
 			public void onClick(View arg0) {
 				dialog.dismiss();
 				MyApplication.clearUserInfo(mContext);
-				startActivity(new Intent(mContext, ShawnLoginActivity.class));
+				startActivity(new Intent(mContext, LoginActivity.class));
 				finish();
 			}
 		});

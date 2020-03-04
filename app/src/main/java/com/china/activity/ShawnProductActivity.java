@@ -91,7 +91,7 @@ public class ShawnProductActivity extends ShawnBaseActivity implements OnClickLi
 					intent.putExtra(CONST.WEB_URL, dto.dataUrl);
 					startActivity(intent);
 				}else if (TextUtils.equals(dto.showType, CONST.PDF)) {
-					intent = new Intent(mContext, ShawnPDFActivity.class);
+					intent = new Intent(mContext, PDFActivity.class);
 					intent.putExtra(CONST.ACTIVITY_NAME, dto.name);
 					intent.putExtra(CONST.WEB_URL, dto.dataUrl);
 					startActivity(intent);

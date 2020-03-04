@@ -40,6 +40,7 @@ import com.china.utils.OkHttpUtil;
 import com.china.utils.WeatherUtil;
 import com.wang.avi.AVLoadingIndicatorView;
 
+import org.jetbrains.annotations.NotNull;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -286,57 +287,65 @@ public class ShawnReserveCityActivity extends ShawnBaseActivity implements View.
      */
     private void getWeatherInfo(final CityDto dto) {
         loadingView.setVisibility(View.VISIBLE);
-        WeatherAPI.getWeather2(mContext, dto.cityId, Constants.Language.ZH_CN, new AsyncResponseHandler() {
+        new Thread(new Runnable() {
             @Override
-            public void onComplete(final Weather content) {
-                super.onComplete(content);
-                if (content != null) {
-                    try {
-                        JSONObject obj = new JSONObject(content.toString());
-
-                        //实况信息
-                        if (!obj.isNull("l")) {
-                            JSONObject l = obj.getJSONObject("l");
-                            if (!l.isNull("l5")) {
-                                String weatherCode = WeatherUtil.lastValue(l.getString("l5"));
-                                if (!TextUtils.isEmpty(weatherCode)) {
-                                    dto.highPheCode = Integer.parseInt(weatherCode);
-                                }
-                            }
-
-                            if (!l.isNull("l1")) {
-                                String factTemp = WeatherUtil.lastValue(l.getString("l1"));
-                                if (!TextUtils.isEmpty(factTemp)) {
-                                    dto.highTemp = factTemp;
-                                }
-                            }
-
-                            List<WarningDto> list = new ArrayList<>();
-                            for (WarningDto data : warningList) {
-                                if (TextUtils.equals(data.item0, dto.warningId)) {
-                                    list.add(data);
-                                }
-                            }
-                            dto.warningList.addAll(list);
-
-                            if (mAdapter != null) {
-                                mAdapter.notifyDataSetChanged();
-                            }
-
-                        }
-                    } catch (JSONException e) {
-                        e.printStackTrace();
+            public void run() {
+                OkHttpUtil.enqueue(new Request.Builder().url(String.format("https://videoshfcx.tianqi.cn/dav_tqwy/ty_weather/data/%s.html", dto.cityId)).build(), new Callback() {
+                    @Override
+                    public void onFailure(@NotNull Call call, @NotNull IOException e) {
                     }
+                    @Override
+                    public void onResponse(@NotNull Call call, @NotNull Response response) throws IOException {
+                        if (!response.isSuccessful()) {
+                            return;
+                        }
+                        final String result = response.body().string();
+                        runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                loadingView.setVisibility(View.GONE);
+                                try {
+                                    JSONObject obj = new JSONObject(result);
 
-                }
+                                    //实况信息
+                                    if (!obj.isNull("l")) {
+                                        JSONObject l = obj.getJSONObject("l");
+                                        if (!l.isNull("l5")) {
+                                            String weatherCode = WeatherUtil.lastValue(l.getString("l5"));
+                                            if (!TextUtils.isEmpty(weatherCode)) {
+                                                dto.highPheCode = Integer.parseInt(weatherCode);
+                                            }
+                                        }
 
-                loadingView.setVisibility(View.GONE);
+                                        if (!l.isNull("l1")) {
+                                            String factTemp = WeatherUtil.lastValue(l.getString("l1"));
+                                            if (!TextUtils.isEmpty(factTemp)) {
+                                                dto.highTemp = factTemp;
+                                            }
+                                        }
+
+                                        List<WarningDto> list = new ArrayList<>();
+                                        for (WarningDto data : warningList) {
+                                            if (TextUtils.equals(data.item0, dto.warningId)) {
+                                                list.add(data);
+                                            }
+                                        }
+                                        dto.warningList.addAll(list);
+
+                                        if (mAdapter != null) {
+                                            mAdapter.notifyDataSetChanged();
+                                        }
+
+                                    }
+                                } catch (JSONException e) {
+                                    e.printStackTrace();
+                                }
+                            }
+                        });
+                    }
+                });
             }
-            @Override
-            public void onError(Throwable error, String content) {
-                super.onError(error, content);
-            }
-        });
+        }).start();
     }
 
     /**
@@ -435,7 +444,7 @@ public class ShawnReserveCityActivity extends ShawnBaseActivity implements View.
                     Toast.makeText(mContext, "最多只能关注10个城市", Toast.LENGTH_SHORT).show();
                     return;
                 }
-                Intent intent = new Intent(mContext, ShawnCityActivity.class);
+                Intent intent = new Intent(mContext, CityActivity.class);
                 intent.putExtra("reserveCity", "reserveCity");
                 startActivityForResult(intent, 1001);
                 break;
