@@ -285,15 +285,15 @@ public class WeeklyView extends View{
 			}
 
 			//绘制曲线上每个时间点的温度值
-			textP.setColor(getResources().getColor(R.color.text_color4));
-			textP.setTextSize(CommonUtil.dip2px(mContext, 12));
-			float highText = textP.measureText(String.valueOf(tempList.get(i).highTemp)+mContext.getString(R.string.unit_degree));//高温字符串占像素宽度
-			canvas.drawText(String.valueOf(tempList.get(i).highTemp)+mContext.getString(R.string.unit_degree), dto.highX-highText/2, dto.highY-CommonUtil.dip2px(mContext, 10), textP);
+			textP.setColor(getResources().getColor(R.color.text_color3));
+			textP.setTextSize(CommonUtil.dip2px(mContext, 15));
+			float highText = textP.measureText(String.valueOf(tempList.get(i).highTemp));//高温字符串占像素宽度
+			canvas.drawText(String.valueOf(tempList.get(i).highTemp), dto.highX-highText/2, dto.highY-CommonUtil.dip2px(mContext, 8), textP);
 			
-			textP.setColor(getResources().getColor(R.color.text_color4));
-			textP.setTextSize(CommonUtil.dip2px(mContext, 12));
-			float lowText = textP.measureText(String.valueOf(tempList.get(i).lowTemp)+mContext.getString(R.string.unit_degree));//低温字符串所占的像素宽度
-			canvas.drawText(String.valueOf(tempList.get(i).lowTemp)+mContext.getString(R.string.unit_degree), dto.lowX-lowText/2, dto.lowY+CommonUtil.dip2px(mContext, 20), textP);
+			textP.setColor(getResources().getColor(R.color.text_color3));
+			textP.setTextSize(CommonUtil.dip2px(mContext, 15));
+			float lowText = textP.measureText(String.valueOf(tempList.get(i).lowTemp));//低温字符串所占的像素宽度
+			canvas.drawText(String.valueOf(tempList.get(i).lowTemp), dto.lowX-lowText/2, dto.lowY+CommonUtil.dip2px(mContext, 18), textP);
 		}
 
 	}

@@ -64,7 +64,7 @@
             android:layout_height="wrap_content"
             android:layout_marginStart="3dp"
             android:textColor="@color/text_color4"
-            android:textSize="@dimen/level_4"/>
+            android:textSize="@dimen/level_3"/>
     </LinearLayout>
 
     <LinearLayout
@@ -127,7 +127,7 @@
             android:layout_height="wrap_content"
             android:layout_marginStart="3dp"
             android:textColor="@color/text_color4"
-            android:textSize="@dimen/level_4"/>
+            android:textSize="@dimen/level_3"/>
     </LinearLayout>
 
     <LinearLayout
