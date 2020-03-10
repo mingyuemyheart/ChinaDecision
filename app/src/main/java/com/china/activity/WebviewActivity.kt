@@ -92,7 +92,11 @@ class WebviewActivity : ShawnBaseActivity(), OnClickListener {
 
 			override fun onPageFinished(view: WebView?, url: String?) {
 				super.onPageFinished(view, url)
-				ivShare.visibility = View.VISIBLE
+				if (TextUtils.equals(tvTitle.text, "用户协议") || TextUtils.equals(tvTitle.text, "隐私政策")) {
+					ivShare.visibility = View.GONE
+				} else {
+					ivShare.visibility = View.VISIBLE
+				}
 			}
 
 			override fun onReceivedSslError(view: WebView?, handler: SslErrorHandler?, error: SslError?) {

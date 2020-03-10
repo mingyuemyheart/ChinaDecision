@@ -286,7 +286,7 @@ public class ShawnMainActivity extends ShawnBaseActivity implements OnClickListe
 			cityName = amapLocation.getCity()+amapLocation.getDistrict()+amapLocation.getStreet()+amapLocation.getStreetNum();
 			locationLatLng = new LatLng(amapLocation.getLatitude(), amapLocation.getLongitude());
 			tvLocation.setText(cityName);
-			OkHttpGeo(locationLatLng.longitude, locationLatLng.latitude);
+			OkHttpGeo(locationLatLng.longitude, locationLatLng.latitude, amapLocation.getAdCode());
 
 			String pro = amapLocation.getProvince();
 			if (pro.startsWith("北京") || pro.startsWith("天津") || pro.startsWith("上海") || pro.startsWith("重庆")) {
@@ -367,7 +367,7 @@ public class ShawnMainActivity extends ShawnBaseActivity implements OnClickListe
 	/**
 	 * 获取天气数据
 	 */
-	private void OkHttpGeo(final double lng, final double lat) {
+	private void OkHttpGeo(final double lng, final double lat, final String adCode) {
 		new Thread(new Runnable() {
 			@Override
 			public void run() {
@@ -388,7 +388,7 @@ public class ShawnMainActivity extends ShawnBaseActivity implements OnClickListe
 									JSONObject geoObj = obj.getJSONObject("geo");
 									if (!geoObj.isNull("id")) {
 										cityId = geoObj.getString("id");
-										getWeatherInfo();
+										getWeatherInfo(adCode);
 									}
 								}
 							} catch (JSONException e) {
@@ -401,7 +401,7 @@ public class ShawnMainActivity extends ShawnBaseActivity implements OnClickListe
 		}).start();
 	}
 
-	private void getWeatherInfo() {
+	private void getWeatherInfo(final String adCode) {
 		if (TextUtils.isEmpty(cityId)) {
 			return;
 		}
@@ -566,9 +566,8 @@ public class ShawnMainActivity extends ShawnBaseActivity implements OnClickListe
 				});
 
 				//获取预警信息
-				String warningId = queryWarningIdByCityId(cityId);
-				if (!TextUtils.isEmpty(warningId)) {
-					OkHttpWarning(warningId);
+				if (!TextUtils.isEmpty(adCode)) {
+					OkHttpWarning(adCode);
 				}
 
 			}
