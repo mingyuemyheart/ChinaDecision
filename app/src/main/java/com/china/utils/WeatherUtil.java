@@ -177,6 +177,12 @@ public class WeatherUtil {
 		case 58:
 			id = R.string.weather58;
 			break;
+		case 301:
+			id = R.string.weather7;
+			break;
+		case 302:
+			id = R.string.weather14;
+			break;
 		default:
 			id = R.string.weather0;
 			break;
@@ -600,6 +606,10 @@ public class WeatherUtil {
 			bitmap = BitmapFactory.decodeResource(context.getResources(), R.drawable.day18_mini);
 		}else if (code == 58) {
 			bitmap = BitmapFactory.decodeResource(context.getResources(), R.drawable.day18_mini);
+		}else if (code == 301) {
+			bitmap = BitmapFactory.decodeResource(context.getResources(), R.drawable.day07_mini);
+		}else if (code == 302) {
+			bitmap = BitmapFactory.decodeResource(context.getResources(), R.drawable.day14_mini);
 		}
 		return bitmap;
 	}
@@ -694,6 +704,10 @@ public class WeatherUtil {
 			bitmap = BitmapFactory.decodeResource(context.getResources(), R.drawable.day18_mini_white);
 		}else if (code == 58) {
 			bitmap = BitmapFactory.decodeResource(context.getResources(), R.drawable.day18_mini_white);
+		}else if (code == 301) {
+			bitmap = BitmapFactory.decodeResource(context.getResources(), R.drawable.day07_mini_white);
+		}else if (code == 302) {
+			bitmap = BitmapFactory.decodeResource(context.getResources(), R.drawable.day14_mini_white);
 		}
 		return bitmap;
 	}
@@ -788,6 +802,10 @@ public class WeatherUtil {
 			bitmap = BitmapFactory.decodeResource(context.getResources(), R.drawable.day18_mini);
 		}else if (code == 58) {
 			bitmap = BitmapFactory.decodeResource(context.getResources(), R.drawable.day18_mini);
+		}else if (code == 301) {
+			bitmap = BitmapFactory.decodeResource(context.getResources(), R.drawable.day07_mini);
+		}else if (code == 302) {
+			bitmap = BitmapFactory.decodeResource(context.getResources(), R.drawable.day14_mini);
 		}
 		return bitmap;
 	}
@@ -882,6 +900,10 @@ public class WeatherUtil {
 			bitmap = BitmapFactory.decodeResource(context.getResources(), R.drawable.day18_mini_white);
 		}else if (code == 58) {
 			bitmap = BitmapFactory.decodeResource(context.getResources(), R.drawable.day18_mini_white);
+		}else if (code == 301) {
+			bitmap = BitmapFactory.decodeResource(context.getResources(), R.drawable.day07_mini_white);
+		}else if (code == 302) {
+			bitmap = BitmapFactory.decodeResource(context.getResources(), R.drawable.day14_mini_white);
 		}
 		return bitmap;
 	}

@@ -41,4 +41,6 @@
     <item android:maxLevel="56" android:drawable="@drawable/iv_day_haze" />
     <item android:maxLevel="57" android:drawable="@drawable/iv_day_fog" />
     <item android:maxLevel="58" android:drawable="@drawable/iv_day_fog" />
+    <item android:maxLevel="301" android:drawable="@drawable/iv_day_rain" />
+    <item android:maxLevel="302" android:drawable="@drawable/iv_day_snow" />
 </level-list>
