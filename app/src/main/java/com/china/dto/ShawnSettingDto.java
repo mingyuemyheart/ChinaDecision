@@ -8,6 +8,7 @@ public class ShawnSettingDto {
     private String name;
     private String value;
     private int drawable;
+    private boolean isSelected;
 
     public int getType() {
         return type;
@@ -43,4 +44,11 @@ public class ShawnSettingDto {
         this.drawable = drawable;
     }
 
+    public boolean isSelected() {
+        return isSelected;
+    }
+
+    public void setSelected(boolean selected) {
+        isSelected = selected;
+    }
 }

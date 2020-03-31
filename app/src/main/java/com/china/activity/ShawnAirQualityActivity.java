@@ -107,7 +107,6 @@ OnMapClickListener, OnCameraChangeListener, OnMapScreenShotListener{
 	private LatLng rightLatlng = new LatLng(63.681687310440864,135.21788656711578);
 	private Marker clickMarker;
 	private final String level1 = "level1", level2 = "level2", level3 = "level3";
-	private AVLoadingIndicatorView loadingView;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -122,7 +121,7 @@ OnMapClickListener, OnCameraChangeListener, OnMapScreenShotListener{
 	 * 初始化控件
 	 */
 	private void initWidget() {
-		loadingView = findViewById(R.id.loadingView);
+		showDialog();
 		LinearLayout llBack = findViewById(R.id.llBack);
 		llBack.setOnClickListener(this);
 		ImageView ivShare = findViewById(R.id.ivShare);
@@ -226,7 +225,7 @@ OnMapClickListener, OnCameraChangeListener, OnMapScreenShotListener{
 							runOnUiThread(new Runnable() {
 								@Override
 								public void run() {
-									loadingView.setVisibility(View.GONE);
+									cancelDialog();
 								}
 							});
 						}
@@ -638,7 +637,7 @@ OnMapClickListener, OnCameraChangeListener, OnMapScreenShotListener{
 		if (TextUtils.isEmpty(cityId)) {
 			return;
 		}
-		loadingView.setVisibility(View.VISIBLE);
+		showDialog();
 		new Thread(new Runnable() {
 			@Override
 			public void run() {
@@ -760,7 +759,7 @@ OnMapClickListener, OnCameraChangeListener, OnMapScreenShotListener{
 									}
 								}
 
-								loadingView.setVisibility(View.GONE);
+								cancelDialog();
 							}
 						});
 					}

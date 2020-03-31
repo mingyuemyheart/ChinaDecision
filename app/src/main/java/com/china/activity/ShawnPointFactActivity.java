@@ -664,7 +664,7 @@ public class ShawnPointFactActivity extends ShawnBaseActivity implements OnClick
 				}
 				break;
 			case R.id.tvDataSource:
-				Intent intent = new Intent(mContext, ShawnNewsDetailActivity.class);
+				Intent intent = new Intent(mContext, Webview2Activity.class);
 				intent.putExtra(CONST.ACTIVITY_NAME, "中国气象局陆面数据同化系统（CLDAS-V2.0）实时产品数据集");
 				intent.putExtra(CONST.WEB_URL, "http://data.cma.cn/data/detail/dataCode/NAFP_CLDAS2.0_RT.html");
 				startActivity(intent);

@@ -57,6 +57,25 @@
 		<item>11B19,霾</item>
 		<item>11B20,雷雨大风</item>
 		<item>11B21,道路结冰</item>
+
+<!--		<item>11B25,森林火险</item>-->
+<!--		<item>13A10,新冠肺炎</item>-->
+<!--		<item>13Y02,温馨提示</item>-->
+<!--		<item>11B57,道路冰雪</item>-->
+<!--		<item>11B43,雷暴</item>-->
+<!--		<item>11E06,海浪</item>-->
+<!--		<item>11E02,暴潮</item>-->
+<!--		<item>11B23,海上大风</item>-->
+<!--		<item>11B31,强对流</item>-->
+<!--		<item>11B39,强降温</item>-->
+<!--		<item>11D02,泥石流</item>-->
+<!--		<item>11D03,山体崩塌</item>-->
+<!--		<item>11D01,滑坡</item>-->
+<!--		<item>11E01,海啸</item>-->
+<!--		<item>12Y11,安全生产</item>-->
+<!--		<item>13Y01,公共卫生</item>-->
+<!--		<item>14G07,社会安全</item>-->
+<!--		<item>14Y03,旅游出行</item>-->
     </string-array>
     
 	<!-- 预警等级 -->

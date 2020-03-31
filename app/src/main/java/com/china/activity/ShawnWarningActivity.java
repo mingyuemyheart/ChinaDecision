@@ -1097,9 +1097,6 @@ OnMarkerClickListener, InfoWindowAdapter, OnCameraChangeListener, OnMapScreenSho
 			Intent intent = new Intent(mContext, ShawnWarningListActivity.class);
 			intent.putExtra(CONST.COLUMN_ID, columnId);
 			intent.putExtra("isVisible", true);
-			Bundle bundle = new Bundle();
-			bundle.putParcelableArrayList("warningList", (ArrayList<? extends Parcelable>) warningList);
-			intent.putExtras(bundle);
 			startActivity(intent);
 			break;
 		case R.id.ivStatistic:
@@ -1108,7 +1105,7 @@ OnMarkerClickListener, InfoWindowAdapter, OnCameraChangeListener, OnMapScreenSho
 		case R.id.tvNation:
 			setNormalEmit("2", "");
 			intent = new Intent(mContext, WarningHeaderActivity.class);
-			bundle = new Bundle();
+			Bundle bundle = new Bundle();
 			bundle.putParcelableArrayList("warningList", (ArrayList<? extends Parcelable>) nationList);
 			intent.putExtras(bundle);
 			startActivity(intent);

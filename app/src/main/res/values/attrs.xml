@@ -7,7 +7,7 @@
         <enum name="right_bottom" value="2" />
         <enum name="left_bottom" value="3" />
     </attr>
-    <attr name="radius" format="dimension"></attr>
+    <attr name="radius" format="dimension" />
 
     <declare-styleable name="ArcMenu">
         <attr name="position" />

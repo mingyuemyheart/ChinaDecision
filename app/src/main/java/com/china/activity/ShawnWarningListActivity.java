@@ -6,8 +6,11 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.Bundle;
 import android.text.Editable;
+import android.text.Spannable;
+import android.text.SpannableStringBuilder;
 import android.text.TextUtils;
 import android.text.TextWatcher;
+import android.text.style.ForegroundColorSpan;
 import android.view.KeyEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -31,13 +34,22 @@ import com.china.common.CONST;
 import com.china.common.MyApplication;
 import com.china.dto.WarningDto;
 import com.china.utils.CommonUtil;
+import com.china.utils.OkHttpUtil;
 
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
+
+import okhttp3.Call;
+import okhttp3.Callback;
+import okhttp3.Request;
+import okhttp3.Response;
 
 /**
  * 预警列表
@@ -66,10 +78,6 @@ public class ShawnWarningListActivity extends ShawnBaseActivity implements OnCli
 		setContentView(R.layout.shawn_activity_warning_list);
 		mContext = this;
 		initWidget();
-		initListView();
-		initGridView1();
-		initGridView2();
-		initGridView3();
 	}
 	
 	/**
@@ -99,11 +107,8 @@ public class ShawnWarningListActivity extends ShawnBaseActivity implements OnCli
 		ImageView ivShare = findViewById(R.id.ivShare);
 		ivShare.setOnClickListener(this);
 		ivShare.setVisibility(View.VISIBLE);
-		
-		warningList.clear();
-		warningList.addAll(getIntent().getExtras().<WarningDto>getParcelableArrayList("warningList"));
-		showList.clear();
-		showList.addAll(warningList);
+
+		OkHttpWarning();
     }
 	
 	private TextWatcher watcher = new TextWatcher() {
@@ -546,6 +551,70 @@ public class ShawnWarningListActivity extends ShawnBaseActivity implements OnCli
 		default:
 			break;
 		}
+	}
+
+	/**
+	 * 获取预警信息
+	 */
+	private void OkHttpWarning() {
+		final String url = "https://decision-admin.tianqi.cn/Home/work2019/getwarns";
+		OkHttpUtil.enqueue(new Request.Builder().url(url).build(), new Callback() {
+			@Override
+			public void onFailure(Call call, IOException e) {
+			}
+			@Override
+			public void onResponse(Call call, Response response) throws IOException {
+				if (!response.isSuccessful()) {
+					return;
+				}
+				final String result = response.body().string();
+				runOnUiThread(new Runnable() {
+					@Override
+					public void run() {
+						if (!TextUtils.isEmpty(result)) {
+							try {
+								warningList.clear();
+								showList.clear();
+								JSONObject object = new JSONObject(result);
+								if (!object.isNull("data")) {
+									JSONArray jsonArray = object.getJSONArray("data");
+									for (int i = 0; i < jsonArray.length(); i++) {
+										JSONArray tempArray = jsonArray.getJSONArray(i);
+										WarningDto dto = new WarningDto();
+										dto.html = tempArray.getString(1);
+										String[] array = dto.html.split("-");
+										String item0 = array[0];
+										String item1 = array[1];
+										String item2 = array[2];
+
+										dto.item0 = item0;
+										dto.provinceId = item0.substring(0, 2);
+										dto.type = item2.substring(0, 5);
+										dto.color = item2.substring(5, 7);
+										dto.time = item1;
+										dto.lng = tempArray.getDouble(2);
+										dto.lat = tempArray.getDouble(3);
+										dto.name = tempArray.getString(0);
+
+										if (!dto.name.contains("解除")) {
+											warningList.add(dto);
+											showList.add(dto);
+										}
+									}
+								}
+
+								initListView();
+								initGridView1();
+								initGridView2();
+								initGridView3();
+							} catch (JSONException e) {
+								e.printStackTrace();
+							}
+						}
+					}
+				});
+			}
+		});
 	}
 
 	private String columnId = "";//栏目id

@@ -1,13 +1,12 @@
 package com.china.activity;
 
 import android.app.Activity;
-import android.content.Context;
 import android.os.Build;
 import android.os.Bundle;
 import android.view.View;
 
 import com.china.common.MyApplication;
-import com.china.view.MyDialog2;
+import com.china.view.LoadingDialog;
 import com.github.nkzawa.socketio.client.Socket;
 
 import org.json.JSONException;
@@ -15,13 +14,11 @@ import org.json.JSONObject;
 
 public class ShawnBaseActivity extends Activity {
 	
-	private MyDialog2 mDialog = null;
-	private Context mContext = null;
+	private LoadingDialog mDialog = null;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		mContext = this;
 		if (Build.VERSION.SDK_INT >= 23) {
 			ShawnBaseActivity.this.getWindow().getDecorView().setSystemUiVisibility(View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR);
 		}
@@ -29,7 +26,7 @@ public class ShawnBaseActivity extends Activity {
 	
 	public void showDialog() {
 		if (mDialog == null) {
-			mDialog = new MyDialog2(mContext);
+			mDialog = new LoadingDialog(this);
 		}
 		mDialog.show();
 	}
@@ -38,6 +35,11 @@ public class ShawnBaseActivity extends Activity {
 		if (mDialog != null) {
 			mDialog.dismiss();
 		}
+	}
+
+	@Override
+	protected void onResume() {
+		super.onResume();
 	}
 
 	@Override

@@ -15,6 +15,7 @@ import android.location.LocationManager;
 import android.provider.Settings;
 import android.text.TextUtils;
 import android.util.Base64;
+import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.View;
 import android.view.WindowManager;
@@ -79,7 +80,17 @@ public class CommonUtil {
     public static float px2dip(Context context, float pxValue) {  
         final float scale = context.getResources().getDisplayMetrics().density;  
         return pxValue / scale;
-    } 
+    }
+
+	public static int widthPixels(Context context) {
+		DisplayMetrics dm = context.getResources().getDisplayMetrics();
+		return dm.widthPixels;
+	}
+
+	public static int heightPixels(Context context) {
+		DisplayMetrics dm = context.getResources().getDisplayMetrics();
+		return dm.heightPixels;
+	}
     
     /**
      * 获取listview高度

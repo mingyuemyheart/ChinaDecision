@@ -635,7 +635,7 @@ public class ShawnPointForeActivity extends ShawnBaseActivity implements OnClick
 				}
 				break;
 			case R.id.tvDataSource:
-				Intent intent = new Intent(mContext, ShawnNewsDetailActivity.class);
+				Intent intent = new Intent(mContext, Webview2Activity.class);
 				intent.putExtra(CONST.ACTIVITY_NAME, "中央气象台智能网格预报产品");
 				intent.putExtra(CONST.WEB_URL, "http://www.cma.gov.cn/2011xzt/2017zt/2017qmt/20170728/");
 				startActivity(intent);

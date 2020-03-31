@@ -88,7 +88,7 @@ public class ShawnScreenActivity extends ShawnBaseActivity implements OnClickLis
 //					}
 				}else
 					if (TextUtils.equals(dto.showType, CONST.URL)) {
-					intent = new Intent(mContext, ShawnNewsDetailActivity.class);
+					intent = new Intent(mContext, Webview2Activity.class);
 
 					NewsDto data = new NewsDto();
 					data.title = dto.name;
@@ -101,7 +101,7 @@ public class ShawnScreenActivity extends ShawnBaseActivity implements OnClickLis
 					intent.putExtra(CONST.WEB_URL, dto.dataUrl);
 					startActivity(intent);
 				}else if (TextUtils.equals(dto.showType, CONST.NEWS)) {//天气资讯
-					intent = new Intent(mContext, ShawnWeatherInfoActivity.class);
+					intent = new Intent(mContext, WeatherInfoActivity.class);
 					intent.putExtra(CONST.COLUMN_ID, dto.columnId);
 					intent.putExtra(CONST.ACTIVITY_NAME, dto.name);
 					intent.putExtra(CONST.WEB_URL, dto.dataUrl);
@@ -110,7 +110,7 @@ public class ShawnScreenActivity extends ShawnBaseActivity implements OnClickLis
 					if (TextUtils.equals(dto.id, "-1")) {
 						Toast.makeText(mContext, "频道建设中", Toast.LENGTH_SHORT).show();
 					}else if (TextUtils.equals(dto.id, "1")) {//灾情信息
-						intent = new Intent(mContext, ShawnDisasterSpecialActivity.class);
+						intent = new Intent(mContext, DisasterSpecialActivity.class);
 						intent.putExtra(CONST.COLUMN_ID, dto.columnId);
 						intent.putExtra(CONST.ACTIVITY_NAME, dto.name);
 						intent.putExtra(CONST.WEB_URL, dto.dataUrl);
@@ -121,7 +121,7 @@ public class ShawnScreenActivity extends ShawnBaseActivity implements OnClickLis
 						intent.putExtra(CONST.ACTIVITY_NAME, dto.name);
 						startActivity(intent);
 					}else if (TextUtils.equals(dto.id, "3")) {//决策专报
-						intent = new Intent(mContext, ShawnDecisionNewsActivity.class);
+						intent = new Intent(mContext, DecisionNewsActivity.class);
 						intent.putExtra(CONST.COLUMN_ID, dto.columnId);
 						intent.putExtra(CONST.ACTIVITY_NAME, dto.name);
 						intent.putExtra(CONST.WEB_URL, dto.dataUrl);
@@ -132,7 +132,7 @@ public class ShawnScreenActivity extends ShawnBaseActivity implements OnClickLis
 						intent.putExtra(CONST.ACTIVITY_NAME, dto.name);
 						startActivity(intent);
 					}else if (TextUtils.equals(dto.id, "102")) {//中国大陆区域彩色云图
-						intent = new Intent(mContext, ShawnNewsDetailActivity.class);
+						intent = new Intent(mContext, Webview2Activity.class);
 						intent.putExtra(CONST.COLUMN_ID, dto.columnId);
 						intent.putExtra(CONST.ACTIVITY_NAME, dto.name);
 						intent.putExtra(CONST.WEB_URL, com.china.common.CONST.CLOUD_URL);

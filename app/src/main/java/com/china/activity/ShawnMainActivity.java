@@ -91,10 +91,6 @@ import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 
-import cn.com.weather.api.WeatherAPI;
-import cn.com.weather.beans.Weather;
-import cn.com.weather.constants.Constants.Language;
-import cn.com.weather.listener.AsyncResponseHandler;
 import okhttp3.Call;
 import okhttp3.Callback;
 import okhttp3.Request;
@@ -972,20 +968,20 @@ public class ShawnMainActivity extends ShawnBaseActivity implements OnClickListe
 				Intent intent;
 				if (TextUtils.equals(dto.showType, CONST.PRODUCT)) {
 					if (TextUtils.isEmpty(dto.dataUrl)) {//实况监测、天气预报、专业服务、灾情信息、天气会商
-						intent = new Intent(mContext, ShawnProductActivity.class);
+						intent = new Intent(mContext, ProductActivity.class);
 						Bundle bundle = new Bundle();
 						bundle.putParcelable("data", dto);
 						intent.putExtras(bundle);
 						startActivity(intent);
 					}else {//农业气象
-						intent = new Intent(mContext, ShawnProductActivity2.class);
+						intent = new Intent(mContext, Product2Activity.class);
 						intent.putExtra(CONST.COLUMN_ID, dto.columnId);
 						intent.putExtra(CONST.ACTIVITY_NAME, dto.name);
 						intent.putExtra(CONST.WEB_URL, dto.dataUrl);
 						startActivity(intent);
 					}
 				}else if (TextUtils.equals(dto.showType, CONST.URL)) {
-					intent = new Intent(mContext, ShawnNewsDetailActivity.class);
+					intent = new Intent(mContext, Webview2Activity.class);
 
 					NewsDto data = new NewsDto();
 					data.title = dto.name;
@@ -1000,14 +996,14 @@ public class ShawnMainActivity extends ShawnBaseActivity implements OnClickListe
 					intent.putExtra(CONST.WEB_URL, dto.dataUrl);
 					startActivity(intent);
 				}else if (TextUtils.equals(dto.showType, CONST.NEWS)) {//天气资讯
-					intent = new Intent(mContext, ShawnWeatherInfoActivity.class);
+					intent = new Intent(mContext, WeatherInfoActivity.class);
 					intent.putExtra(CONST.COLUMN_ID, dto.columnId);
 					intent.putExtra(CONST.ACTIVITY_NAME, dto.name);
 					intent.putExtra(CONST.WEB_URL, dto.dataUrl);
 					startActivity(intent);
 				}else if (TextUtils.equals(dto.showType, CONST.LOCAL)) {
 					if (TextUtils.equals(dto.id, "1")) {//灾情信息
-						intent = new Intent(mContext, ShawnDisasterSpecialActivity.class);
+						intent = new Intent(mContext, DisasterSpecialActivity.class);
 						intent.putExtra(CONST.COLUMN_ID, dto.columnId);
 						intent.putExtra(CONST.ACTIVITY_NAME, dto.name);
 						intent.putExtra(CONST.WEB_URL, dto.dataUrl);
@@ -1018,7 +1014,7 @@ public class ShawnMainActivity extends ShawnBaseActivity implements OnClickListe
 						intent.putExtra(CONST.ACTIVITY_NAME, dto.name);
 						startActivity(intent);
 					}else if (TextUtils.equals(dto.id, "3")) {//决策专报
-						intent = new Intent(mContext, ShawnDecisionNewsActivity.class);
+						intent = new Intent(mContext, DecisionNewsActivity.class);
 						intent.putExtra(CONST.COLUMN_ID, dto.columnId);
 						intent.putExtra(CONST.ACTIVITY_NAME, dto.name);
 						intent.putExtra(CONST.WEB_URL, dto.dataUrl);
@@ -1029,7 +1025,7 @@ public class ShawnMainActivity extends ShawnBaseActivity implements OnClickListe
 						intent.putExtra(CONST.ACTIVITY_NAME, dto.name);
 						startActivity(intent);
 					}else if (TextUtils.equals(dto.id, "102")) {//中国大陆区域彩色云图
-						intent = new Intent(mContext, ShawnNewsDetailActivity.class);
+						intent = new Intent(mContext, Webview2Activity.class);
 						intent.putExtra(CONST.COLUMN_ID, dto.columnId);
 						intent.putExtra(CONST.ACTIVITY_NAME, dto.name);
 						intent.putExtra(CONST.WEB_URL, CONST.CLOUD_URL);
@@ -1075,7 +1071,7 @@ public class ShawnMainActivity extends ShawnBaseActivity implements OnClickListe
 						intent.putExtra(CONST.ACTIVITY_NAME, dto.name);
 						startActivity(intent);
 					}else if (TextUtils.equals(dto.id, "113")) {//产品定制
-						intent = new Intent(mContext, ShawnProductOrderActivity2.class);
+						intent = new Intent(mContext, ProductCustomActivity.class);
 						intent.putExtra(CONST.ACTIVITY_NAME, dto.name);
 						startActivity(intent);
 					}else if (TextUtils.equals(dto.id, "114")) {//5天降水量统计
@@ -1109,19 +1105,24 @@ public class ShawnMainActivity extends ShawnBaseActivity implements OnClickListe
 						intent.putExtra(CONST.ACTIVITY_NAME, dto.name);
 						startActivity(intent);
 					}else if (TextUtils.equals(dto.id, "301")) {//灾情专报
-						intent = new Intent(mContext, ShawnDisasterSpecialActivity.class);
+						intent = new Intent(mContext, DisasterSpecialActivity.class);
 						intent.putExtra(CONST.COLUMN_ID, dto.columnId);
 						intent.putExtra(CONST.ACTIVITY_NAME, dto.name);
 						intent.putExtra(CONST.WEB_URL, dto.dataUrl);
 						startActivity(intent);
 					}else if (TextUtils.equals(dto.id, "302")) {//灾情直报
-						intent = new Intent(mContext, ShawnDisasterReportActivity.class);
+						intent = new Intent(mContext, DisasterReportActivity.class);
 						intent.putExtra(CONST.COLUMN_ID, dto.columnId);
 						intent.putExtra(CONST.ACTIVITY_NAME, dto.name);
 						startActivity(intent);
 					}else if (TextUtils.equals(dto.id, "601")) {//视频直播
 						intent = new Intent(mContext, ShawnWeatherMeetingActivity.class);
 						intent.putExtra(CONST.ACTIVITY_NAME, dto.name);
+						startActivity(intent);
+					}else if (TextUtils.equals(dto.id, "1205")) {//联播天气
+						intent = new Intent(mContext, BroadcastWeatherActivity.class);
+						intent.putExtra(CONST.ACTIVITY_NAME, dto.name);
+						intent.putExtra(CONST.WEB_URL, dto.dataUrl);
 						startActivity(intent);
 					}else if (TextUtils.equals(dto.id, "-1")) {
 						Toast.makeText(mContext, "频道建设中", Toast.LENGTH_SHORT).show();
@@ -1244,7 +1245,7 @@ public class ShawnMainActivity extends ShawnBaseActivity implements OnClickListe
 						startActivity(intent);
 						break;
 					case 1:
-						intent = new Intent(mContext, ShawnFeedbackActivity.class);
+						intent = new Intent(mContext, FeedbackActivity.class);
 						intent.putExtra(CONST.ACTIVITY_NAME, data.getName());
 						startActivity(intent);
 						break;
@@ -1252,7 +1253,7 @@ public class ShawnMainActivity extends ShawnBaseActivity implements OnClickListe
 						dialoaCache(true, getString(R.string.sure_delete_cache), data);
 						break;
 					case 3:
-						intent = new Intent(mContext, ShawnNewsDetailActivity.class);
+						intent = new Intent(mContext, Webview2Activity.class);
 						intent.putExtra(CONST.ACTIVITY_NAME, data.getName());
 						intent.putExtra(CONST.WEB_URL, "http://www.cma.gov.cn/2011zwxx/2011zbmgk/201110/t20111026_117793.html");
 						startActivity(intent);
@@ -1525,6 +1526,7 @@ public class ShawnMainActivity extends ShawnBaseActivity implements OnClickListe
      */
     private void onLayoutMeasure() {
         getDisplayWidthHeight();
+        int statusBarHeight = CommonUtil.statusBarHeight(this);
         reTitle.measure(0, 0);
         int height1 = reTitle.getMeasuredHeight();
 		reFact.measure(0, 0);
@@ -1535,7 +1537,7 @@ public class ShawnMainActivity extends ShawnBaseActivity implements OnClickListe
             height3 = (int)(30*density);
         }
         if (mAdapter != null) {
-            mAdapter.height = height-height1-height2-height3;
+            mAdapter.height = height-height1-height2-height3-statusBarHeight;
             mAdapter.notifyDataSetChanged();
         }
     }

@@ -6,7 +6,7 @@ import android.support.v4.app.FragmentStatePagerAdapter
 import android.support.v4.view.PagerAdapter
 import java.util.ArrayList
 
-class MyPagerAdapter(fm: FragmentManager, fs : ArrayList<Fragment>) : FragmentStatePagerAdapter(fm) {
+class MyPagerAdapter(fm : FragmentManager, fs : ArrayList<Fragment>) : FragmentStatePagerAdapter(fm) {
 
     private val fragments : ArrayList<Fragment> = fs
 

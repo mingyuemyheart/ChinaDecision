@@ -83,7 +83,7 @@ public class ShawnCollectionActivity extends ShawnBaseActivity implements OnClic
 			@Override
 			public void onItemClick(AdapterView<?> arg0, View arg1, int arg2, long arg3) {
 				NewsDto dto = dataList.get(arg2);
-				Intent intent = new Intent(mContext, ShawnNewsDetailActivity.class);
+				Intent intent = new Intent(mContext, Webview2Activity.class);
 				intent.putExtra("data", dto);
 				intent.putExtra(CONST.WEB_URL, dto.detailUrl);
 				startActivityForResult(intent, 1001);

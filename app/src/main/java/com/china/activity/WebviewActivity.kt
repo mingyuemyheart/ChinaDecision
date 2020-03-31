@@ -52,7 +52,6 @@ class WebviewActivity : ShawnBaseActivity(), OnClickListener {
 		}
 		
 		val webSettings = webView.settings
-		
 		//支持javascript
 		webSettings.javaScriptEnabled = true
 		webSettings.javaScriptCanOpenWindowsAutomatically = true
