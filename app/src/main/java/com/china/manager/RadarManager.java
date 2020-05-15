@@ -13,6 +13,7 @@ import java.io.FilenameFilter;
 import java.io.InputStream;
 import java.net.URL;
 import java.net.URLConnection;
+import java.util.ArrayList;
 import java.util.List;
 
 public class RadarManager {
@@ -23,7 +24,7 @@ public class RadarManager {
 	public interface RadarListener {
 		int RESULT_SUCCESSED = 1;
 		int RESULT_FAILED = 2;
-		void onResult(int result, List<RadarDto> images);
+		void onResult(int result, ArrayList<RadarDto> images);
 		void onProgress(String url, int progress);
 	}
 	
@@ -31,7 +32,7 @@ public class RadarManager {
 		mContext = context.getApplicationContext();
 	}
 	
-	public void loadImagesAsyn(List<RadarDto> radars, RadarListener listener) {
+	public void loadImagesAsyn(ArrayList<RadarDto> radars, RadarListener listener) {
 		if (mLoadThread != null) {
 			mLoadThread.cancel();
 			mLoadThread = null;
@@ -41,11 +42,11 @@ public class RadarManager {
 	}
 	
 	private class LoadThread extends Thread {
-		private List<RadarDto> radars;
+		private ArrayList<RadarDto> radars;
 		private RadarListener listener;
 		private int count;
 		
-		public LoadThread(List<RadarDto> radars, RadarListener listener) {
+		public LoadThread(ArrayList<RadarDto> radars, RadarListener listener) {
 			this.radars = radars;
 			this.listener = listener;
 		}
@@ -60,7 +61,7 @@ public class RadarManager {
 			}
 		}
 		
-		private void loadImage(final int index, final String imgUrl, final List<RadarDto> radars) {
+		private void loadImage(final int index, final String imgUrl, final ArrayList<RadarDto> radars) {
 			new Thread(new Runnable() {
 				@Override
 				public void run() {
@@ -101,7 +102,7 @@ public class RadarManager {
 		    return null;
 		}
 		
-		private synchronized void finished(String path, List<RadarDto> radars) {
+		private synchronized void finished(String path, ArrayList<RadarDto> radars) {
 			int max = radars.size();
 			count -- ;
 			int progress = (int) (((max - count) * 1.0 / max) * 100);

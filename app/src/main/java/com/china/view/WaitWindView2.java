@@ -16,7 +16,7 @@ import android.view.ViewGroup.LayoutParams;
 import android.widget.ImageView;
 
 import com.amap.api.maps.model.LatLng;
-import com.china.activity.ShawnWaitWindActivity;
+import com.china.activity.WaitWindActivity;
 import com.china.dto.WindData;
 import com.china.dto.WindDto;
 
@@ -40,7 +40,7 @@ public class WaitWindView2 extends View {
 	private int maxLife = 100;//长度，粒子的最大生命周期
 	private Bitmap bitmap;//每一帧图像承载对象
 	private Canvas tempCanvas;
-	private ShawnWaitWindActivity activity;
+	private WaitWindActivity activity;
 	private WindData windData;
 	private List<ImageView> images = new ArrayList<>();//存放位图的list
 
@@ -63,7 +63,7 @@ public class WaitWindView2 extends View {
 		super(context, attrs, defStyleAttr);
 	}
 
-	public void init(ShawnWaitWindActivity activity) {
+	public void init(WaitWindActivity activity) {
 		this.activity = activity;
 
 		DisplayMetrics dm = new DisplayMetrics();

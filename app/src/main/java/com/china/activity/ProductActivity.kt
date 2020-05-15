@@ -131,7 +131,7 @@ class ProductActivity : ShawnBaseActivity(), OnClickListener {
 					intent.putExtra(CONST.ACTIVITY_NAME, dto.name)
 					startActivity(intent)
 				}else if (TextUtils.equals(dto.id, "109")) {//天气图分析
-					intent = Intent(this, ShawnWeatherChartActivity::class.java)
+					intent = Intent(this, WeatherChartActivity::class.java)
 					intent.putExtra(CONST.ACTIVITY_NAME, dto.name)
 					startActivity(intent)
 				}else if (TextUtils.equals(dto.id, "110")) {//格点实况
@@ -156,17 +156,17 @@ class ProductActivity : ShawnBaseActivity(), OnClickListener {
 					intent.putExtra(CONST.ACTIVITY_NAME, dto.name)
 					startActivity(intent)
 				}else if (TextUtils.equals(dto.id, "201")) {//城市天气预报
-					intent = Intent(this, ShawnCityForecastActivity::class.java)
+					intent = Intent(this, CityForecastActivity::class.java)
 					intent.putExtra(CONST.COLUMN_ID, dto.columnId)
 					intent.putExtra(CONST.ACTIVITY_NAME, dto.name)
 					startActivity(intent)
 				}else if (TextUtils.equals(dto.id, "202")) {//分钟级降水估测
-					intent = Intent(this, ShawnMinuteFallActivity::class.java)
+					intent = Intent(this, MinuteFallActivity::class.java)
 					intent.putExtra(CONST.COLUMN_ID, dto.columnId)
 					intent.putExtra(CONST.ACTIVITY_NAME, dto.name)
 					startActivity(intent)
 				}else if (TextUtils.equals(dto.id, "203")) {//等风来
-					intent = Intent(this, ShawnWaitWindActivity::class.java)
+					intent = Intent(this, WaitWindActivity::class.java)
 					intent.putExtra(CONST.COLUMN_ID, dto.columnId)
 					intent.putExtra(CONST.ACTIVITY_NAME, dto.name)
 					intent.putExtra(CONST.WEB_URL, CONST.WAIT_WIND)

@@ -88,7 +88,7 @@
 
                 <data
                     android:host="host"
-                    android:scheme="scheme"></data>
+                    android:scheme="scheme"/>
             </intent-filter>
         </activity>
 
@@ -112,7 +112,7 @@
             android:screenOrientation="portrait" />
 
         <activity
-            android:name="com.china.activity.ShawnCityForecastActivity"
+            android:name="com.china.activity.CityForecastActivity"
             android:screenOrientation="portrait" />
 
         <activity
@@ -144,11 +144,11 @@
             android:screenOrientation="portrait" />
 
         <activity
-            android:name="com.china.activity.ShawnForecastActivity"
+            android:name="com.china.activity.ForecastActivity"
             android:screenOrientation="portrait" />
 
         <activity
-            android:name="com.china.activity.ShawnMinuteFallActivity"
+            android:name="com.china.activity.MinuteFallActivity"
             android:screenOrientation="portrait" />
 
         <activity
@@ -186,11 +186,11 @@
             android:screenOrientation="portrait" />
 
         <activity
-            android:name="com.china.activity.ShawnWaitWindActivity"
+            android:name="com.china.activity.WaitWindActivity"
             android:screenOrientation="portrait" />
 
         <activity
-            android:name="com.china.activity.ShawnWarningActivity"
+            android:name="com.china.activity.WarningActivity"
             android:screenOrientation="portrait" />
 
         <activity
@@ -198,7 +198,7 @@
             android:screenOrientation="portrait" />
 
         <activity
-            android:name="com.china.activity.ShawnWarningListActivity"
+            android:name="com.china.activity.WarningListActivity"
             android:screenOrientation="portrait"
             android:windowSoftInputMode="stateHidden|adjustUnspecified" />
 
@@ -286,7 +286,7 @@
             android:screenOrientation="portrait" />
 
         <activity
-            android:name="com.china.activity.ShawnWeatherChartActivity"
+            android:name="com.china.activity.WeatherChartActivity"
             android:screenOrientation="portrait" />
 
         <activity
@@ -314,7 +314,7 @@
             android:screenOrientation="portrait" />
 
         <activity
-            android:name="com.china.activity.ShawnRadarDetailActivity"
+            android:name="com.china.activity.RadarDetailActivity"
             android:screenOrientation="portrait" />
 
         <activity

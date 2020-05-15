@@ -10,6 +10,10 @@ import android.graphics.Bitmap;
 import android.graphics.Bitmap.Config;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
+import android.graphics.Color;
+import android.graphics.ColorMatrix;
+import android.graphics.ColorMatrixColorFilter;
+import android.graphics.Paint;
 import android.graphics.Picture;
 import android.location.LocationManager;
 import android.provider.Settings;
@@ -851,5 +855,45 @@ public class CommonUtil {
 		}
 		return wind_dir;
 	}
-    
+
+    /**
+     * 图片二值化处理
+     * @return
+     */
+	public static Bitmap grayScaleImage(Bitmap bm) {
+		// 获取图片的宽和高
+		int width = bm.getWidth();
+		int height = bm.getHeight();
+		// 创建二值化图像
+        Bitmap bitmap = bm.copy(Config.ARGB_8888, true);
+		// 遍历原始图像像素,并进行二值化处理
+		for (int i = 0; i < width; i++) {
+			for (int j = 0; j < height; j++) {
+				// 得到当前的像素值
+				int pixel = bitmap.getPixel(i, j);
+				// 得到Alpha通道的值
+				int alpha = pixel & 0xFF000000;
+				// 得到Red的值
+				int red = (pixel & 0x00FF0000) >> 16;
+				// 得到Green的值
+				int green = (pixel & 0x0000FF00) >> 8;
+				// 得到Blue的值
+				int blue = pixel & 0x000000FF;
+				// 通过加权平均算法,计算出最佳像素值
+				int gray = (int) ((float) red * 0.3 + (float) green * 0.59 + (float) blue * 0.11);
+				// 对图像设置黑白图
+				if (gray <= 95) {
+					gray = 0;
+				} else {
+					gray = 255;
+				}
+				// 得到新的像素值
+				int newPiexl = alpha | (gray << 16) | (gray << 8) | gray;
+				// 赋予新图像的像素
+				bitmap.setPixel(i, j, newPiexl);
+			}
+		}
+		return bitmap;
+	}
+
 }

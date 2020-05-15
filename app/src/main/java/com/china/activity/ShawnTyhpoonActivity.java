@@ -19,7 +19,6 @@ import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.text.TextUtils;
-import android.util.DisplayMetrics;
 import android.util.TypedValue;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
@@ -79,9 +78,9 @@ import com.amap.api.services.geocoder.RegeocodeQuery;
 import com.amap.api.services.geocoder.RegeocodeResult;
 import com.china.R;
 import com.china.adapter.ShawnTyphoonNameAdapter;
-import com.china.adapter.ShawnTyphoonYearAdapter;
-import com.china.adapter.ShawnWarningAdapter;
 import com.china.adapter.ShawnTyphoonPublishAdapter;
+import com.china.adapter.ShawnTyphoonYearAdapter;
+import com.china.adapter.WarningAdapter;
 import com.china.common.CONST;
 import com.china.dto.MinuteFallDto;
 import com.china.dto.TyphoonDto;
@@ -98,7 +97,6 @@ import com.china.view.WaitWindView;
 import com.squareup.picasso.Picasso;
 import com.squareup.picasso.Target;
 import com.tendcloud.tenddata.TCAgent;
-import com.wang.avi.AVLoadingIndicatorView;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -139,7 +137,6 @@ public class ShawnTyhpoonActivity extends ShawnBaseActivity implements OnClickLi
 	private SimpleDateFormat sdf8 = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.0", Locale.CHINA);
 	private String locationCity = "北京市";
 	private Bundle savedInstanceState;
-	private AVLoadingIndicatorView loadingView;
 	private boolean isRadarOn = false,isCloudOn = false,isWindOn = false, isWarningOn = false;
 	private List<WarningDto> typhoonWarnings = new ArrayList<>();//全国所有的台风预警信息
 	private List<Marker> typhoonWarningMarkers = new ArrayList<>();
@@ -158,7 +155,6 @@ public class ShawnTyhpoonActivity extends ShawnBaseActivity implements OnClickLi
 	private RelativeLayout container;
 	public RelativeLayout container2;
 	private WindData windData;
-	private int width = 0, height = 0;
 	private WaitWindView waitWindView;
 
 	//台风
@@ -211,12 +207,6 @@ public class ShawnTyhpoonActivity extends ShawnBaseActivity implements OnClickLi
 	}
 
 	private void initWidget() {
-		DisplayMetrics dm = new DisplayMetrics();
-		getWindowManager().getDefaultDisplay().getMetrics(dm);
-		width = dm.widthPixels;
-		height = dm.heightPixels;
-
-		loadingView = findViewById(R.id.loadingView);
 		LinearLayout llBack = findViewById(R.id.llBack);
 		llBack.setOnClickListener(this);
 		tvTitle = findViewById(R.id.tvTitle);
@@ -768,7 +758,7 @@ public class ShawnTyhpoonActivity extends ShawnBaseActivity implements OnClickLi
 	 * 获取某一年的台风列表信息
 	 */
 	private void OkHttpTyphoonList(final int currentYear, final int selectYear) {
-		loadingView.setVisibility(View.VISIBLE);
+		showDialog();
 		final String url = "http://decision-admin.tianqi.cn/Home/other/decision_get_zstflist/year/"+selectYear;
 		new Thread(new Runnable() {
 			@Override
@@ -886,7 +876,7 @@ public class ShawnTyhpoonActivity extends ShawnBaseActivity implements OnClickLi
 											if (nameAdapter != null) {
 												nameAdapter.notifyDataSetChanged();
 											}
-											loadingView.setVisibility(View.GONE);
+											cancelDialog();
 										}
 									} catch (JSONException e) {
 										e.printStackTrace();
@@ -954,7 +944,7 @@ public class ShawnTyhpoonActivity extends ShawnBaseActivity implements OnClickLi
 	 * 获取台风详情
 	 */
 	private void OkHttpTyphoonDetailBABJ(final String publishName, final String publishCode, final String typhoonId, final String typhoonName) {
-		loadingView.setVisibility(View.VISIBLE);
+		showDialog();
 		final String url = "http://decision-admin.tianqi.cn/Home/other/gettyphoon/view/"+typhoonId;
 		new Thread(new Runnable() {
 			@Override
@@ -1091,7 +1081,7 @@ public class ShawnTyhpoonActivity extends ShawnBaseActivity implements OnClickLi
 
 												points.addAll(forePoints);
 												pointsMap.put(typhoonId, points);
-												loadingView.setVisibility(View.GONE);
+												cancelDialog();
 
 												try {
 													int size = startList.size();
@@ -1129,7 +1119,7 @@ public class ShawnTyhpoonActivity extends ShawnBaseActivity implements OnClickLi
 	 * 获取台风详情
 	 */
 	private void OkHttpTyphoonDetailIdea(final String publishName, final String publishCode, final String typhoonId, final String typhoonName) {
-		loadingView.setVisibility(View.VISIBLE);
+		showDialog();
 		final String url = String.format("http://61.142.114.104:8080/zstyphoon/lhdata/zstf?type=1&tsid=%s&fcid=%s", typhoonId, publishCode);
 		new Thread(new Runnable() {
 			@Override
@@ -1148,7 +1138,7 @@ public class ShawnTyhpoonActivity extends ShawnBaseActivity implements OnClickLi
 							runOnUiThread(new Runnable() {
 								@Override
 								public void run() {
-									loadingView.setVisibility(View.GONE);
+									cancelDialog();
 									if (!TextUtils.isEmpty(typhoonName)) {
 										Toast.makeText(mContext, "暂无"+publishName+typhoonName+"数据", Toast.LENGTH_SHORT).show();
 									}
@@ -1163,7 +1153,7 @@ public class ShawnTyhpoonActivity extends ShawnBaseActivity implements OnClickLi
 									List<TyphoonDto> allPoints = new ArrayList<>();
 									JSONArray array = new JSONArray(result);
 									if (array.length() <= 0) {
-										loadingView.setVisibility(View.GONE);
+										cancelDialog();
 										if (!TextUtils.isEmpty(typhoonName)) {
 											Toast.makeText(mContext, "暂无"+publishName+typhoonName+"数据", Toast.LENGTH_SHORT).show();
 										}
@@ -1258,7 +1248,7 @@ public class ShawnTyhpoonActivity extends ShawnBaseActivity implements OnClickLi
 										allPoints.add(dto);
 									}
 
-									loadingView.setVisibility(View.GONE);
+									cancelDialog();
 									try {
 										int size = startList.size();
 										long sleep;
@@ -2070,7 +2060,7 @@ public class ShawnTyhpoonActivity extends ShawnBaseActivity implements OnClickLi
 			mView = inflater.inflate(R.layout.shawn_warning_marker_icon_info, null);
 			final List<WarningDto> infoList = addInfoList(marker);
 			ListView mListView = mView.findViewById(R.id.listView);
-			ShawnWarningAdapter mAdapter = new ShawnWarningAdapter(mContext, infoList, true);
+			WarningAdapter mAdapter = new WarningAdapter(mContext, infoList, true);
 			mListView.setAdapter(mAdapter);
 			ViewGroup.LayoutParams params = mListView.getLayoutParams();
 			if (infoList.size() == 1) {
@@ -2176,7 +2166,7 @@ public class ShawnTyhpoonActivity extends ShawnBaseActivity implements OnClickLi
 	 * 获取分钟级降水图
 	 */
 	private void OkHttpRadar() {
-		loadingView.setVisibility(View.VISIBLE);
+		showDialog();
 		final String url = "http://api.tianqi.cn:8070/v1/img.py";
 		new Thread(new Runnable() {
 			@Override
@@ -2284,7 +2274,7 @@ public class ShawnTyhpoonActivity extends ShawnBaseActivity implements OnClickLi
 					break;
 				case HANDLER_LOAD_FINISHED:
 					ivTyphoonRadar.setVisibility(View.VISIBLE);
-					loadingView.setVisibility(View.GONE);
+					cancelDialog();
 					break;
 				default:
 					break;
@@ -2388,7 +2378,7 @@ public class ShawnTyhpoonActivity extends ShawnBaseActivity implements OnClickLi
 	 * 获取云图数据
 	 */
 	private void OkHttpCloudChart() {
-		loadingView.setVisibility(View.VISIBLE);
+		showDialog();
 		final String url = "http://decision-admin.tianqi.cn/Home/other/getDecisionCloudImages";
 		new Thread(new Runnable() {
 			@Override
@@ -2420,7 +2410,7 @@ public class ShawnTyhpoonActivity extends ShawnBaseActivity implements OnClickLi
 														public void onBitmapLoaded(Bitmap bitmap, Picasso.LoadedFrom from) {
 															cloudBitmap = bitmap;
 															ivTyphoonCloud.setVisibility(View.VISIBLE);
-															loadingView.setVisibility(View.GONE);
+															cancelDialog();
 															drawCloud(bitmap);
 														}
 														@Override
@@ -2486,7 +2476,7 @@ public class ShawnTyhpoonActivity extends ShawnBaseActivity implements OnClickLi
 	 * 获取风场数据
 	 */
 	private void OkHttpWind() {
-		loadingView.setVisibility(View.VISIBLE);
+		showDialog();
 		new Thread(new Runnable() {
 			@Override
 			public void run() {
@@ -2542,7 +2532,7 @@ public class ShawnTyhpoonActivity extends ShawnBaseActivity implements OnClickLi
 								runOnUiThread(new Runnable() {
 									@Override
 									public void run() {
-										loadingView.setVisibility(View.GONE);
+										cancelDialog();
 										reloadWind();
 									}
 								});
@@ -2586,7 +2576,7 @@ public class ShawnTyhpoonActivity extends ShawnBaseActivity implements OnClickLi
 		}
 
 		LatLng latLngStart = aMap.getProjection().fromScreenLocation(new Point(0, 0));
-		LatLng latLngEnd = aMap.getProjection().fromScreenLocation(new Point(width, height));
+		LatLng latLngEnd = aMap.getProjection().fromScreenLocation(new Point(CommonUtil.widthPixels(this), CommonUtil.heightPixels(this)));
 		windData.latLngStart = latLngStart;
 		windData.latLngEnd = latLngEnd;
 		if (waitWindView == null) {

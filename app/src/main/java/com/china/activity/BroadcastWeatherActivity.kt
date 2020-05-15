@@ -3,8 +3,6 @@ package com.china.activity
 import android.annotation.SuppressLint
 import android.content.pm.ActivityInfo
 import android.content.res.Configuration
-import android.media.AudioManager
-import android.media.MediaPlayer
 import android.os.Bundle
 import android.os.Handler
 import android.os.Message
@@ -12,7 +10,6 @@ import android.support.constraint.ConstraintLayout
 import android.text.TextUtils
 import android.util.Log
 import android.view.KeyEvent
-import android.view.SurfaceHolder
 import android.view.View
 import android.view.WindowManager
 import com.china.R
@@ -21,10 +18,13 @@ import com.china.common.CONST
 import com.china.dto.ShawnSettingDto
 import com.china.utils.CommonUtil
 import com.china.utils.OkHttpUtil
-import okhttp3.*
 import kotlinx.android.synthetic.main.activity_broadcast_weather.*
 import kotlinx.android.synthetic.main.activity_broadcast_weather.reTitle
 import kotlinx.android.synthetic.main.shawn_layout_title.*
+import okhttp3.Call
+import okhttp3.Callback
+import okhttp3.Request
+import okhttp3.Response
 import org.json.JSONArray
 import java.io.IOException
 import java.text.SimpleDateFormat
@@ -33,13 +33,11 @@ import java.util.*
 /**
  * 联播天气
  */
-class BroadcastWeatherActivity : ShawnBaseActivity(), View.OnClickListener, SurfaceHolder.Callback, MediaPlayer.OnPreparedListener, MediaPlayer.OnCompletionListener {
+class BroadcastWeatherActivity : ShawnBaseActivity(), View.OnClickListener {
 
     private val dataList : ArrayList<ShawnSettingDto> = ArrayList()
     private val sdf1 = SimpleDateFormat("yyyyMMdd", Locale.CHINA)
     private val sdf2 = SimpleDateFormat("MM月dd日", Locale.CHINA)
-    private var surfaceHolder: SurfaceHolder? = null
-    private var mPlayer: MediaPlayer? = null
     private var configuration : Configuration? = null //方向监听器
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -156,84 +154,46 @@ class BroadcastWeatherActivity : ShawnBaseActivity(), View.OnClickListener, Surf
         }
     }
 
+    private fun playVideo(videoUrl : String) {
+        showDialog()
+        videoView.setVideoPath(videoUrl)
+        videoView.start()
+    }
+
     private fun setSurfaceViewLayout() {
         val params = ConstraintLayout.LayoutParams(CommonUtil.widthPixels(this), CommonUtil.widthPixels(this)*9/16)
-        surfaceView!!.layoutParams = params
+        videoView!!.layoutParams = params
+        imageView.layoutParams = params
     }
 
     /**
-     * 初始化surfaceView
+     * 初始化videoView
      */
     private fun initSurfaceView() {
-        surfaceView.setOnClickListener(this)
-        surfaceHolder = surfaceView.holder
-        surfaceHolder!!.setType(SurfaceHolder.SURFACE_TYPE_PUSH_BUFFERS)
-        surfaceHolder!!.addCallback(this)
         setSurfaceViewLayout()
-    }
-
-    override fun surfaceCreated(holder: SurfaceHolder?) {
-        surfaceHolder = holder
-        mPlayer = MediaPlayer()
-        mPlayer!!.setAudioStreamType(AudioManager.STREAM_MUSIC)
-        mPlayer!!.setDisplay(holder)
-        mPlayer!!.setOnPreparedListener(this)
-        mPlayer!!.setOnCompletionListener(this)
-    }
-
-    private fun playVideo(videoUrl : String) {
-        try {
-            if (!TextUtils.isEmpty(videoUrl)) {
-                mPlayer!!.setDataSource(videoUrl)
-                mPlayer!!.prepareAsync()
-            }
-        } catch (e: Exception) {
-            e.printStackTrace()
+        videoView.setOnClickListener(this)
+        videoView.setOnPreparedListener {
+            cancelDialog()
+            imageView.visibility = View.GONE
         }
-    }
-
-    override fun surfaceChanged(holder: SurfaceHolder?, arg1: Int, arg2: Int, arg3: Int) {
-        surfaceHolder = holder
-    }
-
-    override fun surfaceDestroyed(holder: SurfaceHolder?) {
-        surfaceHolder = holder
-        releaseMediaPlayer()
-    }
-
-    override fun onPrepared(player: MediaPlayer?) {
-        cancelDialog()
-        swithVideo()
     }
 
     private fun swithVideo() {
-        if (mPlayer != null) {
-            if (mPlayer!!.isPlaying) {
-                mPlayer!!.pause()
-                ivPlay!!.setImageResource(R.drawable.shawn_icon_play)
-            } else {
-                mPlayer!!.start()
-                ivPlay!!.setImageResource(R.drawable.shawn_icon_pause)
-            }
+        if (videoView!!.isPlaying) {
+            videoView!!.pause()
+            ivPlay!!.setImageResource(R.drawable.shawn_icon_play)
+        } else {
+            videoView!!.start()
+            ivPlay!!.setImageResource(R.drawable.shawn_icon_pause)
         }
-    }
-
-    override fun onCompletion(arg0: MediaPlayer?) {
-        handler.removeMessages(1001)
-        ivPlay!!.visibility = View.VISIBLE
-        ivPlay!!.setImageResource(R.drawable.shawn_icon_play)
-        ivExpand.visibility = View.VISIBLE
     }
 
     /**
      * 释放MediaPlayer资源
      */
     private fun releaseMediaPlayer() {
-        if (mPlayer != null) {
-            mPlayer!!.stop()
-            mPlayer!!.release()
-            mPlayer = null
-        }
+        videoView.stopPlayback()
+        videoView.suspend()
     }
 
     @SuppressLint("HandlerLeak")
@@ -271,7 +231,7 @@ class BroadcastWeatherActivity : ShawnBaseActivity(), View.OnClickListener, Surf
 
     override fun onClick(v: View) {
         when (v.id) {
-            R.id.surfaceView -> {
+            R.id.videoView -> {
                 if (ivPlay!!.visibility == View.VISIBLE) {
                     ivPlay!!.visibility = View.GONE
                     ivExpand.visibility = View.GONE

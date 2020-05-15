@@ -108,7 +108,7 @@ class LoginActivity : ShawnBaseActivity(), OnClickListener {
 	 * 登录
 	 */
 	private fun okHttpLogin() {
-		loadingView.visibility = View.VISIBLE
+		showDialog()
 		val url = "http://decision-admin.tianqi.cn/home/Work/login"
 		val builder = FormBody.Builder()
 		builder.add("username", etUserName.text.toString())
@@ -133,7 +133,7 @@ class LoginActivity : ShawnBaseActivity(), OnClickListener {
 					}
 					val result = response.body!!.string()
 					runOnUiThread {
-						loadingView.visibility = View.GONE
+						cancelDialog()
 						if (!TextUtils.isEmpty(result)) {
 							try {
 								val obje = JSONObject(result)

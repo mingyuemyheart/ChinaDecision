@@ -24,6 +24,15 @@ public class MyApplication extends Application{
 		mSocket = socket;
 	}
 
+	private static String appTheme = "0";
+
+	public static String getAppTheme() {
+		return appTheme;
+	}
+	public static void setTheme(String theme) {
+		appTheme = theme;
+	}
+
 	@Override
 	public void onCreate() {
 		super.onCreate();

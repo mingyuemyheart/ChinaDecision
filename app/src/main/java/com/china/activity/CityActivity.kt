@@ -90,7 +90,7 @@ class CityActivity : ShawnBaseActivity(), OnClickListener {
             setResult(RESULT_OK, i)
             finish()
         }else {
-            i = Intent(this, ShawnForecastActivity::class.java)
+            i = Intent(this, ForecastActivity::class.java)
             i.putExtra("cityName", data.areaName)
             i.putExtra("cityId", data.cityId)
             startActivity(i)

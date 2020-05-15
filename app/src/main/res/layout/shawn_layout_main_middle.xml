@@ -64,7 +64,7 @@
                     android:id="@+id/reFact"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:background="@drawable/shawn_bg_weather"
+                    android:background="#1A4274"
                     android:paddingTop="10dp"
                     android:visibility="invisible">
 

@@ -2,6 +2,10 @@ package com.china.fragment
 
 import android.app.Fragment
 import android.content.Intent
+import android.graphics.Bitmap
+import android.graphics.BitmapFactory
+import android.graphics.Color
+import android.graphics.drawable.Drawable
 import android.os.Bundle
 import android.text.TextUtils
 import android.view.LayoutInflater
@@ -11,8 +15,12 @@ import com.china.R
 import com.china.activity.PDFActivity
 import com.china.activity.WebviewActivity
 import com.china.common.CONST
+import com.china.common.MyApplication
 import com.china.dto.NewsDto
+import com.china.utils.CommonUtil
 import com.squareup.picasso.Picasso
+import com.squareup.picasso.Picasso.LoadedFrom
+import com.squareup.picasso.Target
 import kotlinx.android.synthetic.main.fragment_pdf.*
 
 /**
@@ -34,8 +42,22 @@ class PdfFragment : Fragment() {
         if (!TextUtils.isEmpty(data.title)) {
             tvTitle.text = data.title
         }
+
+        if (TextUtils.equals("1", MyApplication.getAppTheme())) {
+            ivLouder.setImageBitmap(CommonUtil.grayScaleImage(BitmapFactory.decodeResource(resources, R.drawable.shawn_icon_month_news)))
+        }
         if (!TextUtils.isEmpty(data.imgUrl)) {
-            Picasso.get().load(data.imgUrl).into(imageView)
+            if (TextUtils.equals("1", MyApplication.getAppTheme())) {
+                Picasso.get().load(data.imgUrl).into(object : Target {
+                    override fun onBitmapLoaded(bitmap: Bitmap?, from: LoadedFrom?) {
+                        imageView.setImageBitmap(CommonUtil.grayScaleImage(bitmap))
+                    }
+                    override fun onBitmapFailed(e: Exception?, errorDrawable: Drawable?) {}
+                    override fun onPrepareLoad(placeHolderDrawable: Drawable?) {}
+                })
+            } else {
+                Picasso.get().load(data.imgUrl).into(imageView)
+            }
         }
 
         llContent.setOnClickListener {

@@ -2020,7 +2020,7 @@ public class ShawnFactActivity extends ShawnBaseActivity implements OnClickListe
                     .anchor(0.5f, 0.5f)
                     .positionFromBounds(bounds)
                     .image(fromView)
-                    .transparency(0.2f));
+                    .transparency(0.25f));
         } else {
             cloudOverlay.setImage(null);
             cloudOverlay.setPositionFromBounds(bounds);

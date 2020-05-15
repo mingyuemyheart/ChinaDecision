@@ -417,7 +417,7 @@ public class ShawnReserveCityActivity extends ShawnBaseActivity implements View.
             @Override
             public void onItemClick(AdapterView<?> arg0, View arg1, int arg2, long arg3) {
                 CityDto data = cityList.get(arg2);
-                Intent intent = new Intent(mContext, ShawnForecastActivity.class);
+                Intent intent = new Intent(mContext, ForecastActivity.class);
                 intent.putExtra("cityName", data.cityName);
                 intent.putExtra("cityId", data.cityId);
                 startActivity(intent);

@@ -464,7 +464,11 @@ public class ShawnMainActivity extends ShawnBaseActivity implements OnClickListe
 												String num = WeatherUtil.lastValue(k.getString("k3"));
 												if (!TextUtils.isEmpty(num)) {
 													tvAqi.setText("AQI "+WeatherUtil.getAqi(mContext, Integer.valueOf(num))+" "+num);
-													ivAqi.setImageResource(WeatherUtil.getAqiIcon(Integer.valueOf(num)));
+													if (TextUtils.equals("1", MyApplication.getAppTheme())) {
+														ivAqi.setVisibility(View.GONE);
+													} else {
+														ivAqi.setImageResource(WeatherUtil.getAqiIcon(Integer.valueOf(num)));
+													}
 												}
 											}
 										}
@@ -541,8 +545,13 @@ public class ShawnMainActivity extends ShawnBaseActivity implements OnClickListe
 													}
 												}
 
-												ivPheHigh.setImageBitmap(WeatherUtil.getDayBitmap(mContext, highPheCode));
-												ivPheLow.setImageBitmap(WeatherUtil.getNightBitmap(mContext, lowPheCode));
+												if (TextUtils.equals("1", MyApplication.getAppTheme())) {
+													ivPheHigh.setImageBitmap(CommonUtil.grayScaleImage(WeatherUtil.getDayBitmap(mContext, highPheCode)));
+													ivPheLow.setImageBitmap(CommonUtil.grayScaleImage(WeatherUtil.getNightBitmap(mContext, lowPheCode)));
+												} else {
+													ivPheHigh.setImageBitmap(WeatherUtil.getDayBitmap(mContext, highPheCode));
+													ivPheLow.setImageBitmap(WeatherUtil.getNightBitmap(mContext, lowPheCode));
+												}
 												tvTemp.setText(highTemp+getString(R.string.unit_degree)+"/"+lowTemp+getString(R.string.unit_degree));
 												llContainer2.addView(view);
 											}
@@ -555,6 +564,9 @@ public class ShawnMainActivity extends ShawnBaseActivity implements OnClickListe
 
 								refreshLayout.setRefreshing(false);
 								reFact.setVisibility(View.VISIBLE);
+								if (TextUtils.equals("1", MyApplication.getAppTheme())) {
+									reFact.setBackgroundColor(Color.BLACK);
+								}
 
 							}
 						});
@@ -737,7 +749,11 @@ public class ShawnMainActivity extends ShawnBaseActivity implements OnClickListe
 										if (bitmap == null) {
 											bitmap = CommonUtil.getImageFromAssetsFile(mContext,"warning/"+"default"+CONST.imageSuffix);
 										}
-										ivWarning.setImageBitmap(bitmap);
+										if (TextUtils.equals("1", MyApplication.getAppTheme())) {
+											ivWarning.setImageBitmap(CommonUtil.grayScaleImage(bitmap));
+										} else {
+											ivWarning.setImageBitmap(bitmap);
+										}
 										ivWarning.setLayoutParams(params);
 										llWarning.addView(ivWarning);
 										llWarning.setVisibility(View.VISIBLE);
@@ -801,6 +817,8 @@ public class ShawnMainActivity extends ShawnBaseActivity implements OnClickListe
 		viewPager = findViewById(R.id.viewPager);
 		if (pdfList.size() == 0) {
 			viewPager.setVisibility(View.GONE);
+			viewGroup.setVisibility(View.GONE);
+		} else if (pdfList.size() == 1) {
 			viewGroup.setVisibility(View.GONE);
 		}
 		viewPager.setSlipping(true);//设置ViewPager是否可以滑动
@@ -1009,7 +1027,7 @@ public class ShawnMainActivity extends ShawnBaseActivity implements OnClickListe
 						intent.putExtra(CONST.WEB_URL, dto.dataUrl);
 						startActivity(intent);
 					}else if (TextUtils.equals(dto.id, "2")) {//预警信息
-						intent = new Intent(mContext, ShawnWarningActivity.class);
+						intent = new Intent(mContext, WarningActivity.class);
 						intent.putExtra(CONST.COLUMN_ID, dto.columnId);
 						intent.putExtra(CONST.ACTIVITY_NAME, dto.name);
 						startActivity(intent);
@@ -1055,7 +1073,7 @@ public class ShawnMainActivity extends ShawnBaseActivity implements OnClickListe
 						intent.putExtra(CONST.ACTIVITY_NAME, dto.name);
 						startActivity(intent);
 					}else if (TextUtils.equals(dto.id, "109")) {//天气图分析
-						intent = new Intent(mContext, ShawnWeatherChartActivity.class);
+						intent = new Intent(mContext, WeatherChartActivity.class);
 						intent.putExtra(CONST.ACTIVITY_NAME, dto.name);
 						startActivity(intent);
 					}else if (TextUtils.equals(dto.id, "110")) {//格点实况
@@ -1080,17 +1098,17 @@ public class ShawnMainActivity extends ShawnBaseActivity implements OnClickListe
 						intent.putExtra(CONST.ACTIVITY_NAME, dto.name);
 						startActivity(intent);
 					}else if (TextUtils.equals(dto.id, "201")) {//城市天气预报
-						intent = new Intent(mContext, ShawnCityForecastActivity.class);
+						intent = new Intent(mContext, CityForecastActivity.class);
 						intent.putExtra(CONST.COLUMN_ID, dto.columnId);
 						intent.putExtra(CONST.ACTIVITY_NAME, dto.name);
 						startActivity(intent);
 					}else if (TextUtils.equals(dto.id, "202")) {//分钟级降水估测
-						intent = new Intent(mContext, ShawnMinuteFallActivity.class);
+						intent = new Intent(mContext, MinuteFallActivity.class);
 						intent.putExtra(CONST.COLUMN_ID, dto.columnId);
 						intent.putExtra(CONST.ACTIVITY_NAME, dto.name);
 						startActivity(intent);
 					}else if (TextUtils.equals(dto.id, "203")) {//等风来
-						intent = new Intent(mContext, ShawnWaitWindActivity.class);
+						intent = new Intent(mContext, WaitWindActivity.class);
 						intent.putExtra(CONST.COLUMN_ID, dto.columnId);
 						intent.putExtra(CONST.ACTIVITY_NAME, dto.name);
 						intent.putExtra(CONST.WEB_URL, com.china.common.CONST.WAIT_WIND);
@@ -1462,7 +1480,7 @@ public class ShawnMainActivity extends ShawnBaseActivity implements OnClickListe
 				break;
 			case R.id.tvLocation:
 			case R.id.tvTime:
-				intent = new Intent(mContext, ShawnForecastActivity.class);
+				intent = new Intent(mContext, ForecastActivity.class);
 				intent.putExtra("cityName", cityName);
 				intent.putExtra("cityId", cityId);
 				intent.putExtra("lat", locationLatLng.latitude);

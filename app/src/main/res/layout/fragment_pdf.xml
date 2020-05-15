@@ -7,9 +7,10 @@
     android:orientation="horizontal">
 
     <ImageView
+        android:id="@+id/ivLouder"
         android:layout_width="15dp"
         android:layout_height="15dp"
-        android:layout_marginStart="10dp"
+        android:layout_marginStart="5dp"
         android:scaleType="fitXY"
         android:src="@drawable/shawn_icon_month_news" />
 

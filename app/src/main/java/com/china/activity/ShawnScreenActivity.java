@@ -116,7 +116,7 @@ public class ShawnScreenActivity extends ShawnBaseActivity implements OnClickLis
 						intent.putExtra(CONST.WEB_URL, dto.dataUrl);
 						startActivity(intent);
 					}else if (TextUtils.equals(dto.id, "2")) {//预警信息
-						intent = new Intent(mContext, ShawnWarningActivity.class);
+						intent = new Intent(mContext, WarningActivity.class);
 						intent.putExtra(CONST.COLUMN_ID, dto.columnId);
 						intent.putExtra(CONST.ACTIVITY_NAME, dto.name);
 						startActivity(intent);
@@ -158,17 +158,17 @@ public class ShawnScreenActivity extends ShawnBaseActivity implements OnClickLis
 						intent.putExtra(CONST.ACTIVITY_NAME, dto.name);
 						startActivity(intent);
 					}else if (TextUtils.equals(dto.id, "201")) {//城市天气预报
-						intent = new Intent(mContext, ShawnCityForecastActivity.class);
+						intent = new Intent(mContext, CityForecastActivity.class);
 						intent.putExtra(CONST.COLUMN_ID, dto.columnId);
 						intent.putExtra(CONST.ACTIVITY_NAME, dto.name);
 						startActivity(intent);
 					}else if (TextUtils.equals(dto.id, "202")) {//分钟级降水估测
-						intent = new Intent(mContext, ShawnMinuteFallActivity.class);
+						intent = new Intent(mContext, MinuteFallActivity.class);
 						intent.putExtra(CONST.COLUMN_ID, dto.columnId);
 						intent.putExtra(CONST.ACTIVITY_NAME, dto.name);
 						startActivity(intent);
 					}else if (TextUtils.equals(dto.id, "203")) {//等风来
-						intent = new Intent(mContext, ShawnWaitWindActivity.class);
+						intent = new Intent(mContext, WaitWindActivity.class);
 						intent.putExtra(CONST.COLUMN_ID, dto.columnId);
 						intent.putExtra(CONST.ACTIVITY_NAME, dto.name);
 						intent.putExtra(CONST.WEB_URL, com.china.common.CONST.WAIT_WIND);

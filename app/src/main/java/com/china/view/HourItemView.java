@@ -8,11 +8,13 @@ import android.graphics.Color;
 import android.graphics.Paint;
 import android.media.ThumbnailUtils;
 import android.os.Handler;
+import android.text.TextUtils;
 import android.util.AttributeSet;
 import android.view.View;
 
 import com.china.R;
 import com.china.common.CONST;
+import com.china.common.MyApplication;
 import com.china.dto.WeatherDto;
 import com.china.utils.CommonUtil;
 import com.china.utils.WeatherUtil;
@@ -116,7 +118,11 @@ public class HourItemView extends View{
 				lb = WeatherUtil.getNightBitmap(mContext, dto.hourlyCode);
 			}
 			Bitmap newLbit = ThumbnailUtils.extractThumbnail(lb, (int)(CommonUtil.dip2px(mContext, 20)), (int)(CommonUtil.dip2px(mContext, 20)));
-			canvas.drawBitmap(newLbit, dto.x-newLbit.getWidth(), dto.y-(int)(CommonUtil.dip2px(mContext, 40)), textP);
+			if (TextUtils.equals("1", MyApplication.getAppTheme())) {
+				canvas.drawBitmap(CommonUtil.grayScaleImage(newLbit), dto.x-newLbit.getWidth(), dto.y-(int)(CommonUtil.dip2px(mContext, 40)), textP);
+			} else {
+				canvas.drawBitmap(newLbit, dto.x-newLbit.getWidth(), dto.y-(int)(CommonUtil.dip2px(mContext, 40)), textP);
+			}
 		} catch (ParseException e) {
 			e.printStackTrace();
 		}

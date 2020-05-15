@@ -1,11 +1,15 @@
 package com.china.activity;
 
 import android.app.Activity;
+import android.content.Context;
 import android.os.Build;
 import android.os.Bundle;
+import android.support.annotation.Nullable;
+import android.util.AttributeSet;
 import android.view.View;
 
 import com.china.common.MyApplication;
+import com.china.view.GrayFrameLayout;
 import com.china.view.LoadingDialog;
 import com.github.nkzawa.socketio.client.Socket;
 
@@ -14,7 +18,7 @@ import org.json.JSONObject;
 
 public class ShawnBaseActivity extends Activity {
 	
-	private LoadingDialog mDialog = null;
+	private LoadingDialog mDialog;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -47,6 +51,32 @@ public class ShawnBaseActivity extends Activity {
 		super.onDestroy();
 		cancelDialog();//解决activity已经销毁，而还在调用dialog
 	}
+
+//	@Override
+//	public View onCreateView(String name, Context context, AttributeSet attrs) {
+//		try {
+//			if ("FrameLayout".equals(name)) {
+//				int count = attrs.getAttributeCount();
+//				for (int i = 0; i < count; i++) {
+//					String attributeName = attrs.getAttributeName(i);
+//					String attributeValue = attrs.getAttributeValue(i);
+//					if (attributeName.equals("id")) {
+//						int id = Integer.parseInt(attributeValue.substring(1));
+//						String idVal = getResources().getResourceName(id);
+//						if ("android:id/content".equals(idVal)) {
+//							GrayFrameLayout grayFrameLayout = new GrayFrameLayout(context, attrs);
+////                            grayFrameLayout.setWindow(getWindow());
+//							return grayFrameLayout;
+//						}
+//					}
+//				}
+//			}
+//		} catch (Exception e) {
+//			e.printStackTrace();
+//		}
+//		return super.onCreateView(name, context, attrs);
+//	}
+
 
 	public Socket socket = null;
 

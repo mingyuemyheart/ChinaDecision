@@ -17,8 +17,10 @@ import com.china.common.MyApplication
 import com.china.dto.NewsDto
 import com.china.utils.CommonUtil
 import com.china.utils.OkHttpUtil
+import com.squareup.picasso.Picasso
 import com.tendcloud.tenddata.TCAgent
 import com.tendcloud.tenddata.TDAccount
+import kotlinx.android.synthetic.main.activity_welcome.*
 import kotlinx.android.synthetic.main.dialog_policy.view.*
 import okhttp3.*
 import org.json.JSONException
@@ -44,6 +46,8 @@ class WelcomeActivity : ShawnBaseActivity() {
 			return
 		}
 		//点击Home键后再点击APP图标，APP重启而不是回到原来界面
+
+		okHttpTheme()
 
 		if (!policyFlag()) {
 			promptDialog()
@@ -295,6 +299,40 @@ class WelcomeActivity : ShawnBaseActivity() {
 									}
 								}
 							} catch (e : JSONException) {
+								e.printStackTrace()
+							}
+						}
+					}
+				}
+			})
+		}).start()
+	}
+
+	/**
+	 * 获取主题
+	 */
+	private fun okHttpTheme() {
+		val url = "https://decision-admin.tianqi.cn/Home/work2019/decision_theme_data?appid=${CONST.APPID}"
+		Thread(Runnable {
+			OkHttpUtil.enqueue(Request.Builder().url(url).build(), object : Callback {
+				override fun onFailure(call: Call, e: IOException) {}
+				@Throws(IOException::class)
+				override fun onResponse(call: Call, response: Response) {
+					if (!response.isSuccessful) {
+						return
+					}
+					val result = response.body!!.string()
+					runOnUiThread {
+						if (!TextUtils.isEmpty(result)) {
+							try {
+								val obj = JSONObject(result)
+								if (!obj.isNull("style")) {
+									MyApplication.setTheme(obj.getString("style"))
+								}
+								if (!obj.isNull("launch_img")) {
+									Picasso.get().load(obj.getString("launch_img")).into(imageView)
+								}
+							} catch (e: JSONException) {
 								e.printStackTrace()
 							}
 						}
