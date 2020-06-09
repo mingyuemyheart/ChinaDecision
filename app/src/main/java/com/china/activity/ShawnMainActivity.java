@@ -255,7 +255,7 @@ public class ShawnMainActivity extends ShawnBaseActivity implements OnClickListe
 		height = dm.heightPixels;
 		density = dm.density;
 	}
-	
+
 	/**
 	 * 开始定位
 	 */
@@ -284,12 +284,14 @@ public class ShawnMainActivity extends ShawnBaseActivity implements OnClickListe
 			tvLocation.setText(cityName);
 			OkHttpGeo(locationLatLng.longitude, locationLatLng.latitude, amapLocation.getAdCode());
 
-			String pro = amapLocation.getProvince();
-			if (pro.startsWith("北京") || pro.startsWith("天津") || pro.startsWith("上海") || pro.startsWith("重庆")) {
-				okHttpInfo(amapLocation.getCity(), amapLocation.getDistrict());
-			} else {
-				okHttpInfo(amapLocation.getProvince(), amapLocation.getCity());
-			}
+//			String pro = amapLocation.getProvince();
+//			if (pro.startsWith("北京") || pro.startsWith("天津") || pro.startsWith("上海") || pro.startsWith("重庆")) {
+//				okHttpInfo(amapLocation.getCity(), amapLocation.getDistrict());
+//			} else {
+//				okHttpInfo(amapLocation.getProvince(), amapLocation.getCity());
+//			}
+
+			initViewPager();
         }
 	}
 
@@ -635,24 +637,6 @@ public class ShawnMainActivity extends ShawnBaseActivity implements OnClickListe
 				});
 			}
 		}).start();
-	}
-
-	/**
-	 * 获取预警id
-	 */
-	private String queryWarningIdByCityId(String cityId) {
-		DBManager dbManager = new DBManager(mContext);
-		dbManager.openDateBase();
-		dbManager.closeDatabase();
-		SQLiteDatabase database = SQLiteDatabase.openOrCreateDatabase(DBManager.DB_PATH + "/" + DBManager.DB_NAME, null);
-		Cursor cursor = database.rawQuery("select * from " + DBManager.TABLE_NAME3 + " where cid = " + "\"" + cityId + "\"",null);
-		String warningId = null;
-		for (int i = 0; i < cursor.getCount(); i++) {
-			cursor.moveToPosition(i);
-			warningId = cursor.getString(cursor.getColumnIndex("wid"));
-		}
-		cursor.close();
-		return warningId;
 	}
 
 	/**
