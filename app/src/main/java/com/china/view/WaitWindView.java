@@ -10,7 +10,6 @@ import android.os.Handler;
 import android.os.Message;
 import android.text.TextUtils;
 import android.util.AttributeSet;
-import android.util.DisplayMetrics;
 import android.view.View;
 import android.view.ViewGroup.LayoutParams;
 import android.widget.ImageView;
@@ -19,6 +18,7 @@ import com.amap.api.maps.model.LatLng;
 import com.china.activity.ShawnTyhpoonActivity;
 import com.china.dto.WindData;
 import com.china.dto.WindDto;
+import com.china.utils.CommonUtil;
 
 import java.io.BufferedReader;
 import java.io.FileNotFoundException;
@@ -32,7 +32,7 @@ import java.util.List;
 public class WaitWindView extends View {
 
 	private Paint paint;
-	private int width = 0, height = 0;//手机屏幕宽高
+	private float width = 0f, height = 0f;//手机屏幕宽高
 	private List<WindDto> particles = new ArrayList<>();//存放随机点的list
 	private int time = 60;//ms,刷新画布时间
 	private int maxLife = 100;//长度，粒子的最大生命周期
@@ -42,6 +42,7 @@ public class WaitWindView extends View {
 	private ShawnTyhpoonActivity activity;
 	private WindData windData;
 	private List<ImageView> images = new ArrayList<>();//存放位图的list
+	private float zoom;
 	
 	//高配
 	private int partileCount = 1200;//绘制粒子个数
@@ -63,10 +64,8 @@ public class WaitWindView extends View {
 	public void init(ShawnTyhpoonActivity activity) {
 		this.activity = activity;
 
-		DisplayMetrics dm = new DisplayMetrics();
-		activity.getWindowManager().getDefaultDisplay().getMetrics(dm);
-		width = dm.widthPixels;
-		height = dm.heightPixels;
+		width = CommonUtil.widthPixels(activity);
+		height = CommonUtil.heightPixels(activity);
 		
 		paint = new Paint();
 		paint.setColor(Color.WHITE);
@@ -111,7 +110,8 @@ public class WaitWindView extends View {
 		getParticleInfo();
 	}
 
-	public void setData(WindData windData) {
+	public void setData(WindData windData, float zoom) {
+		this.zoom = zoom;
 		this.windData = windData;
 	}
 	
@@ -222,16 +222,25 @@ public class WaitWindView extends View {
 				if (Math.abs(windData.latLngEnd.longitude - windData.latLngStart.longitude) > 180) {
 					longDetla = (windData.latLngEnd.longitude - (-180)) + (180 - windData.latLngStart.longitude);
 				}
-				double lng = (longDetla)/width*x+windData.latLngStart.longitude;
+				double lng = (longDetla)*x/width+windData.latLngStart.longitude;
 				if (lng > 180) {
 					lng = lng - 360;
 				}
 				if (lng <= windData.x0) {
 					lng = windData.x1 - windData.x0 + lng;
 				}
-				double lat = (windData.latLngEnd.latitude - windData.latLngStart.latitude)/height*y+windData.latLngStart.latitude;
+				double lat = (windData.latLngEnd.latitude - windData.latLngStart.latitude)*y/height+windData.latLngStart.latitude;
+				if (zoom <= 3.0f) {
+					lat = lat+zoom*4.2;
+				} else if (zoom <= 4.0f) {
+					lat = lat+zoom*1.5;
+				} else if (zoom <= 5.0f) {
+					lat = lat+zoom*0.6;
+				} else {
+					lat = lat-zoom/(zoom+220);
+				}
 				LatLng latLng = new LatLng(lat, lng);
-				float[] p = getVector(latLng);
+				double[] p = getVector(latLng);
 				int life = (int)(Math.random()*maxLife);
 
 				double m = Math.sqrt(p[0]*p[0] + p[1]*p[1]);
@@ -242,8 +251,8 @@ public class WaitWindView extends View {
 					dto.oldY = -1;
 					dto.x = x;
 					dto.y = y;
-					dto.vx = p[0];
-					dto.vy = p[1];
+					dto.vx = (float) p[0];
+					dto.vy = (float) p[1];
 					dto.latLng = latLng;
 					dto.life = life;
 				}
@@ -254,16 +263,25 @@ public class WaitWindView extends View {
 				if (Math.abs(windData.latLngEnd.longitude - windData.latLngStart.longitude) > 180) {
 					longDetla = (windData.latLngEnd.longitude - (-180)) + (180 - windData.latLngStart.longitude);
 				}
-				double lng = (longDetla)/width*x+windData.latLngStart.longitude;
+				double lng = (longDetla)*x/width+windData.latLngStart.longitude;
 				if (lng > 180) {
 					lng = lng - 360;
 				}
 				if (lng <= windData.x0) {
 					lng = windData.x1 - windData.x0 + lng;
 				}
-				double lat = (windData.latLngEnd.latitude - windData.latLngStart.latitude)/height*y+windData.latLngStart.latitude;
+				double lat = (windData.latLngEnd.latitude - windData.latLngStart.latitude)*y/height+windData.latLngStart.latitude;
+				if (zoom <= 3.0f) {
+					lat = lat+zoom*4.2;
+				} else if (zoom <= 4.0f) {
+					lat = lat+zoom*1.5;
+				} else if (zoom <= 5.0f) {
+					lat = lat+zoom*0.6;
+				} else {
+					lat = lat-zoom/(zoom+220);
+				}
 				LatLng latLng = new LatLng(lat, lng);
-				float[] p = getVector(latLng);
+				double[] p = getVector(latLng);
 
 				double m = Math.sqrt(p[0]*p[0] + p[1]*p[1]);
 				if (m < 1) {
@@ -274,8 +292,8 @@ public class WaitWindView extends View {
 					dto.x = x;
 					dto.y = y;
 					dto.life = dto.life-1;
-					dto.vx = p[0];
-					dto.vy = p[1];
+					dto.vx = (float) p[0];
+					dto.vy = (float) p[1];
 					dto.latLng = latLng;
 				}
 			}
@@ -290,32 +308,32 @@ public class WaitWindView extends View {
 	 * @param latLng
 	 * @return
 	 */
-	private float[] getVector(LatLng latLng) {
-		float a = (float)((windData.width - 1 - 1e-6)*(latLng.longitude - windData.x0)/(windData.x1 - windData.x0));
-		float b = (float)((windData.height - 1 - 1e-6)*(latLng.latitude - windData.y0)/(windData.y1 - windData.y0));
+	private double[] getVector(LatLng latLng) {
+		double a = (windData.width - 1 - 1e-6)*(latLng.longitude - windData.x0)/(windData.x1 - windData.x0);
+		double b = (windData.height - 1 - 1e-6)*(latLng.latitude - windData.y0)/(windData.y1 - windData.y0);
+
+		double na = Math.min(Math.floor(a), windData.width - 1);
+		double nb = Math.min(Math.floor(b), windData.height - 1);
+		double ma = Math.min(Math.ceil(a), windData.width - 1);
+		double mb = Math.min(Math.ceil(b), windData.height - 1);
 		
-		int na = (int) Math.min(Math.floor(a), windData.width - 1);
-		int nb = (int) Math.min(Math.floor(b), windData.height - 1);
-		int ma = (int) Math.min(Math.ceil(a), windData.width - 1);
-		int mb = (int) Math.min(Math.ceil(b), windData.height - 1);
-		
-		float fa = a - na;
-		float fb = b - nb;
+		double fa = a - na;
+		double fb = b - nb;
 		
 		int index = windData.height;
 		int count = windData.dataList.size();
-		
-		float[] array = new float[2];
+
+		double[] array = new double[2];
 		try {
-			float vx = (windData.dataList.get(Math.min(na*index+nb, count-1)).initX * (1-fa)*(1-fb)+
-					windData.dataList.get(Math.min(ma*index+nb, count-1)).initX * fa*(1-fb)+
-					windData.dataList.get(Math.min(na*index+mb, count-1)).initX * (1-fa)*fb+
-					windData.dataList.get(Math.min(ma*index+mb, count-1)).initX * fa*fb) * speedRate;
-			
-			float vy = (windData.dataList.get(Math.min(na*index+nb, count-1)).initY * (1-fa)*(1-fb)+
-					windData.dataList.get(Math.min(ma*index+nb, count-1)).initY * fa*(1-fb)+
-					windData.dataList.get(Math.min(na*index+mb, count-1)).initY * (1-fa)*fb+
-					windData.dataList.get(Math.min(ma*index+mb, count-1)).initY * fa*fb) * speedRate;
+			double vx = (windData.dataList.get((int)Math.min(na*index+nb, count-1)).initX * (1-fa)*(1-fb)+
+					windData.dataList.get((int) Math.min(ma*index+nb, count-1)).initX * fa*(1-fb)+
+					windData.dataList.get((int) Math.min(na*index+mb, count-1)).initX * (1-fa)*fb+
+					windData.dataList.get((int) Math.min(ma*index+mb, count-1)).initX * fa*fb) * speedRate;
+
+			double vy = (windData.dataList.get((int) Math.min(na*index+nb, count-1)).initY * (1-fa)*(1-fb)+
+					windData.dataList.get((int) Math.min(ma*index+nb, count-1)).initY * fa*(1-fb)+
+					windData.dataList.get((int) Math.min(na*index+mb, count-1)).initY * (1-fa)*fb+
+					windData.dataList.get((int) Math.min(ma*index+mb, count-1)).initY * fa*fb) * speedRate;
 			
 			array[0] = vx;
 			array[1] = vy;

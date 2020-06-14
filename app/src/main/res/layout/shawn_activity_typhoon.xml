@@ -1,34 +1,37 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:background="@color/white">
+<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/white">
 
     <include
         android:id="@+id/reTitle"
-        layout="@layout/shawn_layout_title"/>
+        layout="@layout/shawn_layout_title" />
 
     <com.amap.api.maps.MapView
         android:id="@+id/mapView"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:layout_below="@+id/reTitle"/>
+        android:layout_height="0dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/reTitle" />
 
-    <RelativeLayout
+    <android.support.constraint.ConstraintLayout
         android:id="@+id/reShare"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:layout_below="@+id/reTitle">
+        android:layout_height="0dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/reTitle">
 
-        <RelativeLayout
+        <android.support.constraint.ConstraintLayout
             android:id="@+id/container"
             android:layout_width="match_parent"
-            android:layout_height="match_parent"/>
+            android:layout_height="match_parent" />
 
-        <RelativeLayout
+        <android.support.constraint.ConstraintLayout
             android:id="@+id/container2"
             android:layout_width="match_parent"
-            android:layout_height="match_parent"/>
+            android:layout_height="match_parent" />
 
         <TextView
             android:id="@+id/tvTyphoonName"
@@ -39,134 +42,136 @@
             android:padding="5dp"
             android:textColor="@color/white"
             android:textSize="@dimen/level_5"
-            android:visibility="gone"/>
+            android:visibility="gone"
+            app:layout_constraintTop_toTopOf="parent" />
 
         <ImageView
             android:id="@+id/ivWarning"
             android:layout_width="35dp"
             android:layout_height="35dp"
-            android:layout_below="@+id/tvTyphoonName"
             android:layout_marginStart="10dp"
             android:layout_marginTop="10dp"
-            android:visibility="gone"/>
+            android:visibility="gone"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/tvTyphoonName" />
 
         <TextView
             android:id="@+id/tvFileTime"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginEnd="10dp"
-            android:layout_marginTop="10dp"
-            android:layout_below="@+id/tvTyphoonName"
-            android:layout_toStartOf="@+id/ivTyphoonWind"
             android:background="@drawable/shawn_bg_corner_left_right_black"
             android:gravity="center"
-            android:paddingBottom="5dp"
             android:paddingLeft="10dp"
-            android:paddingRight="10dp"
             android:paddingTop="5dp"
+            android:paddingRight="10dp"
+            android:paddingBottom="5dp"
             android:textColor="@color/white"
             android:textSize="@dimen/level_5"
-            android:visibility="gone"/>
+            android:visibility="gone"
+            android:layout_marginEnd="5dp"
+            app:layout_constraintBottom_toBottomOf="@+id/ivTyphoonWind"
+            app:layout_constraintEnd_toStartOf="@+id/ivTyphoonWind"
+            app:layout_constraintTop_toTopOf="@+id/ivTyphoonWind" />
 
         <ImageView
             android:id="@+id/ivTyphoonWind"
             android:layout_width="35dp"
             android:layout_height="35dp"
-            android:layout_alignParentEnd="true"
-            android:layout_below="@+id/tvTyphoonName"
-            android:layout_marginEnd="10dp"
             android:layout_marginTop="5dp"
-            android:src="@drawable/shawn_icon_typhoon_wind_off"/>
+            android:layout_marginEnd="10dp"
+            android:src="@drawable/shawn_icon_typhoon_wind_off"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/tvTyphoonName" />
 
         <ImageView
             android:id="@+id/ivTyphoonRadar"
             android:layout_width="35dp"
             android:layout_height="35dp"
-            android:layout_alignParentEnd="true"
-            android:layout_below="@+id/ivTyphoonWind"
-            android:layout_marginEnd="10dp"
             android:layout_marginTop="5dp"
-            android:src="@drawable/shawn_icon_typhoon_radar_off"/>
+            android:layout_marginEnd="10dp"
+            android:src="@drawable/shawn_icon_typhoon_radar_off"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/ivTyphoonWind" />
 
         <ImageView
             android:id="@+id/ivTyphoonCloud"
             android:layout_width="35dp"
             android:layout_height="35dp"
-            android:layout_alignParentEnd="true"
-            android:layout_below="@+id/ivTyphoonRadar"
-            android:layout_marginEnd="10dp"
             android:layout_marginTop="5dp"
-            android:src="@drawable/shawn_icon_typhoon_cloud_off"/>
+            android:layout_marginEnd="10dp"
+            android:src="@drawable/shawn_icon_typhoon_cloud_off"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/ivTyphoonRadar" />
 
         <ImageView
             android:id="@+id/ivTyphoonWarning"
             android:layout_width="35dp"
             android:layout_height="35dp"
-            android:layout_alignParentEnd="true"
-            android:layout_below="@+id/ivTyphoonCloud"
-            android:layout_marginEnd="10dp"
             android:layout_marginTop="5dp"
-            android:src="@drawable/shawn_icon_typhoon_warning_off"/>
+            android:layout_marginEnd="10dp"
+            android:src="@drawable/shawn_icon_typhoon_warning_off"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/ivTyphoonCloud" />
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_alignParentBottom="true"
-            android:orientation="vertical">
+            android:orientation="vertical"
+            app:layout_constraintBottom_toBottomOf="parent">
 
             <ImageView
-                android:visibility="gone"
                 android:id="@+id/ivTyphoonRange"
                 android:layout_width="35dp"
                 android:layout_height="35dp"
-                android:layout_marginBottom="5dp"
                 android:layout_marginStart="10dp"
-                android:src="@drawable/shawn_icon_typhoon_range_off"/>
+                android:layout_marginBottom="5dp"
+                android:src="@drawable/shawn_icon_typhoon_range_off"
+                android:visibility="gone" />
 
             <ImageView
                 android:id="@+id/ivTyphoonPlay"
                 android:layout_width="35dp"
                 android:layout_height="35dp"
-                android:layout_marginBottom="5dp"
                 android:layout_marginStart="10dp"
+                android:layout_marginBottom="5dp"
                 android:src="@drawable/shawn_icon_typhoon_play"
-                android:visibility="gone"/>
+                android:visibility="gone" />
 
             <ImageView
                 android:id="@+id/ivTyphoonList"
                 android:layout_width="35dp"
                 android:layout_height="35dp"
-                android:layout_marginBottom="5dp"
                 android:layout_marginStart="10dp"
-                android:src="@drawable/shawn_icon_typhoon_list"/>
+                android:layout_marginBottom="5dp"
+                android:src="@drawable/shawn_icon_typhoon_list" />
 
             <ImageView
                 android:id="@+id/ivLocation"
                 android:layout_width="35dp"
                 android:layout_height="35dp"
-                android:layout_marginBottom="5dp"
                 android:layout_marginStart="10dp"
-                android:src="@drawable/shawn_icon_location_off"/>
+                android:layout_marginBottom="5dp"
+                android:src="@drawable/shawn_icon_location_off" />
 
             <ImageView
                 android:id="@+id/ivLegend"
                 android:layout_width="35dp"
                 android:layout_height="35dp"
-                android:layout_marginBottom="5dp"
                 android:layout_marginStart="10dp"
-                android:src="@drawable/shawn_icon_map_legend_off"/>
+                android:layout_marginBottom="5dp"
+                android:src="@drawable/shawn_icon_map_legend_off" />
 
             <TextSwitcher
-                android:visibility="gone"
                 android:id="@+id/tvTyphoonInfo"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:background="#90000000"
-                android:padding="5dp"
                 android:inAnimation="@anim/push_up_in"
                 android:outAnimation="@anim/push_up_out"
+                android:padding="5dp"
                 android:textColor="@color/white"
-                android:textSize="@dimen/level_5" />
+                android:textSize="@dimen/level_5"
+                android:visibility="gone" />
 
         </LinearLayout>
 
@@ -174,9 +179,9 @@
             android:id="@+id/reLegend"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_alignParentBottom="true"
             android:background="#90000000"
-            android:visibility="gone">
+            android:visibility="gone"
+            app:layout_constraintBottom_toBottomOf="parent">
 
             <LinearLayout
                 android:layout_width="match_parent"
@@ -198,7 +203,7 @@
                         <ImageView
                             android:layout_width="12dp"
                             android:layout_height="12dp"
-                            android:src="@drawable/shawn_typhoon_level1"/>
+                            android:src="@drawable/shawn_typhoon_level1" />
 
                         <TextView
                             android:layout_width="wrap_content"
@@ -206,7 +211,7 @@
                             android:layout_marginStart="5dp"
                             android:text="@string/typhoon_level1"
                             android:textColor="@color/white"
-                            android:textSize="@dimen/level_4"/>
+                            android:textSize="@dimen/level_4" />
                     </LinearLayout>
 
                     <LinearLayout
@@ -218,7 +223,7 @@
                         <ImageView
                             android:layout_width="12dp"
                             android:layout_height="12dp"
-                            android:src="@drawable/shawn_typhoon_level2"/>
+                            android:src="@drawable/shawn_typhoon_level2" />
 
                         <TextView
                             android:layout_width="wrap_content"
@@ -226,7 +231,7 @@
                             android:layout_marginStart="5dp"
                             android:text="@string/typhoon_level2"
                             android:textColor="@color/white"
-                            android:textSize="@dimen/level_4"/>
+                            android:textSize="@dimen/level_4" />
                     </LinearLayout>
 
                     <LinearLayout
@@ -238,7 +243,7 @@
                         <ImageView
                             android:layout_width="12dp"
                             android:layout_height="12dp"
-                            android:src="@drawable/shawn_typhoon_level3"/>
+                            android:src="@drawable/shawn_typhoon_level3" />
 
                         <TextView
                             android:layout_width="wrap_content"
@@ -246,7 +251,7 @@
                             android:layout_marginStart="5dp"
                             android:text="@string/typhoon_level3"
                             android:textColor="@color/white"
-                            android:textSize="@dimen/level_4"/>
+                            android:textSize="@dimen/level_4" />
                     </LinearLayout>
                 </LinearLayout>
 
@@ -264,7 +269,7 @@
                         <ImageView
                             android:layout_width="12dp"
                             android:layout_height="12dp"
-                            android:src="@drawable/shawn_typhoon_level4"/>
+                            android:src="@drawable/shawn_typhoon_level4" />
 
                         <TextView
                             android:layout_width="wrap_content"
@@ -272,7 +277,7 @@
                             android:layout_marginStart="5dp"
                             android:text="@string/typhoon_level4"
                             android:textColor="@color/white"
-                            android:textSize="@dimen/level_4"/>
+                            android:textSize="@dimen/level_4" />
                     </LinearLayout>
 
                     <LinearLayout
@@ -284,7 +289,7 @@
                         <ImageView
                             android:layout_width="12dp"
                             android:layout_height="12dp"
-                            android:src="@drawable/shawn_typhoon_level5"/>
+                            android:src="@drawable/shawn_typhoon_level5" />
 
                         <TextView
                             android:layout_width="wrap_content"
@@ -292,7 +297,7 @@
                             android:layout_marginStart="5dp"
                             android:text="@string/typhoon_level5"
                             android:textColor="@color/white"
-                            android:textSize="@dimen/level_4"/>
+                            android:textSize="@dimen/level_4" />
                     </LinearLayout>
 
                     <LinearLayout
@@ -304,7 +309,7 @@
                         <ImageView
                             android:layout_width="12dp"
                             android:layout_height="12dp"
-                            android:src="@drawable/shawn_typhoon_level6"/>
+                            android:src="@drawable/shawn_typhoon_level6" />
 
                         <TextView
                             android:layout_width="wrap_content"
@@ -312,7 +317,7 @@
                             android:layout_marginStart="5dp"
                             android:text="@string/typhoon_level6"
                             android:textColor="@color/white"
-                            android:textSize="@dimen/level_4"/>
+                            android:textSize="@dimen/level_4" />
                     </LinearLayout>
                 </LinearLayout>
 
@@ -330,7 +335,7 @@
                         <ImageView
                             android:layout_width="12dp"
                             android:layout_height="12dp"
-                            android:src="@drawable/shawn_typhoon_wind_circle7"/>
+                            android:src="@drawable/shawn_typhoon_wind_circle7" />
 
                         <TextView
                             android:layout_width="wrap_content"
@@ -338,7 +343,7 @@
                             android:layout_marginStart="5dp"
                             android:text="七级风圈"
                             android:textColor="@color/white"
-                            android:textSize="@dimen/level_4"/>
+                            android:textSize="@dimen/level_4" />
                     </LinearLayout>
 
                     <LinearLayout
@@ -350,7 +355,7 @@
                         <ImageView
                             android:layout_width="12dp"
                             android:layout_height="12dp"
-                            android:src="@drawable/shawn_typhoon_wind_circle10"/>
+                            android:src="@drawable/shawn_typhoon_wind_circle10" />
 
                         <TextView
                             android:layout_width="wrap_content"
@@ -358,7 +363,7 @@
                             android:layout_marginStart="5dp"
                             android:text="十级风圈"
                             android:textColor="@color/white"
-                            android:textSize="@dimen/level_4"/>
+                            android:textSize="@dimen/level_4" />
                     </LinearLayout>
 
                     <TextView
@@ -369,7 +374,7 @@
                         android:drawablePadding="5dp"
                         android:text="@string/typhoon_influnce"
                         android:textColor="@color/white"
-                        android:textSize="@dimen/level_4"/>
+                        android:textSize="@dimen/level_4" />
                 </LinearLayout>
             </LinearLayout>
 
@@ -378,18 +383,18 @@
                 android:layout_width="25dp"
                 android:layout_height="25dp"
                 android:layout_alignParentEnd="true"
-                android:layout_marginEnd="5dp"
                 android:layout_marginTop="5dp"
-                android:src="@drawable/shawn_icon_delete_white"/>
+                android:layout_marginEnd="5dp"
+                android:src="@drawable/shawn_icon_delete_white" />
         </RelativeLayout>
 
         <RelativeLayout
             android:id="@+id/reTyphoonList"
             android:layout_width="match_parent"
             android:layout_height="150dp"
-            android:layout_alignParentBottom="true"
             android:background="#be000000"
-            android:visibility="gone">
+            android:visibility="gone"
+            app:layout_constraintBottom_toBottomOf="parent">
 
             <ListView
                 android:id="@+id/publishListView"
@@ -399,14 +404,14 @@
                 android:divider="@null"
                 android:listSelector="@color/transparent"
                 android:overScrollMode="never"
-                android:scrollbars="none"/>
+                android:scrollbars="none" />
 
             <TextView
                 android:id="@+id/divider1"
                 android:layout_width="0.5dp"
                 android:layout_height="match_parent"
                 android:layout_toEndOf="@+id/publishListView"
-                android:background="#80ffffff"/>
+                android:background="#80ffffff" />
 
             <ListView
                 android:id="@+id/yearListView"
@@ -417,44 +422,43 @@
                 android:divider="@null"
                 android:listSelector="@color/transparent"
                 android:overScrollMode="never"
-                android:scrollbars="none">
-            </ListView>
+                android:scrollbars="none"/>
 
             <TextView
                 android:id="@+id/divider2"
                 android:layout_width="0.5dp"
-                android:layout_toEndOf="@+id/yearListView"
                 android:layout_height="match_parent"
-                android:background="#80ffffff"/>
+                android:layout_toEndOf="@+id/yearListView"
+                android:background="#80ffffff" />
 
             <ListView
                 android:id="@+id/nameListView"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_toEndOf="@+id/divider2"
                 android:layout_toStartOf="@+id/ivCancelList"
+                android:layout_toEndOf="@+id/divider2"
                 android:cacheColorHint="@color/transparent"
                 android:divider="@null"
                 android:listSelector="@color/transparent"
                 android:overScrollMode="never"
-                android:scrollbars="none">
-            </ListView>
+                android:scrollbars="none"/>
 
             <ImageView
                 android:id="@+id/ivCancelList"
                 android:layout_width="25dp"
                 android:layout_height="25dp"
                 android:layout_alignParentEnd="true"
-                android:layout_marginEnd="5dp"
                 android:layout_marginTop="5dp"
-                android:src="@drawable/shawn_icon_delete_white"/>
+                android:layout_marginEnd="5dp"
+                android:src="@drawable/shawn_icon_delete_white" />
         </RelativeLayout>
-    </RelativeLayout>
+    </android.support.constraint.ConstraintLayout>
 
     <ImageView
         android:id="@+id/ivGuide"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:background="@drawable/shawn_bg_typhoon_guide"/>
+        android:background="@drawable/shawn_bg_typhoon_guide"
+        android:visibility="gone" />
 
-</RelativeLayout>
+</android.support.constraint.ConstraintLayout>

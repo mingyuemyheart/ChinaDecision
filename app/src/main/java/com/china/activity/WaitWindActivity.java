@@ -87,7 +87,7 @@ public class WaitWindActivity extends ShawnBaseActivity implements OnClickListen
     private ConstraintLayout clShare;
     private MapView mapView;
     private AMap aMap;
-    private float zoom = 3.7f;
+    private float zoom = 3.0f;
     private SimpleDateFormat sdf1 = new SimpleDateFormat("yyyy", Locale.CHINA);
     private SimpleDateFormat sdf2 = new SimpleDateFormat("yyyyMMddHH", Locale.CHINA);
     private SimpleDateFormat sdf3 = new SimpleDateFormat("yyyy年MM月dd日HH时", Locale.CHINA);
@@ -461,6 +461,7 @@ public class WaitWindActivity extends ShawnBaseActivity implements OnClickListen
 
     @Override
     public void onCameraChangeFinish(CameraPosition arg0) {
+        zoom = arg0.zoom;
         if (isGfs) {
             reloadWind(true);
         }else {
@@ -481,7 +482,6 @@ public class WaitWindActivity extends ShawnBaseActivity implements OnClickListen
 
         LatLng latLngStart = aMap.getProjection().fromScreenLocation(new Point(0, 0));
         LatLng latLngEnd = aMap.getProjection().fromScreenLocation(new Point(CommonUtil.widthPixels(this), CommonUtil.heightPixels(this)));
-        Log.e("latLng", latLngStart.latitude+","+latLngStart.longitude+"\n"+latLngEnd.latitude+","+latLngEnd.longitude);
         if (isGfs) {
             windDataGFS.latLngStart = latLngStart;
             windDataGFS.latLngEnd = latLngEnd;
@@ -493,17 +493,17 @@ public class WaitWindActivity extends ShawnBaseActivity implements OnClickListen
             waitWindView = new WaitWindView2(mContext);
             waitWindView.init(WaitWindActivity.this);
             if (isGfs) {
-                waitWindView.setData(windDataGFS);
+                waitWindView.setData(windDataGFS, zoom);
             }else {
-                waitWindView.setData(windDataT639);
+                waitWindView.setData(windDataT639, zoom);
             }
             waitWindView.start();
             waitWindView.invalidate();
         }else {
             if (isGfs) {
-                waitWindView.setData(windDataGFS);
+                waitWindView.setData(windDataGFS, zoom);
             }else {
-                waitWindView.setData(windDataT639);
+                waitWindView.setData(windDataT639, zoom);
             }
         }
 

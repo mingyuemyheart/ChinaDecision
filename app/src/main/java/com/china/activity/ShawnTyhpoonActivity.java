@@ -16,9 +16,11 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.support.annotation.NonNull;
+import android.support.constraint.ConstraintLayout;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.text.TextUtils;
+import android.util.Log;
 import android.util.TypedValue;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
@@ -128,9 +130,11 @@ public class ShawnTyhpoonActivity extends ShawnBaseActivity implements OnClickLi
 	private TextView tvTitle,tvTyphoonName,tvFileTime;
 	private TextSwitcher tvTyphoonInfo;
 	private ImageView ivLegend,ivTyphoonList,ivTyphoonPlay,ivTyphoonRadar,ivTyphoonCloud,ivTyphoonWarning,ivTyphoonWind,ivWarning,ivTyphoonRange,ivGuide;
-	private RelativeLayout reShare,reLegend,reTyphoonList;
+	private RelativeLayout reLegend,reTyphoonList;
+	private ConstraintLayout reShare;
 	private MapView mapView;
 	private AMap aMap;
+	private float zoom = 3.0f;
 	private SimpleDateFormat sdf1 = new SimpleDateFormat("yyyy", Locale.CHINA);
 	private SimpleDateFormat sdf2 = new SimpleDateFormat("yyyyMMddHH", Locale.CHINA);
 	private SimpleDateFormat sdf3 = new SimpleDateFormat("yyyy年MM月dd日HH时", Locale.CHINA);
@@ -152,8 +156,8 @@ public class ShawnTyhpoonActivity extends ShawnBaseActivity implements OnClickLi
 	private Bitmap cloudBitmap;
 
 	//风场
-	private RelativeLayout container;
-	public RelativeLayout container2;
+	private ConstraintLayout container;
+	public ConstraintLayout container2;
 	private WindData windData;
 	private WaitWindView waitWindView;
 
@@ -267,7 +271,7 @@ public class ShawnTyhpoonActivity extends ShawnBaseActivity implements OnClickLi
 		if (aMap == null) {
 			aMap = mapView.getMap();
 		}
-		aMap.moveCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(35.926628, 105.178100), 3.7f));
+		aMap.moveCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(35.926628, 105.178100), zoom));
 		aMap.setMapType(AMap.MAP_TYPE_SATELLITE);
 		aMap.getUiSettings().setZoomControlsEnabled(false);
 		aMap.getUiSettings().setRotateGesturesEnabled(false);
@@ -2556,6 +2560,8 @@ public class ShawnTyhpoonActivity extends ShawnBaseActivity implements OnClickLi
 
 	@Override
 	public void onCameraChangeFinish(CameraPosition arg0) {
+		zoom = arg0.zoom;
+		Log.e("zoomzoom", zoom+"");
 		if (isWindOn) {
 			reloadWind();
 		}
@@ -2582,9 +2588,11 @@ public class ShawnTyhpoonActivity extends ShawnBaseActivity implements OnClickLi
 		if (waitWindView == null) {
 			waitWindView = new WaitWindView(mContext);
 			waitWindView.init(ShawnTyhpoonActivity.this);
-			waitWindView.setData(windData);
+			waitWindView.setData(windData, zoom);
 			waitWindView.start();
 			waitWindView.invalidate();
+		} else {
+			waitWindView.setData(windData, zoom);
 		}
 
 		container.removeAllViews();

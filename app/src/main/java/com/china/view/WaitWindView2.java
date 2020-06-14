@@ -10,7 +10,6 @@ import android.os.Handler;
 import android.os.Message;
 import android.text.TextUtils;
 import android.util.AttributeSet;
-import android.util.DisplayMetrics;
 import android.view.View;
 import android.view.ViewGroup.LayoutParams;
 import android.widget.ImageView;
@@ -19,6 +18,7 @@ import com.amap.api.maps.model.LatLng;
 import com.china.activity.WaitWindActivity;
 import com.china.dto.WindData;
 import com.china.dto.WindDto;
+import com.china.utils.CommonUtil;
 
 import java.io.BufferedReader;
 import java.io.FileNotFoundException;
@@ -28,23 +28,21 @@ import java.io.InputStream;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 
 public class WaitWindView2 extends View {
 
 	private Paint paint;
-	private int width = 0, height = 0;//手机屏幕宽高
+	private float width = 0f, height = 0f;//手机屏幕宽高
 	private List<WindDto> particles = new ArrayList<>();//存放随机点的list
-	private int time = 100;//ms,刷新画布时间
+	private int time = 60;//ms,刷新画布时间
 	private int maxLife = 100;//长度，粒子的最大生命周期
 	private Bitmap bitmap;//每一帧图像承载对象
 	private Canvas tempCanvas;
+	private WindThread mThread;
 	private WaitWindActivity activity;
 	private WindData windData;
 	private List<ImageView> images = new ArrayList<>();//存放位图的list
-
-	private ExecutorService executorService = Executors.newFixedThreadPool(10);
+	private float zoom;
 
 	//高配
 	private int partileCount = 1200;//绘制粒子个数
@@ -66,40 +64,54 @@ public class WaitWindView2 extends View {
 	public void init(WaitWindActivity activity) {
 		this.activity = activity;
 
-		DisplayMetrics dm = new DisplayMetrics();
-		activity.getWindowManager().getDefaultDisplay().getRealMetrics(dm);
-		width = dm.widthPixels;
-		height = dm.heightPixels;
+		width = CommonUtil.widthPixels(activity);
+		height = CommonUtil.heightPixels(activity);
 
 		paint = new Paint();
 		paint.setColor(Color.WHITE);
 		paint.setAntiAlias(true);
 		paint.setStrokeWidth(4f);
-		paint.setStrokeCap(Paint.Cap.ROUND);
 
-		float curFreq = Float.parseFloat(getMaxCpuFreq());
-		if (curFreq <= 1000000) {
-			partileCount = 400;//绘制粒子个数
-			frameCount = 10;//帧数
-			speedRate = 1.8f;//离子运动速度系数
-		}else if (curFreq <= 1200000) {
+		float totalMemory = getTotalMemorySize()/1024/1024;//手机内存大小(G)
+		if (totalMemory <= 3.0) {//内存小于等于2G
 			partileCount = 600;//绘制粒子个数
 			frameCount = 10;//帧数
-			speedRate = 1.5f;//离子运动速度系数
-		}else if (curFreq <= 1500000) {
-			partileCount = 1000;//绘制粒子个数
+			speedRate = 1.0f;//离子运动速度系数
+		}else if (totalMemory > 3.0 && totalMemory <= 4.0) {//内存小于等于3G
+			partileCount = 800;//绘制粒子个数
 			frameCount = 10;//帧数
-			speedRate = 1.2f;//离子运动速度系数
-		}else {
-			partileCount = 1500;//绘制粒子个数
+			speedRate = 1.0f;//离子运动速度系数
+		}else if (totalMemory > 4.0) {//内存大于3G
+			partileCount = 1000;//绘制粒子个数
 			frameCount = 10;//帧数
 			speedRate = 1.0f;//离子运动速度系数
 		}
 
+//		float curFreq = Float.parseFloat(getMaxCpuFreq());
+//		if (curFreq <= 1000000) {
+//			partileCount = 400;//绘制粒子个数
+//			frameCount = 6;//帧数
+//			speedRate = 1.8f;//离子运动速度系数
+//		}else if (curFreq > 1000000 && curFreq <= 1200000) {
+//			partileCount = 600;//绘制粒子个数
+//			frameCount = 8;//帧数
+//			speedRate = 1.5f;//离子运动速度系数
+//		}else if (curFreq > 1200000 && curFreq <= 1500000) {
+//			partileCount = 1000;//绘制粒子个数
+//			frameCount = 8;//帧数
+//			speedRate = 1.2f;//离子运动速度系数
+//		}else if (curFreq > 1500000) {
+//			partileCount = 1500;//绘制粒子个数
+//			frameCount = 10;//帧数
+//			speedRate = 1.0f;//离子运动速度系数
+//		}
+//		Log.e("curFreq", curFreq+"");
+
 		getParticleInfo();
 	}
 
-	public void setData(WindData windData) {
+	public void setData(WindData windData, float zoom) {
+		this.zoom = zoom;
 		this.windData = windData;
 	}
 
@@ -131,16 +143,22 @@ public class WaitWindView2 extends View {
 			System.gc();
 		}
 
-		executorService.submit(runnable);
+		if (mThread != null) {
+			mThread.cancel();
+			mThread = null;
+		}
+		mThread = new WindThread();
+		mThread.start();
 	}
 
-	private Runnable runnable = new Runnable() {
+	private class WindThread extends Thread {
 		static final int STATE_START = 0;
 		static final int STATE_CANCEL = 1;
 		private int state;
 
 		@Override
 		public void run() {
+			super.run();
 			this.state = STATE_START;
 			while (true) {
 				if (state == STATE_CANCEL) {
@@ -159,7 +177,7 @@ public class WaitWindView2 extends View {
 		public void cancel() {
 			this.state = STATE_CANCEL;
 		}
-	};
+	}
 
 	@Override
 	protected void onDraw(Canvas canvas) {
@@ -201,19 +219,28 @@ public class WaitWindView2 extends View {
 				float x = (float)(Math.random()*width);
 				float y = (float)(Math.random()*height);
 				double longDetla = windData.latLngEnd.longitude - windData.latLngStart.longitude;
-				if (Math.abs(longDetla) > 180) {
-					longDetla = (windData.latLngEnd.longitude + 360 - windData.latLngStart.longitude);
+				if (Math.abs(windData.latLngEnd.longitude - windData.latLngStart.longitude) > 180) {
+					longDetla = (windData.latLngEnd.longitude - (-180)) + (180 - windData.latLngStart.longitude);
 				}
-				double lng = (longDetla)/width*x+windData.latLngStart.longitude;
+				double lng = (longDetla)*x/width+windData.latLngStart.longitude;
 				if (lng > 180) {
 					lng = lng - 360;
 				}
 				if (lng <= windData.x0) {
 					lng = windData.x1 - windData.x0 + lng;
 				}
-				double lat = (windData.latLngEnd.latitude - windData.latLngStart.latitude)/height*y+windData.latLngStart.latitude;
+				double lat = (windData.latLngEnd.latitude - windData.latLngStart.latitude)*y/height+windData.latLngStart.latitude;
+				if (zoom <= 3.0f) {
+					lat = lat+zoom*4.2;
+				} else if (zoom <= 4.0f) {
+					lat = lat+zoom*1.5;
+				} else if (zoom <= 5.0f) {
+					lat = lat+zoom*0.6;
+				} else {
+					lat = lat-zoom/(zoom+220);
+				}
 				LatLng latLng = new LatLng(lat, lng);
-				float[] p = getVector(latLng);
+				double[] p = getVector(latLng);
 				int life = (int)(Math.random()*maxLife);
 
 				double m = Math.sqrt(p[0]*p[0] + p[1]*p[1]);
@@ -224,8 +251,8 @@ public class WaitWindView2 extends View {
 					dto.oldY = -1;
 					dto.x = x;
 					dto.y = y;
-					dto.vx = p[0];
-					dto.vy = p[1];
+					dto.vx = (float) p[0];
+					dto.vy = (float) p[1];
 					dto.latLng = latLng;
 					dto.life = life;
 				}
@@ -233,19 +260,28 @@ public class WaitWindView2 extends View {
 				float x = dto.x + dto.vx;
 				float y = dto.y - dto.vy;
 				double longDetla = windData.latLngEnd.longitude - windData.latLngStart.longitude;
-				if (Math.abs(longDetla) > 180) {
-					longDetla = (windData.latLngEnd.longitude + 360 - windData.latLngStart.longitude);
+				if (Math.abs(windData.latLngEnd.longitude - windData.latLngStart.longitude) > 180) {
+					longDetla = (windData.latLngEnd.longitude - (-180)) + (180 - windData.latLngStart.longitude);
 				}
-				double lng = (longDetla)/width*x+windData.latLngStart.longitude;
+				double lng = (longDetla)*x/width+windData.latLngStart.longitude;
 				if (lng > 180) {
 					lng = lng - 360;
 				}
 				if (lng <= windData.x0) {
 					lng = windData.x1 - windData.x0 + lng;
 				}
-				double lat = (windData.latLngEnd.latitude - windData.latLngStart.latitude)/height*y+windData.latLngStart.latitude;
+				double lat = (windData.latLngEnd.latitude - windData.latLngStart.latitude)*y/height+windData.latLngStart.latitude;
+				if (zoom <= 3.0f) {
+					lat = lat+zoom*4.2;
+				} else if (zoom <= 4.0f) {
+					lat = lat+zoom*1.5;
+				} else if (zoom <= 5.0f) {
+					lat = lat+zoom*0.6;
+				} else {
+					lat = lat-zoom/(zoom+220);
+				}
 				LatLng latLng = new LatLng(lat, lng);
-				float[] p = getVector(latLng);
+				double[] p = getVector(latLng);
 
 				double m = Math.sqrt(p[0]*p[0] + p[1]*p[1]);
 				if (m < 1) {
@@ -256,8 +292,8 @@ public class WaitWindView2 extends View {
 					dto.x = x;
 					dto.y = y;
 					dto.life = dto.life-1;
-					dto.vx = p[0];
-					dto.vy = p[1];
+					dto.vx = (float) p[0];
+					dto.vy = (float) p[1];
 					dto.latLng = latLng;
 				}
 			}
@@ -272,32 +308,32 @@ public class WaitWindView2 extends View {
 	 * @param latLng
 	 * @return
 	 */
-	private float[] getVector(LatLng latLng) {
-		float a = (float)((windData.width - 1 - 1e-6)*(latLng.longitude - windData.x0)/(windData.x1 - windData.x0));
-		float b = (float)((windData.height - 1 - 1e-6)*(latLng.latitude - windData.y0)/(windData.y1 - windData.y0));
+	private double[] getVector(LatLng latLng) {
+		double a = (windData.width - 1 - 1e-6)*(latLng.longitude - windData.x0)/(windData.x1 - windData.x0);
+		double b = (windData.height - 1 - 1e-6)*(latLng.latitude - windData.y0)/(windData.y1 - windData.y0);
 
-		int na = (int) Math.min(Math.floor(a), windData.width - 1);
-		int nb = (int) Math.min(Math.floor(b), windData.height - 1);
-		int ma = (int) Math.min(Math.ceil(a), windData.width - 1);
-		int mb = (int) Math.min(Math.ceil(b), windData.height - 1);
+		double na = Math.min(Math.floor(a), windData.width - 1);
+		double nb = Math.min(Math.floor(b), windData.height - 1);
+		double ma = Math.min(Math.ceil(a), windData.width - 1);
+		double mb = Math.min(Math.ceil(b), windData.height - 1);
 
-		float fa = a - na;
-		float fb = b - nb;
+		double fa = a - na;
+		double fb = b - nb;
 
 		int index = windData.height;
 		int count = windData.dataList.size();
 
-		float[] array = new float[2];
+		double[] array = new double[2];
 		try {
-			float vx = (windData.dataList.get(Math.min(na*index+nb, count-1)).initX * (1-fa)*(1-fb)+
-					windData.dataList.get(Math.min(ma*index+nb, count-1)).initX * fa*(1-fb)+
-					windData.dataList.get(Math.min(na*index+mb, count-1)).initX * (1-fa)*fb+
-					windData.dataList.get(Math.min(ma*index+mb, count-1)).initX * fa*fb) * speedRate;
+			double vx = (windData.dataList.get((int)Math.min(na*index+nb, count-1)).initX * (1-fa)*(1-fb)+
+					windData.dataList.get((int) Math.min(ma*index+nb, count-1)).initX * fa*(1-fb)+
+					windData.dataList.get((int) Math.min(na*index+mb, count-1)).initX * (1-fa)*fb+
+					windData.dataList.get((int) Math.min(ma*index+mb, count-1)).initX * fa*fb) * speedRate;
 
-			float vy = (windData.dataList.get(Math.min(na*index+nb, count-1)).initY * (1-fa)*(1-fb)+
-					windData.dataList.get(Math.min(ma*index+nb, count-1)).initY * fa*(1-fb)+
-					windData.dataList.get(Math.min(na*index+mb, count-1)).initY * (1-fa)*fb+
-					windData.dataList.get(Math.min(ma*index+mb, count-1)).initY * fa*fb) * speedRate;
+			double vy = (windData.dataList.get((int) Math.min(na*index+nb, count-1)).initY * (1-fa)*(1-fb)+
+					windData.dataList.get((int) Math.min(ma*index+nb, count-1)).initY * fa*(1-fb)+
+					windData.dataList.get((int) Math.min(na*index+mb, count-1)).initY * (1-fa)*fb+
+					windData.dataList.get((int) Math.min(ma*index+mb, count-1)).initY * fa*fb) * speedRate;
 
 			array[0] = vx;
 			array[1] = vy;
@@ -322,6 +358,39 @@ public class WaitWindView2 extends View {
 			}
 		};
 	};
+
+	/**
+	 * 判断是否为华为P9
+	 * @return
+	 */
+	private boolean isHuaWeiP9() {
+		String brand = android.os.Build.BRAND; //手机品牌
+		String model = android.os.Build.MODEL; // 手机型号
+		if (TextUtils.equals("HUAWEI", brand) && TextUtils.equals("VIE-AL10", model)) {
+			return true;
+		}
+		return false;
+	}
+
+	/**
+	 * 获取系统总内存
+	 *
+	 * @return 总内存大单位为kB。
+	 */
+	public static float getTotalMemorySize() {
+		String dir = "/proc/meminfo";
+		try {
+			FileReader fr = new FileReader(dir);
+			BufferedReader br = new BufferedReader(fr, 2048);
+			String memoryLine = br.readLine();
+			String subMemoryLine = memoryLine.substring(memoryLine.indexOf("MemTotal:"));
+			br.close();
+			return Float.parseFloat(subMemoryLine.replaceAll("\\D+", ""));
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		return 0;
+	}
 
 	/**
 	 * 实时获取CPU当前频率（单位KHZ）
