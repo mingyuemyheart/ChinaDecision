@@ -98,7 +98,10 @@ class DecisionNewsActivity : ShawnBaseActivity(), OnClickListener {
 	 */
 	private fun okHttpList() {
 		Thread(Runnable {
-			val url = intent.getStringExtra(CONST.WEB_URL)+"&page=$page"
+			var url = intent.getStringExtra(CONST.WEB_URL)
+			if (!TextUtils.isEmpty(url) && url.contains("num=20")) {
+				url = url.replace("num=20", "num=100")
+			}
 			OkHttpUtil.enqueue(Request.Builder().url(url).build(), object : Callback {
 				override fun onFailure(call: Call, e: IOException) {
 				}

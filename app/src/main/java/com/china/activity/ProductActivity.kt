@@ -200,7 +200,13 @@ class ProductActivity : ShawnBaseActivity(), OnClickListener {
 					intent.putExtra(CONST.ACTIVITY_NAME, dto.name)
 					intent.putExtra(CONST.WEB_URL, dto.dataUrl)
 					startActivity(intent)
-				}else if (TextUtils.equals(dto.id, "-1")) {
+				} else if (TextUtils.equals(dto.id, "6666")) { //逐日滚动监测
+					intent = Intent(this, DecisionNewsActivity::class.java)
+					intent.putExtra(CONST.COLUMN_ID, dto.columnId)
+					intent.putExtra(CONST.ACTIVITY_NAME, dto.name)
+					intent.putExtra(CONST.WEB_URL, dto.dataUrl)
+					startActivity(intent)
+				} else if (TextUtils.equals(dto.id, "-1")) {
 					Toast.makeText(this, "频道建设中", Toast.LENGTH_SHORT).show()
 				}
 			}
