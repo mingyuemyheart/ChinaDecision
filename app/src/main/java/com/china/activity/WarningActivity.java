@@ -99,7 +99,7 @@ OnMarkerClickListener, InfoWindowAdapter, OnCameraChangeListener, OnMapScreenSho
 	private Context mContext;
 	private LatLng locationLatLng = new LatLng(39.904030, 116.407526);
 	private TextView tvTitle,tvWarningStatistic,tvNation,tvCentrolCount;
-	private RelativeLayout reWarningStatistic;
+	private ConstraintLayout reWarningStatistic;
 	private ConstraintLayout clShare;
 	private MapView mapView;//高德地图
 	private AMap aMap;//高德地图
@@ -110,7 +110,7 @@ OnMarkerClickListener, InfoWindowAdapter, OnCameraChangeListener, OnMapScreenSho
 	private List<WarningDto> nationList = new ArrayList<>();
 	private Map<String, Marker> markerMap = new LinkedHashMap<>();//按html区分
 	private boolean isExpandMap = false;//是否放大地图
-	private ImageView ivList,ivStatistic,ivGuide,ivArrow,ivCentral;
+	private ImageView ivList,ivStatistic,ivNews,ivGuide,ivArrow,ivCentral,ivIntrol;
     private LatLng leftlatlng = new LatLng(-16.305714763804854,75.13831436634065);
     private LatLng rightLatlng = new LatLng(63.681687310440864,135.21788656711578);
 	private Marker locationMarker,selectMarker;
@@ -222,6 +222,8 @@ OnMarkerClickListener, InfoWindowAdapter, OnCameraChangeListener, OnMapScreenSho
 		ivList.setOnClickListener(this);
 		ivStatistic = findViewById(R.id.ivStatistic);
 		ivStatistic.setOnClickListener(this);
+		ivNews = findViewById(R.id.ivNews);
+		ivNews.setOnClickListener(this);
 		reWarningStatistic = findViewById(R.id.reWarningStatistic);
 		reWarningStatistic.setOnClickListener(this);
 		ivArrow = findViewById(R.id.ivArrow);
@@ -232,6 +234,8 @@ OnMarkerClickListener, InfoWindowAdapter, OnCameraChangeListener, OnMapScreenSho
 		ivGuide.setOnClickListener(this);
 		ivCentral = findViewById(R.id.ivCentral);
 		ivCentral.setOnClickListener(this);
+		ivIntrol = findViewById(R.id.ivIntrol);
+		ivIntrol.setOnClickListener(this);
 		llLegend = findViewById(R.id.llLegend);
 		tvCentrolCount = findViewById(R.id.tvCentrolCount);
 		tvCentrolCount.setOnClickListener(this);
@@ -433,6 +437,7 @@ OnMarkerClickListener, InfoWindowAdapter, OnCameraChangeListener, OnMapScreenSho
 											tvWarningStatistic.setText(time+", "+"当前生效预警"+count+"条");
 											ivList.setVisibility(View.GONE);
 											ivStatistic.setVisibility(View.GONE);
+											ivNews.setVisibility(View.GONE);
 											arcMenu.setVisibility(View.GONE);
 											reWarningStatistic.setVisibility(View.VISIBLE);
 											cancelDialog();
@@ -457,6 +462,7 @@ OnMarkerClickListener, InfoWindowAdapter, OnCameraChangeListener, OnMapScreenSho
 										tvWarningStatistic.setText(builder);
 										ivList.setVisibility(View.VISIBLE);
 										ivStatistic.setVisibility(View.VISIBLE);
+										ivNews.setVisibility(View.VISIBLE);
 										arcMenu.setVisibility(View.VISIBLE);
 										reWarningStatistic.setVisibility(View.VISIBLE);
 										cancelDialog();
@@ -1022,10 +1028,10 @@ OnMarkerClickListener, InfoWindowAdapter, OnCameraChangeListener, OnMapScreenSho
 		isShowPrompt = !isShowPrompt;
 		if (!isShowPrompt) {
 			ivArrow.setImageResource(R.drawable.shawn_icon_arrow_up_black);
-			hideOrShowListViewAnimator(listView, 0, height);
+			hideOrShowListViewAnimator(listView, 1, height);
 		}else {
 			ivArrow.setImageResource(R.drawable.shawn_icon_arrow_down_black);
-			hideOrShowListViewAnimator(listView, height, 0);
+			hideOrShowListViewAnimator(listView, height, 1);
 		}
     }
     
@@ -1090,6 +1096,13 @@ OnMarkerClickListener, InfoWindowAdapter, OnCameraChangeListener, OnMapScreenSho
 		case R.id.ivStatistic:
 			startActivity(new Intent(mContext, ShawnWarningStatisticActivity.class));
 			break;
+		case R.id.ivNews:
+			intent = new Intent(mContext, WeatherInfoActivity.class);
+			intent.putExtra(CONST.COLUMN_ID, columnId);
+			intent.putExtra(CONST.ACTIVITY_NAME, "新闻报道");
+			intent.putExtra(CONST.WEB_URL, "http://decision-admin.tianqi.cn/home/work2019/getWarnNews");
+			startActivity(intent);
+			break;
 		case R.id.tvNation:
 			intent = new Intent(mContext, WarningHeaderActivity.class);
 			Bundle bundle = new Bundle();
@@ -1103,6 +1116,12 @@ OnMarkerClickListener, InfoWindowAdapter, OnCameraChangeListener, OnMapScreenSho
 			bundle = new Bundle();
 			bundle.putParcelableArrayList("warningList", (ArrayList<? extends Parcelable>) centrolList);
 			intent.putExtras(bundle);
+			startActivity(intent);
+			break;
+		case R.id.ivIntrol:
+			intent = new Intent(mContext, WebviewActivity.class);
+			intent.putExtra(CONST.ACTIVITY_NAME, "预警中心简介");
+			intent.putExtra(CONST.WEB_URL, "http://warn-wx.tianqi.cn/Index/desc.html");
 			startActivity(intent);
 			break;
 		case R.id.ivShare:

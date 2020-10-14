@@ -10,7 +10,6 @@ import android.net.Uri;
 import android.os.Build;
 import android.support.v4.content.FileProvider;
 import android.text.TextUtils;
-import android.webkit.MimeTypeMap;
 import android.widget.Toast;
 
 import java.io.File;
@@ -93,15 +92,6 @@ public class AutoUpdateBroadcastReceiver extends BroadcastReceiver{
             var5.printStackTrace();
             Toast.makeText(context, "没有找到打开此类文件的程序", Toast.LENGTH_SHORT).show();
         }
-
-    }
-
-    private String getMIMEType(File var0) {
-        String var1 = "";
-        String var2 = var0.getName();
-        String var3 = var2.substring(var2.lastIndexOf(".") + 1, var2.length()).toLowerCase();
-        var1 = MimeTypeMap.getSingleton().getMimeTypeFromExtension(var3);
-        return var1;
     }
 
 }

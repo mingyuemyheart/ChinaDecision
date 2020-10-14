@@ -155,6 +155,14 @@ public class ShawnMainActivity extends ShawnBaseActivity implements OnClickListe
 		registerReceiver(mReceiver, intentFilter);
 	}
 
+	@Override
+	protected void onDestroy() {
+		super.onDestroy();
+		if (mReceiver != null) {
+			unregisterReceiver(mReceiver);
+		}
+	}
+
 	private class MyBroadCastReceiver extends BroadcastReceiver {
 		@Override
 		public void onReceive(Context context, Intent intent) {
@@ -1078,6 +1086,11 @@ public class ShawnMainActivity extends ShawnBaseActivity implements OnClickListe
 						startActivity(intent);
 					}else if (TextUtils.equals(dto.id, "114")) {//5天降水量统计
 						intent = new Intent(mContext, ShawnFiveRainActivity.class);
+						intent.putExtra(CONST.COLUMN_ID, dto.columnId);
+						intent.putExtra(CONST.ACTIVITY_NAME, dto.name);
+						startActivity(intent);
+					}else if (TextUtils.equals(dto.id, "115")) {//天气现象实况
+						intent = new Intent(mContext, WeatherFactActivity.class);
 						intent.putExtra(CONST.COLUMN_ID, dto.columnId);
 						intent.putExtra(CONST.ACTIVITY_NAME, dto.name);
 						startActivity(intent);

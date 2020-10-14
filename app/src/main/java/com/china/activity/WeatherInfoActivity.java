@@ -16,7 +16,7 @@ import android.widget.ListView;
 import android.widget.TextView;
 
 import com.china.R;
-import com.china.adapter.ShawnNewsAdapter;
+import com.china.adapter.NewsAdapter;
 import com.china.common.CONST;
 import com.china.dto.NewsDto;
 import com.china.utils.CommonUtil;
@@ -43,7 +43,7 @@ public class WeatherInfoActivity extends ShawnBaseActivity implements OnClickLis
 	
 	private Context mContext;
 	private TextView tvTitle;
-	private ShawnNewsAdapter mAdapter;
+	private NewsAdapter mAdapter;
 	private List<NewsDto> dataList = new ArrayList<>();
 	private SwipeRefreshLayout refreshLayout;//下拉刷新布局
 	private String dataUrl,showType;
@@ -103,7 +103,7 @@ public class WeatherInfoActivity extends ShawnBaseActivity implements OnClickLis
 	 */
 	private void initListView() {
 		ListView mListView = findViewById(R.id.listView);
-		mAdapter = new ShawnNewsAdapter(mContext, dataList);
+		mAdapter = new NewsAdapter(mContext, dataList);
 		mListView.setAdapter(mAdapter);
 		mListView.setOnItemClickListener(new OnItemClickListener() {
 			@Override
@@ -167,6 +167,9 @@ public class WeatherInfoActivity extends ShawnBaseActivity implements OnClickLis
 												dto.detailUrl = itemObj.getString("l2");
 												dto.time = itemObj.getString("l3");
 												dto.imgUrl = itemObj.getString("l4");
+												if (!itemObj.isNull("l5")) {
+													dto.flagUrl = itemObj.getString("l5");
+												}
 												dataList.add(dto);
 											}
 										}

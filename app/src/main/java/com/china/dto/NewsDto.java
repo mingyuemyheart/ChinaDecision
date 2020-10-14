@@ -13,6 +13,7 @@ public class NewsDto implements Parcelable{
 	public String showType;//显示类型
 	public boolean isSelected = false;//是否被选中
 	public String header;
+	public String flagUrl;
 
 	public NewsDto() {
 	}
@@ -32,6 +33,7 @@ public class NewsDto implements Parcelable{
 		dest.writeString(this.showType);
 		dest.writeByte(this.isSelected ? (byte) 1 : (byte) 0);
 		dest.writeString(this.header);
+		dest.writeString(this.flagUrl);
 	}
 
 	protected NewsDto(Parcel in) {
@@ -43,6 +45,7 @@ public class NewsDto implements Parcelable{
 		this.showType = in.readString();
 		this.isSelected = in.readByte() != 0;
 		this.header = in.readString();
+		this.flagUrl = in.readString();
 	}
 
 	public static final Creator<NewsDto> CREATOR = new Creator<NewsDto>() {

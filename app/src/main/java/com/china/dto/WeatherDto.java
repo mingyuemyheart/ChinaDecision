@@ -8,6 +8,7 @@ public class WeatherDto implements Serializable{
 
 	public String cityName,cityId;
 	public double lat, lng;
+	public String factPhe;
 	public String level;
 	public float minuteFall= 0;//逐分钟降水量
 

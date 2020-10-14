@@ -18,17 +18,17 @@ import java.util.List;
 /**
  * 新闻、图文类
  */
-public class ShawnNewsAdapter extends BaseAdapter{
+public class NewsAdapter extends BaseAdapter{
 	
 	private LayoutInflater mInflater;
 	private List<NewsDto> mArrayList;
 	
 	private final class ViewHolder{
-		ImageView imageView;
+		ImageView imageView,ivFlag;
 		TextView tvTitle,tvTime;
 	}
 	
-	public ShawnNewsAdapter(Context context, List<NewsDto> mArrayList) {
+	public NewsAdapter(Context context, List<NewsDto> mArrayList) {
 		this.mArrayList = mArrayList;
 		mInflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
 	}
@@ -52,9 +52,10 @@ public class ShawnNewsAdapter extends BaseAdapter{
 	public View getView(int position, View convertView, ViewGroup parent) {
 		ViewHolder mHolder;
 		if (convertView == null) {
-			convertView = mInflater.inflate(R.layout.shawn_adapter_news, null);
+			convertView = mInflater.inflate(R.layout.adapter_news, null);
 			mHolder = new ViewHolder();
 			mHolder.imageView = convertView.findViewById(R.id.imageView);
+			mHolder.ivFlag = convertView.findViewById(R.id.ivFlag);
 			mHolder.tvTitle = convertView.findViewById(R.id.tvTitle);
 			mHolder.tvTime = convertView.findViewById(R.id.tvTime);
 			convertView.setTag(mHolder);
@@ -79,6 +80,10 @@ public class ShawnNewsAdapter extends BaseAdapter{
 			Picasso.get().load(dto.imgUrl).error(R.drawable.shawn_icon_seat_bitmap).into(mHolder.imageView);
 		}else {
 			mHolder.imageView.setImageResource(R.drawable.shawn_icon_seat_bitmap);
+		}
+
+		if (!TextUtils.isEmpty(dto.flagUrl)) {
+			Picasso.get().load(dto.flagUrl).into(mHolder.ivFlag);
 		}
 		
 		return convertView;

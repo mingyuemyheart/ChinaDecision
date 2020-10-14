@@ -2,9 +2,12 @@ package com.china.activity;
 
 import android.content.Intent
 import android.graphics.Paint
+import android.os.Build
 import android.os.Bundle
 import android.os.Parcelable
+import android.provider.Settings
 import android.text.TextUtils
+import android.util.Log
 import android.view.View
 import android.view.View.OnClickListener
 import android.widget.Toast
@@ -270,6 +273,8 @@ class LoginActivity : ShawnBaseActivity(), OnClickListener {
 											MyApplication.PASSWORD = etPwd.text.toString()
 											MyApplication.saveUserInfo(this@LoginActivity)
 
+											okHttpPushToken()
+
 											val intent = Intent(this@LoginActivity, ShawnMainActivity::class.java)
 											val bundle = Bundle()
 											bundle.putParcelableArrayList("dataList", dataList as ArrayList<out Parcelable>)
@@ -312,6 +317,36 @@ class LoginActivity : ShawnBaseActivity(), OnClickListener {
 				doLogin()
 			}
 		}
+	}
+
+	private fun okHttpPushToken() {
+		if (TextUtils.equals(MyApplication.USERGROUP, "17")) {//公众用户不推送
+			return
+		}
+		val url = "http://decision-admin.tianqi.cn/Home/work2019/savePushToken_zgqx"
+		val builder = FormBody.Builder()
+		val androidId = Settings.Secure.getString(contentResolver, Settings.Secure.ANDROID_ID)
+		val serial = Build.SERIAL
+		builder.add("uuid", androidId+serial)
+		builder.add("uid", MyApplication.UID)
+		builder.add("groupid", MyApplication.USERGROUP)
+		builder.add("pushtoken", MyApplication.DEVICETOKEN)
+		builder.add("platform", "android")
+		builder.add("um_key", MyApplication.appKey)
+		val body = builder.build()
+		Thread(Runnable {
+			OkHttpUtil.enqueue(Request.Builder().url(url).post(body).build(), object : Callback {
+				override fun onFailure(call: Call, e: IOException) {
+				}
+				override fun onResponse(call: Call, response: Response) {
+					if (!response.isSuccessful) {
+						return
+					}
+					val result = response.body!!.string()
+					Log.e("result", result)
+				}
+			})
+		}).start()
 	}
 
 }

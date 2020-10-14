@@ -367,6 +367,30 @@ public class SecretUrlUtil {
     }
 
     /**
+     * 天气现象实况
+     */
+    public static String weatherFact() {
+        String URL = "http://scapi.weather.com.cn/weather/qztqxx";
+        SimpleDateFormat sdf1 = new SimpleDateFormat("yyyyMMddHHmm", Locale.CHINA);
+        String sysdate = sdf1.format(new Date());
+        StringBuffer buffer = new StringBuffer();
+        buffer.append(URL);
+        buffer.append("?");
+        buffer.append("date=").append(sysdate);
+        buffer.append("&");
+        buffer.append("appid=").append(APPID);
+
+        String key = getKey(CHINAWEATHER_DATA, buffer.toString());
+        buffer.delete(buffer.lastIndexOf("&"), buffer.length());
+
+        buffer.append("&");
+        buffer.append("appid=").append(APPID.substring(0, 6));
+        buffer.append("&");
+        buffer.append("key=").append(key.substring(0, key.length() - 3));
+        return buffer.toString();
+    }
+
+    /**
      * 获取秘钥
      * @param key
      * @param src

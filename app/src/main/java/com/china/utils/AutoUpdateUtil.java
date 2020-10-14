@@ -201,7 +201,6 @@ public class AutoUpdateUtil {
 		SharedPreferences sPreferences = mContext.getSharedPreferences("downloadplato", 0);
 		sPreferences.edit().putLong("plato", referneceId).apply();
 		initBroadCast(mContext, referneceId, filePath);
-
 	}
 
 	/**

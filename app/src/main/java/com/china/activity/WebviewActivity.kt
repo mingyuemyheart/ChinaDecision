@@ -11,6 +11,7 @@ import android.webkit.WebSettings.LayoutAlgorithm
 import com.china.R
 import com.china.common.CONST
 import com.china.utils.CommonUtil
+import com.umeng.message.UmengNotifyClickActivity
 import kotlinx.android.synthetic.main.activity_webview.*
 import kotlinx.android.synthetic.main.shawn_layout_title.*
 import java.util.*

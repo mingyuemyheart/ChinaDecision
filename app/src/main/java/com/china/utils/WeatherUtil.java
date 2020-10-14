@@ -1003,7 +1003,7 @@ public class WeatherUtil {
 			id = R.string.disater21;
 			break;
 		default:
-			id = R.string.weather21;
+			id = R.string.disater21;
 			break;
 		}
 		return id;

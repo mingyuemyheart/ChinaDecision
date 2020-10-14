@@ -13,7 +13,7 @@ import android.widget.ListView;
 import android.widget.TextView;
 
 import com.china.R;
-import com.china.adapter.ShawnNewsAdapter;
+import com.china.adapter.NewsAdapter;
 import com.china.common.CONST;
 import com.china.dto.NewsDto;
 import com.china.manager.MyCollectManager;
@@ -30,7 +30,7 @@ public class ShawnCollectionActivity extends ShawnBaseActivity implements OnClic
 	
 	private Context mContext;
 	private TextView tvTitle, tvPrompt;
-	private ShawnNewsAdapter mAdapter;
+	private NewsAdapter mAdapter;
 	private List<NewsDto> dataList = new ArrayList<>();//存放收藏数据的list
 	
 	@Override
@@ -77,7 +77,7 @@ public class ShawnCollectionActivity extends ShawnBaseActivity implements OnClic
 	private void initListView() {
 		getCollectData();
 		ListView mListView = findViewById(R.id.listView);
-		mAdapter = new ShawnNewsAdapter(mContext, dataList);
+		mAdapter = new NewsAdapter(mContext, dataList);
 		mListView.setAdapter(mAdapter);
 		mListView.setOnItemClickListener(new OnItemClickListener() {
 			@Override

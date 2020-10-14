@@ -3,10 +3,13 @@ package com.china.activity
 import android.app.Dialog
 import android.content.Context
 import android.content.Intent
+import android.os.Build
 import android.os.Bundle
 import android.os.Handler
 import android.os.Parcelable
+import android.provider.Settings
 import android.text.TextUtils
+import android.util.Log
 import android.view.KeyEvent
 import android.view.LayoutInflater
 import android.widget.Toast
@@ -277,6 +280,13 @@ class WelcomeActivity : ShawnBaseActivity() {
 										}
 
 										if (!obje.isNull("info")) {
+											val obj = JSONObject(obje.getString("info"))
+											MyApplication.UID = obj.getString("id")
+											MyApplication.USERGROUP = obj.getString("usergroup")
+											MyApplication.saveUserInfo(this@WelcomeActivity)
+
+											okHttpPushToken()
+
 											val intent = Intent(this@WelcomeActivity, ShawnMainActivity::class.java)
 											val bundle = Bundle()
 											bundle.putParcelableArrayList("dataList", dataList as ArrayList<out Parcelable>)
@@ -347,6 +357,36 @@ class WelcomeActivity : ShawnBaseActivity() {
 			return true
 		}
 		return super.onKeyDown(keyCode, event)
+	}
+
+	private fun okHttpPushToken() {
+		if (TextUtils.equals(MyApplication.USERGROUP, "17")) {//公众用户不推送
+			return
+		}
+		val url = "http://decision-admin.tianqi.cn/Home/work2019/savePushToken_zgqx"
+		val builder = FormBody.Builder()
+		val androidId = Settings.Secure.getString(contentResolver, Settings.Secure.ANDROID_ID)
+		val serial = Build.SERIAL
+		builder.add("uuid", androidId+serial)
+		builder.add("uid", MyApplication.UID)
+		builder.add("groupid", MyApplication.USERGROUP)
+		builder.add("pushtoken", MyApplication.DEVICETOKEN)
+		builder.add("platform", "android")
+		builder.add("um_key", MyApplication.appKey)
+		val body = builder.build()
+		Thread(Runnable {
+			OkHttpUtil.enqueue(Request.Builder().url(url).post(body).build(), object : Callback {
+				override fun onFailure(call: Call, e: IOException) {
+				}
+				override fun onResponse(call: Call, response: Response) {
+					if (!response.isSuccessful) {
+						return
+					}
+					val result = response.body!!.string()
+					Log.e("result", result)
+				}
+			})
+		}).start()
 	}
 
 }

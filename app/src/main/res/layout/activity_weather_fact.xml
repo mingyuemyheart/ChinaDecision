@@ -1,0 +1,137 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical">
+
+    <include
+        android:id="@+id/reTitle"
+        layout="@layout/shawn_layout_title" />
+
+    <com.amap.api.maps.MapView
+        android:id="@+id/mapView"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/reTitle" />
+
+    <TextView
+        android:id="@+id/tvTime"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="10dp"
+        android:background="@drawable/shawn_bg_corner_left_black"
+        android:gravity="center"
+        android:paddingStart="10dp"
+        android:paddingEnd="10dp"
+        android:textColor="@color/white"
+        android:textSize="@dimen/level_5"
+        android:visibility="gone"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/reTitle" />
+
+    <LinearLayout
+        android:id="@+id/llWeather"
+        android:layout_width="wrap_content"
+        android:layout_height="0.1dp"
+        android:orientation="vertical"
+        android:gravity="center_horizontal"
+        app:layout_constraintBottom_toTopOf="@+id/ivExpand"
+        app:layout_constraintStart_toStartOf="@+id/ivExpand"
+        app:layout_constraintEnd_toEndOf="@+id/ivExpand"
+        android:layout_marginBottom="5dp">
+
+        <ImageView
+            android:id="@+id/ivHail"
+            android:layout_width="35dp"
+            android:layout_height="35dp"
+            android:src="@drawable/wf_icon_hail_press"
+            android:adjustViewBounds="true"/>
+
+        <ImageView
+            android:id="@+id/ivIce"
+            android:layout_width="35dp"
+            android:layout_height="35dp"
+            android:layout_marginTop="5dp"
+            android:src="@drawable/wf_icon_ice_press"
+            android:adjustViewBounds="true"/>
+
+        <ImageView
+            android:id="@+id/ivSand"
+            android:layout_width="35dp"
+            android:layout_height="35dp"
+            android:layout_marginTop="5dp"
+            android:src="@drawable/wf_icon_sand_press"
+            android:adjustViewBounds="true"/>
+
+        <ImageView
+            android:id="@+id/ivHaze"
+            android:layout_width="35dp"
+            android:layout_height="35dp"
+            android:layout_marginTop="5dp"
+            android:src="@drawable/wf_icon_haze_press"
+            android:adjustViewBounds="true"/>
+
+        <ImageView
+            android:id="@+id/ivFog"
+            android:layout_width="35dp"
+            android:layout_height="35dp"
+            android:layout_marginTop="5dp"
+            android:src="@drawable/wf_icon_fog_press"
+            android:adjustViewBounds="true"/>
+
+        <ImageView
+            android:id="@+id/ivSnow"
+            android:layout_width="35dp"
+            android:layout_height="35dp"
+            android:layout_marginTop="5dp"
+            android:src="@drawable/wf_icon_snow_press"
+            android:adjustViewBounds="true"/>
+
+        <ImageView
+            android:id="@+id/ivRain"
+            android:layout_width="35dp"
+            android:layout_height="35dp"
+            android:layout_marginTop="5dp"
+            android:src="@drawable/wf_icon_rain_press"
+            android:adjustViewBounds="true"/>
+
+        <ImageView
+            android:id="@+id/ivCloud"
+            android:layout_width="35dp"
+            android:layout_height="35dp"
+            android:layout_marginTop="5dp"
+            android:src="@drawable/wf_icon_cloud_press"
+            android:adjustViewBounds="true"/>
+
+        <ImageView
+            android:id="@+id/ivSunny"
+            android:layout_width="35dp"
+            android:layout_height="35dp"
+            android:layout_marginTop="5dp"
+            android:src="@drawable/wf_icon_sunny_press"
+            android:adjustViewBounds="true"/>
+
+        <ImageView
+            android:id="@+id/ivOvercast"
+            android:layout_width="35dp"
+            android:layout_height="35dp"
+            android:layout_marginTop="5dp"
+            android:src="@drawable/wf_icon_overcast_press"
+            android:adjustViewBounds="true"/>
+
+    </LinearLayout>
+
+    <ImageView
+        android:id="@+id/ivExpand"
+        android:layout_width="35dp"
+        android:layout_height="35dp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"
+        android:layout_marginStart="10dp"
+        android:layout_marginBottom="10dp"
+        android:src="@drawable/shawn_icon_arc_main"
+        android:adjustViewBounds="true"/>
+
+</android.support.constraint.ConstraintLayout>

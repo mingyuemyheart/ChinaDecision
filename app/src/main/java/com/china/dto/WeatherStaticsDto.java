@@ -8,4 +8,5 @@ public class WeatherStaticsDto {
 	public String level;
 	public double lat;
 	public double lng;
+	public int pheCode;
 }

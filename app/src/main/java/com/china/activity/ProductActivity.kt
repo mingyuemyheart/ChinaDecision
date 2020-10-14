@@ -155,6 +155,11 @@ class ProductActivity : ShawnBaseActivity(), OnClickListener {
 					intent.putExtra(CONST.COLUMN_ID, dto.columnId)
 					intent.putExtra(CONST.ACTIVITY_NAME, dto.name)
 					startActivity(intent)
+				} else if (TextUtils.equals(dto.id, "115")) { //天气现象实况
+					intent = Intent(this, WeatherFactActivity::class.java)
+					intent.putExtra(CONST.COLUMN_ID, dto.columnId)
+					intent.putExtra(CONST.ACTIVITY_NAME, dto.name)
+					startActivity(intent)
 				}else if (TextUtils.equals(dto.id, "201")) {//城市天气预报
 					intent = Intent(this, CityForecastActivity::class.java)
 					intent.putExtra(CONST.COLUMN_ID, dto.columnId)
@@ -199,6 +204,11 @@ class ProductActivity : ShawnBaseActivity(), OnClickListener {
 					intent = Intent(this, BroadcastWeatherActivity::class.java)
 					intent.putExtra(CONST.ACTIVITY_NAME, dto.name)
 					intent.putExtra(CONST.WEB_URL, dto.dataUrl)
+					startActivity(intent)
+				} else if (TextUtils.equals(dto.id, "1002")) { //预警信息
+					intent = Intent(this, WarningActivity::class.java)
+					intent.putExtra(CONST.COLUMN_ID, dto.columnId)
+					intent.putExtra(CONST.ACTIVITY_NAME, dto.name)
 					startActivity(intent)
 				} else if (TextUtils.equals(dto.id, "6666")) { //逐日滚动监测
 					intent = Intent(this, DecisionNewsActivity::class.java)

@@ -15,8 +15,8 @@ android {
         applicationId "com.china"
         minSdkVersion 21
         targetSdkVersion 28
-        versionCode 173
-        versionName "3.6.1"
+        versionCode 174
+        versionName "3.6.2"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
         multiDexEnabled true
 
@@ -93,6 +93,11 @@ dependencies {
     implementation files('libs/umeng-share-QQ-simplify-6.9.3.jar')
     implementation files('libs/umeng-share-sms-6.9.3.jar')
     implementation files('libs/umeng-share-wechat-simplify-6.9.3.jar')
+    implementation 'com.umeng.sdk:utdid:1.1.5.3'
+    implementation 'com.umeng.sdk:push:4.2.0'
+    implementation 'com.umeng.sdk:push-huawei:1.0.0'
+    implementation 'com.umeng.sdk:push-xiaomi:1.0.0'
+    implementation 'com.umeng.sdk:push-meizu:1.0.0'
     implementation 'com.squareup.picasso:picasso:2.71828'
     implementation files('libs/uk-co-senab-photoview.jar')
     implementation files('libs/scene-final.jar')

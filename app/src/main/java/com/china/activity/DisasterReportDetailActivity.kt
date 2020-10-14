@@ -36,7 +36,7 @@ class DisasterReportDetailActivity : ShawnBaseActivity(), OnClickListener {
 		try {
 			vSendername.text = data.vSendername
 			vEdittime.text = "上报时间："+sdf2.format(sdf1.parse(data.vEdittime))+"\n上报人："+data.vEditor+"    电话："+data.vTaPhone
-			vCategory.text = WeatherUtil.getDisasterClass(data.vCategory.toInt()).toString()
+			vCategory.text = getString(WeatherUtil.getDisasterClass(data.vCategory.toInt()))
 			if (!TextUtils.isEmpty(data.vGeneralLoss)) {
 				vGeneralLoss.text = data.vGeneralLoss+"万元"
 			}else {
