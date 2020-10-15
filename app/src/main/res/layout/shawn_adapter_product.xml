@@ -10,7 +10,7 @@
         android:layout_height="120dp"
         android:layout_gravity="center"
         android:scaleType="fitXY"
-        android:src="@drawable/shawn_icon_seat_bitmap" />
+        android:src="@drawable/icon_seat_bitmap" />
 
     <TextView
         android:id="@+id/tvName"

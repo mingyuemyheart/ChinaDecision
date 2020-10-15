@@ -21,8 +21,6 @@ import com.china.dto.NewsDto
 import com.china.utils.CommonUtil
 import com.china.utils.OkHttpUtil
 import com.squareup.picasso.Picasso
-import com.tendcloud.tenddata.TCAgent
-import com.tendcloud.tenddata.TDAccount
 import kotlinx.android.synthetic.main.activity_welcome.*
 import kotlinx.android.synthetic.main.dialog_policy.view.*
 import okhttp3.*
@@ -34,7 +32,7 @@ import java.util.*
 /**
  * 欢迎界面
  */
-class WelcomeActivity : ShawnBaseActivity() {
+class WelcomeActivity : BaseActivity() {
 
 	private val dataList : ArrayList<ColumnData> = ArrayList()
 	private val pdfList : ArrayList<NewsDto> = ArrayList()//pdf文档类
@@ -287,16 +285,13 @@ class WelcomeActivity : ShawnBaseActivity() {
 
 											okHttpPushToken()
 
-											val intent = Intent(this@WelcomeActivity, ShawnMainActivity::class.java)
+											val intent = Intent(this@WelcomeActivity, MainActivity::class.java)
 											val bundle = Bundle()
 											bundle.putParcelableArrayList("dataList", dataList as ArrayList<out Parcelable>)
 											bundle.putParcelableArrayList("pdfList", pdfList as ArrayList<out Parcelable>)
 											intent.putExtras(bundle)
 											startActivity(intent)
 											finish()
-
-											//统计登录事件
-											TCAgent.onLogin(MyApplication.UID, TDAccount.AccountType.REGISTERED, MyApplication.USERNAME)
 										}
 									}else {
 										//失败

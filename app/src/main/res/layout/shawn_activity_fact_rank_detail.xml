@@ -6,7 +6,7 @@
 
     <include
         android:id="@+id/reTitle"
-        layout="@layout/shawn_layout_title" />
+        layout="@layout/layout_title" />
 
     <TextView
         android:id="@+id/divider1"

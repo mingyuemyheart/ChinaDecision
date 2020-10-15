@@ -8,7 +8,7 @@ import com.china.R
 import com.china.dto.DisasterReportDto
 import com.china.utils.WeatherUtil
 import kotlinx.android.synthetic.main.activity_disaster_report_detail.*
-import kotlinx.android.synthetic.main.shawn_layout_title.*
+import kotlinx.android.synthetic.main.layout_title.*
 import java.text.ParseException
 import java.text.SimpleDateFormat
 import java.util.*
@@ -17,7 +17,7 @@ import java.util.*
  * 灾情直报-详情
  * @author shawn_sun
  */
-class DisasterReportDetailActivity : ShawnBaseActivity(), OnClickListener {
+class DisasterReportDetailActivity : BaseActivity(), OnClickListener {
 	
 	private val sdf1 = SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.CHINA)
 	private val sdf2 = SimpleDateFormat("yyyy-MM-dd", Locale.CHINA)

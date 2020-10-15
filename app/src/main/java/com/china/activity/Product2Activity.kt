@@ -13,9 +13,8 @@ import com.china.common.MyApplication
 import com.china.dto.NewsDto
 import com.china.utils.CommonUtil
 import com.china.utils.OkHttpUtil
-import com.tendcloud.tenddata.TCAgent
 import kotlinx.android.synthetic.main.activity_product.*
-import kotlinx.android.synthetic.main.shawn_layout_title.*
+import kotlinx.android.synthetic.main.layout_title.*
 import okhttp3.Call
 import okhttp3.Callback
 import okhttp3.Request
@@ -29,7 +28,7 @@ import java.util.*
 /**
  * 农业气象等
  */
-class Product2Activity : ShawnBaseActivity(), OnClickListener {
+class Product2Activity : BaseActivity(), OnClickListener {
 	
 	private var mAdapter : ShawnProductAdapter? = null
 	private val dataList : ArrayList<ColumnData> = ArrayList()
@@ -157,20 +156,6 @@ class Product2Activity : ShawnBaseActivity(), OnClickListener {
 	override fun onClick(v: View?) {
 		when(v!!.id) {
 			R.id.llBack -> finish()
-		}
-	}
-
-	override fun onResume() {
-		super.onResume()
-		if (tvTitle != null) {
-			TCAgent.onPageStart(this, tvTitle.text.toString())
-		}
-	}
-
-	override fun onPause() {
-		super.onPause()
-		if (tvTitle != null) {
-			TCAgent.onPageEnd(this, tvTitle.text.toString())
 		}
 	}
 

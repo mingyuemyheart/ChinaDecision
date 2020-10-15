@@ -6,14 +6,14 @@
 
     <include
         android:id="@+id/reTitle"
-        layout="@layout/shawn_layout_title"/>
+        layout="@layout/layout_title"/>
 
     <LinearLayout
         android:id="@+id/llScrollView"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_below="@+id/reTitle"
-        android:background="@color/title_bg"
+        android:background="@color/colorPrimary"
         android:gravity="center_vertical"
         android:orientation="horizontal"
         android:paddingBottom="5dp"

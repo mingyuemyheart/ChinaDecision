@@ -106,7 +106,7 @@ class ProductCustomActivity : BaseFragmentActivity(), OnClickListener {
 		if (resultCode == Activity.RESULT_OK) {
 			when (requestCode) {
 				1001 -> if (fragment1 != null) {
-					fragment1!!.OkHttpList()
+					fragment1!!.okHttpList()
 				}
 			}
 		}

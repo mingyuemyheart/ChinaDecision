@@ -70,8 +70,8 @@ class WarningDetailFragment : Fragment() {
 	 * 获取预警详情
 	 */
 	private fun okHttpWarningDetail(html : String) {
-		val url = "https://decision-admin.tianqi.cn/Home/work2019/getDetailWarn/identifier/$html"
         Thread(Runnable {
+            val url = "https://decision-admin.tianqi.cn/Home/work2019/getDetailWarn/identifier/$html"
             OkHttpUtil.enqueue(Request.Builder().url(url).build(), object : Callback {
                 override fun onFailure(call: Call, e: IOException) {
                 }

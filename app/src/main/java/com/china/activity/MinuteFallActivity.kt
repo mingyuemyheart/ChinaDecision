@@ -15,7 +15,6 @@ import android.support.v4.app.ActivityCompat
 import android.support.v4.content.ContextCompat
 import android.text.TextUtils
 import android.util.Log
-import android.view.KeyEvent
 import android.view.LayoutInflater
 import android.view.View
 import android.view.View.OnClickListener
@@ -51,7 +50,7 @@ import com.china.utils.CommonUtil
 import com.china.utils.OkHttpUtil
 import com.china.view.MinuteFallView
 import kotlinx.android.synthetic.main.activity_minute_fall.*
-import kotlinx.android.synthetic.main.shawn_layout_title.*
+import kotlinx.android.synthetic.main.layout_title.*
 import okhttp3.Call
 import okhttp3.Callback
 import okhttp3.Request
@@ -67,7 +66,7 @@ import kotlin.collections.ArrayList
 /**
  * 分钟级降水估测
  */
-class MinuteFallActivity : ShawnBaseActivity(), OnClickListener, AMapLocationListener,
+class MinuteFallActivity : BaseActivity(), OnClickListener, AMapLocationListener,
         OnMapClickListener, AMap.OnMarkerClickListener, OnGeocodeSearchListener, OnMapScreenShotListener {
 
     private var aMap: AMap? = null
@@ -618,27 +617,18 @@ class MinuteFallActivity : ShawnBaseActivity(), OnClickListener, AMapLocationLis
 
     override fun onMapScreenShot(arg0: Bitmap?, arg1: Int) {}
 
-    override fun onKeyDown(keyCode: Int, event: KeyEvent?): Boolean {
-        if (keyCode == KeyEvent.KEYCODE_BACK) {
-            setBackEmit()
-            finish()
-        }
-        return super.onKeyDown(keyCode, event)
-    }
-
     override fun onClick(v: View) {
         when (v.id) {
             R.id.llBack -> {
-                setBackEmit()
                 finish()
             }
             R.id.ivRadar -> switchRadars()
             R.id.ivSwitch -> if (aMap!!.mapType == AMap.MAP_TYPE_NORMAL) {
                 aMap!!.mapType = AMap.MAP_TYPE_SATELLITE
-                ivSwitch.setImageResource(R.drawable.shawn_icon_switch_map_on)
+                ivSwitch.setImageResource(R.drawable.icon_switch_map_on)
             } else {
                 aMap!!.mapType = AMap.MAP_TYPE_NORMAL
-                ivSwitch.setImageResource(R.drawable.shawn_icon_switch_map_off)
+                ivSwitch.setImageResource(R.drawable.icon_switch_map_off)
             }
             R.id.ivLocation -> {
                 if (zoom < 10f) {
@@ -649,6 +639,7 @@ class MinuteFallActivity : ShawnBaseActivity(), OnClickListener, AMapLocationLis
                     ivLocation.setImageResource(R.drawable.shawn_icon_location_off)
                 }
                 aMap!!.animateCamera(CameraUpdateFactory.newLatLngZoom(locationLatLng, zoom))
+                addLocationMarker(locationLatLng)
             }
             R.id.ivRank -> if (ivLegend.visibility == View.VISIBLE) {
                 ivLegend.visibility = View.INVISIBLE

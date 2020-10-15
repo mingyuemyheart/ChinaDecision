@@ -15,7 +15,7 @@ import android.view.ViewGroup.LayoutParams;
 import android.widget.ImageView;
 
 import com.amap.api.maps.model.LatLng;
-import com.china.activity.ShawnTyhpoonActivity;
+import com.china.activity.TyhpoonActivity;
 import com.china.dto.WindData;
 import com.china.dto.WindDto;
 import com.china.utils.CommonUtil;
@@ -39,7 +39,7 @@ public class WaitWindView extends View {
 	private Bitmap bitmap;//每一帧图像承载对象
 	private Canvas tempCanvas;
 	private WindThread mThread;
-	private ShawnTyhpoonActivity activity;
+	private TyhpoonActivity activity;
 	private WindData windData;
 	private List<ImageView> images = new ArrayList<>();//存放位图的list
 	private float zoom;
@@ -61,7 +61,7 @@ public class WaitWindView extends View {
 		super(context, attrs, defStyleAttr);
 	}
 	
-	public void init(ShawnTyhpoonActivity activity) {
+	public void init(TyhpoonActivity activity) {
 		this.activity = activity;
 
 		width = CommonUtil.widthPixels(activity);

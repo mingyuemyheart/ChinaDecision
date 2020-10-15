@@ -14,7 +14,7 @@ import com.china.manager.DBManager
 import com.china.utils.CommonUtil
 import com.china.utils.OkHttpUtil
 import kotlinx.android.synthetic.main.fragment_warning_detail.*
-import kotlinx.android.synthetic.main.shawn_layout_title.*
+import kotlinx.android.synthetic.main.layout_title.*
 import okhttp3.Call
 import okhttp3.Callback
 import okhttp3.Request
@@ -26,7 +26,7 @@ import java.io.IOException
 /**
  * 预警详情
  */
-class WarningDetailActivity : ShawnBaseActivity(), OnClickListener {
+class WarningDetailActivity : BaseActivity(), OnClickListener {
 	
 	private var data : WarningDto? = null
 
@@ -73,8 +73,8 @@ class WarningDetailActivity : ShawnBaseActivity(), OnClickListener {
 	 * 获取预警详情
 	 */
 	private fun okHttpWarningDetail(html : String) {
-		val url = "https://decision-admin.tianqi.cn/Home/work2019/getDetailWarn/identifier/$html"
 		Thread(Runnable {
+			val url = "https://decision-admin.tianqi.cn/Home/work2019/getDetailWarn/identifier/$html"
 			OkHttpUtil.enqueue(Request.Builder().url(url).build(), object : Callback {
 				override fun onFailure(call: Call, e: IOException) {
 				}

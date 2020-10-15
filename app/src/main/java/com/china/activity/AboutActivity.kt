@@ -8,12 +8,12 @@ import com.china.R
 import com.china.common.CONST
 import com.china.utils.CommonUtil
 import kotlinx.android.synthetic.main.activity_about.*
-import kotlinx.android.synthetic.main.shawn_layout_title.*
+import kotlinx.android.synthetic.main.layout_title.*
 
 /**
  * 关于我们
  */
-class AboutActivity : ShawnBaseActivity(), OnClickListener {
+class AboutActivity : BaseActivity(), OnClickListener {
 
 	override fun onCreate(savedInstanceState: Bundle?) {
 		super.onCreate(savedInstanceState)

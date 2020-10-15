@@ -14,7 +14,7 @@ import android.os.Message;
 import android.util.AttributeSet;
 import android.view.View;
 
-import com.china.activity.ShawnMainActivity;
+import com.china.activity.MainActivity;
 import com.china.common.CONST;
 import com.china.dto.WeatherDto;
 import com.china.utils.CommonUtil;
@@ -32,7 +32,7 @@ public class HourView extends View{
 	private Paint lineP = null;//画线画笔
 	private Paint textP = null;//写字画笔
 	private float width = 0;
-	private ShawnMainActivity activity = null;
+	private MainActivity activity = null;
 	
 	public HourView(Context context) {
 		super(context);
@@ -65,7 +65,7 @@ public class HourView extends View{
 	/**
 	 * 对cubicView进行赋值
 	 */
-	public void setData(List<WeatherDto> dataList, float width, ShawnMainActivity activity) {
+	public void setData(List<WeatherDto> dataList, float width, MainActivity activity) {
 		this.activity = activity;
 		this.width = width;
 		if (!dataList.isEmpty()) {

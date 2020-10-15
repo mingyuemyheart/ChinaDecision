@@ -5,7 +5,6 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.text.TextUtils;
-import android.view.KeyEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.AdapterView;
@@ -20,7 +19,6 @@ import com.china.common.CONST;
 import com.china.dto.DisasterDto;
 import com.china.utils.CommonUtil;
 import com.china.utils.OkHttpUtil;
-import com.tendcloud.tenddata.TCAgent;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -38,7 +36,7 @@ import okhttp3.Response;
 /**
  * 灾情专报
  */
-public class DisasterSpecialActivity extends ShawnBaseActivity implements OnClickListener{
+public class DisasterSpecialActivity extends BaseActivity implements OnClickListener{
 	
 	private Context mContext = null;
 	private TextView tvTitle = null;
@@ -171,40 +169,14 @@ public class DisasterSpecialActivity extends ShawnBaseActivity implements OnClic
 	}
 
 	@Override
-	public boolean onKeyDown(int keyCode, KeyEvent event) {
-		if (keyCode == KeyEvent.KEYCODE_BACK) {
-			setBackEmit();
-			finish();
-		}
-		return super.onKeyDown(keyCode, event);
-	}
-
-	@Override
 	public void onClick(View v) {
 		switch (v.getId()) {
 		case R.id.llBack:
-			setBackEmit();
 			finish();
 			break;
 
 		default:
 			break;
-		}
-	}
-
-	@Override
-	protected void onResume() {
-		super.onResume();
-		if (tvTitle != null) {
-			TCAgent.onPageStart(mContext, tvTitle.getText().toString());
-		}
-	}
-
-	@Override
-	protected void onPause() {
-		super.onPause();
-		if (tvTitle != null) {
-			TCAgent.onPageEnd(mContext, tvTitle.getText().toString());
 		}
 	}
 

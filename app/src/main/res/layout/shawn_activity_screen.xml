@@ -6,7 +6,7 @@
 
     <include
         android:id="@+id/reTitle"
-        layout="@layout/shawn_layout_title" />
+        layout="@layout/layout_title" />
 
         <GridView
             android:id="@+id/gridView"

@@ -91,13 +91,13 @@ public class ShawnMainAdapter extends BaseAdapter{
 				if (TextUtils.equals("1", MyApplication.getAppTheme())) {
 					downloadBitmap(dto.icon, mHolder.icon);
 				} else {
-					Picasso.get().load(dto.icon).error(R.drawable.shawn_icon_seat_bitmap).into(mHolder.icon);
+					Picasso.get().load(dto.icon).error(R.drawable.icon_seat_bitmap).into(mHolder.icon);
 				}
 			}else {
 				if (TextUtils.equals("1", MyApplication.getAppTheme())) {
-					mHolder.icon.setImageBitmap(CommonUtil.grayScaleImage(BitmapFactory.decodeResource(mContext.getResources(), R.drawable.shawn_icon_seat_bitmap)));
+					mHolder.icon.setImageBitmap(CommonUtil.grayScaleImage(BitmapFactory.decodeResource(mContext.getResources(), R.drawable.icon_seat_bitmap)));
 				} else {
-					mHolder.icon.setImageResource(R.drawable.shawn_icon_seat_bitmap);
+					mHolder.icon.setImageResource(R.drawable.icon_seat_bitmap);
 				}
 			}
 

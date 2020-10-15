@@ -13,7 +13,7 @@
         android:layout_width="80dp"
         android:layout_height="60dp"
         android:scaleType="centerCrop"
-        android:src="@drawable/shawn_icon_seat_bitmap"
+        android:src="@drawable/icon_seat_bitmap"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />

@@ -11,15 +11,14 @@ import android.webkit.WebSettings.LayoutAlgorithm
 import com.china.R
 import com.china.common.CONST
 import com.china.utils.CommonUtil
-import com.umeng.message.UmengNotifyClickActivity
 import kotlinx.android.synthetic.main.activity_webview.*
-import kotlinx.android.synthetic.main.shawn_layout_title.*
+import kotlinx.android.synthetic.main.layout_title.*
 import java.util.*
 
 /**
  * 应用推荐、周报统计
  */
-class WebviewActivity : ShawnBaseActivity(), OnClickListener {
+class WebviewActivity : BaseActivity(), OnClickListener {
 	
 	private var dataUrl : String? = null
 

@@ -24,7 +24,7 @@ import android.os.Message;
 import android.util.Log;
 
 import com.china.R;
-import com.china.activity.ShawnZXingActivity;
+import com.china.activity.ZXingActivity;
 import com.google.zxing.BinaryBitmap;
 import com.google.zxing.DecodeHintType;
 import com.google.zxing.MultiFormatReader;
@@ -38,10 +38,10 @@ final class DecodeHandler extends Handler {
 
   private static final String TAG = DecodeHandler.class.getSimpleName();
 
-  private final ShawnZXingActivity activity;
+  private final ZXingActivity activity;
   private final MultiFormatReader multiFormatReader;
 
-  DecodeHandler(ShawnZXingActivity activity, Hashtable<DecodeHintType, Object> hints) {
+  DecodeHandler(ZXingActivity activity, Hashtable<DecodeHintType, Object> hints) {
     multiFormatReader = new MultiFormatReader();
     multiFormatReader.setHints(hints);
     this.activity = activity;

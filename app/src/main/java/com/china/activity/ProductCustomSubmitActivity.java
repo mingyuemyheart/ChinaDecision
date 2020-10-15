@@ -37,7 +37,7 @@ import okhttp3.Response;
 /**
  * 产品定制-定制
  */
-public class ProductCustomSubmitActivity extends ShawnBaseActivity implements View.OnClickListener {
+public class ProductCustomSubmitActivity extends BaseActivity implements View.OnClickListener {
 
     private Context context;
     private EditText etUnit,etUse,etScope,etType,etPerson,etPhone,etContent;

@@ -10,7 +10,7 @@ import com.china.common.CONST
 import com.china.common.MyApplication
 import com.china.utils.OkHttpUtil
 import kotlinx.android.synthetic.main.activity_feedback.*
-import kotlinx.android.synthetic.main.shawn_layout_title.*
+import kotlinx.android.synthetic.main.layout_title.*
 import okhttp3.*
 import org.json.JSONException
 import org.json.JSONObject
@@ -19,7 +19,7 @@ import java.io.IOException
 /**
  * 意见反馈
  */
-class FeedbackActivity : ShawnBaseActivity(), OnClickListener {
+class FeedbackActivity : BaseActivity(), OnClickListener {
 
 	override fun onCreate(savedInstanceState: Bundle?) {
 		super.onCreate(savedInstanceState)
@@ -43,7 +43,7 @@ class FeedbackActivity : ShawnBaseActivity(), OnClickListener {
 	 * 意见反馈
 	 */
 	private fun okHttpFeedback() {
-        loadingView.visibility = View.VISIBLE
+		showDialog()
 		val url = "http://decision-admin.tianqi.cn/home/Work/request"
 		val builder = FormBody.Builder()
 		if (!TextUtils.isEmpty(MyApplication.UID)) {
@@ -62,7 +62,7 @@ class FeedbackActivity : ShawnBaseActivity(), OnClickListener {
 					}
 					val result = response.body!!.string()
 					runOnUiThread {
-						loadingView.visibility = View.GONE
+						cancelDialog()
 						if (!TextUtils.isEmpty(result)) {
 							try {
 								val obj = JSONObject(result)

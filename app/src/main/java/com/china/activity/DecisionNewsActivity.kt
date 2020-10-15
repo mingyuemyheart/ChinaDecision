@@ -13,7 +13,7 @@ import com.china.dto.DisasterDto
 import com.china.utils.CommonUtil
 import com.china.utils.OkHttpUtil
 import kotlinx.android.synthetic.main.activity_titlebar_listview.*
-import kotlinx.android.synthetic.main.shawn_layout_title.*
+import kotlinx.android.synthetic.main.layout_title.*
 import okhttp3.Call
 import okhttp3.Callback
 import okhttp3.Request
@@ -24,10 +24,10 @@ import java.io.IOException
 import java.util.*
 
 /**
- * 决策专报
+ * 决策专报、灾情专报、一周灾情总结
  * @author shawn_sun
  */
-class DecisionNewsActivity : ShawnBaseActivity(), OnClickListener {
+class DecisionNewsActivity : BaseActivity(), OnClickListener {
 	
 	private var mAdapter : DecisionNewsAdapter? = null
 	private val dataList : ArrayList<DisasterDto> = ArrayList()

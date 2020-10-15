@@ -8,7 +8,7 @@
 
     <include
         android:id="@+id/reTitle"
-        layout="@layout/shawn_layout_title" />
+        layout="@layout/layout_title" />
 
     <EditText
         android:id="@+id/etContent"
@@ -25,17 +25,5 @@
         android:textColorHint="@color/text_color2"
         android:textSize="@dimen/level_4"
         app:layout_constraintTop_toBottomOf="@+id/reTitle" />
-
-    <com.wang.avi.AVLoadingIndicatorView
-        android:id="@+id/loadingView"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:visibility="gone"
-        app:indicator="LineScalePulseOutRapid"
-        app:indicator_color="@color/blue"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
 
 </android.support.constraint.ConstraintLayout>

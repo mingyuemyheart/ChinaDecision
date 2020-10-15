@@ -1,4 +1,4 @@
-package com.china.activity;
+package com.china.activity
 
 import android.Manifest
 import android.content.Context
@@ -16,7 +16,7 @@ import android.view.View.OnClickListener
 import android.widget.ImageView
 import android.widget.TextView
 import com.china.R
-import com.china.adapter.ShawnWeeklyForecastAdapter
+import com.china.adapter.WeeklyForecastAdapter
 import com.china.common.MyApplication
 import com.china.dto.WeatherDto
 import com.china.utils.AuthorityUtil
@@ -25,7 +25,7 @@ import com.china.utils.OkHttpUtil
 import com.china.utils.WeatherUtil
 import com.china.view.WeeklyView
 import kotlinx.android.synthetic.main.activity_forecast.*
-import kotlinx.android.synthetic.main.shawn_layout_title.*
+import kotlinx.android.synthetic.main.layout_title.*
 import okhttp3.Call
 import okhttp3.Callback
 import okhttp3.Request
@@ -41,9 +41,9 @@ import kotlin.collections.ArrayList
 /**
  * 天气预报
  */
-class ForecastActivity : ShawnBaseActivity(), OnClickListener {
+class ForecastActivity : BaseActivity(), OnClickListener {
 
-	private var mAdapter: ShawnWeeklyForecastAdapter? = null
+	private var mAdapter: WeeklyForecastAdapter? = null
 	private val weeklyList: ArrayList<WeatherDto> = ArrayList()
 	private val sdf1 = SimpleDateFormat("yyyyMMddHHmm", Locale.CHINA)
 	private val sdf2 = SimpleDateFormat("HH", Locale.CHINA)
@@ -330,7 +330,7 @@ class ForecastActivity : ShawnBaseActivity(), OnClickListener {
 	 * 初始化listview
 	 */
 	private fun initListView() {
-		mAdapter = ShawnWeeklyForecastAdapter(this, weeklyList)
+		mAdapter = WeeklyForecastAdapter(this, weeklyList)
 		listView.adapter = mAdapter
 	}
 

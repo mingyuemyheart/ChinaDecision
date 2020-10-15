@@ -7,7 +7,7 @@
 
     <include
         android:id="@+id/reTitle"
-        layout="@layout/shawn_layout_title" />
+        layout="@layout/layout_title" />
 
     <com.amap.api.maps.MapView
         android:id="@+id/mapView"
@@ -101,7 +101,7 @@
             android:layout_height="35dp"
             android:layout_marginStart="10dp"
             android:layout_marginBottom="5dp"
-            android:src="@drawable/shawn_icon_switch_map_off"
+            android:src="@drawable/icon_switch_map_off"
             app:layout_constraintBottom_toTopOf="@+id/ivLocation"
             app:layout_constraintStart_toStartOf="parent" />
 

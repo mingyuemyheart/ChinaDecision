@@ -8,7 +8,6 @@ import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextUtils;
 import android.text.TextWatcher;
-import android.view.KeyEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.animation.Animation;
@@ -28,7 +27,6 @@ import com.china.R;
 import com.china.adapter.WarningAdapter;
 import com.china.adapter.WarningListScreenAdapter;
 import com.china.common.CONST;
-import com.china.common.MyApplication;
 import com.china.dto.WarningDto;
 import com.china.utils.CommonUtil;
 import com.china.utils.OkHttpUtil;
@@ -50,7 +48,7 @@ import okhttp3.Response;
 /**
  * 预警列表
  */
-public class WarningListActivity extends ShawnBaseActivity implements OnClickListener {
+public class WarningListActivity extends BaseActivity implements OnClickListener {
 	
 	private Context mContext;
 	private ListView cityListView;
@@ -67,6 +65,7 @@ public class WarningListActivity extends ShawnBaseActivity implements OnClickLis
 	private List<WarningDto> list2 = new ArrayList<>();
 	private List<WarningDto> list3 = new ArrayList<>();
 	private String type = "999999",color = "999999",id = "999999";
+	private String columnId = "";
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -188,8 +187,6 @@ public class WarningListActivity extends ShawnBaseActivity implements OnClickLis
 				bundle.putParcelable("data", data);
 				intentDetail.putExtras(bundle);
 				startActivity(intentDetail);
-
-				setSelectEmit("9", data.html);
 			}
 		});
 	}
@@ -291,8 +288,6 @@ public class WarningListActivity extends ShawnBaseActivity implements OnClickLis
 				showList.clear();
 				showList.addAll(selecteList);
 				cityAdapter.notifyDataSetChanged();
-
-				setSelectEmit("8", dto.name);
 			}
 		});
 	}
@@ -361,8 +356,6 @@ public class WarningListActivity extends ShawnBaseActivity implements OnClickLis
 				showList.clear();
 				showList.addAll(selecteList);
 				cityAdapter.notifyDataSetChanged();
-
-				setSelectEmit("8", dto.name);
 			}
 		});
 	}
@@ -431,8 +424,6 @@ public class WarningListActivity extends ShawnBaseActivity implements OnClickLis
 				showList.clear();
 				showList.addAll(selecteList);
 				cityAdapter.notifyDataSetChanged();
-
-				setSelectEmit("8", dto.name);
 			}
 		});
 	}
@@ -500,35 +491,22 @@ public class WarningListActivity extends ShawnBaseActivity implements OnClickLis
 	}
 
 	@Override
-	public boolean onKeyDown(int keyCode, KeyEvent event) {
-		if (keyCode == KeyEvent.KEYCODE_BACK) {
-			setNormalEmit("6", "");
-			finish();
-		}
-		return super.onKeyDown(keyCode, event);
-	}
-	
-	@Override
 	public void onClick(View v) {
 		switch (v.getId()) {
 		case R.id.llBack:
-			setNormalEmit("6", "");
 			finish();
 			break;
 		case R.id.ll1:
-			setNormalEmit("7", "1");
 			bootAnimation(gridView1, iv1);
 			closeList(gridView2, iv2);
 			closeList(gridView3, iv3);
 			break;
 		case R.id.ll2:
-			setNormalEmit("7", "2");
 			bootAnimation(gridView2, iv2);
 			closeList(gridView1, iv1);
 			closeList(gridView3, iv3);
 			break;
 		case R.id.ll3:
-			setNormalEmit("7", "3");
 			bootAnimation(gridView3, iv3);
 			closeList(gridView1, iv1);
 			closeList(gridView2, iv2);
@@ -611,64 +589,6 @@ public class WarningListActivity extends ShawnBaseActivity implements OnClickLis
 				});
 			}
 		});
-	}
-
-	private String columnId = "";//栏目id
-
-	/**
-	 * 普通发送指令，
-	 * @param id
-	 * @param sid
-	 */
-	private void setNormalEmit(String id, String sid) {
-		try {
-			if (socket == null) {
-				socket = MyApplication.getSocket();
-			}
-			if (socket != null && socket.connected()) {
-				JSONObject obj = new JSONObject();
-				obj.put("computerInfo", MyApplication.computerInfo);
-				JSONObject commond = new JSONObject();
-				commond.put("id", id);
-				JSONObject message = new JSONObject();
-				if (!TextUtils.isEmpty(sid)) {
-					message.put("sid", sid);
-				}
-				commond.put("message", message);
-				obj.put("commond", commond);
-				socket.emit(columnId, obj);
-			}
-		} catch (JSONException e) {
-			e.printStackTrace();
-		}
-	}
-
-	/**
-	 * 普通发送指令，
-	 * @param id
-	 * @param name
-	 */
-	private void setSelectEmit(String id, String name) {
-		try {
-			if (socket == null) {
-				socket = MyApplication.getSocket();
-			}
-			if (socket != null && socket.connected()) {
-				JSONObject obj = new JSONObject();
-				obj.put("computerInfo", MyApplication.computerInfo);
-				JSONObject commond = new JSONObject();
-				commond.put("id", id);
-				JSONObject message = new JSONObject();
-				if (!TextUtils.isEmpty(name)) {
-					message.put("data", name);
-				}
-				commond.put("message", message);
-				obj.put("commond", commond);
-				socket.emit(columnId, obj);
-			}
-		} catch (JSONException e) {
-			e.printStackTrace();
-		}
 	}
 
 }

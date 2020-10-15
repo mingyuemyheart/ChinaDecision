@@ -15,7 +15,7 @@ import android.widget.ImageView
 import android.widget.SeekBar
 import android.widget.SeekBar.OnSeekBarChangeListener
 import com.china.R
-import com.china.adapter.ShawnRadarDetailAdapter
+import com.china.adapter.RadarDetailAdapter
 import com.china.dto.RadarDto
 import com.china.manager.RadarManager
 import com.china.utils.CommonUtil
@@ -24,7 +24,7 @@ import com.china.utils.SecretUrlUtil
 import com.china.view.PhotoView
 import com.squareup.picasso.Picasso
 import kotlinx.android.synthetic.main.activity_radar_detail.*
-import kotlinx.android.synthetic.main.shawn_layout_title.*
+import kotlinx.android.synthetic.main.layout_title.*
 import okhttp3.Call
 import okhttp3.Callback
 import okhttp3.Request
@@ -42,12 +42,12 @@ import kotlin.collections.ArrayList
 /**
  * 天气雷达详情
  */
-class RadarDetailActivity : ShawnBaseActivity(), OnClickListener, RadarManager.RadarListener {
+class RadarDetailActivity : BaseActivity(), OnClickListener, RadarManager.RadarListener {
 
 	private val radarList: ArrayList<RadarDto>? = ArrayList()
 	private var mRadarManager: RadarManager? = null
 	private var mRadarThread: RadarThread? = null
-	private var mAdapter: ShawnRadarDetailAdapter? = null
+	private var mAdapter: RadarDetailAdapter? = null
 	private val sdf1 = SimpleDateFormat("HH:mm", Locale.CHINA)
 	private val sdf2 = SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.CHINA)
 	private var gridviewPosition = 0
@@ -160,7 +160,7 @@ class RadarDetailActivity : ShawnBaseActivity(), OnClickListener, RadarManager.R
 	 * 初始化gridview
 	 */
 	private fun initGridView() {
-		mAdapter = ShawnRadarDetailAdapter(this, radarList)
+		mAdapter = RadarDetailAdapter(this, radarList)
 		gridView.adapter = mAdapter
 		gridView.onItemClickListener = OnItemClickListener { arg0, arg1, arg2, arg3 ->
 			gridviewPosition = arg2

@@ -16,8 +16,6 @@ import android.support.constraint.ConstraintLayout;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.text.TextUtils;
-import android.util.Log;
-import android.view.KeyEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.animation.LinearInterpolator;
@@ -55,7 +53,6 @@ import com.china.utils.OkHttpUtil;
 import com.china.utils.SecretUrlUtil;
 import com.china.view.WaitWindView2;
 import com.china.view.WindForeView;
-import com.tendcloud.tenddata.TCAgent;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -77,7 +74,7 @@ import okhttp3.Response;
 /**
  * 等风来
  */
-public class WaitWindActivity extends ShawnBaseActivity implements OnClickListener, AMap.OnMapScreenShotListener, OnCameraChangeListener,
+public class WaitWindActivity extends BaseActivity implements OnClickListener, AMap.OnMapScreenShotListener, OnCameraChangeListener,
         AMap.OnMapClickListener,AMapLocationListener {
 
     private Context mContext;
@@ -593,19 +590,9 @@ public class WaitWindActivity extends ShawnBaseActivity implements OnClickListen
     }
 
     @Override
-    public boolean onKeyDown(int keyCode, KeyEvent event) {
-        if (keyCode == KeyEvent.KEYCODE_BACK) {
-            setBackEmit();
-            finish();
-        }
-        return super.onKeyDown(keyCode, event);
-    }
-
-    @Override
     public void onClick(View v) {
         switch (v.getId()) {
             case R.id.llBack:
-                setBackEmit();
                 finish();
                 break;
             case R.id.ivShare:
@@ -699,9 +686,6 @@ public class WaitWindActivity extends ShawnBaseActivity implements OnClickListen
     @Override
     protected void onResume() {
         super.onResume();
-        if (tvTitle != null) {
-            TCAgent.onPageStart(mContext, tvTitle.getText().toString());
-        }
         if (mapView != null) {
             mapView.onResume();
         }
@@ -713,9 +697,6 @@ public class WaitWindActivity extends ShawnBaseActivity implements OnClickListen
     @Override
     protected void onPause() {
         super.onPause();
-        if (tvTitle != null) {
-            TCAgent.onPageEnd(mContext, tvTitle.getText().toString());
-        }
         if (mapView != null) {
             mapView.onPause();
         }

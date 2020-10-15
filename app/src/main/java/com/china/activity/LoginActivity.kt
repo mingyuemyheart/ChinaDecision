@@ -23,8 +23,6 @@ import com.china.common.MyApplication
 import com.china.dto.NewsDto
 import com.china.utils.CommonUtil
 import com.china.utils.OkHttpUtil
-import com.tendcloud.tenddata.TCAgent
-import com.tendcloud.tenddata.TDAccount
 import kotlinx.android.synthetic.main.activity_login.*
 import okhttp3.*
 import org.json.JSONException
@@ -35,7 +33,7 @@ import java.util.*
 /**
  * 登录界面
  */
-class LoginActivity : ShawnBaseActivity(), OnClickListener {
+class LoginActivity : BaseActivity(), OnClickListener {
 	
 	private var lat  = "0"
 	private var lng = "0"
@@ -275,16 +273,13 @@ class LoginActivity : ShawnBaseActivity(), OnClickListener {
 
 											okHttpPushToken()
 
-											val intent = Intent(this@LoginActivity, ShawnMainActivity::class.java)
+											val intent = Intent(this@LoginActivity, MainActivity::class.java)
 											val bundle = Bundle()
 											bundle.putParcelableArrayList("dataList", dataList as ArrayList<out Parcelable>)
 											bundle.putParcelableArrayList("pdfList", pdfList as ArrayList<out Parcelable>)
 											intent.putExtras(bundle)
 											startActivity(intent)
 											finish()
-
-											//统计登录事件
-											TCAgent.onLogin(MyApplication.UID, TDAccount.AccountType.REGISTERED, MyApplication.USERNAME)
 										}
 									}else {
 										//失败

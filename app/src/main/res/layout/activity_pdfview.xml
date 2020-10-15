@@ -4,22 +4,16 @@
     android:layout_height="match_parent"
     android:orientation="vertical">
 
-    <LinearLayout
+    <include
+        android:id="@+id/reTitle"
+        layout="@layout/layout_title" />
+
+    <com.github.barteksc.pdfviewer.PDFView
+        android:id="@+id/pdfView"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:orientation="vertical"
-        app:layout_constraintTop_toTopOf="parent">
-
-        <include
-            android:id="@+id/reTitle"
-            layout="@layout/shawn_layout_title" />
-
-        <com.github.barteksc.pdfviewer.PDFView
-            android:id="@+id/pdfView"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent" />
-
-    </LinearLayout>
+        android:layout_height="0dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/reTitle" />
 
     <TextView
         android:id="@+id/tvPercent"
@@ -48,10 +42,10 @@
         app:layout_constraintStart_toStartOf="parent"
         app:selectedNumber="0"
         app:starDistance="10dp"
-        app:starEmptyRes="@drawable/shawn_icon_ratingbar"
+        app:starEmptyRes="@drawable/icon_ratingbar"
         app:starHeight="30dp"
         app:starIsFull="false"
-        app:starSelectedRes="@drawable/shawn_icon_ratingbar_press"
+        app:starSelectedRes="@drawable/icon_ratingbar_press"
         app:starWidth="30dp"
         app:startTotalNumber="5" />
 
@@ -60,7 +54,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginBottom="20dp"
-        android:background="@drawable/shawn_selector_feedback"
+        android:background="@drawable/selector_feedback"
         android:gravity="center"
         android:text="更多反馈"
         android:textColor="@color/text_color3"

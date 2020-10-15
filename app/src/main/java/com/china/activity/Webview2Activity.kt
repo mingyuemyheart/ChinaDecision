@@ -1,4 +1,4 @@
-package com.china.activity;
+package com.china.activity
 
 import android.graphics.BitmapFactory
 import android.net.http.SslError
@@ -16,15 +16,14 @@ import com.china.common.CONST
 import com.china.dto.NewsDto
 import com.china.manager.MyCollectManager
 import com.china.utils.CommonUtil
-import com.tendcloud.tenddata.TCAgent
 import kotlinx.android.synthetic.main.activity_webview2.*
-import kotlinx.android.synthetic.main.shawn_layout_title.*
+import kotlinx.android.synthetic.main.layout_title.*
 import java.util.*
 
 /**
  * 天气资讯详情，底部带有分享、收藏等功能
  */
-class Webview2Activity : ShawnBaseActivity(), OnClickListener {
+class Webview2Activity : BaseActivity(), OnClickListener {
 
 	private var dataUrl : String? = null
 	private var isCollected : Boolean = false//是否已收藏
@@ -78,7 +77,7 @@ class Webview2Activity : ShawnBaseActivity(), OnClickListener {
 		if (size != 0) {
 			for (i in 0 until collectList.size) {
 				if (TextUtils.equals(url, collectList[i].detailUrl)) {
-					ivCollect.setImageResource(R.drawable.shawn_icon_collection_blue_press)
+					ivCollect.setImageResource(R.drawable.icon_collection_blue_press)
 					isCollected = true
 					break
 				}
@@ -120,9 +119,6 @@ class Webview2Activity : ShawnBaseActivity(), OnClickListener {
 		loadUrl()
 
 		webView.webChromeClient = object : WebChromeClient() {
-			override fun onReceivedTitle(view: WebView?, title: String?) {
-				super.onReceivedTitle(view, title)
-			}
 
 			override fun onGeolocationPermissionsShowPrompt(origin: String?, callback: GeolocationPermissions.Callback?) {
 				callback!!.invoke(origin, true, false)
@@ -139,7 +135,7 @@ class Webview2Activity : ShawnBaseActivity(), OnClickListener {
 			override fun onPageFinished(view: WebView?, url: String?) {
 				super.onPageFinished(view, url)
 				refreshLayout.isRefreshing = false
-				reBottom.visibility = View.VISIBLE
+				clBottom.visibility = View.VISIBLE
 			}
 
 			override fun onReceivedSslError(view: WebView?, handler: SslErrorHandler?, error: SslError?) {
@@ -162,7 +158,6 @@ class Webview2Activity : ShawnBaseActivity(), OnClickListener {
 	 */
 	private fun resultIntentCollect() {
 		setResult(RESULT_OK)
-		setBackEmit()
 		finish()
 	}
 
@@ -183,15 +178,15 @@ class Webview2Activity : ShawnBaseActivity(), OnClickListener {
 			R.id.llBack -> resultIntentCollect()
 			R.id.ivText -> {
 				val webSettings = webView.settings
-				when {
-					webSettings.getTextSize() == WebSettings.TextSize.NORMAL -> {
-						webSettings.setTextSize(WebSettings.TextSize.LARGER);
+				when (webSettings.textSize) {
+					WebSettings.TextSize.NORMAL -> {
+						webSettings.textSize = WebSettings.TextSize.LARGER
 					}
-					webSettings.getTextSize() == WebSettings.TextSize.LARGER -> {
-						webSettings.setTextSize(WebSettings.TextSize.LARGEST);
+					WebSettings.TextSize.LARGER -> {
+						webSettings.textSize = WebSettings.TextSize.LARGEST
 					}
-					webSettings.getTextSize() == WebSettings.TextSize.LARGEST -> {
-						webSettings.setTextSize(WebSettings.TextSize.NORMAL);
+					WebSettings.TextSize.LARGEST -> {
+						webSettings.textSize = WebSettings.TextSize.NORMAL
 					}
 				}
 			}
@@ -200,7 +195,7 @@ class Webview2Activity : ShawnBaseActivity(), OnClickListener {
 					val dto : NewsDto = intent.extras.getParcelable("data")
 					if (dto != null) {
 						collectList.add(0, dto)
-						ivCollect.setImageResource(R.drawable.shawn_icon_collection_blue_press)
+						ivCollect.setImageResource(R.drawable.icon_collection_blue_press)
 						Toast.makeText(this, getString(R.string.collect_success), Toast.LENGTH_SHORT).show()
 						isCollected = true
 					}
@@ -208,7 +203,7 @@ class Webview2Activity : ShawnBaseActivity(), OnClickListener {
 					for (i in 0 until collectList.size) {
 						if (TextUtils.equals(dataUrl, collectList[i].detailUrl)) {
 							collectList.removeAt(i)
-							ivCollect.setImageResource(R.drawable.shawn_icon_collection_blue)
+							ivCollect.setImageResource(R.drawable.icon_collection_blue)
 							Toast.makeText(this, getString(R.string.collect_cancel), Toast.LENGTH_SHORT).show()
 							isCollected = false
 							break
@@ -226,20 +221,6 @@ class Webview2Activity : ShawnBaseActivity(), OnClickListener {
 				CommonUtil.clearBitmap(bitmap2)
 				CommonUtil.share(this, bitmap)
 			}
-		}
-	}
-
-	override fun onResume() {
-		super.onResume()
-		if (tvTitle != null) {
-			TCAgent.onPageStart(this, tvTitle.text.toString())
-		}
-	}
-
-	override fun onPause() {
-		super.onPause()
-		if (tvTitle != null) {
-			TCAgent.onPageEnd(this, tvTitle.text.toString());
 		}
 	}
 

@@ -20,7 +20,7 @@ import com.china.utils.CommonUtil
 import com.china.utils.OkHttpUtil
 import kotlinx.android.synthetic.main.activity_broadcast_weather.*
 import kotlinx.android.synthetic.main.activity_broadcast_weather.reTitle
-import kotlinx.android.synthetic.main.shawn_layout_title.*
+import kotlinx.android.synthetic.main.layout_title.*
 import okhttp3.Call
 import okhttp3.Callback
 import okhttp3.Request
@@ -33,7 +33,7 @@ import java.util.*
 /**
  * 联播天气
  */
-class BroadcastWeatherActivity : ShawnBaseActivity(), View.OnClickListener {
+class BroadcastWeatherActivity : BaseActivity(), View.OnClickListener {
 
     private val dataList : ArrayList<ShawnSettingDto> = ArrayList()
     private val sdf1 = SimpleDateFormat("yyyyMMdd", Locale.CHINA)

@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:gravity="center_vertical"
+    android:orientation="vertical"
+    android:padding="5dp">
+
+    <ImageView
+        android:id="@+id/ivBg"
+        android:layout_width="10dp"
+        android:layout_height="10dp"
+        android:background="@color/blue"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="@+id/vSendername"
+        app:layout_constraintBottom_toBottomOf="@+id/vSendername"/>
+
+    <TextView
+        android:id="@+id/vSendername"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="5dp"
+        android:singleLine="true"
+        android:textColor="@color/text_color3"
+        android:textSize="@dimen/level_3"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toEndOf="@+id/ivBg"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <TextView
+        android:id="@+id/vCategory"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="5dp"
+        android:layout_marginTop="5dp"
+        android:textColor="@color/text_color4"
+        android:textSize="@dimen/level_4"
+        app:layout_constraintEnd_toStartOf="@+id/vEdittime"
+        app:layout_constraintStart_toEndOf="@+id/ivBg"
+        app:layout_constraintTop_toBottomOf="@+id/vSendername" />
+
+    <TextView
+        android:id="@+id/vEdittime"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:textColor="@color/text_color4"
+        android:textSize="@dimen/level_4"
+        app:layout_constraintStart_toEndOf="@+id/vCategory"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintBottom_toBottomOf="@+id/vCategory"
+        app:layout_constraintTop_toTopOf="@+id/vCategory" />
+
+    <TextView
+        android:id="@+id/vGeneralloss"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="5dp"
+        android:layout_marginTop="5dp"
+        android:textColor="@color/text_color4"
+        android:textSize="@dimen/level_4"
+        app:layout_constraintEnd_toStartOf="@+id/vRzdpop"
+        app:layout_constraintStart_toEndOf="@+id/ivBg"
+        app:layout_constraintTop_toBottomOf="@+id/vCategory" />
+
+    <TextView
+        android:id="@+id/vRzdpop"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:textColor="@color/text_color4"
+        android:textSize="@dimen/level_4"
+        app:layout_constraintBottom_toBottomOf="@+id/vGeneralloss"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toEndOf="@+id/vGeneralloss"
+        app:layout_constraintTop_toTopOf="@+id/vGeneralloss" />
+
+</android.support.constraint.ConstraintLayout>

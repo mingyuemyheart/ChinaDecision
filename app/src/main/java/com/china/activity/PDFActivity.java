@@ -58,7 +58,7 @@ import okhttp3.Response;
 /**
  * PDF列表界面
  */
-public class PDFActivity extends ShawnBaseActivity implements OnClickListener, MyRatingBar.OnStarChangeListener {
+public class PDFActivity extends BaseActivity implements OnClickListener, MyRatingBar.OnStarChangeListener {
 	
 	private Context mContext;
 	private PDFView pdfView;
@@ -266,7 +266,7 @@ public class PDFActivity extends ShawnBaseActivity implements OnClickListener, M
 			@Override
 			public void onClick(View arg0) {
 				remarkDialog.dismiss();
-				Intent intent = new Intent(mContext, ShawnServiceFeedbackActivity.class);
+				Intent intent = new Intent(mContext, ServiceFeedbackActivity.class);
 				intent.putExtra(CONST.WEB_URL, dataUrl);
 				startActivityForResult(intent, 1001);
 			}
@@ -296,7 +296,7 @@ public class PDFActivity extends ShawnBaseActivity implements OnClickListener, M
 				}
 				break;
 			case R.id.tvFeedback:
-				Intent intent = new Intent(this, ShawnServiceFeedbackActivity.class);
+				Intent intent = new Intent(this, ServiceFeedbackActivity.class);
 				intent.putExtra(CONST.WEB_URL, dataUrl);
 				startActivityForResult(intent, 1001);
 				break;

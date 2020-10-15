@@ -8,7 +8,7 @@
 
     <include
         android:id="@+id/reTitle"
-        layout="@layout/shawn_layout_title" />
+        layout="@layout/layout_title" />
 
     <LinearLayout
         android:id="@+id/ll1"

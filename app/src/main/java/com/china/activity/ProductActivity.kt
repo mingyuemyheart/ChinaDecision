@@ -13,15 +13,14 @@ import com.china.common.ColumnData
 import com.china.common.MyApplication
 import com.china.dto.NewsDto
 import com.china.utils.CommonUtil
-import com.tendcloud.tenddata.TCAgent
 import kotlinx.android.synthetic.main.activity_product.*
-import kotlinx.android.synthetic.main.shawn_layout_title.*
+import kotlinx.android.synthetic.main.layout_title.*
 import java.util.*
 
 /**
  * 实况监测、天气预报、专业服务、灾情信息、天气会商
  */
-class ProductActivity : ShawnBaseActivity(), OnClickListener {
+class ProductActivity : BaseActivity(), OnClickListener {
 	
 	private val dataList : ArrayList<ColumnData> = ArrayList()
 
@@ -96,7 +95,7 @@ class ProductActivity : ShawnBaseActivity(), OnClickListener {
 				startActivity(intent)
 			}else if (TextUtils.equals(dto.showType, CONST.LOCAL)) {
 				if (TextUtils.equals(dto.id, "101")) {//站点检测
-					intent = Intent(this, ShawnFactActivity::class.java)
+					intent = Intent(this, FactActivity::class.java)
 					intent.putExtra(CONST.COLUMN_ID, dto.columnId)
 					intent.putExtra(CONST.ACTIVITY_NAME, dto.name)
 					startActivity(intent)
@@ -107,27 +106,27 @@ class ProductActivity : ShawnBaseActivity(), OnClickListener {
 					intent.putExtra(CONST.WEB_URL, CONST.CLOUD_URL)
 					startActivity(intent)
 				}else if (TextUtils.equals(dto.id, "103")) {//台风路径
-					intent = Intent(this, ShawnTyhpoonActivity::class.java)
+					intent = Intent(this, TyhpoonActivity::class.java)
 					intent.putExtra(CONST.COLUMN_ID, dto.columnId)
 					intent.putExtra(CONST.ACTIVITY_NAME, dto.name)
 					startActivity(intent)
 				}else if (TextUtils.equals(dto.id, "104")) {//天气统计
-					intent = Intent(this, ShawnWeatherStaticsActivity::class.java)
+					intent = Intent(this, WeatherStaticsActivity::class.java)
 					intent.putExtra(CONST.COLUMN_ID, dto.columnId)
 					intent.putExtra(CONST.ACTIVITY_NAME, dto.name)
 					startActivity(intent)
 				}else if (TextUtils.equals(dto.id, "105")) {//社会化观测
-					intent = Intent(this, ShawnSocietyObserveActivity::class.java)
+					intent = Intent(this, SocietyObserveActivity::class.java)
 					intent.putExtra(CONST.COLUMN_ID, dto.columnId)
 					intent.putExtra(CONST.ACTIVITY_NAME, dto.name)
 					startActivity(intent)
 				}else if (TextUtils.equals(dto.id, "106")) {//空气污染
-					intent = Intent(this, ShawnAirQualityActivity::class.java)
+					intent = Intent(this, AirQualityActivity::class.java)
 					intent.putExtra(CONST.COLUMN_ID, dto.columnId)
 					intent.putExtra(CONST.ACTIVITY_NAME, dto.name)
 					startActivity(intent)
 				}else if (TextUtils.equals(dto.id, "107")) {//视频会商
-					intent = Intent(this, ShawnWeatherMeetingActivity::class.java)
+					intent = Intent(this, WeatherMeetingActivity::class.java)
 					intent.putExtra(CONST.ACTIVITY_NAME, dto.name)
 					startActivity(intent)
 				}else if (TextUtils.equals(dto.id, "109")) {//天气图分析
@@ -135,15 +134,15 @@ class ProductActivity : ShawnBaseActivity(), OnClickListener {
 					intent.putExtra(CONST.ACTIVITY_NAME, dto.name)
 					startActivity(intent)
 				}else if (TextUtils.equals(dto.id, "110")) {//格点实况
-					intent = Intent(this, ShawnPointFactActivity::class.java)
+					intent = Intent(this, PointFactActivity::class.java)
 					intent.putExtra(CONST.ACTIVITY_NAME, dto.name)
 					startActivity(intent)
 				}else if (TextUtils.equals(dto.id, "111")) {//综合预报
-					intent = Intent(this, ShawnComForecastActivity::class.java)
+					intent = Intent(this, ComForecastActivity::class.java)
 					intent.putExtra(CONST.ACTIVITY_NAME, dto.name)
 					startActivity(intent)
 				}else if (TextUtils.equals(dto.id, "112")) {//强对流天气实况（新）
-					intent = Intent(this, ShawnStreamFactActivity::class.java)
+					intent = Intent(this, StreamFactActivity::class.java)
 					intent.putExtra(CONST.ACTIVITY_NAME, dto.name)
 					startActivity(intent)
 				}else if (TextUtils.equals(dto.id, "113")) {//产品定制
@@ -151,7 +150,7 @@ class ProductActivity : ShawnBaseActivity(), OnClickListener {
 					intent.putExtra(CONST.ACTIVITY_NAME, dto.name)
 					startActivity(intent)
 				}else if (TextUtils.equals(dto.id, "114")) {//5天降水量统计
-					intent = Intent(this, ShawnFiveRainActivity::class.java)
+					intent = Intent(this, FiveRainActivity::class.java)
 					intent.putExtra(CONST.COLUMN_ID, dto.columnId)
 					intent.putExtra(CONST.ACTIVITY_NAME, dto.name)
 					startActivity(intent)
@@ -177,12 +176,12 @@ class ProductActivity : ShawnBaseActivity(), OnClickListener {
 					intent.putExtra(CONST.WEB_URL, CONST.WAIT_WIND)
 					startActivity(intent)
 				}else if (TextUtils.equals(dto.id, "204")) {//分钟降水与强对流
-					intent = Intent(this, ShawnStrongStreamActivity::class.java)
+					intent = Intent(this, StrongStreamActivity::class.java)
 					intent.putExtra(CONST.COLUMN_ID, dto.columnId)
 					intent.putExtra(CONST.ACTIVITY_NAME, dto.name)
 					startActivity(intent)
 				}else if (TextUtils.equals(dto.id, "207")) {//格点预报
-					intent = Intent(this, ShawnPointForeActivity::class.java)
+					intent = Intent(this, PointForeActivity::class.java)
 					intent.putExtra(CONST.ACTIVITY_NAME, dto.name)
 					startActivity(intent)
 				}else if (TextUtils.equals(dto.id, "301")) {//灾情专报
@@ -197,7 +196,7 @@ class ProductActivity : ShawnBaseActivity(), OnClickListener {
 					intent.putExtra(CONST.ACTIVITY_NAME, dto.name)
 					startActivity(intent)
 				}else if (TextUtils.equals(dto.id, "601")) {//视频直播
-					intent = Intent(this, ShawnWeatherMeetingActivity::class.java)
+					intent = Intent(this, WeatherMeetingActivity::class.java)
 					intent.putExtra(CONST.ACTIVITY_NAME, dto.name)
 					startActivity(intent)
 				} else if (TextUtils.equals(dto.id, "1205")) { //联播天气
@@ -229,18 +228,4 @@ class ProductActivity : ShawnBaseActivity(), OnClickListener {
 		}
 	}
 
-	override fun onResume() {
-		super.onResume()
-		if (tvTitle != null) {
-			TCAgent.onPageStart(this, tvTitle.text.toString())
-		}
-	}
-
-	override fun onPause() {
-		super.onPause()
-		if (tvTitle != null) {
-			TCAgent.onPageEnd(this, tvTitle.text.toString())
-		}
-	}
-	
 }

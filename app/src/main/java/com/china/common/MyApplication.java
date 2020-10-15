@@ -4,16 +4,12 @@ import android.app.Application;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.os.Bundle;
 import android.text.TextUtils;
 import android.util.Log;
 
 import com.china.activity.PDFActivity;
-import com.china.activity.WarningDetailActivity;
 import com.china.activity.WebviewActivity;
-import com.china.dto.WarningDto;
 import com.github.nkzawa.socketio.client.Socket;
-import com.tendcloud.tenddata.TCAgent;
 import com.umeng.commonsdk.UMConfigure;
 import com.umeng.message.IUmengRegisterCallback;
 import com.umeng.message.PushAgent;
@@ -21,13 +17,8 @@ import com.umeng.message.UmengNotificationClickHandler;
 import com.umeng.message.entity.UMessage;
 import com.umeng.socialize.PlatformConfig;
 
-import org.android.agoo.huawei.HuaWeiRegister;
-import org.android.agoo.mezu.MeizuRegister;
-import org.android.agoo.xiaomi.MiPushRegistar;
 import org.json.JSONException;
 import org.json.JSONObject;
-
-import java.util.Random;
 
 public class MyApplication extends Application{
 
@@ -56,16 +47,10 @@ public class MyApplication extends Application{
 	@Override
 	public void onCreate() {
 		super.onCreate();
-
 		getUserInfo(this);
-
-		initUmeng();
-
-		//TalkingData统计
-		String[] platforms = {"HuaWei Store", "XiaoMi Store", "Tencent Store", "OPPO Store", "VIVO Store", "LeShi Store", "ATest"};
-		int i = new Random().nextInt(platforms.length);
-		TCAgent.init(this.getApplicationContext(), "80C44BE2E53D4D4DB0814115BBF175F6", platforms[i]);
-		TCAgent.setReportUncaughtExceptions(true);
+		if (!TextUtils.equals(MyApplication.USERGROUP, "17")) {//公众用户不推送
+			initUmeng();
+		}
 	}
 
 	//本地保存用户信息参数

@@ -7,7 +7,7 @@
 
     <include
         android:id="@+id/reTitle"
-        layout="@layout/shawn_layout_title" />
+        layout="@layout/layout_title" />
 
     <com.amap.api.maps.MapView
         android:id="@+id/mapView"
@@ -458,7 +458,7 @@
         android:id="@+id/ivGuide"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:background="@drawable/shawn_bg_typhoon_guide"
+        android:background="@drawable/bg_typhoon_guide"
         android:visibility="gone" />
 
 </android.support.constraint.ConstraintLayout>

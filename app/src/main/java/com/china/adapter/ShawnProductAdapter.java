@@ -84,7 +84,7 @@ public class ShawnProductAdapter extends BaseAdapter{
 		if (!TextUtils.isEmpty(dto.icon)) {
 			Picasso.get().load(dto.icon).transform(new RoundTransform((int)(5*density))).into(mHolder.icon);
 		}else {
-			mHolder.icon.setImageResource(R.drawable.shawn_icon_seat_bitmap);
+			mHolder.icon.setImageResource(R.drawable.icon_seat_bitmap);
 		}
 		LinearLayout.LayoutParams params = (LinearLayout.LayoutParams) mHolder.icon.getLayoutParams();
 		params.width = (width-(int)(30*density))/2;

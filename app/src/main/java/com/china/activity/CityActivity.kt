@@ -15,13 +15,13 @@ import com.china.dto.CityDto
 import com.china.manager.DBManager
 import com.china.utils.CommonUtil
 import kotlinx.android.synthetic.main.activity_city.*
-import kotlinx.android.synthetic.main.shawn_layout_title.*
+import kotlinx.android.synthetic.main.layout_title.*
 import java.util.*
 
 /**
  * 城市查询
  */
-class CityActivity : ShawnBaseActivity(), OnClickListener {
+class CityActivity : BaseActivity(), OnClickListener {
 
     //搜索城市后的结果列表
     private var searchAdapter : ShawnCityAdapter? = null

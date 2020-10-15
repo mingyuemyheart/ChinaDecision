@@ -12,8 +12,8 @@ import android.widget.ExpandableListView;
 import android.widget.TextView;
 
 import com.china.R;
-import com.china.activity.ShawnWeatherMeetingDetailActivity;
-import com.china.activity.ShawnWeatherMeetingVideoActivity;
+import com.china.activity.WeatherMeetingDetailActivity;
+import com.china.activity.WeatherMeetingVideoActivity;
 import com.china.adapter.ShawnWeatherMeetingAdapter;
 import com.china.common.CONST;
 import com.china.dto.WeatherMeetingDto;
@@ -112,7 +112,7 @@ public class ShawnWeatherMeetingFragment extends Fragment{
                             }
                         }).start();
                     }else {
-                        intent = new Intent(getActivity(), ShawnWeatherMeetingDetailActivity.class);
+                        intent = new Intent(getActivity(), WeatherMeetingDetailActivity.class);
                         String hlsAddress = liveList.get(0).hlsAddress;
                         intent.putExtra(CONST.WEB_URL, hlsAddress);
                         startActivity(intent);
@@ -134,7 +134,7 @@ public class ShawnWeatherMeetingFragment extends Fragment{
                         e.printStackTrace();
                     }
 
-                    intent = new Intent(getActivity(), ShawnWeatherMeetingVideoActivity.class);
+                    intent = new Intent(getActivity(), WeatherMeetingVideoActivity.class);
                     intent.putExtra(CONST.WEB_URL, hlsAddress);
                     intent.putExtra(CONST.ACTIVITY_NAME, dto.title);
                     startActivity(intent);
@@ -280,7 +280,7 @@ public class ShawnWeatherMeetingFragment extends Fragment{
                             liveList.add(dto);
                         }
 
-                        Intent intent = new Intent(getActivity(), ShawnWeatherMeetingDetailActivity.class);
+                        Intent intent = new Intent(getActivity(), WeatherMeetingDetailActivity.class);
                         String hlsAddress = liveList.get(0).hlsAddress;
                         intent.putExtra(CONST.WEB_URL, hlsAddress);
                         startActivity(intent);

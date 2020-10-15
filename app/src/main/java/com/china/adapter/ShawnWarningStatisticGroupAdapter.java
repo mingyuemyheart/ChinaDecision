@@ -17,7 +17,7 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.china.R;
-import com.china.activity.ShawnWarningStatisticActivity;
+import com.china.activity.WarningStatisticActivity;
 import com.china.dto.WarningDto;
 
 import java.util.List;
@@ -157,7 +157,7 @@ public class ShawnWarningStatisticGroupAdapter extends BaseExpandableListAdapter
             @Override
             public void onClick(View v) {
                 if (!TextUtils.equals(dto.areaKey, "all") && !dto.areaKey.contains("00") && dto.areaKey.length() != 6) {
-                    Intent intent = new Intent(mContext, ShawnWarningStatisticActivity.class);
+                    Intent intent = new Intent(mContext, WarningStatisticActivity.class);
                     Bundle bundle = new Bundle();
                     bundle.putParcelable("data", dto);
                     intent.putExtras(bundle);

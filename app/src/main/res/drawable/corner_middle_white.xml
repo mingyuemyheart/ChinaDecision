@@ -12,7 +12,7 @@
             
             <stroke
                 android:width="0.5dp"
-                android:color="@color/title_bg" />
+                android:color="@color/colorPrimary" />
         </shape>
     </item>
 

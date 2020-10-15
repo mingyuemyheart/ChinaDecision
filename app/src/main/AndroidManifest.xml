@@ -103,7 +103,7 @@
         </activity>
 
         <activity
-            android:name="com.china.activity.ShawnMainActivity"
+            android:name="com.china.activity.MainActivity"
             android:screenOrientation="portrait" />
 
         <activity
@@ -150,7 +150,7 @@
             android:screenOrientation="portrait" />
 
         <activity
-            android:name="com.china.activity.ShawnTyhpoonActivity"
+            android:name="com.china.activity.TyhpoonActivity"
             android:screenOrientation="portrait" />
 
         <activity
@@ -162,33 +162,33 @@
             android:screenOrientation="portrait" />
 
         <activity
-            android:name="com.china.activity.ShawnStrongStreamActivity"
+            android:name="com.china.activity.StrongStreamActivity"
             android:screenOrientation="portrait" />
 
         <activity
-            android:name="com.china.activity.ShawnSocietyObserveActivity"
+            android:name="com.china.activity.SocietyObserveActivity"
             android:screenOrientation="portrait" />
 
         <activity
-            android:name="com.china.activity.ShawnAirQualityActivity"
+            android:name="com.china.activity.AirQualityActivity"
             android:configChanges="orientation|keyboard|keyboardHidden|screenSize"
             android:screenOrientation="nosensor" />
 
         <activity
-            android:name="com.china.activity.ShawnFactActivity"
+            android:name="com.china.activity.FactActivity"
             android:screenOrientation="portrait" />
 
         <activity
-            android:name="com.china.activity.ShawnWeatherStaticsActivity"
+            android:name="com.china.activity.WeatherStaticsActivity"
             android:screenOrientation="portrait" />
 
         <activity
-            android:name="com.china.activity.ShawnFactRankDetailActivity"
+            android:name="com.china.activity.FactRankDetailActivity"
             android:configChanges="orientation|keyboard|keyboardHidden|screenSize"
             android:screenOrientation="sensor" />
 
         <activity
-            android:name="com.china.activity.ShawnFactAreaSearchActivity"
+            android:name="com.china.activity.FactAreaSearchActivity"
             android:screenOrientation="portrait" />
 
         <activity
@@ -213,11 +213,11 @@
             android:windowSoftInputMode="stateHidden|adjustUnspecified" />
 
         <activity
-            android:name="com.china.activity.ShawnFactRankActivity"
+            android:name="com.china.activity.FactRankActivity"
             android:screenOrientation="portrait" />
 
         <activity
-            android:name="com.china.activity.ShawnFactRankSearchActivity"
+            android:name="com.china.activity.FactRankSearchActivity"
             android:screenOrientation="portrait" />
 
         <activity
@@ -225,7 +225,7 @@
             android:screenOrientation="portrait" />
 
         <activity
-            android:name="com.china.activity.ShawnCollectionActivity"
+            android:name="com.china.activity.CollectionActivity"
             android:screenOrientation="portrait" />
 
         <activity
@@ -244,17 +244,17 @@
             android:screenOrientation="portrait" />
 
         <activity
-            android:name="com.china.activity.ShawnWeatherMeetingActivity"
+            android:name="com.china.activity.WeatherMeetingActivity"
             android:screenOrientation="portrait" />
 
         <activity
-            android:name="com.china.activity.ShawnWeatherMeetingDetailActivity"
+            android:name="com.china.activity.WeatherMeetingDetailActivity"
             android:configChanges="orientation|keyboard|keyboardHidden|screenSize"
             android:screenOrientation="sensor"
             android:windowSoftInputMode="adjustResize" />
 
         <activity
-            android:name="com.china.activity.ShawnWeatherMeetingVideoActivity"
+            android:name="com.china.activity.WeatherMeetingVideoActivity"
             android:configChanges="orientation|keyboard|keyboardHidden|screenSize"
             android:screenOrientation="sensor"
             android:windowSoftInputMode="adjustResize" />
@@ -264,35 +264,35 @@
             android:screenOrientation="portrait" />
 
         <activity
-            android:name="com.china.activity.ShawnConnectionActivity"
+            android:name="com.china.activity.ConnectionActivity"
             android:screenOrientation="portrait" />
 
         <activity
-            android:name="com.china.activity.ShawnZXingActivity"
+            android:name="com.china.activity.ZXingActivity"
             android:screenOrientation="portrait" />
 
         <activity
-            android:name="com.china.activity.ShawnScreenActivity"
+            android:name="com.china.activity.ScreenActivity"
             android:screenOrientation="portrait" />
 
         <activity
-            android:name="com.china.activity.ShawnEmptyActivity"
+            android:name="com.china.activity.EmptyActivity"
             android:screenOrientation="portrait" />
 
         <activity
-            android:name="com.china.activity.ShawnWarningStatisticActivity"
+            android:name="com.china.activity.WarningStatisticActivity"
             android:screenOrientation="portrait" />
 
         <activity
-            android:name="com.china.activity.ShawnWarningStatisticListActivity"
+            android:name="com.china.activity.WarningStatisticListActivity"
             android:screenOrientation="portrait" />
 
         <activity
-            android:name="com.china.activity.ShawnWarningStatisticScreenActivity"
+            android:name="com.china.activity.WarningStatisticScreenActivity"
             android:screenOrientation="portrait" />
 
         <activity
-            android:name="com.china.activity.ShawnWarningStatisticScreenAreaActivity"
+            android:name="com.china.activity.WarningStatisticScreenAreaActivity"
             android:screenOrientation="portrait" />
 
         <activity
@@ -300,23 +300,23 @@
             android:screenOrientation="portrait" />
 
         <activity
-            android:name="com.china.activity.ShawnReserveCityActivity"
+            android:name="com.china.activity.ReserveCityActivity"
             android:screenOrientation="portrait" />
 
         <activity
-            android:name="com.china.activity.ShawnPointFactActivity"
+            android:name="com.china.activity.PointFactActivity"
             android:screenOrientation="portrait" />
 
         <activity
-            android:name="com.china.activity.ShawnComForecastActivity"
+            android:name="com.china.activity.ComForecastActivity"
             android:screenOrientation="portrait" />
 
         <activity
-            android:name="com.china.activity.ShawnStreamFactActivity"
+            android:name="com.china.activity.StreamFactActivity"
             android:screenOrientation="portrait" />
 
         <activity
-            android:name="com.china.activity.ShawnStreamFactListActivity"
+            android:name="com.china.activity.StreamFactListActivity"
             android:screenOrientation="portrait" />
 
         <activity
@@ -328,42 +328,42 @@
             android:screenOrientation="portrait" />
 
         <activity
-            android:name="com.china.activity.ShawnPointForeActivity"
+            android:name="com.china.activity.PointForeActivity"
             android:screenOrientation="portrait" />
 
         <activity
-            android:name="com.china.activity.ShawnPointForeDetailActivity"
+            android:name="com.china.activity.PointForeDetailActivity"
             android:screenOrientation="portrait" />
 
         <activity
-            android:name="com.china.activity.ShawnProductOrderActivity"
+            android:name="com.china.activity.ProductOrderActivity"
             android:launchMode="singleTask"
             android:screenOrientation="portrait" />
 
         <activity
-            android:name="com.china.activity.ShawnModifyMailActivity"
+            android:name="com.china.activity.ModifyMailActivity"
             android:launchMode="singleTask"
             android:screenOrientation="portrait" />
 
         <activity
-            android:name="com.china.activity.ShawnServiceFeedbackActivity"
+            android:name="com.china.activity.ServiceFeedbackActivity"
             android:launchMode="singleTask"
             android:screenOrientation="portrait" />
 
         <activity
-            android:name="com.china.activity.ShawnManageActivity"
+            android:name="com.china.activity.ManageActivity"
             android:screenOrientation="portrait" />
 
         <activity
-            android:name="com.china.activity.ShawnFiveRainActivity"
+            android:name="com.china.activity.FiveRainActivity"
             android:screenOrientation="portrait" />
 
         <activity
-            android:name="com.china.activity.ShawnFiveRainRankActivity"
+            android:name="com.china.activity.FiveRainRankActivity"
             android:screenOrientation="portrait" />
 
         <activity
-            android:name="com.china.activity.ShawnFiveRainRankSearchActivity"
+            android:name="com.china.activity.FiveRainRankSearchActivity"
             android:screenOrientation="portrait" />
 
         <activity

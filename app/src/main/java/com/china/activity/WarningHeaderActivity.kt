@@ -15,7 +15,7 @@ import com.china.dto.WarningDto
 import com.china.fragment.WarningDetailFragment
 import com.china.utils.CommonUtil
 import kotlinx.android.synthetic.main.activity_warning_header.*
-import kotlinx.android.synthetic.main.shawn_layout_title.*
+import kotlinx.android.synthetic.main.layout_title.*
 import java.util.*
 
 /**

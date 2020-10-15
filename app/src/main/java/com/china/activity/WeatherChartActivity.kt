@@ -17,7 +17,7 @@ import com.china.common.CONST
 import com.china.utils.CommonUtil
 import com.china.utils.OkHttpUtil
 import kotlinx.android.synthetic.main.activity_weather_chart.*
-import kotlinx.android.synthetic.main.shawn_layout_title.*
+import kotlinx.android.synthetic.main.layout_title.*
 import okhttp3.Call
 import okhttp3.Callback
 import okhttp3.Request
@@ -31,7 +31,7 @@ import java.util.*
 /**
  * 天气图分析
  */
-class WeatherChartActivity : ShawnBaseActivity(), View.OnClickListener, AMap.OnMapScreenShotListener {
+class WeatherChartActivity : BaseActivity(), View.OnClickListener, AMap.OnMapScreenShotListener {
 
     private var aMap : AMap? = null
     private var isShowSwitch = true

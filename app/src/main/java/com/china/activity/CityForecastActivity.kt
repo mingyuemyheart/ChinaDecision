@@ -32,7 +32,7 @@ import com.china.utils.*
 import kotlinx.android.synthetic.main.activity_city_forecast.*
 import kotlinx.android.synthetic.main.layout_marker.view.*
 import kotlinx.android.synthetic.main.layout_marker_info.view.*
-import kotlinx.android.synthetic.main.shawn_layout_title.*
+import kotlinx.android.synthetic.main.layout_title.*
 import okhttp3.Call
 import okhttp3.Callback
 import okhttp3.Request
@@ -49,7 +49,7 @@ import kotlin.collections.LinkedHashMap
 /**
  * 城市天气预报
  */
-class CityForecastActivity : ShawnBaseActivity(), OnClickListener, OnMarkerClickListener,
+class CityForecastActivity : BaseActivity(), OnClickListener, OnMarkerClickListener,
         OnMapClickListener, OnCameraChangeListener, AMap.InfoWindowAdapter, AMap.OnInfoWindowClickListener, OnMapScreenShotListener {
 
     private var aMap: AMap? = null

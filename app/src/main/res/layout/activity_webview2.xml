@@ -6,7 +6,7 @@
 
     <include
         android:id="@+id/reTitle"
-        layout="@layout/shawn_layout_title" />
+        layout="@layout/layout_title" />
 
     <android.support.v4.widget.SwipeRefreshLayout
         android:id="@+id/refreshLayout"
@@ -14,7 +14,7 @@
         android:layout_height="0dp"
         app:layout_constraintTop_toBottomOf="@+id/reTitle"
         android:background="@color/white"
-        app:layout_constraintBottom_toTopOf="@+id/reBottom">
+        app:layout_constraintBottom_toTopOf="@+id/clBottom">
 
         <WebView
             android:id="@+id/webView"
@@ -24,10 +24,9 @@
             android:scrollbars="none" />
     </android.support.v4.widget.SwipeRefreshLayout>
     
-    <RelativeLayout 
-        android:visibility="gone"
+    <android.support.constraint.ConstraintLayout
         app:layout_constraintBottom_toBottomOf="parent"
-        android:id="@+id/reBottom"
+        android:id="@+id/clBottom"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:background="@color/light_gray"
@@ -38,16 +37,22 @@
             android:layout_width="40dp"
             android:layout_height="40dp"
             android:padding="10dp"
-            android:layout_marginStart="30dp"
-            android:src="@drawable/shawn_icon_text"
-            android:layout_centerVertical="true"/>
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toStartOf="@+id/ivCollect"
+            android:src="@drawable/icon_text"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent"/>
         
         <ImageView 
             android:id="@+id/ivCollect"
             android:layout_width="40dp"
             android:layout_height="40dp"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent"
             android:padding="10dp"
-            android:src="@drawable/shawn_icon_collection_blue"
+            android:src="@drawable/icon_collection_blue"
             android:layout_centerInParent="true"/>
         
         <ImageView 
@@ -55,10 +60,11 @@
             android:layout_width="38dp"
             android:layout_height="38dp"
             android:padding="10dp"
-            android:layout_marginEnd="30dp"
-            android:src="@drawable/shawn_icon_share_blue"
-            android:layout_alignParentEnd="true"
-            android:layout_centerVertical="true"/>
-    </RelativeLayout>
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toEndOf="@+id/ivCollect"
+            android:src="@drawable/icon_share_blue"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent"/>
+    </android.support.constraint.ConstraintLayout>
 
 </android.support.constraint.ConstraintLayout>

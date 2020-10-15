@@ -77,9 +77,9 @@ public class NewsAdapter extends BaseAdapter{
 		}
 		
 		if (!TextUtils.isEmpty(dto.imgUrl)) {
-			Picasso.get().load(dto.imgUrl).error(R.drawable.shawn_icon_seat_bitmap).into(mHolder.imageView);
+			Picasso.get().load(dto.imgUrl).error(R.drawable.icon_seat_bitmap).into(mHolder.imageView);
 		}else {
-			mHolder.imageView.setImageResource(R.drawable.shawn_icon_seat_bitmap);
+			mHolder.imageView.setImageResource(R.drawable.icon_seat_bitmap);
 		}
 
 		if (!TextUtils.isEmpty(dto.flagUrl)) {

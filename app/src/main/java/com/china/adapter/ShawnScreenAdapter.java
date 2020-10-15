@@ -70,9 +70,9 @@ public class ShawnScreenAdapter extends BaseAdapter{
 		}
 		
 		if (!TextUtils.isEmpty(dto.icon)) {
-			Picasso.get().load(dto.icon).error(R.drawable.shawn_icon_seat_bitmap).into(mHolder.icon);
+			Picasso.get().load(dto.icon).error(R.drawable.icon_seat_bitmap).into(mHolder.icon);
 		}else {
-			mHolder.icon.setImageResource(R.drawable.shawn_icon_seat_bitmap);
+			mHolder.icon.setImageResource(R.drawable.icon_seat_bitmap);
 		}
 
 		return convertView;

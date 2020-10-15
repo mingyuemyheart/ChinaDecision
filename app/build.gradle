@@ -76,7 +76,6 @@ dependencies {
         exclude group: 'org.json', module: 'json'
     }
     implementation project(':android-pdf-viewer')
-    implementation files('libs/SaaS_AppAnalytics_Android_SDK_V4.0.15.jar')
     implementation files('libs/ChinaWeatherAPI.jar')
     implementation 'com.squareup.okhttp3:okhttp:4.0.1'
     implementation 'com.squareup.okio:okio:2.2.2'

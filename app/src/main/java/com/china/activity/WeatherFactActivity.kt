@@ -17,7 +17,6 @@ import android.os.Message
 import android.support.v4.app.ActivityCompat
 import android.support.v4.content.ContextCompat
 import android.text.TextUtils
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.View.OnClickListener
@@ -38,7 +37,7 @@ import kotlinx.android.synthetic.main.activity_city_forecast.tvTime
 import kotlinx.android.synthetic.main.activity_weather_fact.*
 import kotlinx.android.synthetic.main.layout_marker.view.*
 import kotlinx.android.synthetic.main.layout_marker_info.view.*
-import kotlinx.android.synthetic.main.shawn_layout_title.*
+import kotlinx.android.synthetic.main.layout_title.*
 import okhttp3.Call
 import okhttp3.Callback
 import okhttp3.Request
@@ -54,7 +53,7 @@ import kotlin.collections.LinkedHashMap
 /**
  * 城市天气预报
  */
-class WeatherFactActivity : ShawnBaseActivity(), OnClickListener, OnMarkerClickListener,
+class WeatherFactActivity : BaseActivity(), OnClickListener, OnMarkerClickListener,
 		OnMapClickListener, OnCameraChangeListener, InfoWindowAdapter, OnInfoWindowClickListener, OnMapScreenShotListener {
 
 	private var aMap: AMap? = null

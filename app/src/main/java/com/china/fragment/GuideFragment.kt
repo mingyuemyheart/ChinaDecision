@@ -13,15 +13,13 @@ import android.view.ViewGroup
 import android.widget.Toast
 import com.china.R
 import com.china.activity.LoginActivity
-import com.china.activity.ShawnMainActivity
+import com.china.activity.MainActivity
 import com.china.common.CONST
 import com.china.common.ColumnData
 import com.china.common.MyApplication
 import com.china.dto.NewsDto
 import com.china.utils.CommonUtil
 import com.china.utils.OkHttpUtil
-import com.tendcloud.tenddata.TCAgent
-import com.tendcloud.tenddata.TDAccount
 import kotlinx.android.synthetic.main.fragment_guide.*
 import okhttp3.*
 import org.json.JSONException
@@ -214,16 +212,13 @@ class GuideFragment : Fragment(), OnClickListener {
 										}
 
 										if (!obje.isNull("info")) {
-											val intent = Intent(activity, ShawnMainActivity::class.java)
+											val intent = Intent(activity, MainActivity::class.java)
 											val bundle = Bundle()
 											bundle.putParcelableArrayList("dataList", dataList as ArrayList<out Parcelable>)
 											bundle.putParcelableArrayList("pdfList", pdfList as ArrayList<out Parcelable>)
 											intent.putExtras(bundle)
 											startActivity(intent)
 											activity!!.finish()
-
-											//统计登录事件
-											TCAgent.onLogin(MyApplication.UID, TDAccount.AccountType.REGISTERED, MyApplication.USERNAME)
 										}
 									}else {
 										//失败

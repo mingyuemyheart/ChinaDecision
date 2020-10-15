@@ -58,9 +58,9 @@ public class ShawnManageAdapter extends BaseAdapter implements StickyGridHeaders
 		final ColumnData dto = mArrayList.get(position);
 
 		if (!TextUtils.isEmpty(dto.icon)) {
-			Picasso.get().load(dto.icon).error(R.drawable.shawn_icon_seat_bitmap).into(mHolder.imageView);
+			Picasso.get().load(dto.icon).error(R.drawable.icon_seat_bitmap).into(mHolder.imageView);
 		}else {
-			mHolder.imageView.setImageResource(R.drawable.shawn_icon_seat_bitmap);
+			mHolder.imageView.setImageResource(R.drawable.icon_seat_bitmap);
 		}
 
 		if (dto.isSelected) {
