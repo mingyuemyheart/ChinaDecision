@@ -151,9 +151,6 @@ OnMapClickListener, OnCameraChangeListener, OnMapScreenShotListener{
 		configuration = getResources().getConfiguration();
 
 		OkHttpRank();
-
-		String columnId = getIntent().getStringExtra(CONST.COLUMN_ID);
-		CommonUtil.submitClickCount(columnId, title);
 	}
 	
 	/**
@@ -813,7 +810,7 @@ OnMapClickListener, OnCameraChangeListener, OnMapScreenShotListener{
 	@Override
 	public void onMapScreenShot(final Bitmap bitmap1) {//bitmap1为地图截屏
 		Bitmap bitmap;
-		Bitmap bitmap8 = BitmapFactory.decodeResource(getResources(), R.drawable.shawn_legend_share_portrait);
+		Bitmap bitmap8 = BitmapFactory.decodeResource(getResources(), R.drawable.legend_share_portrait);
 		if (reContent.getVisibility() == View.VISIBLE) {
 			Bitmap bitmap2 = CommonUtil.captureView(reTop);
 			Bitmap bitmap3 = CommonUtil.captureView(llContainer);
@@ -889,7 +886,7 @@ OnMapClickListener, OnCameraChangeListener, OnMapScreenShotListener{
 					Bitmap bitmap3 = CommonUtil.mergeBitmap(mContext, bitmap1, bitmap2, false);
 					CommonUtil.clearBitmap(bitmap1);
 					CommonUtil.clearBitmap(bitmap2);
-					Bitmap bitmap4 = BitmapFactory.decodeResource(getResources(), R.drawable.shawn_legend_share_portrait);
+					Bitmap bitmap4 = BitmapFactory.decodeResource(getResources(), R.drawable.legend_share_portrait);
 					Bitmap bitmap = CommonUtil.mergeBitmap(mContext, bitmap3, bitmap4, false);
 					CommonUtil.clearBitmap(bitmap3);
 					CommonUtil.clearBitmap(bitmap4);

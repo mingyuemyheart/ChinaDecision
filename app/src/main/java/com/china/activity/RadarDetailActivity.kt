@@ -308,7 +308,7 @@ class RadarDetailActivity : BaseActivity(), OnClickListener, RadarManager.RadarL
 		runOnUiThread {
 			cancelDialog()
 			if (ivPlay != null) {
-				ivPlay.setImageResource(R.drawable.shawn_icon_pause)
+				ivPlay.setImageResource(R.drawable.icon_pause)
 			}
 		}
 		if (result == RadarManager.RadarListener.RESULT_SUCCESSED) {
@@ -371,7 +371,7 @@ class RadarDetailActivity : BaseActivity(), OnClickListener, RadarManager.RadarL
 				if (mRadarThread != null) {
 					mRadarThread!!.pause()
 					if (ivPlay != null) {
-						ivPlay.setImageResource(R.drawable.shawn_icon_play)
+						ivPlay.setImageResource(R.drawable.icon_play)
 					}
 					if (seekBar != null) {
 						seekBar.progress = radarList!!.size
@@ -455,10 +455,10 @@ class RadarDetailActivity : BaseActivity(), OnClickListener, RadarManager.RadarL
 			R.id.llBack -> finish()
 			R.id.ivPlay -> if (mRadarThread != null && mRadarThread!!.currentState == mRadarThread!!.STATE_PLAYING) {
 				mRadarThread!!.pause()
-				ivPlay.setImageResource(R.drawable.shawn_icon_play)
+				ivPlay.setImageResource(R.drawable.icon_play)
 			} else if (mRadarThread != null && mRadarThread!!.currentState == mRadarThread!!.STATE_PAUSE) {
 				mRadarThread!!.play()
-				ivPlay.setImageResource(R.drawable.shawn_icon_pause)
+				ivPlay.setImageResource(R.drawable.icon_pause)
 			} else if (mRadarThread == null) {
 				showDialog()
 				startDownLoadImgs(radarList) //开始下载

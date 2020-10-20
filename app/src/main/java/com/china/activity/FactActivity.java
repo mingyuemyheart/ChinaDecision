@@ -80,9 +80,6 @@ import com.china.utils.SecretUrlUtil;
 import com.china.view.StationCursorView;
 import com.squareup.picasso.Picasso;
 import com.squareup.picasso.Target;
-import com.wang.avi.AVLoadingIndicatorView;
-
-import net.tsz.afinal.FinalBitmap;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -136,7 +133,6 @@ public class FactActivity extends BaseActivity implements OnClickListener, AMapL
     private List<Polyline> boundLines = new ArrayList<>();//省份边界
     private GroundOverlay layerOverlay;
     private MyBroadCastReceiver mReceiver;
-    private AVLoadingIndicatorView loadingView;
 
     //云图雷达图
     private boolean isRadarOn = false,isCloudOn = false;
@@ -173,8 +169,7 @@ public class FactActivity extends BaseActivity implements OnClickListener, AMapL
                 drawNationDataToMap(value, LOADTYPE1);
             }else if (TextUtils.equals(intent.getAction(), FactManager.BROAD_RAIN1_LEGEND_COMPLETE)) {
                 if (!TextUtils.isEmpty(FactManager.precipitation1hLegend)) {
-                    FinalBitmap finalBitmap = FinalBitmap.create(context);
-                    finalBitmap.display(ivLegend, FactManager.precipitation1hLegend, null, 0);
+                    Picasso.get().load(FactManager.precipitation1hLegend).into(ivLegend);
                 }
             }
         }
@@ -665,7 +660,6 @@ public class FactActivity extends BaseActivity implements OnClickListener, AMapL
      * 初始化控件
      */
     private void initWidget() {
-        loadingView = findViewById(R.id.loadingView);
         LinearLayout llBack = findViewById(R.id.llBack);
         llBack.setOnClickListener(this);
         tvTitle = findViewById(R.id.tvTitle);
@@ -777,9 +771,6 @@ public class FactActivity extends BaseActivity implements OnClickListener, AMapL
         }else {
             addLocationMarker(locationLatLng);
         }
-
-        String columnId = getIntent().getStringExtra(CONST.COLUMN_ID);//栏目id
-        CommonUtil.submitClickCount(columnId, title);
     }
 
     int scrollY;
@@ -849,12 +840,12 @@ public class FactActivity extends BaseActivity implements OnClickListener, AMapL
         MarkerOptions options = new MarkerOptions();
         options.position(latLng);
         options.anchor(0.5f, 1.0f);
-        Bitmap bitmap = ThumbnailUtils.extractThumbnail(BitmapFactory.decodeResource(getResources(), R.drawable.shawn_icon_map_location),
+        Bitmap bitmap = ThumbnailUtils.extractThumbnail(BitmapFactory.decodeResource(getResources(), R.drawable.icon_map_location),
                 (int)(CommonUtil.dip2px(mContext, 21)), (int)(CommonUtil.dip2px(mContext, 32)));
         if (bitmap != null) {
             options.icon(BitmapDescriptorFactory.fromBitmap(bitmap));
         }else {
-            options.icon(BitmapDescriptorFactory.fromResource(R.drawable.shawn_icon_map_location));
+            options.icon(BitmapDescriptorFactory.fromResource(R.drawable.icon_map_location));
         }
         if (clickMarker != null) {
             clickMarker.remove();
@@ -1708,7 +1699,7 @@ public class FactActivity extends BaseActivity implements OnClickListener, AMapL
         Bitmap bitmap3 = CommonUtil.mergeBitmap(FactActivity.this, bitmap1, bitmap2, true);
         CommonUtil.clearBitmap(bitmap1);
         CommonUtil.clearBitmap(bitmap2);
-        Bitmap bitmap4 = BitmapFactory.decodeResource(getResources(), R.drawable.shawn_legend_share_portrait);
+        Bitmap bitmap4 = BitmapFactory.decodeResource(getResources(), R.drawable.legend_share_portrait);
         Bitmap bitmap = CommonUtil.mergeBitmap(mContext, bitmap3, bitmap4, false);
         CommonUtil.clearBitmap(bitmap3);
         CommonUtil.clearBitmap(bitmap4);
@@ -1723,7 +1714,7 @@ public class FactActivity extends BaseActivity implements OnClickListener, AMapL
      * 获取分钟级降水图
      */
     private void OkHttpRadar() {
-        loadingView.setVisibility(View.VISIBLE);
+        showDialog();
         final String url = "http://api.tianqi.cn:8070/v1/img.py";
         new Thread(new Runnable() {
             @Override
@@ -1831,7 +1822,7 @@ public class FactActivity extends BaseActivity implements OnClickListener, AMapL
                     break;
                 case HANDLER_LOAD_FINISHED:
                     ivTyphoonRadar.setVisibility(View.VISIBLE);
-                    loadingView.setVisibility(View.GONE);
+                    cancelDialog();
                     break;
                 default:
                     break;
@@ -1935,7 +1926,7 @@ public class FactActivity extends BaseActivity implements OnClickListener, AMapL
      * 获取云图数据
      */
     private void OkHttpCloudChart() {
-        loadingView.setVisibility(View.VISIBLE);
+        showDialog();
         final String url = "http://decision-admin.tianqi.cn/Home/other/getDecisionCloudImages";
         new Thread(new Runnable() {
             @Override
@@ -1967,7 +1958,7 @@ public class FactActivity extends BaseActivity implements OnClickListener, AMapL
                                                         public void onBitmapLoaded(Bitmap bitmap, Picasso.LoadedFrom from) {
                                                             cloudBitmap = bitmap;
                                                             ivTyphoonCloud.setVisibility(View.VISIBLE);
-                                                            loadingView.setVisibility(View.GONE);
+                                                            cancelDialog();
                                                             drawCloud(bitmap);
                                                         }
                                                         @Override
@@ -2063,8 +2054,7 @@ public class FactActivity extends BaseActivity implements OnClickListener, AMapL
                 tvWindSpeed2.setBackgroundColor(getResources().getColor(R.color.transparent));
 
                 if (!TextUtils.isEmpty(FactManager.precipitation1hLegend)) {
-                    FinalBitmap finalBitmap = FinalBitmap.create(this);
-                    finalBitmap.display(ivLegend, FactManager.precipitation1hLegend, null, 0);
+                    Picasso.get().load(FactManager.precipitation1hLegend).into(ivLegend);
                 }
                 pastTime = 60 * 60 * 1000;
                 value = 1;
@@ -2105,8 +2095,7 @@ public class FactActivity extends BaseActivity implements OnClickListener, AMapL
                 tvWindSpeed2.setBackgroundColor(getResources().getColor(R.color.transparent));
 
                 if (!TextUtils.isEmpty(FactManager.precipitation3hLegend)) {
-                    FinalBitmap finalBitmap = FinalBitmap.create(this);
-                    finalBitmap.display(ivLegend, FactManager.precipitation3hLegend, null, 0);
+                    Picasso.get().load(FactManager.precipitation3hLegend).into(ivLegend);
                 }
                 pastTime = 3 * 60 * 60 * 1000;
                 value = 13;
@@ -2147,8 +2136,7 @@ public class FactActivity extends BaseActivity implements OnClickListener, AMapL
                 tvWindSpeed2.setBackgroundColor(getResources().getColor(R.color.transparent));
 
                 if (!TextUtils.isEmpty(FactManager.precipitation6hLegend)) {
-                    FinalBitmap finalBitmap = FinalBitmap.create(this);
-                    finalBitmap.display(ivLegend, FactManager.precipitation6hLegend, null, 0);
+                    Picasso.get().load(FactManager.precipitation6hLegend).into(ivLegend);
                 }
                 pastTime = 6 * 60 * 60 * 1000;
                 value = 16;
@@ -2189,8 +2177,7 @@ public class FactActivity extends BaseActivity implements OnClickListener, AMapL
                 tvWindSpeed2.setBackgroundColor(getResources().getColor(R.color.transparent));
 
                 if (!TextUtils.isEmpty(FactManager.precipitation12hLegend)) {
-                    FinalBitmap finalBitmap = FinalBitmap.create(this);
-                    finalBitmap.display(ivLegend, FactManager.precipitation12hLegend, null, 0);
+                    Picasso.get().load(FactManager.precipitation12hLegend).into(ivLegend);
                 }
                 pastTime = 12 * 60 * 60 * 1000;
                 value = 112;
@@ -2231,8 +2218,7 @@ public class FactActivity extends BaseActivity implements OnClickListener, AMapL
                 tvWindSpeed2.setBackgroundColor(getResources().getColor(R.color.transparent));
 
                 if (!TextUtils.isEmpty(FactManager.precipitation24hLegend)) {
-                    FinalBitmap finalBitmap = FinalBitmap.create(this);
-                    finalBitmap.display(ivLegend, FactManager.precipitation24hLegend, null, 0);
+                    Picasso.get().load(FactManager.precipitation24hLegend).into(ivLegend);
                 }
                 pastTime = 24 * 60 * 60 * 1000;
                 value = 124;
@@ -2293,8 +2279,7 @@ public class FactActivity extends BaseActivity implements OnClickListener, AMapL
                 tvWindSpeed2.setBackgroundColor(getResources().getColor(R.color.transparent));
 
                 if (!TextUtils.isEmpty(FactManager.balltempLegend)) {
-                    FinalBitmap finalBitmap = FinalBitmap.create(this);
-                    finalBitmap.display(ivLegend, FactManager.balltempLegend, null, 0);
+                    Picasso.get().load(FactManager.balltempLegend).into(ivLegend);
                 }
                 pastTime = 60 * 60 * 1000;
                 value = 21;
@@ -2334,8 +2319,7 @@ public class FactActivity extends BaseActivity implements OnClickListener, AMapL
                 tvWindSpeed2.setBackgroundColor(getResources().getColor(R.color.transparent));
 
                 if (!TextUtils.isEmpty(FactManager.balltempMaxLegend)) {
-                    FinalBitmap finalBitmap = FinalBitmap.create(this);
-                    finalBitmap.display(ivLegend, FactManager.balltempMaxLegend, null, 0);
+                    Picasso.get().load(FactManager.balltempMaxLegend).into(ivLegend);
                 }
                 pastTime = 24 * 60 * 60 * 1000;
                 value = 22;
@@ -2375,8 +2359,7 @@ public class FactActivity extends BaseActivity implements OnClickListener, AMapL
                 tvWindSpeed2.setBackgroundColor(getResources().getColor(R.color.transparent));
 
                 if (!TextUtils.isEmpty(FactManager.balltempMinLegend)) {
-                    FinalBitmap finalBitmap = FinalBitmap.create(this);
-                    finalBitmap.display(ivLegend, FactManager.balltempMinLegend, null, 0);
+                    Picasso.get().load(FactManager.balltempMinLegend).into(ivLegend);
                 }
                 pastTime = 24 * 60 * 60 * 1000;
                 value = 23;
@@ -2416,8 +2399,7 @@ public class FactActivity extends BaseActivity implements OnClickListener, AMapL
                 tvWindSpeed2.setBackgroundColor(getResources().getColor(R.color.transparent));
 
                 if (!TextUtils.isEmpty(FactManager.balltempChangeLegend)) {
-                    FinalBitmap finalBitmap = FinalBitmap.create(this);
-                    finalBitmap.display(ivLegend, FactManager.balltempChangeLegend, null, 0);
+                    Picasso.get().load(FactManager.balltempChangeLegend).into(ivLegend);
                 }
                 pastTime = 24 * 60 * 60 * 1000;
                 value = 24;
@@ -2471,8 +2453,7 @@ public class FactActivity extends BaseActivity implements OnClickListener, AMapL
                 tvWindSpeed2.setBackgroundColor(getResources().getColor(R.color.transparent));
 
                 if (!TextUtils.isEmpty(FactManager.humidityLegend)) {
-                    FinalBitmap finalBitmap = FinalBitmap.create(this);
-                    finalBitmap.display(ivLegend, FactManager.humidityLegend, null, 0);
+                    Picasso.get().load(FactManager.humidityLegend).into(ivLegend);
                 }
                 pastTime = 60 * 60 * 1000;
                 value = 3;
@@ -2505,8 +2486,7 @@ public class FactActivity extends BaseActivity implements OnClickListener, AMapL
                 tvWindSpeed2.setBackgroundColor(getResources().getColor(R.color.transparent));
 
                 if (!TextUtils.isEmpty(FactManager.visibilityLegend)) {
-                    FinalBitmap finalBitmap = FinalBitmap.create(this);
-                    finalBitmap.display(ivLegend, FactManager.visibilityLegend, null, 0);
+                    Picasso.get().load(FactManager.visibilityLegend).into(ivLegend);
                 }
                 pastTime = 60 * 60 * 1000;
                 value = 4;
@@ -2539,8 +2519,7 @@ public class FactActivity extends BaseActivity implements OnClickListener, AMapL
                 tvWindSpeed2.setBackgroundColor(getResources().getColor(R.color.transparent));
 
                 if (!TextUtils.isEmpty(FactManager.airpressureLegend)) {
-                    FinalBitmap finalBitmap = FinalBitmap.create(this);
-                    finalBitmap.display(ivLegend, FactManager.airpressureLegend, null, 0);
+                    Picasso.get().load(FactManager.airpressureLegend).into(ivLegend);
                 }
                 pastTime = 60 * 60 * 1000;
                 value = 5;
@@ -2573,8 +2552,7 @@ public class FactActivity extends BaseActivity implements OnClickListener, AMapL
                 tvWindSpeed2.setBackgroundResource(R.drawable.bg_layer_button);
 
                 if (!TextUtils.isEmpty(FactManager.windspeedLegend)) {
-                    FinalBitmap finalBitmap = FinalBitmap.create(this);
-                    finalBitmap.display(ivLegend, FactManager.windspeedLegend, null, 0);
+                    Picasso.get().load(FactManager.windspeedLegend).into(ivLegend);
                 }
                 pastTime = 60 * 60 * 1000;
                 value = 6;

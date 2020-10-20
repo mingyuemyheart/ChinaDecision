@@ -266,7 +266,7 @@ class WeatherChartActivity : BaseActivity(), View.OnClickListener, AMap.OnMapScr
         val bitmap3 = CommonUtil.mergeBitmap(this, bitmap1, bitmap2, true)
         CommonUtil.clearBitmap(bitmap1)
         CommonUtil.clearBitmap(bitmap2)
-        val bitmap4 = BitmapFactory.decodeResource(resources, R.drawable.shawn_legend_share_portrait)
+        val bitmap4 = BitmapFactory.decodeResource(resources, R.drawable.legend_share_portrait)
         val bitmap = CommonUtil.mergeBitmap(this, bitmap3, bitmap4, false)
         CommonUtil.clearBitmap(bitmap3)
         CommonUtil.clearBitmap(bitmap4)

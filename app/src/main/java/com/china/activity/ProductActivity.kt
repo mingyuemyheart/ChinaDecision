@@ -1,4 +1,4 @@
-package com.china.activity;
+package com.china.activity
 
 import android.content.Intent
 import android.os.Bundle
@@ -12,7 +12,6 @@ import com.china.common.CONST
 import com.china.common.ColumnData
 import com.china.common.MyApplication
 import com.china.dto.NewsDto
-import com.china.utils.CommonUtil
 import kotlinx.android.synthetic.main.activity_product.*
 import kotlinx.android.synthetic.main.layout_title.*
 import java.util.*
@@ -49,7 +48,6 @@ class ProductActivity : BaseActivity(), OnClickListener {
 			}else {
 				dataList.addAll(data.child)
 			}
-			CommonUtil.submitClickCount(data.columnId, data.name)
 		}
 	}
 	
@@ -79,7 +77,16 @@ class ProductActivity : BaseActivity(), OnClickListener {
 				intent.putExtra(CONST.WEB_URL, dto.dataUrl)
 				startActivity(intent)
 			}else if (TextUtils.equals(dto.showType, CONST.NEWS)) {
-				intent = Intent(this, WeatherInfoActivity::class.java)
+				intent = Intent(this, PdfTitleActivity::class.java)
+				val list = ArrayList<ColumnData>()
+				val cd = ColumnData()
+				cd.columnId = dto.columnId
+				cd.name = dto.name
+				cd.dataUrl = dto.dataUrl
+				list.add(cd)
+				val bundle = Bundle()
+				bundle.putParcelableArrayList("dataList", list)
+				intent.putExtras(bundle)
 				intent.putExtra(CONST.COLUMN_ID, dto.columnId)
 				intent.putExtra(CONST.ACTIVITY_NAME, dto.name)
 				intent.putExtra(CONST.WEB_URL, dto.dataUrl)
@@ -184,8 +191,17 @@ class ProductActivity : BaseActivity(), OnClickListener {
 					intent = Intent(this, PointForeActivity::class.java)
 					intent.putExtra(CONST.ACTIVITY_NAME, dto.name)
 					startActivity(intent)
-				}else if (TextUtils.equals(dto.id, "301")) {//灾情专报
-					intent = Intent(this, DisasterSpecialActivity::class.java)
+				}else if (TextUtils.equals(dto.id, "301") || TextUtils.equals(dto.id, "6666")) {//灾情专报、逐日滚动监测
+					intent = Intent(this, PdfTitleActivity::class.java)
+					val list = ArrayList<ColumnData>()
+					val cd = ColumnData()
+					cd.columnId = dto.columnId
+					cd.name = dto.name
+					cd.dataUrl = dto.dataUrl
+					list.add(cd)
+					val bundle = Bundle()
+					bundle.putParcelableArrayList("dataList", list)
+					intent.putExtras(bundle)
 					intent.putExtra(CONST.COLUMN_ID, dto.columnId)
 					intent.putExtra(CONST.ACTIVITY_NAME, dto.name)
 					intent.putExtra(CONST.WEB_URL, dto.dataUrl)
@@ -208,12 +224,6 @@ class ProductActivity : BaseActivity(), OnClickListener {
 					intent = Intent(this, WarningActivity::class.java)
 					intent.putExtra(CONST.COLUMN_ID, dto.columnId)
 					intent.putExtra(CONST.ACTIVITY_NAME, dto.name)
-					startActivity(intent)
-				} else if (TextUtils.equals(dto.id, "6666")) { //逐日滚动监测
-					intent = Intent(this, DecisionNewsActivity::class.java)
-					intent.putExtra(CONST.COLUMN_ID, dto.columnId)
-					intent.putExtra(CONST.ACTIVITY_NAME, dto.name)
-					intent.putExtra(CONST.WEB_URL, dto.dataUrl)
 					startActivity(intent)
 				} else if (TextUtils.equals(dto.id, "-1")) {
 					Toast.makeText(this, "频道建设中", Toast.LENGTH_SHORT).show()

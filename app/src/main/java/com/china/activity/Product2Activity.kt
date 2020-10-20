@@ -11,7 +11,6 @@ import com.china.common.CONST
 import com.china.common.ColumnData
 import com.china.common.MyApplication
 import com.china.dto.NewsDto
-import com.china.utils.CommonUtil
 import com.china.utils.OkHttpUtil
 import kotlinx.android.synthetic.main.activity_product.*
 import kotlinx.android.synthetic.main.layout_title.*
@@ -68,8 +67,6 @@ class Product2Activity : BaseActivity(), OnClickListener {
 				dataList.addAll(data.child)
 			}
 		}
-		val columnId = intent.getStringExtra(CONST.COLUMN_ID)
-		CommonUtil.submitClickCount(columnId, title)
 	}
 	
 	/**
@@ -82,7 +79,16 @@ class Product2Activity : BaseActivity(), OnClickListener {
 			val dto = dataList[position]
 			var intent : Intent? = null
 			if (TextUtils.equals(dto.showType, CONST.NEWS)) {//天气资讯
-				intent = Intent(this, WeatherInfoActivity::class.java)
+				intent = Intent(this, PdfTitleActivity::class.java)
+				val list = ArrayList<ColumnData>()
+				val cd = ColumnData()
+				cd.columnId = dto.columnId
+				cd.name = dto.name
+				cd.dataUrl = dto.dataUrl
+				list.add(cd)
+				val bundle = Bundle()
+				bundle.putParcelableArrayList("dataList", list)
+				intent.putExtras(bundle)
 				intent.putExtra(CONST.COLUMN_ID, dto.columnId)
 				intent.putExtra(CONST.ACTIVITY_NAME, dto.name)
 				intent.putExtra(CONST.WEB_URL, dto.dataUrl)

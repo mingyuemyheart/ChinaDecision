@@ -165,9 +165,6 @@ public class ComForecastActivity extends BaseActivity implements OnClickListener
 
 		checkAuthority();
 		OkHttpList();
-		
-		String columnId = getIntent().getStringExtra(CONST.COLUMN_ID);
-		CommonUtil.submitClickCount(columnId, title);
 	}
 
 	/**
@@ -227,12 +224,12 @@ public class ComForecastActivity extends BaseActivity implements OnClickListener
 			LatLng latLng = new LatLng(amapLocation.getLatitude(), amapLocation.getLongitude());
 			MarkerOptions options = new MarkerOptions();
 			options.anchor(0.5f, 0.5f);
-			Bitmap bitmap = ThumbnailUtils.extractThumbnail(BitmapFactory.decodeResource(getResources(), R.drawable.shawn_icon_location_point),
+			Bitmap bitmap = ThumbnailUtils.extractThumbnail(BitmapFactory.decodeResource(getResources(), R.drawable.icon_map_location),
 					(int) (CommonUtil.dip2px(mContext, 15)), (int) (CommonUtil.dip2px(mContext, 15)));
 			if (bitmap != null) {
 				options.icon(BitmapDescriptorFactory.fromBitmap(bitmap));
 			} else {
-				options.icon(BitmapDescriptorFactory.fromResource(R.drawable.shawn_icon_location_point));
+				options.icon(BitmapDescriptorFactory.fromResource(R.drawable.icon_map_location));
 			}
 			options.position(latLng);
 			Marker locationMarker = aMap.addMarker(options);
@@ -864,7 +861,7 @@ public class ComForecastActivity extends BaseActivity implements OnClickListener
 	@Override
 	public void onMapScreenShot(final Bitmap bitmap1) {//bitmap1为地图截屏
 		Bitmap bitmap;
-		Bitmap bitmap8 = BitmapFactory.decodeResource(getResources(), R.drawable.shawn_legend_share_portrait);
+		Bitmap bitmap8 = BitmapFactory.decodeResource(getResources(), R.drawable.legend_share_portrait);
 		Bitmap bitmap2 = CommonUtil.captureView(reShare);
 		Bitmap bitmap3 = CommonUtil.mergeBitmap(mContext, bitmap1, bitmap2, true);
 		CommonUtil.clearBitmap(bitmap1);

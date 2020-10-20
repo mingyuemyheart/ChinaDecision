@@ -146,7 +146,11 @@
             android:screenOrientation="portrait" />
 
         <activity
-            android:name="com.china.activity.WeatherInfoActivity"
+            android:name="com.china.activity.NewsActivity"
+            android:screenOrientation="portrait" />
+
+        <activity
+            android:name="com.china.activity.PdfTitleActivity"
             android:screenOrientation="portrait" />
 
         <activity
@@ -221,10 +225,6 @@
             android:screenOrientation="portrait" />
 
         <activity
-            android:name="com.china.activity.DecisionNewsActivity"
-            android:screenOrientation="portrait" />
-
-        <activity
             android:name="com.china.activity.CollectionActivity"
             android:screenOrientation="portrait" />
 
@@ -269,14 +269,6 @@
 
         <activity
             android:name="com.china.activity.ZXingActivity"
-            android:screenOrientation="portrait" />
-
-        <activity
-            android:name="com.china.activity.ScreenActivity"
-            android:screenOrientation="portrait" />
-
-        <activity
-            android:name="com.china.activity.EmptyActivity"
             android:screenOrientation="portrait" />
 
         <activity

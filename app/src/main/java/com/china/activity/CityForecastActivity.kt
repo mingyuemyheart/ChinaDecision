@@ -422,7 +422,7 @@ class CityForecastActivity : BaseActivity(), OnClickListener, OnMarkerClickListe
     }
 
     override fun onMapScreenShot(bitmap1: Bitmap?) { //bitmap1为地图截屏
-        val bitmap4 = BitmapFactory.decodeResource(resources, R.drawable.shawn_legend_share_portrait)
+        val bitmap4 = BitmapFactory.decodeResource(resources, R.drawable.legend_share_portrait)
         val bitmap = CommonUtil.mergeBitmap(this, bitmap1, bitmap4, false)
         CommonUtil.clearBitmap(bitmap1)
         CommonUtil.clearBitmap(bitmap4)

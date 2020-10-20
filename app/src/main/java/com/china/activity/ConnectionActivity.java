@@ -20,15 +20,7 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.china.R;
-import com.china.common.MyApplication;
 import com.china.utils.AuthorityUtil;
-import com.github.nkzawa.socketio.client.IO;
-import com.github.nkzawa.socketio.client.Socket;
-
-import org.json.JSONException;
-import org.json.JSONObject;
-
-import java.net.URISyntaxException;
 
 /**
  * 屏屏联动
@@ -37,7 +29,6 @@ import java.net.URISyntaxException;
 public class ConnectionActivity extends BaseActivity implements OnClickListener{
 
 	private Context mContext = null;
-	private Socket socket = null;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -126,30 +117,7 @@ public class ConnectionActivity extends BaseActivity implements OnClickListener{
 		if (resultCode == RESULT_OK) {
 			switch (requestCode) {
 				case 1000:
-					Bundle bundle = data.getExtras();
-					if (bundle != null) {
-						//http://61.4.184.177:8899/?computerInfo=1a6a53c2cb5b68580875c25f114a91d0
-						String result = bundle.getString("result");
-						if (!TextUtils.isEmpty(result)) {
-							String[] array = result.split("=");
-							MyApplication.computerInfo = array[1];
-							try {
-								socket = IO.socket(result);
-								socket.connect();
-								MyApplication.setSocket(socket);
-								JSONObject obj = new JSONObject();
-								obj.put("computerInfo", MyApplication.computerInfo);
-								obj.put("commond", "hideQR");
-								socket.emit("hideQR", obj);
 
-								startActivity(new Intent(mContext, ScreenActivity.class));
-							} catch (URISyntaxException e) {
-								e.printStackTrace();
-							} catch (JSONException e) {
-								e.printStackTrace();
-							}
-						}
-					}
 					break;
 
 				default:
@@ -158,12 +126,4 @@ public class ConnectionActivity extends BaseActivity implements OnClickListener{
 		}
 	}
 
-	@Override
-	protected void onDestroy() {
-		super.onDestroy();
-		if (socket != null) {
-			socket.disconnect();
-			socket = null;
-		}
-	}
 }

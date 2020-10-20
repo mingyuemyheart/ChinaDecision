@@ -15,7 +15,7 @@
         android:layout_height="40dp"
         android:layout_below="@+id/reTitle"
         android:layout_marginTop="10dp"
-        android:background="@drawable/shawn_selector_setting_item"
+        android:background="@drawable/selector_setting_item"
         android:gravity="center_vertical"
         android:paddingStart="15dp"
         android:paddingEnd="15dp">
@@ -40,7 +40,7 @@
         <ImageView
             android:layout_width="20dp"
             android:layout_height="20dp"
-            android:background="@drawable/shawn_icon_arrow_right"/>
+            android:background="@drawable/icon_arrow_right"/>
     </LinearLayout>
 
     <TextView
@@ -57,7 +57,7 @@
         android:layout_width="match_parent"
         android:layout_height="40dp"
         android:layout_below="@+id/divider1"
-        android:background="@drawable/shawn_selector_setting_item"
+        android:background="@drawable/selector_setting_item"
         android:gravity="center_vertical"
         android:paddingStart="15dp"
         android:paddingEnd="15dp">
@@ -82,7 +82,7 @@
         <ImageView
             android:layout_width="20dp"
             android:layout_height="20dp"
-            android:background="@drawable/shawn_icon_arrow_right"/>
+            android:background="@drawable/icon_arrow_right"/>
     </LinearLayout>
 
     <TextView
@@ -99,7 +99,7 @@
         android:layout_width="match_parent"
         android:layout_height="40dp"
         android:layout_below="@+id/divider2"
-        android:background="@drawable/shawn_selector_setting_item"
+        android:background="@drawable/selector_setting_item"
         android:gravity="center_vertical"
         android:paddingStart="15dp"
         android:paddingEnd="15dp">
@@ -124,7 +124,7 @@
         <ImageView
             android:layout_width="20dp"
             android:layout_height="20dp"
-            android:background="@drawable/shawn_icon_arrow_right"/>
+            android:background="@drawable/icon_arrow_right"/>
     </LinearLayout>
 
     <TextView
@@ -142,7 +142,7 @@
         android:layout_height="40dp"
         android:layout_below="@+id/divider3"
         android:layout_marginBottom="20dp"
-        android:background="@drawable/shawn_selector_setting_item"
+        android:background="@drawable/selector_setting_item"
         android:gravity="center_vertical"
         android:paddingStart="15dp"
         android:paddingEnd="15dp">
@@ -167,7 +167,7 @@
         <ImageView
             android:layout_width="20dp"
             android:layout_height="20dp"
-            android:background="@drawable/shawn_icon_arrow_right"/>
+            android:background="@drawable/icon_arrow_right"/>
     </LinearLayout>
 
     <TextView
@@ -195,7 +195,7 @@
         android:layout_height="40dp"
         android:layout_below="@+id/tvOrder"
         android:layout_marginTop="10dp"
-        android:background="@drawable/shawn_selector_setting_item"
+        android:background="@drawable/selector_setting_item"
         android:gravity="center_vertical"
         android:paddingStart="15dp"
         android:paddingEnd="15dp">
@@ -234,7 +234,7 @@
         android:layout_width="match_parent"
         android:layout_height="40dp"
         android:layout_below="@+id/divider5"
-        android:background="@drawable/shawn_selector_setting_item"
+        android:background="@drawable/selector_setting_item"
         android:gravity="center_vertical"
         android:paddingStart="15dp"
         android:paddingEnd="15dp">
@@ -273,7 +273,7 @@
         android:layout_width="match_parent"
         android:layout_height="40dp"
         android:layout_below="@+id/divider6"
-        android:background="@drawable/shawn_selector_setting_item"
+        android:background="@drawable/selector_setting_item"
         android:gravity="center_vertical"
         android:paddingStart="15dp"
         android:paddingEnd="15dp">
@@ -312,7 +312,7 @@
         android:layout_width="match_parent"
         android:layout_height="40dp"
         android:layout_below="@+id/divider7"
-        android:background="@drawable/shawn_selector_setting_item"
+        android:background="@drawable/selector_setting_item"
         android:gravity="center_vertical"
         android:paddingStart="15dp"
         android:paddingEnd="15dp">

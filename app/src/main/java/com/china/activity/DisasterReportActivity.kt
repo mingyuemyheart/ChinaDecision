@@ -10,9 +10,8 @@ import com.china.R
 import com.china.adapter.DisasterReportAdapter
 import com.china.common.CONST
 import com.china.dto.DisasterReportDto
-import com.china.utils.CommonUtil
 import com.china.utils.OkHttpUtil
-import kotlinx.android.synthetic.main.activity_titlebar_listview.*
+import kotlinx.android.synthetic.main.activity_news.*
 import kotlinx.android.synthetic.main.layout_title.*
 import okhttp3.Call
 import okhttp3.Callback
@@ -34,7 +33,7 @@ class DisasterReportActivity : BaseActivity(), OnClickListener {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_titlebar_listview)
+        setContentView(R.layout.activity_news)
         initRefreshLayout()
         initWidget()
         initListView()
@@ -59,9 +58,6 @@ class DisasterReportActivity : BaseActivity(), OnClickListener {
         }
 
         okHttpDisaster()
-
-        val columnId = intent.getStringExtra(CONST.COLUMN_ID)
-        CommonUtil.submitClickCount(columnId, title)
     }
 
     private fun initListView() {

@@ -16,6 +16,7 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.support.annotation.NonNull;
+import android.support.constraint.ConstraintLayout;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.text.TextUtils;
@@ -27,7 +28,6 @@ import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
-import android.widget.RelativeLayout;
 import android.widget.SeekBar;
 import android.widget.TextView;
 
@@ -51,7 +51,6 @@ import com.china.dto.StationMonitorDto;
 import com.china.utils.AuthorityUtil;
 import com.china.utils.CommonUtil;
 import com.china.utils.OkHttpUtil;
-import com.wang.avi.AVLoadingIndicatorView;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -77,11 +76,11 @@ public class PointForeActivity extends BaseActivity implements OnClickListener, 
 		OnMapScreenShotListener, AMap.OnMarkerClickListener {
 	
 	private Context mContext;
-	private TextView tvTitle,tvName,tvDataSource,tvTime,tvPublishTime;
+	private TextView tvName,tvDataSource,tvTime,tvPublishTime;
 	private ImageView ivTemp,ivHumidity,ivWind,ivCloud,ivSwitch,ivDataSource,ivPlay;
 	private MapView mMapView;
 	private AMap aMap;
-	private RelativeLayout reShare;
+	private ConstraintLayout clShare;
 	private float zoom = 3.7f;
 	private List<StationMonitorDto> dataList = new ArrayList<>();
 	private SimpleDateFormat sdf1 = new SimpleDateFormat("dd日HH时", Locale.CHINA);
@@ -92,7 +91,6 @@ public class PointForeActivity extends BaseActivity implements OnClickListener, 
 	private double locationLat = 35.926628, locationLng = 105.178100;
 	private int mapType = AMap.MAP_TYPE_NORMAL;
 	private LatLng start,end;
-	private AVLoadingIndicatorView loadingView;
 	private Bundle savedInstanceState;
 	private int currentIndex = 0;//当前时次数据
 	private SeekBar seekBar;
@@ -102,13 +100,14 @@ public class PointForeActivity extends BaseActivity implements OnClickListener, 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		setContentView(R.layout.shawn_activity_point_fore);
+		setContentView(R.layout.activity_point_fore);
 		mContext = this;
 		this.savedInstanceState = savedInstanceState;
 		checkAuthority();
 	}
 
 	private void init() {
+		showDialog();
 		initMap();
 		initWidget();
 	}
@@ -117,15 +116,14 @@ public class PointForeActivity extends BaseActivity implements OnClickListener, 
 	 * 初始化控件
 	 */
 	private void initWidget() {
-		loadingView = findViewById(R.id.loadingView);
 		LinearLayout llBack = findViewById(R.id.llBack);
 		llBack.setOnClickListener(this);
 		ImageView ivShare = findViewById(R.id.ivShare);
 		ivShare.setOnClickListener(this);
 		ivShare.setVisibility(View.VISIBLE);
-		tvTitle = findViewById(R.id.tvTitle);
+		TextView tvTitle = findViewById(R.id.tvTitle);
 		tvName = findViewById(R.id.tvName);
-		reShare = findViewById(R.id.reShare);
+		clShare = findViewById(R.id.clShare);
 		ivTemp = findViewById(R.id.ivTemp);
 		ivTemp.setOnClickListener(this);
 		ivHumidity = findViewById(R.id.ivHumidity);
@@ -160,9 +158,6 @@ public class PointForeActivity extends BaseActivity implements OnClickListener, 
 		}else {
 			locationComplete();
 		}
-
-		String columnId = getIntent().getStringExtra(CONST.COLUMN_ID);
-		CommonUtil.submitClickCount(columnId, title);
 	}
 
 	private SeekBar.OnSeekBarChangeListener seekbarListener = new SeekBar.OnSeekBarChangeListener() {
@@ -215,13 +210,13 @@ public class PointForeActivity extends BaseActivity implements OnClickListener, 
 		}
 		LatLng latLng = new LatLng(locationLat, locationLng);
 		MarkerOptions options = new MarkerOptions();
-		options.anchor(0.5f, 0.5f);
-		Bitmap bitmap = ThumbnailUtils.extractThumbnail(BitmapFactory.decodeResource(getResources(), R.drawable.shawn_icon_location_point),
-				(int) (CommonUtil.dip2px(mContext, 15)), (int) (CommonUtil.dip2px(mContext, 15)));
+		options.anchor(0.5f, 1.0f);
+		Bitmap bitmap = ThumbnailUtils.extractThumbnail(BitmapFactory.decodeResource(getResources(), R.drawable.icon_map_location),
+				(int) (CommonUtil.dip2px(mContext, 21)), (int) (CommonUtil.dip2px(mContext, 32)));
 		if (bitmap != null) {
 			options.icon(BitmapDescriptorFactory.fromBitmap(bitmap));
 		} else {
-			options.icon(BitmapDescriptorFactory.fromResource(R.drawable.shawn_icon_location_point));
+			options.icon(BitmapDescriptorFactory.fromResource(R.drawable.icon_map_location));
 		}
 		options.position(latLng);
 		locationMarker = aMap.addMarker(options);
@@ -305,6 +300,7 @@ public class PointForeActivity extends BaseActivity implements OnClickListener, 
 						runOnUiThread(new Runnable() {
 							@Override
 							public void run() {
+								cancelDialog();
 								if (!TextUtils.isEmpty(result)) {
 									try {
 										dataList.clear();
@@ -367,8 +363,6 @@ public class PointForeActivity extends BaseActivity implements OnClickListener, 
 										e.printStackTrace();
 									}
 								}
-
-								loadingView.setVisibility(View.GONE);
 							}
 						});
 					}
@@ -524,15 +518,19 @@ public class PointForeActivity extends BaseActivity implements OnClickListener, 
 		}
 		if (!TextUtils.isEmpty(time)) {
 			tvTime.setText(time);
-			if (dataType == 1) {
-				tvName.setText(time+"格点温度预报[单位:"+getString(R.string.unit_degree)+"]");
-			}else if (dataType == 2) {
-				tvName.setText(time+"格点相对湿度预报[单位:"+getString(R.string.unit_percent)+"]");
-			}else if (dataType == 3) {
-				tvName.setText(time+"格点风速预报[单位:"+getString(R.string.unit_speed)+"]");
-			}else if (dataType == 5) {
-				tvName.setText(time+"格点云量预报[单位:"+getString(R.string.unit_percent)+"]");
-			}
+			changeLayerName();
+		}
+	}
+
+	private void changeLayerName() {
+		if (dataType == 1) {
+			tvName.setText(tvTime.getText()+"格点温度预报[单位:"+getString(R.string.unit_degree)+"]");
+		}else if (dataType == 2) {
+			tvName.setText(tvTime.getText()+"格点相对湿度预报[单位:"+getString(R.string.unit_percent)+"]");
+		}else if (dataType == 3) {
+			tvName.setText(tvTime.getText()+"格点风速预报[单位:"+getString(R.string.unit_speed)+"]");
+		}else if (dataType == 5) {
+			tvName.setText(tvTime.getText()+"格点云量预报[单位:"+getString(R.string.unit_percent)+"]");
 		}
 	}
 
@@ -550,8 +548,8 @@ public class PointForeActivity extends BaseActivity implements OnClickListener, 
 	@Override
 	public void onMapScreenShot(final Bitmap bitmap1) {//bitmap1为地图截屏
 		Bitmap bitmap;
-		Bitmap bitmap8 = BitmapFactory.decodeResource(getResources(), R.drawable.shawn_legend_share_portrait);
-		Bitmap bitmap2 = CommonUtil.captureView(reShare);
+		Bitmap bitmap8 = BitmapFactory.decodeResource(getResources(), R.drawable.legend_share_portrait);
+		Bitmap bitmap2 = CommonUtil.captureView(clShare);
 		Bitmap bitmap3 = CommonUtil.mergeBitmap(mContext, bitmap1, bitmap2, true);
 		CommonUtil.clearBitmap(bitmap1);
 		CommonUtil.clearBitmap(bitmap2);
@@ -579,6 +577,7 @@ public class PointForeActivity extends BaseActivity implements OnClickListener, 
 
 				dataType = 1;
 				switchElement();
+				changeLayerName();
 				break;
 			case R.id.ivHumidity:
 				ivTemp.setImageResource(R.drawable.com_temp);
@@ -588,6 +587,7 @@ public class PointForeActivity extends BaseActivity implements OnClickListener, 
 
 				dataType = 2;
 				switchElement();
+				changeLayerName();
 				break;
 			case R.id.ivWind:
 				ivTemp.setImageResource(R.drawable.com_temp);
@@ -597,6 +597,7 @@ public class PointForeActivity extends BaseActivity implements OnClickListener, 
 
 				dataType = 3;
 				switchElement();
+				changeLayerName();
 				break;
 			case R.id.ivCloud:
 				ivTemp.setImageResource(R.drawable.com_temp);
@@ -606,6 +607,7 @@ public class PointForeActivity extends BaseActivity implements OnClickListener, 
 
 				dataType = 5;
 				switchElement();
+				changeLayerName();
 				break;
 			case R.id.ivSwitch:
 				if (mapType == AMap.MAP_TYPE_NORMAL) {
@@ -652,12 +654,12 @@ public class PointForeActivity extends BaseActivity implements OnClickListener, 
 			case R.id.ivPlay:
 				if (mRadarThread != null && mRadarThread.getCurrentState() == RadarThread.STATE_PLAYING) {
 					mRadarThread.pause();
-					ivPlay.setImageResource(R.drawable.shawn_icon_play);
+					ivPlay.setImageResource(R.drawable.icon_play);
 				} else if (mRadarThread != null && mRadarThread.getCurrentState() == RadarThread.STATE_PAUSE) {
 					mRadarThread.play();
-					ivPlay.setImageResource(R.drawable.shawn_icon_pause);
+					ivPlay.setImageResource(R.drawable.icon_pause);
 				} else if (mRadarThread == null) {
-					ivPlay.setImageResource(R.drawable.shawn_icon_pause);
+					ivPlay.setImageResource(R.drawable.icon_pause);
 					if (mRadarThread != null) {
 						mRadarThread.cancel();
 						mRadarThread = null;

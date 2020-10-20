@@ -514,7 +514,7 @@ public class WarningListActivity extends BaseActivity implements OnClickListener
 		case R.id.ivShare:
 			if (showList.size() > 0) {
 				Bitmap bitmap1 = CommonUtil.captureListView(cityListView);
-				Bitmap bitmap2 = BitmapFactory.decodeResource(getResources(), R.drawable.shawn_legend_share_portrait);
+				Bitmap bitmap2 = BitmapFactory.decodeResource(getResources(), R.drawable.legend_share_portrait);
 				Bitmap bitmap = CommonUtil.mergeBitmap(WarningListActivity.this, bitmap1, bitmap2, false);
 				CommonUtil.clearBitmap(bitmap1);
 				CommonUtil.clearBitmap(bitmap2);

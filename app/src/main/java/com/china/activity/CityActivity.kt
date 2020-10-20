@@ -10,10 +10,8 @@ import android.view.View.OnClickListener
 import com.china.R
 import com.china.adapter.ShawnCityAdapter
 import com.china.adapter.ShawnCityHotAdapter
-import com.china.common.CONST
 import com.china.dto.CityDto
 import com.china.manager.DBManager
-import com.china.utils.CommonUtil
 import kotlinx.android.synthetic.main.activity_city.*
 import kotlinx.android.synthetic.main.layout_title.*
 import java.util.*
@@ -46,9 +44,6 @@ class CityActivity : BaseActivity(), OnClickListener {
         tvNational.setOnClickListener(this)
         llBack.setOnClickListener(this)
         tvTitle.text = "城市查询"
-
-        val columnId = intent.getStringExtra(CONST.COLUMN_ID)
-        CommonUtil.submitClickCount(columnId, "城市查询")
     }
 
     private val watcher = object : TextWatcher {

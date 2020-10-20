@@ -151,7 +151,7 @@
                 android:layout_height="35dp"
                 android:layout_marginStart="10dp"
                 android:layout_marginBottom="5dp"
-                android:src="@drawable/shawn_icon_location_off" />
+                android:src="@drawable/icon_location_off" />
 
             <ImageView
                 android:id="@+id/ivLegend"
@@ -159,7 +159,7 @@
                 android:layout_height="35dp"
                 android:layout_marginStart="10dp"
                 android:layout_marginBottom="5dp"
-                android:src="@drawable/shawn_icon_map_legend_off" />
+                android:src="@drawable/icon_legend_off" />
 
             <TextSwitcher
                 android:id="@+id/tvTyphoonInfo"

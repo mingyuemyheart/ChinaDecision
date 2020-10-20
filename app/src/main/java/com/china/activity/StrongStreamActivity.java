@@ -46,7 +46,6 @@ import com.china.manager.StrongStreamManager;
 import com.china.utils.CommonUtil;
 import com.china.utils.OkHttpUtil;
 import com.china.view.MySeekbar;
-import com.wang.avi.AVLoadingIndicatorView;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -68,7 +67,6 @@ import okhttp3.Response;
 public class StrongStreamActivity extends BaseActivity implements OnClickListener, OnMapScreenShotListener{
 	
 	private Context mContext;
-	private TextView tvTitle;
 	private MapView mMapView;
 	private AMap aMap;
 	private List<StrongStreamDto> radarList = new ArrayList<>();
@@ -91,15 +89,15 @@ public class StrongStreamActivity extends BaseActivity implements OnClickListene
 	private MyBroadCastReceiver mReceiver;
 	private String BROAD_CLICKMENU = "broad_clickMenu";//点击播放或暂停
 	private RelativeLayout reShare;
-	private AVLoadingIndicatorView loadingView;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		setContentView(R.layout.shawn_activity_strong_stream);
+		setContentView(R.layout.activity_strong_stream);
 		mContext = this;
 		initBroadCast();
 		initMap(savedInstanceState);
+		showDialog();
 		initWidget();
 	}
 
@@ -148,10 +146,9 @@ public class StrongStreamActivity extends BaseActivity implements OnClickListene
 	}
 
 	private void initWidget() {
-		loadingView = findViewById(R.id.loadingView);
 		LinearLayout llBack = findViewById(R.id.llBack);
 		llBack.setOnClickListener(this);
-		tvTitle = findViewById(R.id.tvTitle);
+		TextView tvTitle = findViewById(R.id.tvTitle);
 		ImageView ivShare = findViewById(R.id.ivShare);
 		ivShare.setOnClickListener(this);
 		ivShare.setVisibility(View.VISIBLE);
@@ -177,9 +174,6 @@ public class StrongStreamActivity extends BaseActivity implements OnClickListene
 		
 		mRadarManager = new StrongStreamManager(mContext);
 		OkHttpData();
-		
-		String columnId = getIntent().getStringExtra(CONST.COLUMN_ID);
-		CommonUtil.submitClickCount(columnId, title);
 	}
 	
 	/**
@@ -408,8 +402,8 @@ public class StrongStreamActivity extends BaseActivity implements OnClickListene
 //					}
 //				}
 				break;
-			case HANDLER_LOAD_FINISHED: 
-				loadingView.setVisibility(View.GONE);
+			case HANDLER_LOAD_FINISHED:
+				cancelDialog();
 				ivRadar.setVisibility(View.VISIBLE);
 				ivLighting.setVisibility(View.VISIBLE);
 				llLegend.setVisibility(View.VISIBLE);
@@ -714,7 +708,7 @@ public class StrongStreamActivity extends BaseActivity implements OnClickListene
 		CommonUtil.clearBitmap(bitmap2);
 		CommonUtil.clearBitmap(bitmap3);
 		Bitmap bitmap5 = CommonUtil.mergeBitmap(mContext, bitmap1, bitmap4, true);
-		Bitmap bitmap6 = BitmapFactory.decodeResource(getResources(), R.drawable.shawn_legend_share_portrait);
+		Bitmap bitmap6 = BitmapFactory.decodeResource(getResources(), R.drawable.legend_share_portrait);
 		Bitmap bitmap = CommonUtil.mergeBitmap(mContext, bitmap5, bitmap6, false);
 		CommonUtil.clearBitmap(bitmap5);
 		CommonUtil.clearBitmap(bitmap6);

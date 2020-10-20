@@ -147,7 +147,6 @@ class MinuteFallActivity : BaseActivity(), OnClickListener, AMapLocationListener
         } else {
             addLocationMarker(locationLatLng)
         }
-        CommonUtil.submitClickCount(intent.getStringExtra(CONST.COLUMN_ID), title)
     }
 
     /**
@@ -183,12 +182,12 @@ class MinuteFallActivity : BaseActivity(), OnClickListener, AMapLocationListener
         val options = MarkerOptions()
         options.position(latLng)
         options.anchor(0.5f, 1.0f)
-        val bitmap = ThumbnailUtils.extractThumbnail(BitmapFactory.decodeResource(resources, R.drawable.shawn_icon_map_location),
+        val bitmap = ThumbnailUtils.extractThumbnail(BitmapFactory.decodeResource(resources, R.drawable.icon_map_location),
                 CommonUtil.dip2px(this, 21.0f).toInt(), CommonUtil.dip2px(this, 32.0f).toInt())
         if (bitmap != null) {
             options.icon(BitmapDescriptorFactory.fromBitmap(bitmap))
         } else {
-            options.icon(BitmapDescriptorFactory.fromResource(R.drawable.shawn_icon_map_location))
+            options.icon(BitmapDescriptorFactory.fromResource(R.drawable.icon_map_location))
         }
         if (clickMarker != null) {
             clickMarker!!.remove()
@@ -593,7 +592,7 @@ class MinuteFallActivity : BaseActivity(), OnClickListener, AMapLocationListener
             val bitmap7 = CommonUtil.mergeBitmap(this, bitmap5, bitmap6, true)
             CommonUtil.clearBitmap(bitmap5)
             CommonUtil.clearBitmap(bitmap6)
-            val bitmap8 = BitmapFactory.decodeResource(resources, R.drawable.shawn_legend_share_portrait)
+            val bitmap8 = BitmapFactory.decodeResource(resources, R.drawable.legend_share_portrait)
             val bitmap = CommonUtil.mergeBitmap(this, bitmap7, bitmap8, false)
             CommonUtil.clearBitmap(bitmap7)
             CommonUtil.clearBitmap(bitmap8)
@@ -607,7 +606,7 @@ class MinuteFallActivity : BaseActivity(), OnClickListener, AMapLocationListener
             val bitmap5 = CommonUtil.mergeBitmap(this, bitmap3, bitmap4, true)
             CommonUtil.clearBitmap(bitmap3)
             CommonUtil.clearBitmap(bitmap4)
-            val bitmap6 = BitmapFactory.decodeResource(resources, R.drawable.shawn_legend_share_portrait)
+            val bitmap6 = BitmapFactory.decodeResource(resources, R.drawable.legend_share_portrait)
             val bitmap = CommonUtil.mergeBitmap(this, bitmap5, bitmap6, false)
             CommonUtil.clearBitmap(bitmap5)
             CommonUtil.clearBitmap(bitmap6)
@@ -633,29 +632,29 @@ class MinuteFallActivity : BaseActivity(), OnClickListener, AMapLocationListener
             R.id.ivLocation -> {
                 if (zoom < 10f) {
                     zoom = 10.0f
-                    ivLocation.setImageResource(R.drawable.shawn_icon_location_on)
+                    ivLocation.setImageResource(R.drawable.icon_location_on)
                 } else {
                     zoom = 3.7f
-                    ivLocation.setImageResource(R.drawable.shawn_icon_location_off)
+                    ivLocation.setImageResource(R.drawable.icon_location_off)
                 }
                 aMap!!.animateCamera(CameraUpdateFactory.newLatLngZoom(locationLatLng, zoom))
                 addLocationMarker(locationLatLng)
             }
             R.id.ivRank -> if (ivLegend.visibility == View.VISIBLE) {
                 ivLegend.visibility = View.INVISIBLE
-                ivRank.setImageResource(R.drawable.shawn_icon_map_legend_off)
+                ivRank.setImageResource(R.drawable.icon_legend_off)
             } else {
                 ivLegend.visibility = View.VISIBLE
-                ivRank.setImageResource(R.drawable.shawn_icon_map_legend_on)
+                ivRank.setImageResource(R.drawable.icon_legend_on)
             }
             R.id.ivPlay -> if (mRadarThread != null && mRadarThread!!.currentState == mRadarThread!!.STATE_PLAYING) {
                 mRadarThread!!.pause()
-                ivPlay.setImageResource(R.drawable.shawn_icon_play)
+                ivPlay.setImageResource(R.drawable.icon_play)
             } else if (mRadarThread != null && mRadarThread!!.currentState == mRadarThread!!.STATE_PAUSE) {
                 mRadarThread!!.play()
-                ivPlay.setImageResource(R.drawable.shawn_icon_pause)
+                ivPlay.setImageResource(R.drawable.icon_pause)
             } else if (mRadarThread == null) {
-                ivPlay.setImageResource(R.drawable.shawn_icon_pause)
+                ivPlay.setImageResource(R.drawable.icon_pause)
                 if (mRadarThread != null) {
                     mRadarThread!!.cancel()
                     mRadarThread = null

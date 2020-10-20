@@ -104,7 +104,7 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintBottom_toBottomOf="parent"
             android:layout_marginStart="6.5dp"
-            android:src="@drawable/shawn_icon_map_legend_off" />
+            android:src="@drawable/icon_legend_off" />
 
         <ImageView
             android:id="@+id/ivLegend"

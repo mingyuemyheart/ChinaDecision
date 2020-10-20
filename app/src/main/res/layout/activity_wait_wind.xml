@@ -168,7 +168,7 @@
             android:layout_height="35dp"
             android:layout_marginStart="10dp"
             android:layout_marginBottom="10dp"
-            android:src="@drawable/shawn_icon_location_off"
+            android:src="@drawable/icon_location_off"
             android:visibility="invisible"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintStart_toStartOf="parent" />

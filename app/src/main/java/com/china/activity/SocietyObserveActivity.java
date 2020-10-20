@@ -7,6 +7,7 @@ import android.graphics.BitmapFactory;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
+import android.support.constraint.ConstraintLayout;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -14,7 +15,6 @@ import android.view.View.OnClickListener;
 import android.view.animation.LinearInterpolator;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
-import android.widget.RelativeLayout;
 import android.widget.SeekBar;
 import android.widget.SeekBar.OnSeekBarChangeListener;
 import android.widget.TextView;
@@ -36,7 +36,6 @@ import com.china.common.CONST;
 import com.china.dto.SocietyDto;
 import com.china.utils.CommonUtil;
 import com.china.utils.OkHttpUtil;
-import com.wang.avi.AVLoadingIndicatorView;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -57,30 +56,28 @@ import okhttp3.Response;
 /**
  * 社会化观测
  */
-public class SocietyObserveActivity extends BaseActivity implements OnClickListener, OnMarkerClickListener,
-OnMapClickListener, InfoWindowAdapter, OnMapScreenShotListener{
+public class SocietyObserveActivity extends BaseActivity implements OnClickListener, OnMarkerClickListener, OnMapClickListener, InfoWindowAdapter, OnMapScreenShotListener{
 	
 	private Context mContext;
-	private TextView tvTitle;
 	private MapView mapView;
 	private AMap aMap;
 	private List<SocietyDto> dataList = new ArrayList<>();
 	private Marker clickMarker;
-	private RelativeLayout reSeekBar;
+	private ConstraintLayout clSeekBar;
 	private ImageView ivPlay;
 	private SeekBar seekBar;
 	private SocietyThread mThread;
 	private SimpleDateFormat sdf = new SimpleDateFormat("HH:mm", Locale.CHINA);
 	private static final int HANDLER_SETMARKER_TOTOP = 1;
 	private List<Marker> markerList = new ArrayList<>();
-	private AVLoadingIndicatorView loadingView;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		setContentView(R.layout.shawn_activity_society_observe);
+		setContentView(R.layout.activity_society_observe);
 		mContext = this;
 		initAmap(savedInstanceState);
+		showDialog();
 		initWidget();
 	}
 
@@ -99,17 +96,16 @@ OnMapClickListener, InfoWindowAdapter, OnMapScreenShotListener{
 	}
 	
 	private void initWidget() {
-		loadingView = findViewById(R.id.loadingView);
 		LinearLayout llBack = findViewById(R.id.llBack);
 		llBack.setOnClickListener(this);
-		tvTitle = findViewById(R.id.tvTitle);
+		TextView tvTitle = findViewById(R.id.tvTitle);
 		ivPlay = findViewById(R.id.ivPlay);
 		ivPlay.setOnClickListener(this);
 		seekBar = findViewById(R.id.seekBar);
 		seekBar.setOnSeekBarChangeListener(seekbarListener);
 		TextView tvStartTime = findViewById(R.id.tvStartTime);
 		TextView tvEndTime = findViewById(R.id.tvEndTime);
-		reSeekBar = findViewById(R.id.reSeekBar);
+		clSeekBar = findViewById(R.id.clSeekBar);
 		ImageView ivShare = findViewById(R.id.ivShare);
 		ivShare.setOnClickListener(this);
 		ivShare.setVisibility(View.VISIBLE);
@@ -125,9 +121,6 @@ OnMapClickListener, InfoWindowAdapter, OnMapScreenShotListener{
 		tvEndTime.setText(sdf.format(new Date(end)));
 		String url = String.format("http://decision-admin.tianqi.cn/Home/extra/getcy_user_feedback?start=%s&end=%s&bounds=70,10,140,50&zoom=-999&source=all", start, end);
 		OkHttpData(url);
-		
-		String columnId = getIntent().getStringExtra(CONST.COLUMN_ID);
-		CommonUtil.submitClickCount(columnId, title);
 	}
 	
 	private OnSeekBarChangeListener seekbarListener = new OnSeekBarChangeListener() {
@@ -193,9 +186,9 @@ OnMapClickListener, InfoWindowAdapter, OnMapScreenShotListener{
 									@Override
 									public void run() {
 										if (dataList.size() > 0) {
-											reSeekBar.setVisibility(View.VISIBLE);
+											clSeekBar.setVisibility(View.VISIBLE);
 										}
-										loadingView.setVisibility(View.GONE);
+										cancelDialog();
 									}
 								});
 
@@ -501,9 +494,9 @@ OnMapClickListener, InfoWindowAdapter, OnMapScreenShotListener{
 	@Override
 	public void onMapScreenShot(final Bitmap bitmap1) {//bitmap1为地图截屏
 		Bitmap bitmap;
-		Bitmap bitmap4 = BitmapFactory.decodeResource(getResources(), R.drawable.shawn_legend_share_portrait);
-		if (reSeekBar.getVisibility() == View.VISIBLE) {
-			Bitmap bitmap2 = CommonUtil.captureView(reSeekBar);
+		Bitmap bitmap4 = BitmapFactory.decodeResource(getResources(), R.drawable.legend_share_portrait);
+		if (clSeekBar.getVisibility() == View.VISIBLE) {
+			Bitmap bitmap2 = CommonUtil.captureView(clSeekBar);
 			Bitmap bitmap3 = CommonUtil.mergeBitmap(SocietyObserveActivity.this, bitmap1, bitmap2, true);
 			CommonUtil.clearBitmap(bitmap2);
 			bitmap = CommonUtil.mergeBitmap(mContext, bitmap3, bitmap4, false);
@@ -530,14 +523,14 @@ OnMapClickListener, InfoWindowAdapter, OnMapScreenShotListener{
 			if (mThread == null) {
 				mThread = new SocietyThread(dataList);
 				mThread.start();
-				ivPlay.setImageResource(R.drawable.shawn_icon_pause);
+				ivPlay.setImageResource(R.drawable.icon_pause);
 			}else {
 				if (mThread.getCurrentState() == SocietyThread.STATE_PLAYING) {
 					mThread.pause();
-					ivPlay.setImageResource(R.drawable.shawn_icon_play);
+					ivPlay.setImageResource(R.drawable.icon_play);
 				} else if (mThread.getCurrentState() == SocietyThread.STATE_PAUSE) {
 					mThread.play();
-					ivPlay.setImageResource(R.drawable.shawn_icon_pause);
+					ivPlay.setImageResource(R.drawable.icon_pause);
 				}
 			}
 			break;

@@ -9,7 +9,6 @@ import android.util.Log;
 
 import com.china.activity.PDFActivity;
 import com.china.activity.WebviewActivity;
-import com.github.nkzawa.socketio.client.Socket;
 import com.umeng.commonsdk.UMConfigure;
 import com.umeng.message.IUmengRegisterCallback;
 import com.umeng.message.PushAgent;
@@ -26,17 +25,7 @@ public class MyApplication extends Application{
 	private static PushAgent mPushAgent;
 	public static String DEVICETOKEN = "";
 	public static String computerInfo = "";
-	private static Socket mSocket;
-
-	public static Socket getSocket() {
-		return mSocket;
-	}
-	public static void setSocket(Socket socket) {
-		mSocket = socket;
-	}
-
 	private static String appTheme = "0";
-
 	public static String getAppTheme() {
 		return appTheme;
 	}

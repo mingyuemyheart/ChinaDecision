@@ -100,7 +100,7 @@
             android:layout_above="@+id/ivLegendPrompt"
             android:layout_marginStart="10dp"
             android:layout_marginBottom="5dp"
-            android:src="@drawable/shawn_icon_location_off"
+            android:src="@drawable/icon_location_off"
             android:visibility="gone" />
 
         <ImageView
@@ -110,7 +110,7 @@
             android:layout_above="@+id/llSeekBar"
             android:layout_marginStart="10dp"
             android:layout_marginBottom="5dp"
-            android:src="@drawable/shawn_icon_map_legend_off" />
+            android:src="@drawable/icon_legend_off" />
 
         <ImageView
             android:id="@+id/ivLegend"
@@ -139,7 +139,7 @@
                 android:layout_height="40dp"
                 android:background="#90000000"
                 android:padding="5dp"
-                android:src="@drawable/shawn_icon_play" />
+                android:src="@drawable/icon_play" />
 
             <LinearLayout
                 android:layout_width="match_parent"
@@ -159,7 +159,7 @@
                     android:maxHeight="2dp"
                     android:minHeight="2dp"
                     android:progressDrawable="@drawable/shawn_seekbar_drawable"
-                    android:thumb="@drawable/shawn_seekbar_thumb"
+                    android:thumb="@drawable/seekbar_thumb"
                     android:thumbOffset="0dp" />
 
                 <LinearLayout

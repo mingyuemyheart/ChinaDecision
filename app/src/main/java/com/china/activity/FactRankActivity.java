@@ -17,12 +17,11 @@ import android.widget.ListView;
 import android.widget.TextView;
 
 import com.china.R;
-import com.china.adapter.ShawnFactRankAdapter;
+import com.china.adapter.FactRankAdapter;
 import com.china.common.CONST;
 import com.china.dto.StationMonitorDto;
 import com.china.utils.CommonUtil;
 import com.china.utils.OkHttpUtil;
-import com.wang.avi.AVLoadingIndicatorView;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -53,7 +52,7 @@ public class FactRankActivity extends BaseActivity implements OnClickListener{
 	private String startTime,endTime,provinceName = "";
 	private ImageView ivGuide;//引导页
 	private ListView mListView;
-	private ShawnFactRankAdapter mAdapter;
+	private FactRankAdapter mAdapter;
 	private List<StationMonitorDto> mList = new ArrayList<>();
 	private List<StationMonitorDto> ttList = new ArrayList<>();//高温温度
 	private List<StationMonitorDto> ltList = new ArrayList<>();//低温温度
@@ -68,12 +67,11 @@ public class FactRankActivity extends BaseActivity implements OnClickListener{
 	private SimpleDateFormat sdf6 = new SimpleDateFormat("yyyyMMdd20", Locale.CHINA);
 	private SimpleDateFormat sdf7 = new SimpleDateFormat("yyyyMMdd02", Locale.CHINA);
 	private SimpleDateFormat sdf8 = new SimpleDateFormat("yyyyMMdd14", Locale.CHINA);
-	private AVLoadingIndicatorView loadingView;
-	
+
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		setContentView(R.layout.shawn_activity_fact_rank);
+		setContentView(R.layout.activity_fact_rank);
 		mContext = this;
 		initWidget();
 		initListView();
@@ -83,7 +81,6 @@ public class FactRankActivity extends BaseActivity implements OnClickListener{
 	 * 初始化控件
 	 */
 	private void initWidget() {
-		loadingView = findViewById(R.id.loadingView);
 		LinearLayout llBack = findViewById(R.id.llBack);
 		llBack.setOnClickListener(this);
 		TextView tvTitle = findViewById(R.id.tvTitle);
@@ -174,7 +171,7 @@ public class FactRankActivity extends BaseActivity implements OnClickListener{
 	}
 	
 	private void OkHttpList(final String url) {
-		loadingView.setVisibility(View.VISIBLE);
+		showDialog();
 		new Thread(new Runnable() {
 			@Override
 			public void run() {
@@ -311,7 +308,7 @@ public class FactRankActivity extends BaseActivity implements OnClickListener{
 											}
 										}
 										setListData(rList);
-										loadingView.setVisibility(View.GONE);
+										cancelDialog();
 									} catch (JSONException e) {
 										e.printStackTrace();
 									}
@@ -330,7 +327,7 @@ public class FactRankActivity extends BaseActivity implements OnClickListener{
 	 * @param url
 	 */
 	private void OkHttpSingle(final String url, final int type) {
-		loadingView.setVisibility(View.VISIBLE);
+		showDialog();
 		new Thread(new Runnable() {
 			@Override
 			public void run() {
@@ -491,7 +488,7 @@ public class FactRankActivity extends BaseActivity implements OnClickListener{
 										}else if (type == 6) {
 											setListData(pMaxList);
 										}
-										loadingView.setVisibility(View.GONE);
+										cancelDialog();
 									} catch (JSONException e) {
 										e.printStackTrace();
 									}
@@ -506,7 +503,7 @@ public class FactRankActivity extends BaseActivity implements OnClickListener{
 	
 	private void initListView() {
 		mListView = findViewById(R.id.listView);
-		mAdapter = new ShawnFactRankAdapter(mContext, mList);
+		mAdapter = new FactRankAdapter(mContext, mList);
 		mListView.setAdapter(mAdapter);
 		mListView.setOnItemClickListener(new OnItemClickListener() {
 			@Override
@@ -1199,7 +1196,7 @@ public class FactRankActivity extends BaseActivity implements OnClickListener{
 			Bitmap bitmap5 = CommonUtil.mergeBitmap(FactRankActivity.this, bitmap3, bitmap4, false);
 			CommonUtil.clearBitmap(bitmap3);
 			CommonUtil.clearBitmap(bitmap4);
-			Bitmap bitmap6 = BitmapFactory.decodeResource(getResources(), R.drawable.shawn_legend_share_portrait);
+			Bitmap bitmap6 = BitmapFactory.decodeResource(getResources(), R.drawable.legend_share_portrait);
 			Bitmap bitmap = CommonUtil.mergeBitmap(FactRankActivity.this, bitmap5, bitmap6, false);
 			CommonUtil.clearBitmap(bitmap5);
 			CommonUtil.clearBitmap(bitmap6);

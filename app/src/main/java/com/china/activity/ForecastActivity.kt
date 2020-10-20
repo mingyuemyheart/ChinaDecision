@@ -352,7 +352,7 @@ class ForecastActivity : BaseActivity(), OnClickListener {
 				val bitmap: Bitmap
 				if (listView!!.visibility == View.VISIBLE) {
 					val bitmap1 = CommonUtil.captureScrollView(scrollView)
-					val bitmap2 = BitmapFactory.decodeResource(resources, R.drawable.shawn_legend_share_portrait)
+					val bitmap2 = BitmapFactory.decodeResource(resources, R.drawable.legend_share_portrait)
 					bitmap = CommonUtil.mergeBitmap(this@ForecastActivity, bitmap1, bitmap2, false)
 					CommonUtil.clearBitmap(bitmap1)
 					CommonUtil.clearBitmap(bitmap2)
@@ -374,7 +374,7 @@ class ForecastActivity : BaseActivity(), OnClickListener {
 					val bitmap9 = CommonUtil.mergeBitmap(this@ForecastActivity, bitmap7, bitmap8, false)
 					CommonUtil.clearBitmap(bitmap7)
 					CommonUtil.clearBitmap(bitmap8)
-					val bitmap10 = BitmapFactory.decodeResource(resources, R.drawable.shawn_legend_share_portrait)
+					val bitmap10 = BitmapFactory.decodeResource(resources, R.drawable.legend_share_portrait)
 					bitmap = CommonUtil.mergeBitmap(this@ForecastActivity, bitmap9, bitmap10, false)
 					CommonUtil.clearBitmap(bitmap9)
 					CommonUtil.clearBitmap(bitmap10)

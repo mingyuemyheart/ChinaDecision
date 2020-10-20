@@ -4,6 +4,8 @@ import android.os.Build
 import android.os.Bundle
 import android.support.v4.app.FragmentActivity
 import android.view.View
+import com.china.common.CONST
+import com.china.utils.CommonUtil
 import com.china.view.LoadingDialog
 
 open class BaseFragmentActivity : FragmentActivity() {
@@ -15,6 +17,8 @@ open class BaseFragmentActivity : FragmentActivity() {
 		if (Build.VERSION.SDK_INT >= 23) {
 			window.decorView.systemUiVisibility = View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR
 		}
+
+		CommonUtil.submitClickCount(intent.getStringExtra(CONST.COLUMN_ID), intent.getStringExtra(CONST.ACTIVITY_NAME))
 	}
 
 	protected fun showDialog() {

@@ -42,6 +42,7 @@ import com.china.R
 import com.china.adapter.WarningAdapter
 import com.china.adapter.WarningStatisticAdapter
 import com.china.common.CONST
+import com.china.common.ColumnData
 import com.china.dto.TyphoonDto
 import com.china.dto.WarningDto
 import com.china.utils.CommonUtil
@@ -211,8 +212,6 @@ class WarningActivity : BaseActivity(), OnClickListener, AMapLocationListener, O
             tvTitle.text = title
         }
         refresh()
-        columnId = intent.getStringExtra(CONST.COLUMN_ID)
-        CommonUtil.submitClickCount(columnId, title)
     }
 
     private fun refresh() {
@@ -257,12 +256,12 @@ class WarningActivity : BaseActivity(), OnClickListener, AMapLocationListener, O
         val options = MarkerOptions()
         options.position(locationLatLng)
         options.anchor(0.5f, 1.0f)
-        val bitmap = ThumbnailUtils.extractThumbnail(BitmapFactory.decodeResource(resources, R.drawable.shawn_icon_map_location),
+        val bitmap = ThumbnailUtils.extractThumbnail(BitmapFactory.decodeResource(resources, R.drawable.icon_map_location),
                 CommonUtil.dip2px(this, 21f).toInt(), CommonUtil.dip2px(this, 32f).toInt())
         if (bitmap != null) {
             options.icon(BitmapDescriptorFactory.fromBitmap(bitmap))
         } else {
-            options.icon(BitmapDescriptorFactory.fromResource(R.drawable.shawn_icon_map_location))
+            options.icon(BitmapDescriptorFactory.fromResource(R.drawable.icon_map_location))
         }
         if (locationMarker != null) {
             locationMarker!!.remove()
@@ -908,7 +907,7 @@ class WarningActivity : BaseActivity(), OnClickListener, AMapLocationListener, O
         val bitmap3 = CommonUtil.mergeBitmap(this@WarningActivity, bitmap1, bitmap2, true)
         CommonUtil.clearBitmap(bitmap1)
         CommonUtil.clearBitmap(bitmap2)
-        val bitmap4 = BitmapFactory.decodeResource(resources, R.drawable.shawn_legend_share_portrait)
+        val bitmap4 = BitmapFactory.decodeResource(resources, R.drawable.legend_share_portrait)
         val bitmap = CommonUtil.mergeBitmap(this, bitmap3, bitmap4, false)
         CommonUtil.clearBitmap(bitmap3)
         CommonUtil.clearBitmap(bitmap4)
@@ -942,10 +941,28 @@ class WarningActivity : BaseActivity(), OnClickListener, AMapLocationListener, O
             }
             R.id.ivStatistic -> startActivity(Intent(this, WarningStatisticActivity::class.java))
             R.id.ivNews -> {
-                intent = Intent(this, WeatherInfoActivity::class.java)
+                intent = Intent(this, PdfTitleActivity::class.java)
+                val list = ArrayList<ColumnData>()
+                var cd = ColumnData()
+                cd.columnId = columnId
+                cd.name = "月报"
+                cd.dataUrl = "http://decision-admin.tianqi.cn/home/work2019/getWarnNews_new?type=1"
+                list.add(cd)
+                cd = ColumnData()
+                cd.columnId = columnId
+                cd.name = "大数据报告"
+                cd.dataUrl = "http://decision-admin.tianqi.cn/home/work2019/getWarnNews_new?type=2"
+                list.add(cd)
+                cd = ColumnData()
+                cd.columnId = columnId
+                cd.name = "预警报告"
+                cd.dataUrl = "http://decision-admin.tianqi.cn/home/work2019/getWarnNews_new?type=3"
+                list.add(cd)
+                val bundle = Bundle()
+                bundle.putParcelableArrayList("dataList", list)
+                intent.putExtras(bundle)
                 intent.putExtra(CONST.COLUMN_ID, columnId)
-                intent.putExtra(CONST.ACTIVITY_NAME, "新闻报道")
-                intent.putExtra(CONST.WEB_URL, "http://decision-admin.tianqi.cn/home/work2019/getWarnNews")
+                intent.putExtra(CONST.ACTIVITY_NAME, "预警报告")
                 startActivity(intent)
             }
             R.id.tvNation -> {

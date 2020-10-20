@@ -20,7 +20,6 @@ import com.china.adapter.ShawnWarningStatisticListGroupAdapter;
 import com.china.adapter.ShawnWarningStatisticListSelectAdapter;
 import com.china.dto.WarningDto;
 import com.china.utils.OkHttpUtil;
-import com.wang.avi.AVLoadingIndicatorView;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -44,7 +43,6 @@ import okhttp3.Response;
 public class WarningStatisticListActivity extends BaseActivity implements View.OnClickListener {
 
     private Context mContext;
-    private AVLoadingIndicatorView loadingView;
     private ShawnWarningStatisticListGroupAdapter mAdapter;
     private List<WarningDto> groupList = new ArrayList<>();
     private List<List<WarningDto>> childList = new ArrayList<>();
@@ -63,14 +61,14 @@ public class WarningStatisticListActivity extends BaseActivity implements View.O
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.shawn_activity_warning_statistic_list);
+        setContentView(R.layout.activity_warning_statistic_list);
         mContext = this;
+        showDialog();
         initWidget();
         initListView();
     }
 
     private void initWidget() {
-        loadingView = findViewById(R.id.loadingView);
         LinearLayout llBack = findViewById(R.id.llBack);
         llBack.setOnClickListener(this);
         TextView tvTitle = findViewById(R.id.tvTitle);
@@ -144,6 +142,7 @@ public class WarningStatisticListActivity extends BaseActivity implements View.O
                         runOnUiThread(new Runnable() {
                             @Override
                             public void run() {
+                                cancelDialog();
                                 if (!TextUtils.isEmpty(result)) {
                                     try {
                                         JSONObject object = new JSONObject(result);
@@ -190,7 +189,6 @@ public class WarningStatisticListActivity extends BaseActivity implements View.O
                                         if (mAdapter != null) {
                                             mAdapter.notifyDataSetChanged();
                                         }
-                                        loadingView.setVisibility(View.GONE);
 
                                     } catch (JSONException e) {
                                         e.printStackTrace();

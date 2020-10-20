@@ -1,9 +1,11 @@
-package com.china.activity;
+package com.china.activity
 
 import android.app.Activity
 import android.os.Build
 import android.os.Bundle
 import android.view.View
+import com.china.common.CONST
+import com.china.utils.CommonUtil
 import com.china.view.LoadingDialog
 
 open class BaseActivity : Activity() {
@@ -15,6 +17,8 @@ open class BaseActivity : Activity() {
         if (Build.VERSION.SDK_INT >= 23) {
             window.decorView.systemUiVisibility = View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR
         }
+
+        CommonUtil.submitClickCount(intent.getStringExtra(CONST.COLUMN_ID), intent.getStringExtra(CONST.ACTIVITY_NAME))
     }
 
     protected fun showDialog() {

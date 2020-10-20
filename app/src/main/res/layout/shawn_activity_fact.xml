@@ -257,7 +257,7 @@
             android:layout_height="35dp"
             android:layout_above="@+id/ivLocation"
             android:layout_marginStart="10dp"
-            android:src="@drawable/shawn_icon_fact_rank"/>
+            android:src="@drawable/icon_fact_rank"/>
 
         <ImageView
             android:id="@+id/ivLocation"
@@ -266,7 +266,7 @@
             android:layout_above="@+id/llLegend"
             android:layout_marginStart="10dp"
             android:layout_marginTop="10dp"
-            android:src="@drawable/shawn_icon_location_off"/>
+            android:src="@drawable/icon_location_off"/>
 
         <LinearLayout
             android:id="@+id/llLegend"
@@ -280,7 +280,7 @@
                 android:id="@+id/ivLegendPrompt"
                 android:layout_width="35dp"
                 android:layout_height="35dp"
-                android:src="@drawable/shawn_icon_map_legend_off"
+                android:src="@drawable/icon_legend_off"
                 android:visibility="visible"/>
 
             <ImageView
@@ -539,16 +539,6 @@
         </LinearLayout>
 
     </RelativeLayout>
-
-    <com.wang.avi.AVLoadingIndicatorView
-        xmlns:app="http://schemas.android.com/apk/res-auto"
-        android:id="@+id/loadingView"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_centerInParent="true"
-        android:visibility="gone"
-        app:indicator="LineScalePulseOutRapid"
-        app:indicator_color="@color/blue"/>
 
     <ImageView
         android:id="@+id/ivGuide"

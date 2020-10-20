@@ -50,7 +50,7 @@ import com.amap.api.location.AMapLocationListener;
 import com.amap.api.maps.model.LatLng;
 import com.china.R;
 import com.china.adapter.ShawnMainAdapter;
-import com.china.adapter.ShawnSettingAdapter;
+import com.china.adapter.SettingAdapter;
 import com.china.common.CONST;
 import com.china.common.ColumnData;
 import com.china.common.MyApplication;
@@ -133,8 +133,8 @@ public class MainActivity extends BaseActivity implements OnClickListener, AMapL
 	private DrawerLayout drawerlayout;
 	private ConstraintLayout clRight;
 	private String dialNumber = "";
-	private ShawnSettingAdapter sAdapter;
-	
+	private SettingAdapter sAdapter;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -173,7 +173,7 @@ public class MainActivity extends BaseActivity implements OnClickListener, AMapL
 	private void init() {
 		initWidget();
 		initGridView();
-		initListView();
+		okHttpOutReport();
 	}
 
     /**
@@ -930,14 +930,32 @@ public class MainActivity extends BaseActivity implements OnClickListener, AMapL
 					intent.putExtra(CONST.WEB_URL, dto.dataUrl);
 					startActivity(intent);
 				}else if (TextUtils.equals(dto.showType, CONST.NEWS)) {//天气资讯
-					intent = new Intent(mContext, WeatherInfoActivity.class);
+					intent = new Intent(mContext, PdfTitleActivity.class);
+					ArrayList<ColumnData> list = new ArrayList<>();
+					ColumnData cd = new ColumnData();
+					cd.columnId = dto.columnId;
+					cd.name = dto.name;
+					cd.dataUrl = dto.dataUrl;
+					list.add(cd);
+					Bundle bundle = new Bundle();
+					bundle.putParcelableArrayList("dataList", list);
+					intent.putExtras(bundle);
 					intent.putExtra(CONST.COLUMN_ID, dto.columnId);
 					intent.putExtra(CONST.ACTIVITY_NAME, dto.name);
 					intent.putExtra(CONST.WEB_URL, dto.dataUrl);
 					startActivity(intent);
 				}else if (TextUtils.equals(dto.showType, CONST.LOCAL)) {
-					if (TextUtils.equals(dto.id, "1")) {//灾情信息
-						intent = new Intent(mContext, DisasterSpecialActivity.class);
+					if (TextUtils.equals(dto.id, "1") || TextUtils.equals(dto.id, "3") || TextUtils.equals(dto.id, "301")) {//灾情专报、一周灾情总结、决策专报
+						intent = new Intent(mContext, PdfTitleActivity.class);
+						ArrayList<ColumnData> list = new ArrayList<>();
+						ColumnData cd = new ColumnData();
+						cd.columnId = dto.columnId;
+						cd.name = dto.name;
+						cd.dataUrl = dto.dataUrl;
+						list.add(cd);
+						Bundle bundle = new Bundle();
+						bundle.putParcelableArrayList("dataList", list);
+						intent.putExtras(bundle);
 						intent.putExtra(CONST.COLUMN_ID, dto.columnId);
 						intent.putExtra(CONST.ACTIVITY_NAME, dto.name);
 						intent.putExtra(CONST.WEB_URL, dto.dataUrl);
@@ -946,12 +964,6 @@ public class MainActivity extends BaseActivity implements OnClickListener, AMapL
 						intent = new Intent(mContext, WarningActivity.class);
 						intent.putExtra(CONST.COLUMN_ID, dto.columnId);
 						intent.putExtra(CONST.ACTIVITY_NAME, dto.name);
-						startActivity(intent);
-					}else if (TextUtils.equals(dto.id, "3")) {//决策专报
-						intent = new Intent(mContext, DecisionNewsActivity.class);
-						intent.putExtra(CONST.COLUMN_ID, dto.columnId);
-						intent.putExtra(CONST.ACTIVITY_NAME, dto.name);
-						intent.putExtra(CONST.WEB_URL, dto.dataUrl);
 						startActivity(intent);
 					}else if (TextUtils.equals(dto.id, "101")) {//站点检测
 						intent = new Intent(mContext, FactActivity.class);
@@ -1043,12 +1055,6 @@ public class MainActivity extends BaseActivity implements OnClickListener, AMapL
 						intent = new Intent(mContext, PointForeActivity.class);
 						intent.putExtra(CONST.ACTIVITY_NAME, dto.name);
 						startActivity(intent);
-					}else if (TextUtils.equals(dto.id, "301")) {//灾情专报
-						intent = new Intent(mContext, DisasterSpecialActivity.class);
-						intent.putExtra(CONST.COLUMN_ID, dto.columnId);
-						intent.putExtra(CONST.ACTIVITY_NAME, dto.name);
-						intent.putExtra(CONST.WEB_URL, dto.dataUrl);
-						startActivity(intent);
 					}else if (TextUtils.equals(dto.id, "302")) {//灾情直报
 						intent = new Intent(mContext, DisasterReportActivity.class);
 						intent.putExtra(CONST.COLUMN_ID, dto.columnId);
@@ -1071,7 +1077,43 @@ public class MainActivity extends BaseActivity implements OnClickListener, AMapL
 		});
 	}
 
-	private void initListView() {
+	/**
+	 * 外部门使用报告
+	 */
+	private void okHttpOutReport() {
+		new Thread(new Runnable() {
+			@Override
+			public void run() {
+				String url = "http://decision-admin.tianqi.cn/Home/work2019/report_wbm?uid="+MyApplication.UID;
+				OkHttpUtil.enqueue(new Request.Builder().url(url).build(), new Callback() {
+					@Override
+					public void onFailure(@NotNull Call call, @NotNull IOException e) {
+						runOnUiThread(new Runnable() {
+							@Override
+							public void run() {
+								initListView("");
+							}
+						});
+					}
+					@Override
+					public void onResponse(@NotNull Call call, @NotNull Response response) throws IOException {
+						if (!response.isSuccessful()) {
+							return;
+						}
+						final String result = response.body().string();
+						runOnUiThread(new Runnable() {
+							@Override
+							public void run() {
+								initListView(result);
+							}
+						});
+					}
+				});
+			}
+		}).start();
+	}
+
+	private void initListView(String result) {
 		final List<ShawnSettingDto> list = new ArrayList<>();
 		ShawnSettingDto dto = new ShawnSettingDto();
 		dto.setType(0);
@@ -1132,18 +1174,43 @@ public class MainActivity extends BaseActivity implements OnClickListener, AMapL
 		dto.setName("产品订阅");
 		dto.setValue("");
 		list.add(dto);
+		if (!TextUtils.isEmpty(result)) {
+			try {
+				final JSONObject obj = new JSONObject(result);
+				if (!obj.isNull("code")) {
+					String code = obj.getString("code");
+					if (TextUtils.equals(code, "1")) {
+						dto = new ShawnSettingDto();
+						dto.setType(15);
+						dto.setDrawable(R.drawable.shawn_icon_weekly_statistic);
+						if (!obj.isNull("data")) {
+							JSONObject itemObj = obj.getJSONObject("data");
+							if (!itemObj.isNull("name")) {
+								dto.setName(itemObj.getString("name"));
+							}
+							if (!itemObj.isNull("url")) {
+								dto.setDataUrl(itemObj.getString("url"));
+							}
+						}
+						list.add(dto);
+					}
+				}
+			} catch (JSONException e) {
+				e.printStackTrace();
+			}
+		}
 		dto = new ShawnSettingDto();
 		dto.setType(12);
 		dto.setDrawable(R.drawable.shawn_icon_product);
 		dto.setName("格点实况");
 		dto.setValue("");
 		list.add(dto);
-		dto = new ShawnSettingDto();
-		dto.setType(9);
-		dto.setDrawable(R.drawable.shawn_icon_connection);
-		dto.setName("屏屏联动");
-		dto.setValue("");
-		list.add(dto);
+//		dto = new ShawnSettingDto();
+//		dto.setType(9);
+//		dto.setDrawable(R.drawable.shawn_icon_connection);
+//		dto.setName("屏屏联动");
+//		dto.setValue("");
+//		list.add(dto);
 		dto = new ShawnSettingDto();
 		dto.setType(10);
 		dto.setDrawable(R.drawable.shawn_icon_hotline1);
@@ -1170,7 +1237,7 @@ public class MainActivity extends BaseActivity implements OnClickListener, AMapL
 		list.add(dto);
 
 		ListView listView = findViewById(R.id.listView);
-		sAdapter = new ShawnSettingAdapter(this, list);
+		sAdapter = new SettingAdapter(this, list);
 		listView.setAdapter(sAdapter);
 		listView.setOnItemClickListener(new OnItemClickListener() {
 			@Override
@@ -1246,6 +1313,16 @@ public class MainActivity extends BaseActivity implements OnClickListener, AMapL
 						intent = new Intent(mContext, WebviewActivity.class);
 						intent.putExtra(CONST.ACTIVITY_NAME, "隐私政策");
 						intent.putExtra(CONST.WEB_URL, "http://decision-admin.tianqi.cn/Public/share/chinaweather_links/yszc.html");
+						startActivity(intent);
+						break;
+					case 15:
+						if (data.getDataUrl().endsWith(".pdf") || data.getDataUrl().endsWith(".PDF")) {
+							intent = new Intent(mContext, PDFActivity.class);
+						} else {
+							intent = new Intent(mContext, WebviewActivity.class);
+						}
+						intent.putExtra(CONST.ACTIVITY_NAME, data.getName());
+						intent.putExtra(CONST.WEB_URL, data.getDataUrl());
 						startActivity(intent);
 						break;
 				}

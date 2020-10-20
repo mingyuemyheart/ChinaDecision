@@ -165,9 +165,6 @@ public class WaitWindActivity extends BaseActivity implements OnClickListener, A
 
         int currentYear = Integer.valueOf(sdf1.format(new Date()));
         OkHttpTyphoonList(currentYear);
-
-        String columnId = getIntent().getStringExtra(CONST.COLUMN_ID);
-        CommonUtil.submitClickCount(columnId, title);
     }
 
     /**
@@ -204,12 +201,12 @@ public class WaitWindActivity extends BaseActivity implements OnClickListener, A
         MarkerOptions options = new MarkerOptions();
         options.position(latLng);
         options.anchor(0.5f, 1.0f);
-        Bitmap bitmap = ThumbnailUtils.extractThumbnail(BitmapFactory.decodeResource(getResources(), R.drawable.shawn_icon_map_location),
+        Bitmap bitmap = ThumbnailUtils.extractThumbnail(BitmapFactory.decodeResource(getResources(), R.drawable.icon_map_location),
                 (int)(CommonUtil.dip2px(mContext, 21)), (int)(CommonUtil.dip2px(mContext, 32)));
         if (bitmap != null) {
             options.icon(BitmapDescriptorFactory.fromBitmap(bitmap));
         }else {
-            options.icon(BitmapDescriptorFactory.fromResource(R.drawable.shawn_icon_map_location));
+            options.icon(BitmapDescriptorFactory.fromResource(R.drawable.icon_map_location));
         }
         if (locationMarker != null) {
             locationMarker.remove();
@@ -577,7 +574,7 @@ public class WaitWindActivity extends BaseActivity implements OnClickListener, A
         Bitmap bitmap3 = CommonUtil.mergeBitmap(WaitWindActivity.this, bitmap1, bitmap2, true);
         CommonUtil.clearBitmap(bitmap1);
         CommonUtil.clearBitmap(bitmap2);
-        Bitmap bitmap4 = BitmapFactory.decodeResource(getResources(), R.drawable.shawn_legend_share_portrait);
+        Bitmap bitmap4 = BitmapFactory.decodeResource(getResources(), R.drawable.legend_share_portrait);
         Bitmap bitmap = CommonUtil.mergeBitmap(mContext, bitmap3, bitmap4, false);
         CommonUtil.clearBitmap(bitmap3);
         CommonUtil.clearBitmap(bitmap4);
@@ -612,11 +609,11 @@ public class WaitWindActivity extends BaseActivity implements OnClickListener, A
                 break;
             case R.id.ivLocation:
                 if (zoom >= 12.f) {
-                    ivLocation.setImageResource(R.drawable.shawn_icon_location_off);
+                    ivLocation.setImageResource(R.drawable.icon_location_off);
                     zoom = 3.7f;
                     aMap.animateCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(locationLat, locationLng), zoom));
                 }else {
-                    ivLocation.setImageResource(R.drawable.shawn_icon_location_on);
+                    ivLocation.setImageResource(R.drawable.icon_location_on);
                     zoom = 12.0f;
                     aMap.animateCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(locationLat, locationLng), zoom));
                 }

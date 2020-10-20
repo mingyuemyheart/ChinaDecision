@@ -3,7 +3,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:background="@drawable/shawn_selector_setting_item"
+    android:background="@drawable/selector_setting_item"
     android:gravity="center_vertical"
     android:orientation="horizontal"
     android:padding="5dp">
@@ -12,7 +12,7 @@
         android:id="@+id/imageView"
         android:layout_width="80dp"
         android:layout_height="60dp"
-        android:scaleType="centerCrop"
+        android:scaleType="fitXY"
         android:src="@drawable/icon_seat_bitmap"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"

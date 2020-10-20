@@ -15,8 +15,8 @@ android {
         applicationId "com.china"
         minSdkVersion 21
         targetSdkVersion 28
-        versionCode 174
-        versionName "3.6.2"
+        versionCode 175
+        versionName "3.6.3"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
         multiDexEnabled true
 
@@ -69,37 +69,19 @@ dependencies {
     implementation fileTree(include: ['*.jar'], dir: 'libs')
     implementation 'com.android.support:appcompat-v7:28.0.0'
     implementation 'com.android.support:support-v4:28.0.0'
-    implementation files('libs/exoplayer_lib.jar')
-    //视频会商用到
-    implementation files('libs/zxing.jar')
-    implementation('com.github.nkzawa:socket.io-client:0.6.0') {//解决重复引用json
-        exclude group: 'org.json', module: 'json'
-    }
+    implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
+    implementation 'com.android.support.constraint:constraint-layout:2.0.2'
     implementation project(':android-pdf-viewer')
-    implementation files('libs/ChinaWeatherAPI.jar')
     implementation 'com.squareup.okhttp3:okhttp:4.0.1'
     implementation 'com.squareup.okio:okio:2.2.2'
     implementation 'com.wang.avi:library:1.0.0'
     implementation 'com.amap.api:3dmap:5.7.0'
     implementation 'com.amap.api:search:5.7.0'
     implementation 'com.amap.api:location:4.7.0'
-    implementation files('libs/umeng-common-1.5.3.jar')
-    implementation files('libs/umeng-share-core-6.9.3.jar')
-    implementation files('libs/umeng-sharetool-6.9.3.jar')
-    implementation files('libs/umeng-shareboard-widget-6.9.3.jar')
-    implementation files('libs/umeng-share-Ding-6.9.3.jar')
-    implementation files('libs/umeng-share-email-6.9.3.jar')
-    implementation files('libs/umeng-share-QQ-simplify-6.9.3.jar')
-    implementation files('libs/umeng-share-sms-6.9.3.jar')
-    implementation files('libs/umeng-share-wechat-simplify-6.9.3.jar')
     implementation 'com.umeng.sdk:utdid:1.1.5.3'
     implementation 'com.umeng.sdk:push:4.2.0'
     implementation 'com.umeng.sdk:push-huawei:1.0.0'
     implementation 'com.umeng.sdk:push-xiaomi:1.0.0'
     implementation 'com.umeng.sdk:push-meizu:1.0.0'
     implementation 'com.squareup.picasso:picasso:2.71828'
-    implementation files('libs/uk-co-senab-photoview.jar')
-    implementation files('libs/scene-final.jar')
-    implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
-    implementation 'com.android.support.constraint:constraint-layout:1.1.3'
 }

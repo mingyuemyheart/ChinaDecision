@@ -37,7 +37,7 @@
             android:id="@+id/ivPlay"
             android:layout_width="35dp"
             android:layout_height="35dp"
-            android:src="@drawable/shawn_icon_play" />
+            android:src="@drawable/icon_play" />
 
         <SeekBar
             android:id="@+id/seekBar"
@@ -47,8 +47,8 @@
             android:maxHeight="2dp"
             android:minHeight="2dp"
             android:progress="100"
-            android:progressDrawable="@drawable/shawn_seekbar_drawable_minute"
-            android:thumb="@drawable/shawn_seekbar_thumb"
+            android:progressDrawable="@drawable/seekbar_drawable_minute"
+            android:thumb="@drawable/seekbar_thumb"
             android:thumbOffset="0dp" />
 
         <TextView

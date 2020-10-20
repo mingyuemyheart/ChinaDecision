@@ -181,10 +181,10 @@ class BroadcastWeatherActivity : BaseActivity(), View.OnClickListener {
     private fun swithVideo() {
         if (videoView!!.isPlaying) {
             videoView!!.pause()
-            ivPlay!!.setImageResource(R.drawable.shawn_icon_play)
+            ivPlay!!.setImageResource(R.drawable.icon_play)
         } else {
             videoView!!.start()
-            ivPlay!!.setImageResource(R.drawable.shawn_icon_pause)
+            ivPlay!!.setImageResource(R.drawable.icon_pause)
         }
     }
 

@@ -9,6 +9,15 @@ public class ShawnSettingDto {
     private String value;
     private int drawable;
     private boolean isSelected;
+    private String dataUrl;
+
+    public String getDataUrl() {
+        return dataUrl;
+    }
+
+    public void setDataUrl(String dataUrl) {
+        this.dataUrl = dataUrl;
+    }
 
     public int getType() {
         return type;

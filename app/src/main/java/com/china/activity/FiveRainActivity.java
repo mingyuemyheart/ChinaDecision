@@ -7,6 +7,7 @@ import android.graphics.BitmapFactory;
 import android.graphics.drawable.Drawable;
 import android.media.ThumbnailUtils;
 import android.os.Bundle;
+import android.support.constraint.ConstraintLayout;
 import android.text.TextUtils;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -17,7 +18,6 @@ import android.widget.AdapterView;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ListView;
-import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.amap.api.location.AMapLocation;
@@ -38,14 +38,13 @@ import com.amap.api.maps.model.LatLngBounds;
 import com.amap.api.maps.model.Marker;
 import com.amap.api.maps.model.MarkerOptions;
 import com.china.R;
-import com.china.adapter.ShawnFiveRainAdapter;
+import com.china.adapter.FiveRainAdapter;
 import com.china.common.CONST;
 import com.china.dto.StationMonitorDto;
 import com.china.utils.CommonUtil;
 import com.china.utils.OkHttpUtil;
 import com.squareup.picasso.Picasso;
 import com.squareup.picasso.Target;
-import com.wang.avi.AVLoadingIndicatorView;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -64,32 +63,32 @@ import okhttp3.Request;
 import okhttp3.Response;
 
 /**
- * 5天降水量统计
+ * 五天降水统计
  */
 public class FiveRainActivity extends BaseActivity implements OnClickListener, AMapLocationListener, OnMapScreenShotListener {
 
     private Context mContext;
     private MapView mMapView;
     private AMap aMap;
-    private TextView tvTitle,tvLayerName;
+    private TextView tvLayerName;
     private ListView listView;
-    private ShawnFiveRainAdapter mAdapter;
+    private FiveRainAdapter mAdapter;
     private List<StationMonitorDto> dataList = new ArrayList<>();
     private SimpleDateFormat sdf1 = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.CHINA);
     private SimpleDateFormat sdf2 = new SimpleDateFormat("yyyy年MM月dd日HH时", Locale.CHINA);
-    private RelativeLayout reShare;
+    private ConstraintLayout clShare;
     private float zoom = 3.5f;
     private Marker clickMarker;
     private LatLng locationLatLng = new LatLng(39.904030, 116.407526);
     private ImageView ivLegend,ivTime;
     private GroundOverlay layerOverlay;
-    private AVLoadingIndicatorView loadingView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.shawn_activity_five_rain);
+        setContentView(R.layout.activity_five_rain);
         mContext = this;
+        showDialog();
         initWidget();
         initMap(savedInstanceState);
         initListView();
@@ -99,10 +98,9 @@ public class FiveRainActivity extends BaseActivity implements OnClickListener, A
      * 初始化控件
      */
     private void initWidget() {
-        loadingView = findViewById(R.id.loadingView);
         LinearLayout llBack = findViewById(R.id.llBack);
         llBack.setOnClickListener(this);
-        tvTitle = findViewById(R.id.tvTitle);
+        TextView tvTitle = findViewById(R.id.tvTitle);
         tvLayerName = findViewById(R.id.tvLayerName);
         ivTime = findViewById(R.id.ivTime);
         ivTime.setOnClickListener(this);
@@ -113,7 +111,7 @@ public class FiveRainActivity extends BaseActivity implements OnClickListener, A
         ivLegend = findViewById(R.id.ivLegend);
         ImageView ivLegendPrompt = findViewById(R.id.ivLegendPrompt);
         ivLegendPrompt.setOnClickListener(this);
-        reShare = findViewById(R.id.reShare);
+        clShare = findViewById(R.id.clShare);
         ImageView ivShare = findViewById(R.id.ivShare);
         ivShare.setOnClickListener(this);
         ivShare.setVisibility(View.VISIBLE);
@@ -128,9 +126,6 @@ public class FiveRainActivity extends BaseActivity implements OnClickListener, A
         }else {
             addLocationMarker(locationLatLng);
         }
-
-        String columnId = getIntent().getStringExtra(CONST.COLUMN_ID);//栏目id
-        CommonUtil.submitClickCount(columnId, title);
     }
 
     /**
@@ -167,12 +162,12 @@ public class FiveRainActivity extends BaseActivity implements OnClickListener, A
         MarkerOptions options = new MarkerOptions();
         options.position(latLng);
         options.anchor(0.5f, 1.0f);
-        Bitmap bitmap = ThumbnailUtils.extractThumbnail(BitmapFactory.decodeResource(getResources(), R.drawable.shawn_icon_map_location),
+        Bitmap bitmap = ThumbnailUtils.extractThumbnail(BitmapFactory.decodeResource(getResources(), R.drawable.icon_map_location),
                 (int)(CommonUtil.dip2px(mContext, 21)), (int)(CommonUtil.dip2px(mContext, 32)));
         if (bitmap != null) {
             options.icon(BitmapDescriptorFactory.fromBitmap(bitmap));
         }else {
-            options.icon(BitmapDescriptorFactory.fromResource(R.drawable.shawn_icon_map_location));
+            options.icon(BitmapDescriptorFactory.fromResource(R.drawable.icon_map_location));
         }
         if (clickMarker != null) {
             clickMarker.remove();
@@ -204,7 +199,7 @@ public class FiveRainActivity extends BaseActivity implements OnClickListener, A
 
     private void initListView() {
         listView = findViewById(R.id.listView);
-        mAdapter = new ShawnFiveRainAdapter(this, dataList);
+        mAdapter = new FiveRainAdapter(this, dataList);
         listView.setAdapter(mAdapter);
         listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
@@ -234,6 +229,7 @@ public class FiveRainActivity extends BaseActivity implements OnClickListener, A
                         runOnUiThread(new Runnable() {
                             @Override
                             public void run() {
+                                cancelDialog();
                                 if (!TextUtils.isEmpty(result)) {
                                     try {
                                         dataList.clear();
@@ -283,8 +279,6 @@ public class FiveRainActivity extends BaseActivity implements OnClickListener, A
                                         e.printStackTrace();
                                     }
                                 }
-
-                                loadingView.setVisibility(View.GONE);
                             }
                         });
                     }
@@ -434,21 +428,21 @@ public class FiveRainActivity extends BaseActivity implements OnClickListener, A
         if (view.getVisibility() == View.GONE) {
             timeLayoutAnimation(true, view);
             view.setVisibility(View.VISIBLE);
-            ivTime.setImageResource(R.drawable.shawn_icon_fact_time_press);
+            ivTime.setImageResource(R.drawable.icon_calendar_press);
         }else {
             timeLayoutAnimation(false, view);
             view.setVisibility(View.GONE);
-            ivTime.setImageResource(R.drawable.shawn_icon_fact_time);
+            ivTime.setImageResource(R.drawable.icon_calendar);
         }
     }
 
     @Override
     public void onMapScreenShot(final Bitmap bitmap1) {
-        Bitmap bitmap2 = CommonUtil.captureView(reShare);
+        Bitmap bitmap2 = CommonUtil.captureView(clShare);
         Bitmap bitmap3 = CommonUtil.mergeBitmap(FiveRainActivity.this, bitmap1, bitmap2, true);
         CommonUtil.clearBitmap(bitmap1);
         CommonUtil.clearBitmap(bitmap2);
-        Bitmap bitmap4 = BitmapFactory.decodeResource(getResources(), R.drawable.shawn_legend_share_portrait);
+        Bitmap bitmap4 = BitmapFactory.decodeResource(getResources(), R.drawable.legend_share_portrait);
         Bitmap bitmap = CommonUtil.mergeBitmap(mContext, bitmap3, bitmap4, false);
         CommonUtil.clearBitmap(bitmap3);
         CommonUtil.clearBitmap(bitmap4);

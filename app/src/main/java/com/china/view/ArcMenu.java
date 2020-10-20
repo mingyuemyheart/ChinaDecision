@@ -3,8 +3,6 @@ package com.china.view;
 import android.content.Context;
 import android.content.Intent;
 import android.content.res.TypedArray;
-import android.os.Message;
-import android.text.TextUtils;
 import android.util.AttributeSet;
 import android.util.TypedValue;
 import android.view.View;
@@ -20,12 +18,7 @@ import android.view.animation.ScaleAnimation;
 import android.view.animation.TranslateAnimation;
 
 import com.china.R;
-import com.china.common.MyApplication;
 import com.china.utils.CommonUtil;
-import com.github.nkzawa.socketio.client.Socket;
-
-import org.json.JSONException;
-import org.json.JSONObject;
 
 public class ArcMenu extends ViewGroup implements OnClickListener {
 
@@ -239,38 +232,6 @@ public class ArcMenu extends ViewGroup implements OnClickListener {
 		mContext.sendBroadcast(intent);
 
 		toggleMenu(300);
-
-		setNormalEmit("4", "");
-	}
-
-	private Socket socket = null;
-
-	/**
-	 * 普通发送指令，
-	 * @param id
-	 * @param sid
-	 */
-	private void setNormalEmit(String id, String sid) {
-		try {
-			if (socket == null) {
-				socket = MyApplication.getSocket();
-			}
-			if (socket != null && socket.connected()) {
-				JSONObject obj = new JSONObject();
-				obj.put("computerInfo", MyApplication.computerInfo);
-				JSONObject commond = new JSONObject();
-				commond.put("id", id);
-				JSONObject message = new JSONObject();
-				if (!TextUtils.isEmpty(sid)) {
-					message.put("sid", sid);
-				}
-				commond.put("message", message);
-				obj.put("commond", commond);
-				socket.emit("178", obj);
-			}
-		} catch (JSONException e) {
-			e.printStackTrace();
-		}
 	}
 
 	/**

@@ -64,9 +64,6 @@ class Webview2Activity : BaseActivity(), OnClickListener {
 		}else {
 			tvTitle.text = getString(R.string.detail)
 		}
-		
-		val columnId = intent.getStringExtra(CONST.COLUMN_ID)
-		CommonUtil.submitClickCount(columnId, title)
 	}
 	
 	/**
@@ -215,7 +212,7 @@ class Webview2Activity : BaseActivity(), OnClickListener {
 			}
 			R.id.ivShareImg -> {
 				val bitmap1 = CommonUtil.captureWebView(webView)
-				val bitmap2 = BitmapFactory.decodeResource(resources,  R.drawable.shawn_legend_share_portrait)
+				val bitmap2 = BitmapFactory.decodeResource(resources,  R.drawable.legend_share_portrait)
 				val bitmap = CommonUtil.mergeBitmap(this, bitmap1, bitmap2, false)
 				CommonUtil.clearBitmap(bitmap1)
 				CommonUtil.clearBitmap(bitmap2)

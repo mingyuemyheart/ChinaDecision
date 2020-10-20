@@ -14,7 +14,7 @@
         android:id="@+id/ll1"
         android:layout_width="match_parent"
         android:layout_height="40dp"
-        android:background="@drawable/shawn_selector_setting_item"
+        android:background="@drawable/selector_setting_item"
         android:gravity="center_vertical"
         android:paddingStart="10dp"
         android:paddingEnd="10dp"
@@ -54,7 +54,7 @@
         android:id="@+id/ll2"
         android:layout_width="match_parent"
         android:layout_height="40dp"
-        android:background="@drawable/shawn_selector_setting_item"
+        android:background="@drawable/selector_setting_item"
         android:gravity="center_vertical"
         android:paddingStart="10dp"
         android:paddingEnd="10dp"
@@ -94,7 +94,7 @@
         android:id="@+id/ll3"
         android:layout_width="match_parent"
         android:layout_height="40dp"
-        android:background="@drawable/shawn_selector_setting_item"
+        android:background="@drawable/selector_setting_item"
         android:gravity="center_vertical"
         android:paddingStart="10dp"
         android:paddingEnd="10dp"
@@ -135,7 +135,7 @@
         android:id="@+id/ll4"
         android:layout_width="match_parent"
         android:layout_height="40dp"
-        android:background="@drawable/shawn_selector_setting_item"
+        android:background="@drawable/selector_setting_item"
         android:gravity="center_vertical"
         android:paddingStart="10dp"
         android:paddingEnd="10dp"
@@ -162,7 +162,7 @@
         <ImageView
             android:layout_width="20dp"
             android:layout_height="20dp"
-            android:background="@drawable/shawn_icon_arrow_right" />
+            android:background="@drawable/icon_arrow_right" />
 
     </LinearLayout>
 
@@ -179,7 +179,7 @@
         android:id="@+id/ll5"
         android:layout_width="match_parent"
         android:layout_height="40dp"
-        android:background="@drawable/shawn_selector_setting_item"
+        android:background="@drawable/selector_setting_item"
         android:gravity="center_vertical"
         android:paddingStart="10dp"
         android:paddingEnd="10dp"
@@ -217,7 +217,7 @@
         android:id="@+id/ll6"
         android:layout_width="match_parent"
         android:layout_height="40dp"
-        android:background="@drawable/shawn_selector_setting_item"
+        android:background="@drawable/selector_setting_item"
         android:gravity="center_vertical"
         android:paddingStart="10dp"
         android:paddingEnd="10dp"
@@ -257,7 +257,7 @@
         android:id="@+id/ll7"
         android:layout_width="match_parent"
         android:layout_height="40dp"
-        android:background="@drawable/shawn_selector_setting_item"
+        android:background="@drawable/selector_setting_item"
         android:gravity="center_vertical"
         android:paddingStart="10dp"
         android:paddingEnd="10dp"

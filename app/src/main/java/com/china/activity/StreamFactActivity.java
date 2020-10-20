@@ -183,7 +183,6 @@ public class StreamFactActivity extends BaseActivity implements OnClickListener,
 				OkHttpCaiyun();
 			}
 		}).start();
-		CommonUtil.submitClickCount(getIntent().getStringExtra(CONST.COLUMN_ID), title);
 	}
 
 	/**
@@ -243,12 +242,12 @@ public class StreamFactActivity extends BaseActivity implements OnClickListener,
 			LatLng latLng = new LatLng(amapLocation.getLatitude(), amapLocation.getLongitude());
 			MarkerOptions options = new MarkerOptions();
 			options.anchor(0.5f, 0.5f);
-			Bitmap bitmap = ThumbnailUtils.extractThumbnail(BitmapFactory.decodeResource(getResources(), R.drawable.shawn_icon_location_point),
+			Bitmap bitmap = ThumbnailUtils.extractThumbnail(BitmapFactory.decodeResource(getResources(), R.drawable.icon_map_location),
 					(int) (CommonUtil.dip2px(mContext, 15)), (int) (CommonUtil.dip2px(mContext, 15)));
 			if (bitmap != null) {
 				options.icon(BitmapDescriptorFactory.fromBitmap(bitmap));
 			} else {
-				options.icon(BitmapDescriptorFactory.fromResource(R.drawable.shawn_icon_location_point));
+				options.icon(BitmapDescriptorFactory.fromResource(R.drawable.icon_map_location));
 			}
 			options.position(latLng);
 			locationMarker = aMap.addMarker(options);
@@ -285,7 +284,7 @@ public class StreamFactActivity extends BaseActivity implements OnClickListener,
 
 	@Override
 	public void onMapScreenShot(final Bitmap bitmap1) {//bitmap1为地图截屏
-		Bitmap bitmap8 = BitmapFactory.decodeResource(getResources(), R.drawable.shawn_legend_share_portrait);
+		Bitmap bitmap8 = BitmapFactory.decodeResource(getResources(), R.drawable.legend_share_portrait);
 		Bitmap bitmap2 = CommonUtil.captureView(reShare);
 		Bitmap bitmap3 = CommonUtil.mergeBitmap(mContext, bitmap1, bitmap2, true);
 		CommonUtil.clearBitmap(bitmap1);
@@ -404,10 +403,10 @@ public class StreamFactActivity extends BaseActivity implements OnClickListener,
 			case R.id.ivPlay:
 				if (seekbarThread != null && seekbarThread.getCurrentState() == SeekbarThread.STATE_PLAYING) {
 					seekbarThread.pause();
-					ivPlay.setImageResource(R.drawable.shawn_icon_play);
+					ivPlay.setImageResource(R.drawable.icon_play);
 				} else if (seekbarThread != null && seekbarThread.getCurrentState() == SeekbarThread.STATE_PAUSE) {
 					seekbarThread.play();
-					ivPlay.setImageResource(R.drawable.shawn_icon_pause);
+					ivPlay.setImageResource(R.drawable.icon_pause);
 				} else {
 					if (seekbarThread != null) {
 						seekbarThread.cancel();
@@ -416,7 +415,7 @@ public class StreamFactActivity extends BaseActivity implements OnClickListener,
 					if (llContainer.getChildCount() > 0) {
 						seekbarThread = new SeekbarThread();
 						seekbarThread.start();
-						ivPlay.setImageResource(R.drawable.shawn_icon_pause);
+						ivPlay.setImageResource(R.drawable.icon_pause);
 					}
 				}
 				break;
@@ -979,7 +978,7 @@ public class StreamFactActivity extends BaseActivity implements OnClickListener,
 					runOnUiThread(new Runnable() {
 						@Override
 						public void run() {
-							ivPlay.setImageResource(R.drawable.shawn_icon_play);
+							ivPlay.setImageResource(R.drawable.icon_play);
 						}
 					});
 				}

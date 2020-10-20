@@ -259,8 +259,6 @@ public class TyhpoonActivity extends BaseActivity implements OnClickListener, On
 		OkHttpWarning();
 
 		CommonUtil.showGuidePage(mContext, this.getClass().getName(), ivGuide);
-		String columnId = getIntent().getStringExtra(CONST.COLUMN_ID);
-		CommonUtil.submitClickCount(columnId, title);
 	}
 
 	private void initAmap(Bundle savedInstanceState) {
@@ -373,12 +371,12 @@ public class TyhpoonActivity extends BaseActivity implements OnClickListener, On
 		MarkerOptions options = new MarkerOptions();
 		options.position(clickLatLng);
 		options.anchor(0.5f, 1.0f);
-		Bitmap bitmap = ThumbnailUtils.extractThumbnail(BitmapFactory.decodeResource(getResources(), R.drawable.shawn_icon_map_location),
+		Bitmap bitmap = ThumbnailUtils.extractThumbnail(BitmapFactory.decodeResource(getResources(), R.drawable.icon_map_location),
 				(int)(CommonUtil.dip2px(mContext, 21)), (int)(CommonUtil.dip2px(mContext, 32)));
 		if (bitmap != null) {
 			options.icon(BitmapDescriptorFactory.fromBitmap(bitmap));
 		}else {
-			options.icon(BitmapDescriptorFactory.fromResource(R.drawable.shawn_icon_map_location));
+			options.icon(BitmapDescriptorFactory.fromResource(R.drawable.icon_map_location));
 		}
 		if (locationMarker != null) {
 			locationMarker.remove();
@@ -2613,7 +2611,7 @@ public class TyhpoonActivity extends BaseActivity implements OnClickListener, On
 		Bitmap bitmap3 = CommonUtil.mergeBitmap(TyhpoonActivity.this, bitmap1, bitmap2, true);
 		CommonUtil.clearBitmap(bitmap1);
 		CommonUtil.clearBitmap(bitmap2);
-		Bitmap bitmap4 = BitmapFactory.decodeResource(getResources(), R.drawable.shawn_legend_share_portrait);
+		Bitmap bitmap4 = BitmapFactory.decodeResource(getResources(), R.drawable.legend_share_portrait);
 		Bitmap bitmap = CommonUtil.mergeBitmap(mContext, bitmap3, bitmap4, false);
 		CommonUtil.clearBitmap(bitmap3);
 		CommonUtil.clearBitmap(bitmap4);

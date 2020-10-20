@@ -100,7 +100,7 @@ class WarningHeaderActivity : BaseFragmentActivity(), OnClickListener {
 			R.id.llBack -> finish()
 			R.id.ivShare -> {
 				val bitmap1 = CommonUtil.captureView(viewPager)
-				val bitmap2 = BitmapFactory.decodeResource(resources, R.drawable.shawn_legend_share_portrait)
+				val bitmap2 = BitmapFactory.decodeResource(resources, R.drawable.legend_share_portrait)
 				val bitmap = CommonUtil.mergeBitmap(this, bitmap1, bitmap2, false)
 				CommonUtil.clearBitmap(bitmap1)
 				CommonUtil.clearBitmap(bitmap2)

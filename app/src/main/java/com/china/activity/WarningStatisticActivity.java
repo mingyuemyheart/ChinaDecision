@@ -13,7 +13,6 @@ import com.china.R;
 import com.china.adapter.ShawnWarningStatisticGroupAdapter;
 import com.china.dto.WarningDto;
 import com.china.utils.OkHttpUtil;
-import com.wang.avi.AVLoadingIndicatorView;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -50,19 +49,18 @@ public class WarningStatisticActivity extends BaseActivity implements View.OnCli
     private List<List<WarningDto>> childList = new ArrayList<>();
     private String areaName = "全国",areaId,startTime, endTime;
     private String baseUrl = "http://testdecision.tianqi.cn/alarm12379/hisalarmcount.php?format=1";
-    private AVLoadingIndicatorView loadingView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.shawn_activity_warning_statistic);
+        setContentView(R.layout.activity_warning_statistic);
         mContext = this;
+        showDialog();
         initWidget();
         initListView();
     }
 
     private void initWidget() {
-        loadingView = findViewById(R.id.loadingView);
         LinearLayout llBack = findViewById(R.id.llBack);
         llBack.setOnClickListener(this);
         tvTitle = findViewById(R.id.tvTitle);
@@ -153,6 +151,7 @@ public class WarningStatisticActivity extends BaseActivity implements View.OnCli
                         runOnUiThread(new Runnable() {
                             @Override
                             public void run() {
+                                cancelDialog();
                                 if (!TextUtils.isEmpty(result)) {
                                     try {
                                         JSONObject object = new JSONObject(result);
@@ -228,7 +227,6 @@ public class WarningStatisticActivity extends BaseActivity implements View.OnCli
                                         if (mAdapter != null) {
                                             mAdapter.notifyDataSetChanged();
                                         }
-                                        loadingView.setVisibility(View.GONE);
 
                                     } catch (JSONException e) {
                                         e.printStackTrace();
@@ -281,7 +279,7 @@ public class WarningStatisticActivity extends BaseActivity implements View.OnCli
                     }else {
                         url = String.format(baseUrl+"&starttime=%s&endtime=%s", startTime, endTime);
                     }
-                    loadingView.setVisibility(View.VISIBLE);
+                    showDialog();
                     OkHttpStatistic(url, false);
                     break;
             }
