@@ -18,7 +18,6 @@ import android.text.Spannable
 import android.text.SpannableStringBuilder
 import android.text.TextUtils
 import android.text.style.ForegroundColorSpan
-import android.util.DisplayMetrics
 import android.view.LayoutInflater
 import android.view.View
 import android.view.View.OnClickListener
@@ -847,10 +846,8 @@ class WarningActivity : BaseActivity(), OnClickListener, AMapLocationListener, O
     override fun onCameraChange(arg0: CameraPosition?) {}
     override fun onCameraChangeFinish(arg0: CameraPosition) {
         zoom = arg0.zoom
-        val dm = DisplayMetrics()
-        windowManager.defaultDisplay.getMetrics(dm)
-        val leftPoint = Point(0, dm.heightPixels)
-        val rightPoint = Point(dm.widthPixels, 0)
+        val leftPoint = Point(0, CommonUtil.heightPixels(this))
+        val rightPoint = Point(CommonUtil.widthPixels(this), 0)
         leftlatlng = aMap!!.projection.fromScreenLocation(leftPoint)
         rightLatlng = aMap!!.projection.fromScreenLocation(rightPoint)
         switchWarningMarkers()

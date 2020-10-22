@@ -8,8 +8,8 @@ import android.text.TextWatcher
 import android.view.View
 import android.view.View.OnClickListener
 import com.china.R
-import com.china.adapter.ShawnCityAdapter
-import com.china.adapter.ShawnCityHotAdapter
+import com.china.adapter.CityAdapter
+import com.china.adapter.CityHotAdapter
 import com.china.dto.CityDto
 import com.china.manager.DBManager
 import kotlinx.android.synthetic.main.activity_city.*
@@ -22,7 +22,7 @@ import java.util.*
 class CityActivity : BaseActivity(), OnClickListener {
 
     //搜索城市后的结果列表
-    private var searchAdapter : ShawnCityAdapter? = null
+    private var searchAdapter : CityAdapter? = null
     private val searchList : ArrayList<CityDto> = ArrayList()
 
     //全国热门
@@ -96,7 +96,7 @@ class CityActivity : BaseActivity(), OnClickListener {
      * 初始化listview
      */
     private fun initListView() {
-        searchAdapter = ShawnCityAdapter(this, searchList)
+        searchAdapter = CityAdapter(this, searchList)
         listView.adapter = searchAdapter
         listView.setOnItemClickListener { parent, view, position, id ->
             intentWeatherDetail(searchList[position])
@@ -119,7 +119,7 @@ class CityActivity : BaseActivity(), OnClickListener {
             hotList.add(dto)
         }
 
-        val nAdapter = ShawnCityHotAdapter(this, hotList)
+        val nAdapter = CityHotAdapter(this, hotList)
         gridView.adapter = nAdapter
         gridView.setOnItemClickListener { parent, view, position, id ->
             intentWeatherDetail(hotList[position])

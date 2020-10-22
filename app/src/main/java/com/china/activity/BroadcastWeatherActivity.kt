@@ -15,7 +15,7 @@ import android.view.WindowManager
 import com.china.R
 import com.china.adapter.BroadcastWeatherAdapter
 import com.china.common.CONST
-import com.china.dto.ShawnSettingDto
+import com.china.dto.SettingDto
 import com.china.utils.CommonUtil
 import com.china.utils.OkHttpUtil
 import kotlinx.android.synthetic.main.activity_broadcast_weather.*
@@ -35,7 +35,7 @@ import java.util.*
  */
 class BroadcastWeatherActivity : BaseActivity(), View.OnClickListener {
 
-    private val dataList : ArrayList<ShawnSettingDto> = ArrayList()
+    private val dataList : ArrayList<SettingDto> = ArrayList()
     private val sdf1 = SimpleDateFormat("yyyyMMdd", Locale.CHINA)
     private val sdf2 = SimpleDateFormat("MM月dd日", Locale.CHINA)
     private var configuration : Configuration? = null //方向监听器
@@ -121,7 +121,7 @@ class BroadcastWeatherActivity : BaseActivity(), View.OnClickListener {
                         if (!TextUtils.isEmpty(result)) {
                             val array = JSONArray(result)
                             for (i in array.length()-1 downTo 0) {
-                                val dto = ShawnSettingDto()
+                                val dto = SettingDto()
                                 dto.value = array.getString(i)
                                 val dataUrl = dto.value.split("_")
                                 val last = dataUrl[dataUrl.size-1]

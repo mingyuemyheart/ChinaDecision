@@ -9,25 +9,23 @@ import android.widget.BaseAdapter;
 import android.widget.TextView;
 
 import com.china.R;
-import com.china.dto.SettingDto;
+import com.china.dto.CityDto;
 
 import java.util.List;
 
 /**
- * 实况监测等模块
+ * 城市查询-搜索列表
  */
-public class BroadcastWeatherAdapter extends BaseAdapter{
-
-	private Context mContext;
+public class CityAdapter extends BaseAdapter{
+	
 	private LayoutInflater mInflater;
-	private List<SettingDto> mArrayList;
-
+	private List<CityDto> mArrayList;
+	
 	private final class ViewHolder{
 		TextView tvName;
 	}
-
-	public BroadcastWeatherAdapter(Context context, List<SettingDto> mArrayList) {
-		mContext = context;
+	
+	public CityAdapter(Context context, List<CityDto> mArrayList) {
 		this.mArrayList = mArrayList;
 		mInflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
 	}
@@ -51,26 +49,25 @@ public class BroadcastWeatherAdapter extends BaseAdapter{
 	public View getView(int position, View convertView, ViewGroup parent) {
 		ViewHolder mHolder;
 		if (convertView == null) {
-			convertView = mInflater.inflate(R.layout.adapter_broadcast_weather, null);
+			convertView = mInflater.inflate(R.layout.adapter_city, null);
 			mHolder = new ViewHolder();
 			mHolder.tvName = convertView.findViewById(R.id.tvName);
 			convertView.setTag(mHolder);
 		}else {
 			mHolder = (ViewHolder) convertView.getTag();
 		}
-
-		SettingDto dto = mArrayList.get(position);
-
-		if (!TextUtils.isEmpty(dto.getName())) {
-			mHolder.tvName.setText(dto.getName());
+		
+		try {
+			CityDto dto = mArrayList.get(position);
+			if (TextUtils.equals(dto.cityName, dto.areaName)) {
+				mHolder.tvName.setText(dto.provinceName + " - " +dto.cityName);
+			}else {
+				mHolder.tvName.setText(dto.provinceName +" - "+dto.cityName + " - " + dto.areaName);
+			}
+		} catch (ArrayIndexOutOfBoundsException e) {
+			e.printStackTrace();
 		}
-
-		if (dto.isSelected()) {
-			mHolder.tvName.setTextColor(mContext.getResources().getColor(R.color.blue));
-		} else {
-			mHolder.tvName.setTextColor(mContext.getResources().getColor(R.color.text_color3));
-		}
-
+		
 		return convertView;
 	}
 

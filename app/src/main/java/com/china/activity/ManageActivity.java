@@ -9,7 +9,7 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.china.R;
-import com.china.adapter.ShawnManageAdapter;
+import com.china.adapter.ManageAdapter;
 import com.china.common.ColumnData;
 import com.china.common.MyApplication;
 import com.china.stickygridheaders.StickyGridHeadersGridView;
@@ -30,7 +30,7 @@ public class ManageActivity extends BaseActivity implements View.OnClickListener
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.shawn_activity_manage);
+        setContentView(R.layout.activity_manage);
         mContext = this;
         initWidget();
         initGridView();
@@ -117,7 +117,7 @@ public class ManageActivity extends BaseActivity implements View.OnClickListener
         }
 
         StickyGridHeadersGridView pGridView = findViewById(R.id.pGridView);
-        final ShawnManageAdapter pAdapter = new ShawnManageAdapter(mContext, dataList);
+        final ManageAdapter pAdapter = new ManageAdapter(mContext, dataList);
         pGridView.setAdapter(pAdapter);
     }
 

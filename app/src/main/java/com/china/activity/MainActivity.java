@@ -27,7 +27,6 @@ import android.support.v4.view.ViewPager;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v4.widget.SwipeRefreshLayout.OnRefreshListener;
 import android.text.TextUtils;
-import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
@@ -49,13 +48,13 @@ import com.amap.api.location.AMapLocationClientOption.AMapLocationMode;
 import com.amap.api.location.AMapLocationListener;
 import com.amap.api.maps.model.LatLng;
 import com.china.R;
-import com.china.adapter.ShawnMainAdapter;
+import com.china.adapter.MainAdapter;
 import com.china.adapter.SettingAdapter;
 import com.china.common.CONST;
 import com.china.common.ColumnData;
 import com.china.common.MyApplication;
 import com.china.dto.NewsDto;
-import com.china.dto.ShawnSettingDto;
+import com.china.dto.SettingDto;
 import com.china.dto.WarningDto;
 import com.china.dto.WeatherDto;
 import com.china.fragment.PdfFragment;
@@ -109,11 +108,10 @@ public class MainActivity extends BaseActivity implements OnClickListener, AMapL
 	private AMapLocationClient mLocationClient;//声明AMapLocationClient类对象
 	private LatLng locationLatLng = new LatLng(39.904030, 116.407526);
 	private String cityName = "北京市",cityId = "101010100";
-	private ShawnMainAdapter mAdapter;
+	private MainAdapter mAdapter;
 	private List<ColumnData> dataList = new ArrayList<>();
 	private List<ColumnData> intentList = new ArrayList<>();
-	private int width = 0, height = 0, min = 0, index = 0;
-	private float density = 0;
+	private int min = 0, index = 0;
 	private HourView hourView;//逐小时view
 	private HourItemView hourItemView;
 	private List<WeatherDto> tempList = new ArrayList<>();
@@ -238,10 +236,8 @@ public class MainActivity extends BaseActivity implements OnClickListener, AMapL
         TextView tvLogout = findViewById(R.id.tvLogout);
 		tvLogout.setOnClickListener(this);
 
-		getDisplayWidthHeight();
-
 		ViewGroup.LayoutParams params = clRight.getLayoutParams();
-		params.width = width-(int)CommonUtil.dip2px(this, 50);
+		params.width = CommonUtil.widthPixels(this)-(int)CommonUtil.dip2px(this, 50);
 		clRight.setLayoutParams(params);
 
 		if (!TextUtils.isEmpty(MyApplication.USERNAME)) {
@@ -250,14 +246,6 @@ public class MainActivity extends BaseActivity implements OnClickListener, AMapL
 
 		llWarning.setVisibility(View.INVISIBLE);
 		startLocation();
-	}
-
-	private void getDisplayWidthHeight() {
-		DisplayMetrics dm = new DisplayMetrics();
-		getWindowManager().getDefaultDisplay().getMetrics(dm);
-		width = dm.widthPixels;
-		height = dm.heightPixels;
-		density = dm.density;
 	}
 
 	/**
@@ -417,9 +405,9 @@ public class MainActivity extends BaseActivity implements OnClickListener, AMapL
 												hourlyList.add(dto);
 											}
 											hourView = new HourView(mContext);
-											hourView.setData(hourlyList, width*2/density, MainActivity.this);
+											hourView.setData(hourlyList, CommonUtil.widthPixels(mContext)*2/CommonUtil.density(mContext), MainActivity.this);
 											llContainer1.removeAllViews();
-											llContainer1.addView(hourView, (int)(CommonUtil.dip2px(mContext, width*2/density)), (int)(CommonUtil.dip2px(mContext, 100)));
+											llContainer1.addView(hourView, (int)(CommonUtil.dip2px(mContext, CommonUtil.widthPixels(mContext)*2/CommonUtil.density(mContext))), (int)(CommonUtil.dip2px(mContext, 100)));
 										}
 
 										//15天预报信息
@@ -847,7 +835,7 @@ public class MainActivity extends BaseActivity implements OnClickListener, AMapL
 	private ScrollListener scrollListener = new ScrollListener() {
 		@Override
 		public void onScrollChanged(MyHorizontalScrollView hScrollView, int x, int y, int oldx, int oldy) {
-			float itemWidth = width/tempList.size();
+			float itemWidth = CommonUtil.widthPixels(mContext)/tempList.size();
 			index = (int) (x/itemWidth);
 			if (index >= tempList.size()) {
 				index = tempList.size()-1;
@@ -892,7 +880,7 @@ public class MainActivity extends BaseActivity implements OnClickListener, AMapL
 	private void initGridView() {
 		setGridViewData();
         ScrollviewGridview gridView = findViewById(R.id.gridView);
-		mAdapter = new ShawnMainAdapter(mContext, dataList);
+		mAdapter = new MainAdapter(mContext, dataList);
 		gridView.setAdapter(mAdapter);
 		onLayoutMeasure();
 		gridView.setOnItemClickListener(new OnItemClickListener() {
@@ -901,19 +889,15 @@ public class MainActivity extends BaseActivity implements OnClickListener, AMapL
 				ColumnData dto = dataList.get(arg2);
 				Intent intent;
 				if (TextUtils.equals(dto.showType, CONST.PRODUCT)) {
-					if (TextUtils.isEmpty(dto.dataUrl)) {//实况监测、天气预报、专业服务、灾情信息、天气会商
-						intent = new Intent(mContext, ProductActivity.class);
-						Bundle bundle = new Bundle();
-						bundle.putParcelable("data", dto);
-						intent.putExtras(bundle);
-						startActivity(intent);
-					}else {//农业气象
-						intent = new Intent(mContext, Product2Activity.class);
-						intent.putExtra(CONST.COLUMN_ID, dto.columnId);
-						intent.putExtra(CONST.ACTIVITY_NAME, dto.name);
-						intent.putExtra(CONST.WEB_URL, dto.dataUrl);
-						startActivity(intent);
-					}
+					//实况监测、天气预报、专业服务、灾情信息、天气会商
+					intent = new Intent(mContext, ProductActivity.class);
+					intent.putExtra(CONST.COLUMN_ID, dto.columnId);
+					intent.putExtra(CONST.ACTIVITY_NAME, dto.name);
+					intent.putExtra(CONST.WEB_URL, dto.dataUrl);
+					Bundle bundle = new Bundle();
+					bundle.putParcelable("data", dto);
+					intent.putExtras(bundle);
+					startActivity(intent);
 				}else if (TextUtils.equals(dto.showType, CONST.URL)) {
 					intent = new Intent(mContext, Webview2Activity.class);
 
@@ -1114,26 +1098,26 @@ public class MainActivity extends BaseActivity implements OnClickListener, AMapL
 	}
 
 	private void initListView(String result) {
-		final List<ShawnSettingDto> list = new ArrayList<>();
-		ShawnSettingDto dto = new ShawnSettingDto();
+		final List<SettingDto> list = new ArrayList<>();
+		SettingDto dto = new SettingDto();
 		dto.setType(0);
 		dto.setDrawable(R.drawable.shawn_icon_collection_gray);
 		dto.setName("我的收藏");
 		dto.setValue("");
 		list.add(dto);
-		dto = new ShawnSettingDto();
+		dto = new SettingDto();
 		dto.setType(1);
 		dto.setDrawable(R.drawable.shawn_icon_feedback);
 		dto.setName("意见反馈");
 		dto.setValue("");
 		list.add(dto);
-		dto = new ShawnSettingDto();
+		dto = new SettingDto();
 		dto.setType(2);
 		dto.setDrawable(R.drawable.shawn_icon_cache);
 		dto.setName("清除缓存");
 		dto.setValue(DataCleanManager.getCacheSize(this));
 		list.add(dto);
-		dto = new ShawnSettingDto();
+		dto = new SettingDto();
 		dto.setType(3);
 		dto.setDrawable(R.drawable.shawn_icon_brief_intro);
 		dto.setName("中国气象局简介");
@@ -1142,7 +1126,7 @@ public class MainActivity extends BaseActivity implements OnClickListener, AMapL
 
 		if (TextUtils.equals(MyApplication.USERGROUP, "10") || TextUtils.equals(MyApplication.USERGROUP, "14")
 				|| TextUtils.equals(MyApplication.USERGROUP, "20") || TextUtils.equals(MyApplication.USERGROUP, "52")) {
-			dto = new ShawnSettingDto();
+			dto = new SettingDto();
 			dto.setType(4);
 			dto.setDrawable(R.drawable.shawn_icon_weekly_statistic);
 			dto.setName("周报统计");
@@ -1150,25 +1134,25 @@ public class MainActivity extends BaseActivity implements OnClickListener, AMapL
 			list.add(dto);
 		}
 
-		dto = new ShawnSettingDto();
+		dto = new SettingDto();
 		dto.setType(5);
 		dto.setDrawable(R.drawable.shawn_icon_app_recommand);
 		dto.setName("应用推荐");
 		dto.setValue("");
 		list.add(dto);
-		dto = new ShawnSettingDto();
+		dto = new SettingDto();
 		dto.setType(6);
 		dto.setDrawable(R.drawable.shawn_icon_about);
 		dto.setName("关于我们");
 		dto.setValue("");
 		list.add(dto);
-		dto = new ShawnSettingDto();
+		dto = new SettingDto();
 		dto.setType(7);
 		dto.setDrawable(R.drawable.shawn_icon_control);
 		dto.setName("模块管理");
 		dto.setValue("");
 		list.add(dto);
-		dto = new ShawnSettingDto();
+		dto = new SettingDto();
 		dto.setType(8);
 		dto.setDrawable(R.drawable.shawn_icon_product);
 		dto.setName("产品订阅");
@@ -1180,7 +1164,7 @@ public class MainActivity extends BaseActivity implements OnClickListener, AMapL
 				if (!obj.isNull("code")) {
 					String code = obj.getString("code");
 					if (TextUtils.equals(code, "1")) {
-						dto = new ShawnSettingDto();
+						dto = new SettingDto();
 						dto.setType(15);
 						dto.setDrawable(R.drawable.shawn_icon_weekly_statistic);
 						if (!obj.isNull("data")) {
@@ -1199,7 +1183,7 @@ public class MainActivity extends BaseActivity implements OnClickListener, AMapL
 				e.printStackTrace();
 			}
 		}
-		dto = new ShawnSettingDto();
+		dto = new SettingDto();
 		dto.setType(12);
 		dto.setDrawable(R.drawable.shawn_icon_product);
 		dto.setName("格点实况");
@@ -1211,25 +1195,25 @@ public class MainActivity extends BaseActivity implements OnClickListener, AMapL
 //		dto.setName("屏屏联动");
 //		dto.setValue("");
 //		list.add(dto);
-		dto = new ShawnSettingDto();
+		dto = new SettingDto();
 		dto.setType(10);
 		dto.setDrawable(R.drawable.shawn_icon_hotline1);
 		dto.setName("气象服务热线");
 		dto.setValue("400-6000-121");
 		list.add(dto);
-		dto = new ShawnSettingDto();
+		dto = new SettingDto();
 		dto.setType(11);
 		dto.setDrawable(R.drawable.shawn_icon_hotline2);
 		dto.setName("运行保障热线");
 		dto.setValue("010-68408068");
 		list.add(dto);
-		dto = new ShawnSettingDto();
+		dto = new SettingDto();
 		dto.setType(13);
 		dto.setDrawable(R.drawable.shawn_icon_product);
 		dto.setName("用户协议");
 		dto.setValue("");
 		list.add(dto);
-		dto = new ShawnSettingDto();
+		dto = new SettingDto();
 		dto.setType(14);
 		dto.setDrawable(R.drawable.shawn_icon_product);
 		dto.setName("隐私政策");
@@ -1242,7 +1226,7 @@ public class MainActivity extends BaseActivity implements OnClickListener, AMapL
 		listView.setOnItemClickListener(new OnItemClickListener() {
 			@Override
 			public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-				ShawnSettingDto data = list.get(position);
+				SettingDto data = list.get(position);
 				Intent intent;
 				switch (data.getType()) {
 					case 0:
@@ -1369,7 +1353,7 @@ public class MainActivity extends BaseActivity implements OnClickListener, AMapL
 	 * @param content 内容
 	 * @param flag 0删除本地存储，1删除缓存
 	 */
-	private void dialoaCache(final boolean flag, String content, final ShawnSettingDto data) {
+	private void dialoaCache(final boolean flag, String content, final SettingDto data) {
 		LayoutInflater inflater = (LayoutInflater) getSystemService(Context.LAYOUT_INFLATER_SERVICE);
 		View view = inflater.inflate(R.layout.shawn_dialog_cache, null);
 		TextView tvContent = view.findViewById(R.id.tvContent);
@@ -1543,7 +1527,6 @@ public class MainActivity extends BaseActivity implements OnClickListener, AMapL
      * 判断navigation是否显示，重新计算页面布局
      */
     private void onLayoutMeasure() {
-        getDisplayWidthHeight();
         int statusBarHeight = CommonUtil.statusBarHeight(this);
         clTitle.measure(0, 0);
         int height1 = clTitle.getMeasuredHeight();
@@ -1555,7 +1538,7 @@ public class MainActivity extends BaseActivity implements OnClickListener, AMapL
             height3 = viewPager.getMeasuredHeight();
         }
         if (mAdapter != null) {
-            mAdapter.height = height-height1-height2-height3-statusBarHeight;
+        	mAdapter.setHeight(CommonUtil.heightPixels(this)-height1-height2-height3-statusBarHeight);
             mAdapter.notifyDataSetChanged();
         }
     }

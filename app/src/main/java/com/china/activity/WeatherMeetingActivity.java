@@ -9,7 +9,6 @@ import android.os.Parcelable;
 import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.text.TextUtils;
-import android.util.DisplayMetrics;
 import android.util.TypedValue;
 import android.view.Gravity;
 import android.view.View;
@@ -22,6 +21,7 @@ import com.china.R;
 import com.china.common.CONST;
 import com.china.dto.WeatherMeetingDto;
 import com.china.fragment.ShawnWeatherMeetingFragment;
+import com.china.utils.CommonUtil;
 import com.china.view.MainViewPager;
 
 import org.json.JSONArray;
@@ -105,8 +105,6 @@ public class WeatherMeetingActivity extends BaseActivity implements OnClickListe
 			llContainer.setVisibility(View.GONE);
 			llContainer1.setVisibility(View.GONE);
 		}
-		DisplayMetrics dm = new DisplayMetrics();
-		getWindowManager().getDefaultDisplay().getMetrics(dm);
 		llContainer.removeAllViews();
 		llContainer1.removeAllViews();
 		for (int i = 0; i < list.size(); i++) {
@@ -115,7 +113,7 @@ public class WeatherMeetingActivity extends BaseActivity implements OnClickListe
 			TextView tvName = new TextView(mContext);
 			tvName.setGravity(Gravity.CENTER);
 			tvName.setTextSize(TypedValue.COMPLEX_UNIT_DIP, 15);
-			tvName.setPadding(0, (int)(dm.density*10), 0, (int)(dm.density*10));
+			tvName.setPadding(0, (int)(CommonUtil.dip2px(mContext, 10)), 0, (int)(CommonUtil.dip2px(mContext, 10)));
 			tvName.setOnClickListener(new MyOnClickListener(i));
 			if (i == 0) {
 				tvName.setTextColor(0xff0035A2);
@@ -140,9 +138,9 @@ public class WeatherMeetingActivity extends BaseActivity implements OnClickListe
 			}
 			LinearLayout.LayoutParams params1 = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT);
 			params1.weight = 1.0f;
-			params1.height = (int) (dm.density*2);
-			params1.leftMargin = (int) (dm.density*30);
-			params1.rightMargin = (int) (dm.density*30);
+			params1.height = (int) (CommonUtil.dip2px(mContext, 2));
+			params1.leftMargin = (int) (CommonUtil.dip2px(mContext, 30));
+			params1.rightMargin = (int) (CommonUtil.dip2px(mContext, 30));
 			tvBar.setLayoutParams(params1);
 			llContainer1.addView(tvBar, i);
 

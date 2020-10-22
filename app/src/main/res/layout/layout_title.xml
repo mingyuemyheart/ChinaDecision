@@ -59,7 +59,7 @@
         app:layout_constraintBottom_toBottomOf="parent"
         android:padding="5dp"
         app:layout_constraintEnd_toStartOf="@+id/ivShare"
-        android:src="@drawable/shawn_icon_search" />
+        android:src="@drawable/icon_search" />
 
     <ImageView
         android:id="@+id/ivShare"

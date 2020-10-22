@@ -89,14 +89,18 @@ class PdfListFragment : Fragment() {
     }
 
     private fun okHttpList() {
+        var url = arguments!!.getString(CONST.WEB_URL)
+        if (TextUtils.isEmpty(url)) {
+            refreshLayout!!.isRefreshing = false
+            return
+        }
+        if (url.contains("newGetDecistionZXZB")) {
+            url = url.replace("newGetDecistionZXZB", "newGetDecistionZXZB/new/1")
+        }
+        if (url.contains("num=20")) {
+            url = url.replace("num=20", "num=100")
+        }
         Thread(Runnable {
-            var url = arguments!!.getString(CONST.WEB_URL)
-            if (url.contains("newGetDecistionZXZB")) {
-                url = url.replace("newGetDecistionZXZB", "newGetDecistionZXZB/new/1")
-            }
-            if (url.contains("num=20")) {
-                url = url.replace("num=20", "num=100")
-            }
             OkHttpUtil.enqueue(Request.Builder().url(url!!).build(), object : Callback {
                 override fun onFailure(call: Call, e: IOException) {}
 

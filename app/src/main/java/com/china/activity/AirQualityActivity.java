@@ -15,7 +15,6 @@ import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.text.TextUtils;
-import android.util.DisplayMetrics;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -179,10 +178,8 @@ OnMapClickListener, OnCameraChangeListener, OnMapScreenShotListener{
 			hideAnimation(reContent);
 		}
 
-		DisplayMetrics dm = new DisplayMetrics();
-		getWindowManager().getDefaultDisplay().getMetrics(dm);
-		Point leftPoint = new Point(0, dm.heightPixels);
-		Point rightPoint = new Point(dm.widthPixels, 0);
+		Point leftPoint = new Point(0, CommonUtil.heightPixels(this));
+		Point rightPoint = new Point(CommonUtil.widthPixels(this), 0);
 		leftlatlng = aMap.getProjection().fromScreenLocation(leftPoint);
 		rightLatlng = aMap.getProjection().fromScreenLocation(rightPoint);
 		
@@ -777,14 +774,12 @@ OnMapClickListener, OnCameraChangeListener, OnMapScreenShotListener{
 //		}else if (maxAqi > 150) {
 //			viewHeight = (int)(CommonUtil.dip2px(mContext, 250));
 //		}
-		final DisplayMetrics dm = new DisplayMetrics();
-		getWindowManager().getDefaultDisplay().getMetrics(dm);
 		llContainer.removeAllViews();
-		llContainer.addView(aqiView, dm.widthPixels*4, viewHeight);
+		llContainer.addView(aqiView, CommonUtil.widthPixels(this)*4, viewHeight);
 		new Handler().post(new Runnable() {
 			@Override
 			public void run() {
-				hScrollView.scrollTo(dm.widthPixels*3/2, hScrollView.getHeight());
+				hScrollView.scrollTo(CommonUtil.widthPixels(mContext)*3/2, hScrollView.getHeight());
 			}
 		});
 	}
@@ -795,14 +790,12 @@ OnMapClickListener, OnCameraChangeListener, OnMapScreenShotListener{
 		llCity.setVisibility(View.VISIBLE);
 		AqiQualityView aqiView = new AqiQualityView(mContext);
 		aqiView.setData(aqiList, aqiDate);
-		final DisplayMetrics dm = new DisplayMetrics();
-		getWindowManager().getDefaultDisplay().getMetrics(dm);
 		llContainer.removeAllViews();
-		llContainer.addView(aqiView, dm.widthPixels*2, LinearLayout.LayoutParams.MATCH_PARENT);
+		llContainer.addView(aqiView, CommonUtil.widthPixels(this)*2, LinearLayout.LayoutParams.MATCH_PARENT);
 		new Handler().post(new Runnable() {
 			@Override
 			public void run() {
-				hScrollView.scrollTo(dm.widthPixels*2/4, hScrollView.getHeight());
+				hScrollView.scrollTo(CommonUtil.widthPixels(mContext)*2/4, hScrollView.getHeight());
 			}
 		});
 	}

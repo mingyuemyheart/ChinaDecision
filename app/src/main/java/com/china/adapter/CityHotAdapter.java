@@ -9,25 +9,23 @@ import android.widget.BaseAdapter;
 import android.widget.TextView;
 
 import com.china.R;
-import com.china.dto.SettingDto;
+import com.china.dto.CityDto;
 
 import java.util.List;
 
 /**
- * 实况监测等模块
+ * 城市查询-热门城市
  */
-public class BroadcastWeatherAdapter extends BaseAdapter{
-
-	private Context mContext;
+public class CityHotAdapter extends BaseAdapter{
+	
 	private LayoutInflater mInflater;
-	private List<SettingDto> mArrayList;
-
+	private List<CityDto> mArrayList;
+	
 	private final class ViewHolder{
 		TextView tvName;
 	}
-
-	public BroadcastWeatherAdapter(Context context, List<SettingDto> mArrayList) {
-		mContext = context;
+	
+	public CityHotAdapter(Context context, List<CityDto> mArrayList) {
 		this.mArrayList = mArrayList;
 		mInflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
 	}
@@ -51,24 +49,18 @@ public class BroadcastWeatherAdapter extends BaseAdapter{
 	public View getView(int position, View convertView, ViewGroup parent) {
 		ViewHolder mHolder;
 		if (convertView == null) {
-			convertView = mInflater.inflate(R.layout.adapter_broadcast_weather, null);
+			convertView = mInflater.inflate(R.layout.adapter_city_hot, null);
 			mHolder = new ViewHolder();
 			mHolder.tvName = convertView.findViewById(R.id.tvName);
 			convertView.setTag(mHolder);
 		}else {
 			mHolder = (ViewHolder) convertView.getTag();
 		}
+		
+		CityDto dto = mArrayList.get(position);
 
-		SettingDto dto = mArrayList.get(position);
-
-		if (!TextUtils.isEmpty(dto.getName())) {
-			mHolder.tvName.setText(dto.getName());
-		}
-
-		if (dto.isSelected()) {
-			mHolder.tvName.setTextColor(mContext.getResources().getColor(R.color.blue));
-		} else {
-			mHolder.tvName.setTextColor(mContext.getResources().getColor(R.color.text_color3));
+		if (!TextUtils.isEmpty(dto.areaName)) {
+			mHolder.tvName.setText(dto.areaName);
 		}
 
 		return convertView;

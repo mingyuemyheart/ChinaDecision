@@ -19,7 +19,6 @@ import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.text.TextUtils;
-import android.util.DisplayMetrics;
 import android.util.Log;
 import android.util.TypedValue;
 import android.view.View;
@@ -217,10 +216,8 @@ public class PointFactActivity extends BaseActivity implements OnClickListener, 
 	@Override
 	public void onCameraChangeFinish(CameraPosition arg0) {
 		Log.e("zoom", arg0.zoom+"");
-		DisplayMetrics dm = new DisplayMetrics();
-		getWindowManager().getDefaultDisplay().getMetrics(dm);
 		Point startPoint = new Point(0, 0);
-		Point endPoint = new Point(dm.widthPixels, dm.heightPixels);
+		Point endPoint = new Point(CommonUtil.widthPixels(this), CommonUtil.heightPixels(this));
 		start = aMap.getProjection().fromScreenLocation(startPoint);
 		end = aMap.getProjection().fromScreenLocation(endPoint);
 

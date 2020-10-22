@@ -95,6 +95,11 @@ public class CommonUtil {
 		DisplayMetrics dm = context.getResources().getDisplayMetrics();
 		return dm.heightPixels;
 	}
+
+	public static float density(Context context) {
+		DisplayMetrics dm = context.getResources().getDisplayMetrics();
+		return dm.density;
+	}
     
     /**
      * 获取listview高度

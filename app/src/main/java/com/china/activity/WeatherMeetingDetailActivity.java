@@ -5,7 +5,6 @@ import android.content.res.Configuration;
 import android.net.Uri;
 import android.os.Bundle;
 import android.text.TextUtils;
-import android.util.DisplayMetrics;
 import android.view.KeyEvent;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
@@ -19,6 +18,7 @@ import android.widget.TextView;
 
 import com.china.R;
 import com.china.common.CONST;
+import com.china.utils.CommonUtil;
 import com.google.android.exoplayer.ExoPlayer;
 import com.google.android.exoplayer.exoplayer.DemoPlayer;
 import com.google.android.exoplayer.exoplayer.PlayerUtils;
@@ -199,9 +199,7 @@ public class WeatherMeetingDetailActivity extends BaseActivity implements Surfac
 	 */
 	private void switchVideo() {
 		if (surfaceView != null) {
-			DisplayMetrics dm = new DisplayMetrics();
-			getWindowManager().getDefaultDisplay().getRealMetrics(dm);
-			int width = dm.widthPixels;
+			int width = CommonUtil.widthPixels(this);
 			int height = width*9/16;
 			LayoutParams params = surfaceView.getLayoutParams();
 			params.width = width;

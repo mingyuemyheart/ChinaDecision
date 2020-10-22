@@ -85,14 +85,12 @@
             android:theme="@style/SplashTheme">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
-
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
 
             <!-- js拉起应用，分享识别二维码用到 -->
             <intent-filter>
                 <action android:name="android.intent.action.VIEW" />
-
                 <category android:name="android.intent.category.DEFAULT" />
                 <category android:name="android.intent.category.BROWSABLE" />
 
@@ -142,14 +140,6 @@
             android:screenOrientation="portrait" />
 
         <activity
-            android:name="com.china.activity.Product2Activity"
-            android:screenOrientation="portrait" />
-
-        <activity
-            android:name="com.china.activity.NewsActivity"
-            android:screenOrientation="portrait" />
-
-        <activity
             android:name="com.china.activity.PdfTitleActivity"
             android:screenOrientation="portrait" />
 
@@ -193,10 +183,6 @@
 
         <activity
             android:name="com.china.activity.FactAreaSearchActivity"
-            android:screenOrientation="portrait" />
-
-        <activity
-            android:name="com.china.activity.DisasterSpecialActivity"
             android:screenOrientation="portrait" />
 
         <activity
@@ -384,7 +370,6 @@
             android:noHistory="true">
             <intent-filter>
                 <action android:name="android.intent.action.VIEW" />
-
                 <category android:name="android.intent.category.DEFAULT" />
                 <category android:name="android.intent.category.BROWSABLE" />
 

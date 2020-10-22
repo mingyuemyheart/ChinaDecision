@@ -19,7 +19,6 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.text.TextUtils;
-import android.util.DisplayMetrics;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -205,10 +204,8 @@ public class FactActivity extends BaseActivity implements OnClickListener, AMapL
 
     @Override
     public void onCameraChangeFinish(CameraPosition arg0) {
-        DisplayMetrics dm = new DisplayMetrics();
-        getWindowManager().getDefaultDisplay().getMetrics(dm);
-        Point leftPoint = new Point(0, dm.heightPixels);
-        Point rightPoint = new Point(dm.widthPixels, 0);
+        Point leftPoint = new Point(0, CommonUtil.heightPixels(this));
+        Point rightPoint = new Point(CommonUtil.widthPixels(this), 0);
         leftlatlng = aMap.getProjection().fromScreenLocation(leftPoint);
         rightLatlng = aMap.getProjection().fromScreenLocation(rightPoint);
         zoom = arg0.zoom;
@@ -744,14 +741,11 @@ public class FactActivity extends BaseActivity implements OnClickListener, AMapL
         mRadarManager = new CaiyunManager(mContext);
         CommonUtil.showGuidePage(mContext, this.getClass().getName(), ivGuide);
 
-        DisplayMetrics dm = new DisplayMetrics();
-        getWindowManager().getDefaultDisplay().getMetrics(dm);
-        int width = dm.widthPixels;
         RelativeLayout.LayoutParams params1 = new RelativeLayout.LayoutParams((int)CommonUtil.dip2px(mContext, 70), LinearLayout.LayoutParams.WRAP_CONTENT);
-        params1.leftMargin = width/6/2-(int)CommonUtil.dip2px(mContext, 25);
+        params1.leftMargin = CommonUtil.widthPixels(this)/6/2-(int)CommonUtil.dip2px(mContext, 25);
         llRain.setLayoutParams(params1);
         RelativeLayout.LayoutParams params2 = new RelativeLayout.LayoutParams((int)CommonUtil.dip2px(mContext, 90), LinearLayout.LayoutParams.WRAP_CONTENT);
-        params2.leftMargin = width/6+width/6/2-(int)CommonUtil.dip2px(mContext, 40);
+        params2.leftMargin = CommonUtil.widthPixels(this)/6+CommonUtil.widthPixels(this)/6/2-(int)CommonUtil.dip2px(mContext, 40);
         llTemp.setLayoutParams(params2);
 
         String title = getIntent().getStringExtra(CONST.ACTIVITY_NAME);

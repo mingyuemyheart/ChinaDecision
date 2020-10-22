@@ -9,7 +9,6 @@ import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextUtils;
 import android.text.TextWatcher;
-import android.util.DisplayMetrics;
 import android.util.TypedValue;
 import android.view.Gravity;
 import android.view.View;
@@ -29,6 +28,7 @@ import com.china.adapter.ShawnFactAreaSearchAdapter;
 import com.china.common.CONST;
 import com.china.dto.StationMonitorDto;
 import com.china.manager.DBManager;
+import com.china.utils.CommonUtil;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -45,8 +45,6 @@ public class FactAreaSearchActivity extends BaseActivity implements OnClickListe
 	private List<StationMonitorDto> searchList = new ArrayList<>();
 	private ProgressBar progressBar = null;
 	private LinearLayout llContainer = null;
-	private int widht = 0;
-	private float density = 0;
 	private ScrollView scrollView = null;
 
 	@Override
@@ -68,11 +66,6 @@ public class FactAreaSearchActivity extends BaseActivity implements OnClickListe
 		progressBar = findViewById(R.id.progressBar);
 		llContainer = findViewById(R.id.llContainer);
 		scrollView = findViewById(R.id.scrollView);
-
-		DisplayMetrics dm = new DisplayMetrics();
-		getWindowManager().getDefaultDisplay().getMetrics(dm);
-		widht = dm.widthPixels;
-		density = dm.density;
 
 		setProvinceData();
 	}
@@ -234,13 +227,13 @@ public class FactAreaSearchActivity extends BaseActivity implements OnClickListe
 			LinearLayout ll2 = new LinearLayout(mContext);
 			ll2.setOrientation(LinearLayout.VERTICAL);
 			ll2.setGravity(Gravity.CENTER_HORIZONTAL);
-			ll2.setPadding((int)(10*density), (int)(10*density), (int)(10*density), (int)(10*density));
+			ll2.setPadding((int)(CommonUtil.dip2px(this, 10)), (int)(CommonUtil.dip2px(this, 10)), (int)(CommonUtil.dip2px(this, 10)), (int)(CommonUtil.dip2px(this, 10)));
 			//图片
 			ImageView ivMap = new ImageView(mContext);
 			ivMap.setImageResource(setAreaImage(dto.partition, false));
 			LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT);
-			params.width = (int)(50*density);
-			params.height = (int)(50*density);
+			params.width = (int)(CommonUtil.dip2px(this, 50));
+			params.height = (int)(CommonUtil.dip2px(this, 50));
 			ivMap.setLayoutParams(params);
 			ll2.addView(ivMap);
 			//区域名称
@@ -254,13 +247,13 @@ public class FactAreaSearchActivity extends BaseActivity implements OnClickListe
 			//间隔线
 			TextView line = new TextView(mContext);
 			line.setBackgroundColor(getResources().getColor(R.color.light_gray));
-			line.setWidth((int)(1*density));
-			line.setHeight((int)(60*density));
+			line.setWidth((int)(CommonUtil.dip2px(this, 1)));
+			line.setHeight((int)(CommonUtil.dip2px(this, 60)));
 
 			//省份名称部分
 			LinearLayout ll3 = new LinearLayout(mContext);
 			ll3.setOrientation(LinearLayout.VERTICAL);
-			ll3.setPadding((int)(10*density), (int)(10*density), (int)(10*density), (int)(10*density));
+			ll3.setPadding((int)(CommonUtil.dip2px(this, 10)), (int)(CommonUtil.dip2px(this, 10)), (int)(CommonUtil.dip2px(this, 10)), (int)(CommonUtil.dip2px(this, 10)));
 			int rowCount;//4个一行
 			if (dto.areaList.size() % 4 == 0) {
 				rowCount = dto.areaList.size() / 4;
@@ -271,7 +264,7 @@ public class FactAreaSearchActivity extends BaseActivity implements OnClickListe
 				LinearLayout llItem = new LinearLayout(mContext);
 				llItem.setOrientation(LinearLayout.HORIZONTAL);
 				llItem.setGravity(Gravity.CENTER_VERTICAL);
-				llItem.setPadding(0, (int)(5*density), 0, (int)(5*density));
+				llItem.setPadding(0, (int)(CommonUtil.dip2px(this, 5)), 0, (int)(CommonUtil.dip2px(this, 5)));
 
 				int k;
 				int size = j*4+4;
@@ -284,13 +277,13 @@ public class FactAreaSearchActivity extends BaseActivity implements OnClickListe
 					final TextView tvPro = new TextView(mContext);
 					tvPro.setGravity(Gravity.CENTER);
 					tvPro.setBackgroundResource(R.drawable.corner_unselected_pro);
-					tvPro.setPadding((int)(10*density), (int)(5*density), (int)(10*density), (int)(5*density));
+					tvPro.setPadding((int)(CommonUtil.dip2px(this, 10)), (int)(CommonUtil.dip2px(this, 5)), (int)(CommonUtil.dip2px(this, 10)), (int)(CommonUtil.dip2px(this, 5)));
 					tvPro.setTextColor(Color.BLACK);
 					tvPro.setTextSize(TypedValue.COMPLEX_UNIT_DIP, 13);
 					tvPro.setText(proName);
 					tvPro.setTag(dto.partition+","+proName);
 					ViewGroup.LayoutParams p = new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
-					p.width = (int)(widht-90*density)/4;
+					p.width = (int)(CommonUtil.widthPixels(this)-CommonUtil.dip2px(this, 90))/4;
 					tvPro.setLayoutParams(p);
 					tvPro.setOnClickListener(new MyOnClickListener());
 					llItem.addView(tvPro);
@@ -305,7 +298,7 @@ public class FactAreaSearchActivity extends BaseActivity implements OnClickListe
 
 			TextView divider = new TextView(mContext);
 			divider.setBackgroundColor(getResources().getColor(R.color.light_gray));
-			divider.setHeight((int)(10*density));
+			divider.setHeight((int)(CommonUtil.dip2px(this, 10)));
 			llContainer.addView(divider);
 		}
 	}

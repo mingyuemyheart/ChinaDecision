@@ -11,7 +11,6 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.text.TextUtils;
-import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -85,7 +84,6 @@ public class StrongStreamActivity extends BaseActivity implements OnClickListene
 	private boolean isShowLightingMarkers = false;
 	private LinearLayout llLegend,llContainer;
 	private MySeekbar mySeekbar;
-	private int width = 0;
 	private MyBroadCastReceiver mReceiver;
 	private String BROAD_CLICKMENU = "broad_clickMenu";//点击播放或暂停
 	private RelativeLayout reShare;
@@ -162,10 +160,6 @@ public class StrongStreamActivity extends BaseActivity implements OnClickListene
 		ivLegend = findViewById(R.id.ivLegend);
 		llContainer = findViewById(R.id.llContainer);
 		reShare = findViewById(R.id.reShare);
-
-		DisplayMetrics dm = new DisplayMetrics();
-		getWindowManager().getDefaultDisplay().getMetrics(dm);
-		width = dm.widthPixels;
 
 		String title = getIntent().getStringExtra(CONST.ACTIVITY_NAME);
 		if (!TextUtils.isEmpty(title)) {
@@ -410,7 +404,7 @@ public class StrongStreamActivity extends BaseActivity implements OnClickListene
 				llContainer.removeAllViews();
 				mySeekbar = new MySeekbar(mContext);
 				mySeekbar.setData(radarList, hashMap);
-				llContainer.addView(mySeekbar, width, (int)CommonUtil.dip2px(mContext, 60));
+				llContainer.addView(mySeekbar, CommonUtil.widthPixels(mContext), (int)CommonUtil.dip2px(mContext, 60));
 				break;
 			case HANDLER_PAUSE:
 				break;

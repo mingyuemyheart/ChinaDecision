@@ -7,20 +7,30 @@ import android.view.View
 import android.view.View.OnClickListener
 import android.widget.Toast
 import com.china.R
-import com.china.adapter.ShawnProductAdapter
+import com.china.adapter.ProductAdapter
 import com.china.common.CONST
 import com.china.common.ColumnData
 import com.china.common.MyApplication
 import com.china.dto.NewsDto
+import com.china.utils.OkHttpUtil
 import kotlinx.android.synthetic.main.activity_product.*
 import kotlinx.android.synthetic.main.layout_title.*
+import okhttp3.Call
+import okhttp3.Callback
+import okhttp3.Request
+import okhttp3.Response
+import org.json.JSONArray
+import org.json.JSONException
+import org.json.JSONObject
+import java.io.IOException
 import java.util.*
 
 /**
  * 实况监测、天气预报、专业服务、灾情信息、天气会商
  */
 class ProductActivity : BaseActivity(), OnClickListener {
-	
+
+	private var mAdapter : ProductAdapter? = null
 	private val dataList : ArrayList<ColumnData> = ArrayList()
 
 	override fun onCreate(savedInstanceState: Bundle?) {
@@ -33,10 +43,19 @@ class ProductActivity : BaseActivity(), OnClickListener {
 	private fun initWidget() {
 		llBack.setOnClickListener(this)
 
-		val data : ColumnData = intent.extras.getParcelable("data")
-		if (data != null) {
+		val title = intent.getStringExtra(CONST.ACTIVITY_NAME)
+		if (!TextUtils.isEmpty(title)) {
+			tvTitle.text = title
+		}
+
+		dataList.clear()
+		val dataUrl = intent.getStringExtra(CONST.WEB_URL)
+		if (!TextUtils.isEmpty(dataUrl)) {
+			showDialog()
+			okHttpList(dataUrl)
+		}else {
+			val data : ColumnData = intent.extras.getParcelable("data")
 			tvTitle.text = data.name
-			dataList.clear()
 			val columnIds = MyApplication.getColumnIds(this)
 			if (!TextUtils.isEmpty(columnIds)) {
 				for (i in 0 until data.child.size) {
@@ -52,7 +71,7 @@ class ProductActivity : BaseActivity(), OnClickListener {
 	}
 	
 	private fun initGridView() {
-		val mAdapter = ShawnProductAdapter(this, dataList)
+		mAdapter = ProductAdapter(this, dataList)
 		gridView.adapter = mAdapter
 		gridView.setOnItemClickListener { parent, view, position, id ->
 			val dto = dataList[position]
@@ -92,7 +111,7 @@ class ProductActivity : BaseActivity(), OnClickListener {
 				intent.putExtra(CONST.WEB_URL, dto.dataUrl)
 				startActivity(intent)
 			}else if (TextUtils.equals(dto.showType, CONST.PRODUCT)) {
-				intent = Intent(this, Product2Activity::class.java)
+				intent = Intent(this, ProductActivity::class.java)
 				intent.putExtra(CONST.COLUMN_ID, dto.columnId)
 				intent.putExtra(CONST.ACTIVITY_NAME, dto.name)
 				intent.putExtra(CONST.WEB_URL, dto.dataUrl)
@@ -228,8 +247,70 @@ class ProductActivity : BaseActivity(), OnClickListener {
 				} else if (TextUtils.equals(dto.id, "-1")) {
 					Toast.makeText(this, "频道建设中", Toast.LENGTH_SHORT).show()
 				}
+			} else {
+				if (!TextUtils.isEmpty(dto.dataUrl)) {
+					if (dto.dataUrl.contains(".pdf") || dto.dataUrl.contains(".PDF")) {//pdf格式
+						intent = Intent(this, PDFActivity::class.java)
+						intent.putExtra(CONST.ACTIVITY_NAME, dto.name)
+						intent.putExtra(CONST.WEB_URL, dto.dataUrl)
+						startActivity(intent)
+					}else {//网页、图片
+						intent = Intent(this, Webview2Activity::class.java)
+						val data = NewsDto()
+						data.title = dto.name
+						data.detailUrl = dto.dataUrl
+						data.imgUrl = dto.icon
+						val bundle = Bundle()
+						bundle.putParcelable("data", data)
+						intent.putExtras(bundle)
+
+						intent.putExtra(CONST.COLUMN_ID, dto.columnId)
+						intent.putExtra(CONST.ACTIVITY_NAME, dto.name)
+						intent.putExtra(CONST.WEB_URL, dto.dataUrl)
+						startActivity(intent)
+					}
+				}
 			}
 		}
+	}
+
+	private fun okHttpList(url : String) {
+		Thread(Runnable {
+			OkHttpUtil.enqueue(Request.Builder().url(url).build(), object : Callback {
+				override fun onFailure(call: Call, e: IOException) {
+				}
+				override fun onResponse(call: Call, response: Response) {
+					if (!response.isSuccessful) {
+						return
+					}
+					val result = response.body!!.string()
+					runOnUiThread {
+						cancelDialog()
+						if (!TextUtils.isEmpty(result)) {
+							try {
+								val obj = JSONObject(result)
+								if (!obj.isNull("l")) {
+									val array = JSONArray(obj.getString("l"))
+									for (i in 0 until array.length()) {
+										val itemObj = array.getJSONObject(i)
+										val dto = ColumnData()
+										dto.name = itemObj.getString("l1")
+										dto.dataUrl = itemObj.getString("l2")
+										dto.icon = itemObj.getString("l4")
+										dataList.add(dto)
+									}
+								}
+								if (mAdapter != null) {
+									mAdapter!!.notifyDataSetChanged()
+								}
+							} catch (e : JSONException) {
+								e.printStackTrace()
+							}
+						}
+					}
+				}
+			})
+		}).start()
 	}
 
 	override fun onClick(v: View?) {

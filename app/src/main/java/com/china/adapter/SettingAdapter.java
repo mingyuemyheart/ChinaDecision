@@ -15,7 +15,7 @@ import android.widget.TextView;
 import com.china.R;
 import com.china.common.CONST;
 import com.china.common.MyApplication;
-import com.china.dto.ShawnSettingDto;
+import com.china.dto.SettingDto;
 
 import java.util.List;
 
@@ -26,7 +26,7 @@ public class SettingAdapter extends BaseAdapter{
 
 	private Context mContext;
 	private LayoutInflater mInflater;
-	private List<ShawnSettingDto> mArrayList;
+	private List<SettingDto> mArrayList;
 
 	private final class ViewHolder{
 		TextView tvName,tvValue;
@@ -34,7 +34,7 @@ public class SettingAdapter extends BaseAdapter{
 		Switch swFact;
 	}
 
-	public SettingAdapter(Context context, List<ShawnSettingDto> mArrayList) {
+	public SettingAdapter(Context context, List<SettingDto> mArrayList) {
 		mContext = context;
 		this.mArrayList = mArrayList;
 		mInflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
@@ -71,7 +71,7 @@ public class SettingAdapter extends BaseAdapter{
 			mHolder = (ViewHolder) convertView.getTag();
 		}
 
-		ShawnSettingDto dto = mArrayList.get(position);
+		SettingDto dto = mArrayList.get(position);
 
 		if (dto.getType() == 12) {//格点实况
 			mHolder.swFact.setChecked(MyApplication.FACTENABLE);
