@@ -71,8 +71,7 @@ import okhttp3.Response;
 /**
  * 格点预报
  */
-public class PointForeActivity extends BaseActivity implements OnClickListener, AMapLocationListener, OnCameraChangeListener,
-		OnMapScreenShotListener, AMap.OnMarkerClickListener {
+public class PointForeActivity extends BaseActivity implements OnClickListener, AMapLocationListener, OnCameraChangeListener, OnMapScreenShotListener, AMap.OnMarkerClickListener {
 	
 	private Context mContext;
 	private TextView tvName,tvDataSource,tvTime,tvPublishTime;

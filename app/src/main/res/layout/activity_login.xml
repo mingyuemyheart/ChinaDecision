@@ -20,7 +20,7 @@
             android:layout_width="100dp"
             android:layout_height="100dp"
             android:layout_marginBottom="50dp"
-            android:src="@drawable/shawn_icon_round_icon" />
+            android:src="@drawable/icon_round_icon" />
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -34,7 +34,7 @@
             <ImageView
                 android:layout_width="20dp"
                 android:layout_height="20dp"
-                android:src="@drawable/iv_user" />
+                android:src="@drawable/icon_user" />
 
             <EditText
                 android:id="@+id/etUserName"
@@ -65,7 +65,7 @@
             <ImageView
                 android:layout_width="20dp"
                 android:layout_height="20dp"
-                android:src="@drawable/iv_pwd" />
+                android:src="@drawable/icon_pwd" />
 
             <EditText
                 android:id="@+id/etPwd"
@@ -97,9 +97,10 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="10dp"
+            android:layout_marginEnd="10dp"
             android:gravity="end"
             android:text="@string/forget_pwd"
-            android:textColor="@color/white"
+            android:textColor="@color/blue"
             android:textSize="@dimen/level_4"
             android:visibility="gone" />
     </LinearLayout>

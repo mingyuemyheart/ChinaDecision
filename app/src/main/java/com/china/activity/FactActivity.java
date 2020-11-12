@@ -86,6 +86,7 @@ import org.json.JSONObject;
 
 import java.io.IOException;
 import java.math.BigDecimal;
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.List;
@@ -111,6 +112,7 @@ public class FactActivity extends BaseActivity implements OnClickListener, AMapL
     private TextView tvTitle,tvName,tvStationId,tvTemp,tvDistance,tvJiangshui,tvShidu,tvWind,tvVisible,tvPressrue;
     private List<StationMonitorDto> stationList = new ArrayList<>();
     private SimpleDateFormat sdf1 = new SimpleDateFormat("HH时", Locale.CHINA);
+    private SimpleDateFormat sdf2 = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.CHINA);
     private long pastTime = 60 * 60 * 1000;
     private RelativeLayout reContent,reShare;
     private float zoom = 3.5f;
@@ -449,42 +451,34 @@ public class FactActivity extends BaseActivity implements OnClickListener, AMapL
         if (TextUtils.isEmpty(result) || TextUtils.isEmpty(type)) {
             return;
         }
-        new Thread(new Runnable() {
-            @Override
-            public void run() {
-                try {
-                    JSONObject obj = new JSONObject(result);
-                    if (!obj.isNull("t")) {
-                        long time1 = obj.getLong("t") - pastTime;
-                        long time2 = obj.getLong("t");
-                        String time = "(" + sdf1.format(time1) + "-" + sdf1.format(time2) + ")";
-                        final String name = type + time;
-                        runOnUiThread(new Runnable() {
-                            @Override
-                            public void run() {
-                                String unit = "";
-                                if (name.contains("降水")) {
-                                    unit = "[单位:mm]";
-                                } else if (name.contains("气温")) {
-                                    unit = "[单位:℃]";
-                                } else if (name.contains("湿度")) {
-                                    unit = "[单位:%]";
-                                } else if (name.contains("风速")) {
-                                    unit = "[单位:级]";
-                                } else if (name.contains("能见度")) {
-                                    unit = "[单位:km]";
-                                } else if (name.contains("气压")) {
-                                    unit = "[单位:hPa]";
-                                }
-                                tvLayerName.setText(layerName + name + unit);
-                            }
-                        });
+        try {
+            String time1 = sdf1.format(sdf2.parse(result).getTime() - pastTime);
+            String time2 = sdf1.format(sdf2.parse(result));
+            String time = "(" + time1 + "-" + time2 + ")";
+            final String name = type + time;
+            runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    String unit = "";
+                    if (name.contains("降水")) {
+                        unit = "[单位:mm]";
+                    } else if (name.contains("气温")) {
+                        unit = "[单位:℃]";
+                    } else if (name.contains("湿度")) {
+                        unit = "[单位:%]";
+                    } else if (name.contains("风速")) {
+                        unit = "[单位:级]";
+                    } else if (name.contains("能见度")) {
+                        unit = "[单位:km]";
+                    } else if (name.contains("气压")) {
+                        unit = "[单位:hPa]";
                     }
-                } catch (JSONException e) {
-                    e.printStackTrace();
+                    tvLayerName.setText(layerName + name + unit);
                 }
-            }
-        }).start();
+            });
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
     }
 
     /**

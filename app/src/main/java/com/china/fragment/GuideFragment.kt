@@ -46,11 +46,11 @@ class GuideFragment : Fragment(), OnClickListener {
 
 	private fun initWidget() {
 		when (arguments!!.getInt("index")) {
-			0 -> reMain.setBackgroundResource(R.drawable.bg_guide_01)
-			1 -> reMain.setBackgroundResource(R.drawable.bg_guide_02)
+			0 -> clMain.setBackgroundResource(R.drawable.bg_guide_01)
+			1 -> clMain.setBackgroundResource(R.drawable.bg_guide_02)
 			2 -> {
-				reMain.setBackgroundResource(R.drawable.bg_guide_03)
-				reMain.setOnClickListener(this)
+				clMain.setBackgroundResource(R.drawable.bg_guide_03)
+				clMain.setOnClickListener(this)
 			}
 		}
 	}
@@ -242,7 +242,7 @@ class GuideFragment : Fragment(), OnClickListener {
 
 	override fun onClick(v: View?) {
 		when(v!!.id) {
-			R.id.reMain -> {
+			R.id.clMain -> {
 				val sharedPreferences = activity!!.getSharedPreferences(CONST.SHOWGUIDE, Context.MODE_PRIVATE)
 				val editor = sharedPreferences.edit()
 				editor.putString(CONST.VERSION, CommonUtil.getVersion(activity))

@@ -1,8 +1,7 @@
-package com.china.activity;
+package com.china.activity
 
 import android.os.Bundle
 import android.support.v4.app.Fragment
-import android.support.v4.app.FragmentActivity
 import com.china.R
 import com.china.adapter.MyPagerAdapter
 import com.china.fragment.GuideFragment
@@ -12,7 +11,7 @@ import java.util.*
 /**
  * 引导页
  */
-class GuideActivity : FragmentActivity() {
+class GuideActivity : BaseFragmentActivity() {
 	
 	private val fragments : ArrayList<Fragment> = ArrayList()
 

@@ -4,6 +4,7 @@ import android.content.pm.ActivityInfo;
 import android.content.res.Configuration;
 import android.net.Uri;
 import android.os.Bundle;
+import android.support.constraint.ConstraintLayout;
 import android.text.TextUtils;
 import android.view.KeyEvent;
 import android.view.SurfaceHolder;
@@ -13,7 +14,6 @@ import android.view.View.OnClickListener;
 import android.view.ViewGroup.LayoutParams;
 import android.view.WindowManager;
 import android.widget.LinearLayout;
-import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.china.R;
@@ -35,14 +35,14 @@ public class WeatherMeetingDetailActivity extends BaseActivity implements Surfac
 	private long playerPosition;
 	private boolean playerNeedsPrepare;
 	
-	private RelativeLayout reTitle = null;
+	private ConstraintLayout reTitle = null;
 	private TextView tvPrompt = null;
 	private Configuration configuration = null;//方向监听器
 	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		setContentView(R.layout.shawn_activity_weather_meeting_detail);
+		setContentView(R.layout.activity_weather_meeting_detail);
 		// 常亮（必须加这个）
 		getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
 		initWidget();

@@ -10,10 +10,6 @@ import android.graphics.Bitmap;
 import android.graphics.Bitmap.Config;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
-import android.graphics.Color;
-import android.graphics.ColorMatrix;
-import android.graphics.ColorMatrixColorFilter;
-import android.graphics.Paint;
 import android.graphics.Picture;
 import android.location.LocationManager;
 import android.provider.Settings;
@@ -393,7 +389,7 @@ public class CommonUtil {
 	            if (!TextUtils.isEmpty(imgUrl)) {
 	            	web.setThumb(new UMImage(activity, imgUrl));  //缩略图
 				}else {
-					web.setThumb(new UMImage(activity, R.drawable.shawn_icon_round_icon));
+					web.setThumb(new UMImage(activity, R.drawable.icon_round_icon));
 				}
 	            web.setDescription(content);
 	            sAction.withMedia(web);

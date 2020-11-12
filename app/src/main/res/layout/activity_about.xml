@@ -27,7 +27,7 @@
                 android:layout_height="90dp"
                 android:layout_gravity="center"
                 android:layout_marginTop="10dp"
-                android:src="@drawable/shawn_icon_round_icon" />
+                android:src="@drawable/icon_round_icon" />
 
             <TextView
                 android:id="@+id/tvContent"

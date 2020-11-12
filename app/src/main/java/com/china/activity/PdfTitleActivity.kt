@@ -2,7 +2,6 @@ package com.china.activity
 
 import android.os.Bundle
 import android.support.v4.app.Fragment
-import android.support.v4.app.FragmentActivity
 import android.support.v4.app.FragmentManager
 import android.support.v4.app.FragmentStatePagerAdapter
 import android.support.v4.content.ContextCompat
@@ -68,7 +67,7 @@ class PdfTitleActivity : BaseFragmentActivity(), OnClickListener {
 			val tvName = TextView(this)
 			tvName.gravity = Gravity.CENTER
 			tvName.setTextSize(TypedValue.COMPLEX_UNIT_DIP, 14.0f)
-			tvName.setPadding(0, CommonUtil.dip2px(this, 10.0f).toInt(), 0, CommonUtil.dip2px(this, 5.0f).toInt())
+			tvName.setPadding(0, CommonUtil.dip2px(this, 5.0f).toInt(), 0, CommonUtil.dip2px(this, 5.0f).toInt())
 			tvName.setOnClickListener {
 				if (viewPager != null) {
 					viewPager.setCurrentItem(i, true)
@@ -80,7 +79,11 @@ class PdfTitleActivity : BaseFragmentActivity(), OnClickListener {
 			}
 
 			val params = LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT)
-			params.width = width/columnSize
+			if (columnSize <= 4) {
+				params.width = width/columnSize
+			} else {
+				params.width = width/4
+			}
 			tvName.layoutParams = params
 			llContainer.addView(tvName, i)
 
@@ -97,8 +100,12 @@ class PdfTitleActivity : BaseFragmentActivity(), OnClickListener {
 				tvBar.setBackgroundColor(ContextCompat.getColor(this, R.color.transparent))
 			}
 			val params1 = LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT)
-			params1.width = width/columnSize
-			params1.height = CommonUtil.dip2px(this, 3.0f).toInt()
+			if (columnSize <= 4) {
+				params1.width = width/columnSize
+			} else {
+				params1.width = width/4
+			}
+			params1.height = CommonUtil.dip2px(this, 2.0f).toInt()
 			tvBar.layoutParams = params1
 			llContainer1.addView(tvBar, i)
 

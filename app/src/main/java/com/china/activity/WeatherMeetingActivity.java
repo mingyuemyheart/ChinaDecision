@@ -14,13 +14,14 @@ import android.view.Gravity;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
+import android.widget.HorizontalScrollView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.china.R;
 import com.china.common.CONST;
 import com.china.dto.WeatherMeetingDto;
-import com.china.fragment.ShawnWeatherMeetingFragment;
+import com.china.fragment.WeatherMeetingFragment;
 import com.china.utils.CommonUtil;
 import com.china.view.MainViewPager;
 
@@ -54,14 +55,13 @@ public class WeatherMeetingActivity extends BaseActivity implements OnClickListe
 
 	private String videoUrl1 = "http://10.0.86.110/rest/QxjRestService/getVideoList";
 	private String videoUrl2 = "http://106.120.82.240/rest/QxjRestService/getVideoList";
-	//	private String videoUrl3 = "http://111.205.114.31/rest/QxjRestService/getVideoList";
 	private String publicIp = "106.120.82.240";//公网ip
 	private List<WeatherMeetingDto> videoList = new ArrayList<>();//点播视频列表
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		setContentView(R.layout.shawn_activity_weather_meeting);
+		setContentView(R.layout.activity_pdf_title);
 		mContext = this;
 		showDialog();
 		initWidget();
@@ -73,6 +73,8 @@ public class WeatherMeetingActivity extends BaseActivity implements OnClickListe
 		TextView tvTitle = findViewById(R.id.tvTitle);
 		llContainer = findViewById(R.id.llContainer);
 		llContainer1 = findViewById(R.id.llContainer1);
+		HorizontalScrollView hScrollView1 = findViewById(R.id.hScrollView1);
+		hScrollView1.setBackgroundColor(getResources().getColor(R.color.colorPrimary));
 		
 		String title = getIntent().getStringExtra(CONST.ACTIVITY_NAME);
 		if (title != null) {
@@ -101,19 +103,21 @@ public class WeatherMeetingActivity extends BaseActivity implements OnClickListe
 	 * 初始化viewPager
 	 */
 	private void initViewPager(List<WeatherMeetingDto> list) {
-		if (list.size() <= 1) {
+		int columnSize = list.size();
+		if (columnSize <= 1) {
 			llContainer.setVisibility(View.GONE);
 			llContainer1.setVisibility(View.GONE);
 		}
 		llContainer.removeAllViews();
 		llContainer1.removeAllViews();
-		for (int i = 0; i < list.size(); i++) {
+		int width = CommonUtil.widthPixels(this);
+		for (int i = 0; i < columnSize; i++) {
 			WeatherMeetingDto dto = list.get(i);
 
 			TextView tvName = new TextView(mContext);
 			tvName.setGravity(Gravity.CENTER);
-			tvName.setTextSize(TypedValue.COMPLEX_UNIT_DIP, 15);
-			tvName.setPadding(0, (int)(CommonUtil.dip2px(mContext, 10)), 0, (int)(CommonUtil.dip2px(mContext, 10)));
+			tvName.setTextSize(TypedValue.COMPLEX_UNIT_DIP, 14);
+			tvName.setPadding(0, (int)(CommonUtil.dip2px(mContext, 5)), 0, (int)(CommonUtil.dip2px(mContext, 5)));
 			tvName.setOnClickListener(new MyOnClickListener(i));
 			if (i == 0) {
 				tvName.setTextColor(0xff0035A2);
@@ -124,7 +128,11 @@ public class WeatherMeetingActivity extends BaseActivity implements OnClickListe
 				tvName.setText(dto.columnName);
 			}
 			LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT);
-			params.weight = 1.0f;
+			if (columnSize <= 4) {
+				params.width = width/columnSize;
+			} else {
+				params.width = width/4;
+			}
 			tvName.setLayoutParams(params);
 			llContainer.addView(tvName, i);
 
@@ -137,14 +145,16 @@ public class WeatherMeetingActivity extends BaseActivity implements OnClickListe
 				tvBar.setBackgroundColor(getResources().getColor(R.color.transparent));
 			}
 			LinearLayout.LayoutParams params1 = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT);
-			params1.weight = 1.0f;
+			if (columnSize <= 4) {
+				params1.width = width/columnSize;
+			} else {
+				params1.width = width/4;
+			}
 			params1.height = (int) (CommonUtil.dip2px(mContext, 2));
-			params1.leftMargin = (int) (CommonUtil.dip2px(mContext, 30));
-			params1.rightMargin = (int) (CommonUtil.dip2px(mContext, 30));
 			tvBar.setLayoutParams(params1);
 			llContainer1.addView(tvBar, i);
 
-			ShawnWeatherMeetingFragment fragment = new ShawnWeatherMeetingFragment();
+			WeatherMeetingFragment fragment = new WeatherMeetingFragment();
 			Bundle bundle = new Bundle();
 			bundle.putInt("index", i);
 			bundle.putParcelable("data", dto);
