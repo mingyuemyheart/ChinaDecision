@@ -447,18 +447,18 @@ OnMapClickListener, OnCameraChangeListener, OnMapScreenShotListener{
 	 * @return
 	 */
 	private String getAqiDes(int value) {
-		String aqi = null;
-		if (value >= 0 && value <= 50) {
+		String aqi;
+		if (value <= 50) {
 			aqi = getString(R.string.aqi_level1);
-		}else if (value >= 51 && value < 100) {
+		}else if (value < 100) {
 			aqi = getString(R.string.aqi_level2);
-		}else if (value >= 101 && value < 150) {
+		}else if (value < 150) {
 			aqi = getString(R.string.aqi_level3);
-		}else if (value >= 151 && value < 200) {
+		}else if (value < 200) {
 			aqi = getString(R.string.aqi_level4);
-		}else if (value >= 201 && value < 300) {
+		}else if (value < 300) {
 			aqi = getString(R.string.aqi_level5);
-		}else if (value >= 301) {
+		}else {
 			aqi = getString(R.string.aqi_level6);
 		}
 		return aqi;
@@ -471,63 +471,63 @@ OnMapClickListener, OnCameraChangeListener, OnMapScreenShotListener{
 	 */
 	private String getPrompt(int value) {
 		String aqi = null;
-		if (value >= 0 && value <= 50) {
+		if (value <= 50) {
 			aqi = getString(R.string.aqi1_text);
-		}else if (value >= 51 && value < 100) {
+		}else if (value < 100) {
 			aqi = getString(R.string.aqi2_text);
-		}else if (value >= 101 && value < 150) {
+		}else if (value < 150) {
 			aqi = getString(R.string.aqi3_text);
-		}else if (value >= 151 && value < 200) {
+		}else if (value < 200) {
 			aqi = getString(R.string.aqi4_text);
-		}else if (value >= 201 && value < 300) {
+		}else if (value < 300) {
 			aqi = getString(R.string.aqi5_text);
-		}else if (value >= 301) {
+		}else {
 			aqi = getString(R.string.aqi6_text);
 		}
 		return aqi;
 	}
-	
+
 	/**
 	 * 根据aqi数据获取相对应的背景图标
 	 * @param value
 	 * @return
 	 */
 	private int getCicleBackground(int value) {
-		int drawable = -1;
-		if (value >= 0 && value <= 50) {
+		int drawable;
+		if (value <= 50) {
 			drawable = R.drawable.circle_aqi_one;
-		}else if (value >= 51 && value < 100) {
+		}else if (value < 100) {
 			drawable = R.drawable.circle_aqi_two;
-		}else if (value >= 101 && value < 150) {
+		}else if (value < 150) {
 			drawable = R.drawable.circle_aqi_three;
-		}else if (value >= 151 && value < 200) {
+		}else if (value < 200) {
 			drawable = R.drawable.circle_aqi_four;
-		}else if (value >= 201 && value < 300) {
+		}else if (value < 300) {
 			drawable = R.drawable.circle_aqi_five;
-		}else if (value >= 301) {
+		}else {
 			drawable = R.drawable.circle_aqi_six;
 		}
 		return drawable;
 	}
-	
+
 	/**
 	 * 根据aqi数据获取相对应的背景图标
 	 * @param value
 	 * @return
 	 */
-	private int getCornerBackground(int value) {
-		int drawable = -1;
-		if (value >= 0 && value <= 50) {
+	public static int getCornerBackground(int value) {
+		int drawable;
+		if (value <= 50) {
 			drawable = R.drawable.corner_aqi_one;
-		}else if (value >= 51 && value < 100) {
+		}else if (value <= 100) {
 			drawable = R.drawable.corner_aqi_two;
-		}else if (value >= 101 && value < 150) {
+		}else if (value <= 150) {
 			drawable = R.drawable.corner_aqi_three;
-		}else if (value >= 151 && value < 200) {
+		}else if (value <= 200) {
 			drawable = R.drawable.corner_aqi_four;
-		}else if (value >= 201 && value < 300) {
+		}else if (value <= 300) {
 			drawable = R.drawable.corner_aqi_five;
-		}else if (value >= 301) {
+		}else {
 			drawable = R.drawable.corner_aqi_six;
 		}
 		return drawable;

@@ -10,6 +10,7 @@ import android.media.ThumbnailUtils;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
+import android.support.constraint.ConstraintLayout;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.text.TextUtils;
@@ -18,7 +19,6 @@ import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
-import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.amap.api.location.AMapLocation;
@@ -64,11 +64,11 @@ import okhttp3.Response;
 public class ComForecastActivity extends BaseActivity implements OnClickListener, AMapLocationListener, OnMapScreenShotListener, AMap.OnCameraChangeListener {
 	
 	private Context mContext;
-	private TextView tvTitle,tvName,tvTime;
+	private TextView tvName,tvTime;
 	private MapView mMapView;
 	private AMap aMap;
-	private ImageView ivLocation,ivLegend,ivJiangshui,ivHighTemp,ivLowTemp,ivWuran,ivShachen,ivGaowen,ivFog,ivDizhi,ivHaze,ivQiangduiliu,ivDafeng;
-	private RelativeLayout reShare,reMore;
+	private ImageView ivLocation,ivLegend,ivJiangshui,ivHighTemp,ivLowTemp,ivWuran,ivShachen,ivGaowen,ivFog,ivDizhi,ivHaze,ivQiangduiliu,ivDafeng,ivSenlin;
+	private ConstraintLayout clShare,clMore;
 	private SimpleDateFormat sdf1 = new SimpleDateFormat("yyyy.MM.dd HH:00", Locale.CHINA);
 	private float zoom = 3.5f;
 	private double locationLat = 35.926628, locationLng = 105.178100;
@@ -79,7 +79,7 @@ public class ComForecastActivity extends BaseActivity implements OnClickListener
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		setContentView(R.layout.shawn_activity_com_forecast);
+		setContentView(R.layout.activity_com_forecast);
 		mContext = this;
 		showDialog();
 		initMap(savedInstanceState);
@@ -100,11 +100,11 @@ public class ComForecastActivity extends BaseActivity implements OnClickListener
 		ivLegend = findViewById(R.id.ivLegend);
 		ivLocation = findViewById(R.id.ivLocation);
 		ivLocation.setOnClickListener(this);
-		tvTitle = findViewById(R.id.tvTitle);
+		TextView tvTitle = findViewById(R.id.tvTitle);
 		tvName = findViewById(R.id.tvName);
 		tvTime = findViewById(R.id.tvTime);
-		reShare = findViewById(R.id.reShare);
-		reMore = findViewById(R.id.reMore);
+		clShare = findViewById(R.id.clShare);
+		clMore = findViewById(R.id.clMore);
 		ivJiangshui = findViewById(R.id.ivJiangshui);
 		ivJiangshui.setOnClickListener(this);
 		ivHighTemp = findViewById(R.id.ivHighTemp);
@@ -127,6 +127,8 @@ public class ComForecastActivity extends BaseActivity implements OnClickListener
 		ivQiangduiliu.setOnClickListener(this);
 		ivDafeng = findViewById(R.id.ivDafeng);
 		ivDafeng.setOnClickListener(this);
+		ivSenlin = findViewById(R.id.ivSenlin);
+		ivSenlin.setOnClickListener(this);
 		ImageView ivMore = findViewById(R.id.ivMore);
 		ivMore.setOnClickListener(this);
 		llJiangshui = findViewById(R.id.llJiangshui);
@@ -223,9 +225,9 @@ public class ComForecastActivity extends BaseActivity implements OnClickListener
 			ivLocation.setVisibility(View.VISIBLE);
 			LatLng latLng = new LatLng(amapLocation.getLatitude(), amapLocation.getLongitude());
 			MarkerOptions options = new MarkerOptions();
-			options.anchor(0.5f, 0.5f);
+			options.anchor(0.5f, 1.0f);
 			Bitmap bitmap = ThumbnailUtils.extractThumbnail(BitmapFactory.decodeResource(getResources(), R.drawable.icon_map_location),
-					(int) (CommonUtil.dip2px(mContext, 15)), (int) (CommonUtil.dip2px(mContext, 15)));
+					(int) (CommonUtil.dip2px(mContext, 21)), (int) (CommonUtil.dip2px(mContext, 32)));
 			if (bitmap != null) {
 				options.icon(BitmapDescriptorFactory.fromBitmap(bitmap));
 			} else {
@@ -241,7 +243,7 @@ public class ComForecastActivity extends BaseActivity implements OnClickListener
 	 * 初始化地图
 	 */
 	private void initMap(Bundle bundle) {
-		mMapView = findViewById(R.id.map);
+		mMapView = findViewById(R.id.mapView);
 		mMapView.onCreate(bundle);
 		if (aMap == null) {
 			aMap = mMapView.getMap();
@@ -531,6 +533,19 @@ public class ComForecastActivity extends BaseActivity implements OnClickListener
                                                 ivDafeng.setAlpha(0.5f);
                                             }
 
+											if (!obj.isNull("fc_slhx")) {
+												JSONObject itemObj = obj.getJSONObject("fc_slhx");
+												String dataurl = itemObj.getString("dataurl");
+												String img = itemObj.getString("img");
+												String name = itemObj.getString("name");
+												String validhour = itemObj.getString("validhour");
+												String startaddhour = itemObj.getString("startaddhour");
+												ivSenlin.setTag(dataurl+","+img+","+name+","+validhour+","+startaddhour);
+												OkHttpDetail(ivSenlin, false);
+											}else {
+												ivSenlin.setAlpha(0.5f);
+											}
+
                                         }
                                         cancelDialog();
                                     } catch (JSONException e) {
@@ -567,6 +582,12 @@ public class ComForecastActivity extends BaseActivity implements OnClickListener
 			});
 			return;
 		}
+		if (draw) {
+			if (!TextUtils.isEmpty(tags[1])) {
+				Picasso.get().invalidate(tags[1]);
+				Picasso.get().load(tags[1]).into(ivLegend);
+			}
+		}
 
 		new Thread(new Runnable() {
 			@Override
@@ -574,9 +595,7 @@ public class ComForecastActivity extends BaseActivity implements OnClickListener
 				OkHttpUtil.enqueue(new Request.Builder().url(tags[0]).build(), new Callback() {
 					@Override
 					public void onFailure(Call call, IOException e) {
-
 					}
-
 					@Override
 					public void onResponse(Call call, Response response) throws IOException {
 						if (!response.isSuccessful()) {
@@ -615,9 +634,6 @@ public class ComForecastActivity extends BaseActivity implements OnClickListener
 													tvName.setText(tags[2]);
 												}
 
-												if (!TextUtils.isEmpty(tags[1])) {
-													Picasso.get().load(tags[1]).into(ivLegend);
-												}
 												for (int i = 0; i < array.length(); i++) {
 													JSONObject itemObj = array.getJSONObject(i);
 													String color = itemObj.getString("c");
@@ -669,6 +685,12 @@ public class ComForecastActivity extends BaseActivity implements OnClickListener
 			});
 			return;
 		}
+		if (draw) {
+			if (!TextUtils.isEmpty(tags[1])) {
+				Picasso.get().invalidate(tags[1]);
+				Picasso.get().load(tags[1]).into(ivLegend);
+			}
+		}
 
 		new Thread(new Runnable() {
 			@Override
@@ -676,9 +698,7 @@ public class ComForecastActivity extends BaseActivity implements OnClickListener
 				OkHttpUtil.enqueue(new Request.Builder().url(tags[0]).build(), new Callback() {
 					@Override
 					public void onFailure(Call call, IOException e) {
-
 					}
-
 					@Override
 					public void onResponse(Call call, Response response) throws IOException {
 						if (!response.isSuccessful()) {
@@ -714,9 +734,6 @@ public class ComForecastActivity extends BaseActivity implements OnClickListener
 											tvName.setText(tags[2]);
 										}
 
-										if (!TextUtils.isEmpty(tags[1])) {
-											Picasso.get().load(tags[1]).into(ivLegend);
-										}
 										for (int i = 0; i < array.length(); i++) {
 											JSONObject itemObj = array.getJSONObject(i);
 											JSONArray c = itemObj.getJSONArray("c");
@@ -770,6 +787,12 @@ public class ComForecastActivity extends BaseActivity implements OnClickListener
 			});
 			return;
 		}
+		if (draw) {
+			if (!TextUtils.isEmpty(tags[1])) {
+				Picasso.get().invalidate(tags[1]);
+				Picasso.get().load(tags[1]).into(ivLegend);
+			}
+		}
 
 		new Thread(new Runnable() {
 			@Override
@@ -777,9 +800,7 @@ public class ComForecastActivity extends BaseActivity implements OnClickListener
 				OkHttpUtil.enqueue(new Request.Builder().url(tags[0]).build(), new Callback() {
 					@Override
 					public void onFailure(Call call, IOException e) {
-
 					}
-
 					@Override
 					public void onResponse(Call call, Response response) throws IOException {
 						if (!response.isSuccessful()) {
@@ -819,9 +840,6 @@ public class ComForecastActivity extends BaseActivity implements OnClickListener
 											tvName.setText(tags[2]);
 										}
 
-										if (!TextUtils.isEmpty(tags[1])) {
-											Picasso.get().load(tags[1]).into(ivLegend);
-										}
 										for (int i = 0; i < array.length(); i++) {
 											JSONObject itemObj = array.getJSONObject(i);
 											String color = itemObj.getString("c");
@@ -862,7 +880,7 @@ public class ComForecastActivity extends BaseActivity implements OnClickListener
 	public void onMapScreenShot(final Bitmap bitmap1) {//bitmap1为地图截屏
 		Bitmap bitmap;
 		Bitmap bitmap8 = BitmapFactory.decodeResource(getResources(), R.drawable.legend_share_portrait);
-		Bitmap bitmap2 = CommonUtil.captureView(reShare);
+		Bitmap bitmap2 = CommonUtil.captureView(clShare);
 		Bitmap bitmap3 = CommonUtil.mergeBitmap(mContext, bitmap1, bitmap2, true);
 		CommonUtil.clearBitmap(bitmap1);
 		CommonUtil.clearBitmap(bitmap2);
@@ -897,10 +915,10 @@ public class ComForecastActivity extends BaseActivity implements OnClickListener
 				llLowtemp.setVisibility(View.GONE);
 				llJiangshui.setVisibility(View.GONE);
 				llWuran.setVisibility(View.GONE);
-				if (reMore.getVisibility() == View.VISIBLE) {
-					reMore.setVisibility(View.GONE);
+				if (clMore.getVisibility() == View.VISIBLE) {
+					clMore.setVisibility(View.GONE);
 				}else {
-					reMore.setVisibility(View.VISIBLE);
+					clMore.setVisibility(View.VISIBLE);
 				}
 				break;
 			case R.id.ivLocation:
@@ -922,6 +940,7 @@ public class ComForecastActivity extends BaseActivity implements OnClickListener
 				ivDizhi.setImageResource(R.drawable.com_dizhi);
 				ivHaze.setImageResource(R.drawable.com_haze);
 				ivQiangduiliu.setImageResource(R.drawable.com_qiangduiliu);
+				ivSenlin.setImageResource(R.drawable.com_senlin);
 
 				llLowtemp.setVisibility(View.GONE);
 				llJiangshui.setVisibility(View.GONE);
@@ -971,6 +990,7 @@ public class ComForecastActivity extends BaseActivity implements OnClickListener
 				ivDizhi.setImageResource(R.drawable.com_dizhi);
 				ivHaze.setImageResource(R.drawable.com_haze);
 				ivQiangduiliu.setImageResource(R.drawable.com_qiangduiliu);
+				ivSenlin.setImageResource(R.drawable.com_senlin);
 
 				llHightemp.setVisibility(View.GONE);
 				llJiangshui.setVisibility(View.GONE);
@@ -1020,6 +1040,7 @@ public class ComForecastActivity extends BaseActivity implements OnClickListener
 				ivDizhi.setImageResource(R.drawable.com_dizhi);
 				ivHaze.setImageResource(R.drawable.com_haze);
 				ivQiangduiliu.setImageResource(R.drawable.com_qiangduiliu);
+				ivSenlin.setImageResource(R.drawable.com_senlin);
 
 				llHightemp.setVisibility(View.GONE);
 				llLowtemp.setVisibility(View.GONE);
@@ -1069,6 +1090,7 @@ public class ComForecastActivity extends BaseActivity implements OnClickListener
 				ivDizhi.setImageResource(R.drawable.com_dizhi);
 				ivHaze.setImageResource(R.drawable.com_haze);
 				ivQiangduiliu.setImageResource(R.drawable.com_qiangduiliu);
+				ivSenlin.setImageResource(R.drawable.com_senlin);
 
 				llHightemp.setVisibility(View.GONE);
 				llLowtemp.setVisibility(View.GONE);
@@ -1118,6 +1140,7 @@ public class ComForecastActivity extends BaseActivity implements OnClickListener
 				ivDizhi.setImageResource(R.drawable.com_dizhi);
 				ivHaze.setImageResource(R.drawable.com_haze);
 				ivQiangduiliu.setImageResource(R.drawable.com_qiangduiliu);
+				ivSenlin.setImageResource(R.drawable.com_senlin);
 
 				OkHttpDetail(ivShachen, true);
 				break;
@@ -1133,6 +1156,7 @@ public class ComForecastActivity extends BaseActivity implements OnClickListener
 				ivDizhi.setImageResource(R.drawable.com_dizhi);
 				ivHaze.setImageResource(R.drawable.com_haze);
 				ivQiangduiliu.setImageResource(R.drawable.com_qiangduiliu);
+				ivSenlin.setImageResource(R.drawable.com_senlin);
 
 				OkHttpDetail(ivGaowen, true);
 				break;
@@ -1148,6 +1172,7 @@ public class ComForecastActivity extends BaseActivity implements OnClickListener
 				ivDizhi.setImageResource(R.drawable.com_dizhi);
 				ivHaze.setImageResource(R.drawable.com_haze);
 				ivQiangduiliu.setImageResource(R.drawable.com_qiangduiliu);
+				ivSenlin.setImageResource(R.drawable.com_senlin);
 
 				OkHttpDetail(ivFog, true);
 				break;
@@ -1163,6 +1188,7 @@ public class ComForecastActivity extends BaseActivity implements OnClickListener
 				ivDizhi.setImageResource(R.drawable.com_dizhi);
 				ivHaze.setImageResource(R.drawable.com_haze);
 				ivQiangduiliu.setImageResource(R.drawable.com_qiangduiliu);
+				ivSenlin.setImageResource(R.drawable.com_senlin);
 
 				OkHttpDetail(ivDafeng, true);
 				break;
@@ -1178,6 +1204,7 @@ public class ComForecastActivity extends BaseActivity implements OnClickListener
 				ivDizhi.setImageResource(R.drawable.com_dizhi_press);
 				ivHaze.setImageResource(R.drawable.com_haze);
 				ivQiangduiliu.setImageResource(R.drawable.com_qiangduiliu);
+				ivSenlin.setImageResource(R.drawable.com_senlin);
 
 				OkHttpDizhi(ivDizhi, true);
 				break;
@@ -1193,6 +1220,7 @@ public class ComForecastActivity extends BaseActivity implements OnClickListener
 				ivDizhi.setImageResource(R.drawable.com_dizhi);
 				ivHaze.setImageResource(R.drawable.com_haze_press);
 				ivQiangduiliu.setImageResource(R.drawable.com_qiangduiliu);
+				ivSenlin.setImageResource(R.drawable.com_senlin);
 
 				OkHttpDetail(ivHaze, true);
 				break;
@@ -1208,8 +1236,26 @@ public class ComForecastActivity extends BaseActivity implements OnClickListener
 				ivDizhi.setImageResource(R.drawable.com_dizhi);
 				ivHaze.setImageResource(R.drawable.com_haze);
 				ivQiangduiliu.setImageResource(R.drawable.com_qiangduiliu_press);
+				ivSenlin.setImageResource(R.drawable.com_senlin);
 
 				OkHttpDetail(ivQiangduiliu, true);
+				break;
+
+			case R.id.ivSenlin:
+				ivHighTemp.setImageResource(R.drawable.com_hightemp);
+				ivLowTemp.setImageResource(R.drawable.com_lowtemp);
+				ivJiangshui.setImageResource(R.drawable.com_jiangshui);
+				ivWuran.setImageResource(R.drawable.com_wuran);
+				ivShachen.setImageResource(R.drawable.com_shachen);
+				ivGaowen.setImageResource(R.drawable.com_gaowen);
+				ivFog.setImageResource(R.drawable.com_fog);
+				ivDafeng.setImageResource(R.drawable.com_dafeng);
+				ivDizhi.setImageResource(R.drawable.com_dizhi);
+				ivHaze.setImageResource(R.drawable.com_haze);
+				ivQiangduiliu.setImageResource(R.drawable.com_qiangduiliu);
+				ivSenlin.setImageResource(R.drawable.com_senlin_press);
+
+				OkHttpDetail(ivSenlin, true);
 				break;
 
 			default:
