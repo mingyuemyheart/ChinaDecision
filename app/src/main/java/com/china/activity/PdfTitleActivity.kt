@@ -18,6 +18,7 @@ import com.china.R
 import com.china.common.CONST
 import com.china.common.ColumnData
 import com.china.fragment.PdfListFragment
+import com.china.fragment.WebviewFragment
 import com.china.utils.CommonUtil
 import kotlinx.android.synthetic.main.activity_pdf_title.*
 import kotlinx.android.synthetic.main.layout_title.*
@@ -109,7 +110,11 @@ class PdfTitleActivity : BaseFragmentActivity(), OnClickListener {
 			tvBar.layoutParams = params1
 			llContainer1.addView(tvBar, i)
 
-			val fragment = PdfListFragment()
+			var fragment: Fragment? = null
+			when(dto.showType) {
+				CONST.URL -> fragment = WebviewFragment()
+				else -> fragment = PdfListFragment()
+			}
 			val bundle = Bundle()
 			bundle.putString(CONST.WEB_URL, dto.dataUrl)
 			bundle.putString(CONST.COLUMN_ID, dto.id)

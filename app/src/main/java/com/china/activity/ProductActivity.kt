@@ -77,7 +77,7 @@ class ProductActivity : BaseActivity(), OnClickListener {
 			val dto = dataList[position]
 			var intent : Intent? = null
 			if (TextUtils.equals(dto.showType, CONST.URL)) {//网页类
-				intent = Intent(this, Webview2Activity::class.java)
+				intent = Intent(this, WebviewActivity::class.java)
 				val data = NewsDto()
 				data.title = dto.name
 				data.detailUrl = dto.dataUrl
@@ -126,7 +126,7 @@ class ProductActivity : BaseActivity(), OnClickListener {
 					intent.putExtra(CONST.ACTIVITY_NAME, dto.name)
 					startActivity(intent)
 				}else if (TextUtils.equals(dto.id, "102")) {//中国大陆区域彩色云图
-					intent = Intent(this, Webview2Activity::class.java)
+					intent = Intent(this, WebviewActivity::class.java)
 					intent.putExtra(CONST.COLUMN_ID, dto.columnId)
 					intent.putExtra(CONST.ACTIVITY_NAME, dto.name)
 					intent.putExtra(CONST.WEB_URL, CONST.CLOUD_URL)
@@ -255,7 +255,7 @@ class ProductActivity : BaseActivity(), OnClickListener {
 						intent.putExtra(CONST.WEB_URL, dto.dataUrl)
 						startActivity(intent)
 					}else {//网页、图片
-						intent = Intent(this, Webview2Activity::class.java)
+						intent = Intent(this, WebviewActivity::class.java)
 						val data = NewsDto()
 						data.title = dto.name
 						data.detailUrl = dto.dataUrl

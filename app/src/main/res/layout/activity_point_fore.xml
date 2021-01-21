@@ -53,7 +53,7 @@
             android:layout_marginEnd="10dp"
             android:src="@drawable/com_temp_press"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/tvName" />
+            app:layout_constraintTop_toBottomOf="@+id/tvPublishTime" />
 
         <ImageView
             android:id="@+id/ivHumidity"
@@ -86,6 +86,16 @@
             app:layout_constraintTop_toBottomOf="@+id/ivWind" />
 
         <ImageView
+            android:id="@+id/ivRain"
+            android:layout_width="35dp"
+            android:layout_height="35dp"
+            android:layout_marginTop="10dp"
+            android:layout_marginEnd="10dp"
+            android:src="@drawable/com_rain"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/ivCloud" />
+
+        <ImageView
             android:id="@+id/ivSwitch"
             android:layout_width="35dp"
             android:layout_height="35dp"
@@ -101,8 +111,9 @@
             android:layout_height="35dp"
             android:background="@drawable/corner_switch_height"
             android:gravity="center_vertical"
-            android:paddingStart="40dp"
-            android:paddingEnd="30dp"
+            android:paddingStart="15dp"
+            android:paddingEnd="15dp"
+            android:layout_marginStart="40dp"
             android:text="中央气象台智能网格预报产品"
             android:textColor="@color/blue"
             android:textSize="@dimen/level_5"

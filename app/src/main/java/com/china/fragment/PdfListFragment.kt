@@ -10,7 +10,7 @@ import android.view.ViewGroup
 import android.widget.AdapterView.OnItemClickListener
 import com.china.R
 import com.china.activity.PDFActivity
-import com.china.activity.Webview2Activity
+import com.china.activity.WebviewActivity
 import com.china.adapter.NewsAdapter
 import com.china.common.CONST
 import com.china.dto.NewsDto
@@ -79,7 +79,7 @@ class PdfListFragment : Fragment() {
                 intent.putExtra(CONST.WEB_URL, dto.detailUrl)
                 startActivity(intent)
             } else {
-                intent = Intent(activity, Webview2Activity::class.java)
+                intent = Intent(activity, WebviewActivity::class.java)
                 intent.putExtra("data", dto)
                 intent.putExtra(CONST.ACTIVITY_NAME, dto.title)
                 intent.putExtra(CONST.WEB_URL, dto.detailUrl)

@@ -31,6 +31,7 @@ public class StationMonitorDto implements Parcelable{
 	public String pointTemp;//露点温度
 	public String visibility;//能见度
 	public String cloud;//云量
+	public String rain;//降水
 	public String value;
 
 	public String partition;
@@ -105,6 +106,7 @@ public class StationMonitorDto implements Parcelable{
 		dest.writeString(this.pointTemp);
 		dest.writeString(this.visibility);
 		dest.writeString(this.cloud);
+		dest.writeString(this.rain);
 		dest.writeString(this.value);
 		dest.writeString(this.partition);
 		dest.writeString(this.provinceName);
@@ -168,6 +170,7 @@ public class StationMonitorDto implements Parcelable{
 		this.pointTemp = in.readString();
 		this.visibility = in.readString();
 		this.cloud = in.readString();
+		this.rain = in.readString();
 		this.value = in.readString();
 		this.partition = in.readString();
 		this.provinceName = in.readString();

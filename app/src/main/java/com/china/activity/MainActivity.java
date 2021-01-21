@@ -899,7 +899,7 @@ public class MainActivity extends BaseActivity implements OnClickListener, AMapL
 					intent.putExtras(bundle);
 					startActivity(intent);
 				}else if (TextUtils.equals(dto.showType, CONST.URL)) {
-					intent = new Intent(mContext, Webview2Activity.class);
+					intent = new Intent(mContext, WebviewActivity.class);
 
 					NewsDto data = new NewsDto();
 					data.title = dto.name;
@@ -955,7 +955,7 @@ public class MainActivity extends BaseActivity implements OnClickListener, AMapL
 						intent.putExtra(CONST.ACTIVITY_NAME, dto.name);
 						startActivity(intent);
 					}else if (TextUtils.equals(dto.id, "102")) {//中国大陆区域彩色云图
-						intent = new Intent(mContext, Webview2Activity.class);
+						intent = new Intent(mContext, WebviewActivity.class);
 						intent.putExtra(CONST.COLUMN_ID, dto.columnId);
 						intent.putExtra(CONST.ACTIVITY_NAME, dto.name);
 						intent.putExtra(CONST.WEB_URL, CONST.CLOUD_URL);
@@ -1243,7 +1243,7 @@ public class MainActivity extends BaseActivity implements OnClickListener, AMapL
 						dialoaCache(true, getString(R.string.sure_delete_cache), data);
 						break;
 					case 3:
-						intent = new Intent(mContext, Webview2Activity.class);
+						intent = new Intent(mContext, WebviewActivity.class);
 						intent.putExtra(CONST.ACTIVITY_NAME, data.getName());
 						intent.putExtra(CONST.WEB_URL, "http://www.cma.gov.cn/2011zwxx/2011zbmgk/201110/t20111026_117793.html");
 						startActivity(intent);

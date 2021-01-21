@@ -63,7 +63,7 @@ class CollectionActivity : BaseActivity(), OnClickListener {
         mListView.adapter = mAdapter
         mListView.onItemClickListener = OnItemClickListener { arg0, arg1, arg2, arg3 ->
             val dto = dataList[arg2]
-            val intent = Intent(this, Webview2Activity::class.java)
+            val intent = Intent(this, WebviewActivity::class.java)
             intent.putExtra("data", dto)
             intent.putExtra(CONST.ACTIVITY_NAME, dto.title)
             intent.putExtra(CONST.WEB_URL, dto.detailUrl)

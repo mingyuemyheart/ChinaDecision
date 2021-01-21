@@ -218,7 +218,7 @@ class WarningActivity : BaseActivity(), OnClickListener, AMapLocationListener, O
         Thread(Runnable {
             startLocation()
             okHttpWarning()
-            OkHttpTyphoonList()
+            okHttpTyphoonList()
         }).start()
     }
 
@@ -938,29 +938,7 @@ class WarningActivity : BaseActivity(), OnClickListener, AMapLocationListener, O
             }
             R.id.ivStatistic -> startActivity(Intent(this, WarningStatisticActivity::class.java))
             R.id.ivNews -> {
-                intent = Intent(this, PdfTitleActivity::class.java)
-                val list = ArrayList<ColumnData>()
-                var cd = ColumnData()
-                cd.columnId = columnId
-                cd.name = "月报"
-                cd.dataUrl = "http://decision-admin.tianqi.cn/home/work2019/getWarnNews_new?type=1"
-                list.add(cd)
-                cd = ColumnData()
-                cd.columnId = columnId
-                cd.name = "大数据报告"
-                cd.dataUrl = "http://decision-admin.tianqi.cn/home/work2019/getWarnNews_new?type=2"
-                list.add(cd)
-                cd = ColumnData()
-                cd.columnId = columnId
-                cd.name = "预警报告"
-                cd.dataUrl = "http://decision-admin.tianqi.cn/home/work2019/getWarnNews_new?type=3"
-                list.add(cd)
-                val bundle = Bundle()
-                bundle.putParcelableArrayList("dataList", list)
-                intent.putExtras(bundle)
-                intent.putExtra(CONST.COLUMN_ID, columnId)
-                intent.putExtra(CONST.ACTIVITY_NAME, "预警报告")
-                startActivity(intent)
+                okHttpWarningReport()
             }
             R.id.tvNation -> {
                 intent = Intent(this, WarningHeaderActivity::class.java)
@@ -1306,7 +1284,7 @@ class WarningActivity : BaseActivity(), OnClickListener, AMapLocationListener, O
                             val obj = JSONObject(result)
                             if (!obj.isNull("micaps14_$type")) {
                                 val dataUrl = obj.getString("micaps14_$type")
-                                OkHttpSpecialLayer(dataUrl, type)
+                                okHttpSpecialLayer(dataUrl, type)
                             }
                         } catch (e: JSONException) {
                             e.printStackTrace()
@@ -1317,7 +1295,7 @@ class WarningActivity : BaseActivity(), OnClickListener, AMapLocationListener, O
         }).start()
     }
 
-    private fun OkHttpSpecialLayer(url: String, type: String) {
+    private fun okHttpSpecialLayer(url: String, type: String) {
         OkHttpUtil.enqueue(Request.Builder().url(url).build(), object : Callback {
             override fun onFailure(call: Call, e: IOException) {}
 
@@ -1563,7 +1541,7 @@ class WarningActivity : BaseActivity(), OnClickListener, AMapLocationListener, O
     /**
      * 获取当年的台风列表信息
      */
-    private fun OkHttpTyphoonList() {
+    private fun okHttpTyphoonList() {
         val currentYear = Integer.valueOf(sdf1.format(Date()))
         val url = "http://decision-admin.tianqi.cn/Home/other/gettyphoon/list/$currentYear"
         OkHttpUtil.enqueue(Request.Builder().url(url).build(), object : Callback {
@@ -1600,13 +1578,12 @@ class WarningActivity : BaseActivity(), OnClickListener, AMapLocationListener, O
                                             if (TextUtils.isEmpty(dto.id)) {
                                                 return@Runnable
                                             }
-                                            var name: String
-                                            name = if (TextUtils.equals(dto.enName, "nameless")) {
+                                            val name = if (TextUtils.equals(dto.enName, "nameless")) {
                                                 dto.code + " " + dto.enName
                                             } else {
                                                 dto.code + " " + dto.name + " " + dto.enName
                                             }
-                                            OkHttpTyphoonDetail("http://decision-admin.tianqi.cn/Home/other/gettyphoon/view/" + dto.id, name)
+                                            okHttpTyphoonDetail("http://decision-admin.tianqi.cn/Home/other/gettyphoon/view/" + dto.id, name)
                                         }
                                     }
                                     if (typhoonList.size > 0) {
@@ -1626,7 +1603,7 @@ class WarningActivity : BaseActivity(), OnClickListener, AMapLocationListener, O
     /**
      * 获取台风详情
      */
-    private fun OkHttpTyphoonDetail(url: String, name: String) {
+    private fun okHttpTyphoonDetail(url: String, name: String) {
         if (TextUtils.isEmpty(url)) {
             return
         }
@@ -1662,37 +1639,49 @@ class WarningActivity : BaseActivity(), OnClickListener, AMapLocationListener, O
                                         dto.pressure = itemArray2.getString(6)
                                         dto.max_wind_speed = itemArray2.getString(7)
                                         dto.move_speed = itemArray2.getString(9)
-                                        val fx_string = itemArray2.getString(8)
-                                        if (!TextUtils.isEmpty(fx_string)) {
+                                        val fxString = itemArray2.getString(8)
+                                        if (!TextUtils.isEmpty(fxString)) {
                                             var windDir = ""
-                                            for (i in 0 until fx_string.length) {
-                                                var item = fx_string.substring(i, i + 1)
-                                                if (TextUtils.equals(item, "N")) {
-                                                    item = "北"
-                                                } else if (TextUtils.equals(item, "S")) {
-                                                    item = "南"
-                                                } else if (TextUtils.equals(item, "W")) {
-                                                    item = "西"
-                                                } else if (TextUtils.equals(item, "E")) {
-                                                    item = "东"
+                                            for (i in fxString.indices) {
+                                                var item = fxString.substring(i, i + 1)
+                                                when {
+                                                    TextUtils.equals(item, "N") -> {
+                                                        item = "北"
+                                                    }
+                                                    TextUtils.equals(item, "S") -> {
+                                                        item = "南"
+                                                    }
+                                                    TextUtils.equals(item, "W") -> {
+                                                        item = "西"
+                                                    }
+                                                    TextUtils.equals(item, "E") -> {
+                                                        item = "东"
+                                                    }
                                                 }
-                                                windDir = windDir + item
+                                                windDir += item
                                             }
                                             dto.wind_dir = windDir
                                         }
                                         var type = itemArray2.getString(3)
-                                        if (TextUtils.equals(type, "TD")) { //热带低压
-                                            type = "1"
-                                        } else if (TextUtils.equals(type, "TS")) { //热带风暴
-                                            type = "2"
-                                        } else if (TextUtils.equals(type, "STS")) { //强热带风暴
-                                            type = "3"
-                                        } else if (TextUtils.equals(type, "TY")) { //台风
-                                            type = "4"
-                                        } else if (TextUtils.equals(type, "STY")) { //强台风
-                                            type = "5"
-                                        } else if (TextUtils.equals(type, "SuperTY")) { //超强台风
-                                            type = "6"
+                                        when {
+                                            TextUtils.equals(type, "TD") -> { //热带低压
+                                                type = "1"
+                                            }
+                                            TextUtils.equals(type, "TS") -> { //热带风暴
+                                                type = "2"
+                                            }
+                                            TextUtils.equals(type, "STS") -> { //强热带风暴
+                                                type = "3"
+                                            }
+                                            TextUtils.equals(type, "TY") -> { //台风
+                                                type = "4"
+                                            }
+                                            TextUtils.equals(type, "STY") -> { //强台风
+                                                type = "5"
+                                            }
+                                            TextUtils.equals(type, "SuperTY") -> { //超强台风
+                                                type = "6"
+                                            }
                                         }
                                         dto.type = type
                                         dto.isFactPoint = true
@@ -1729,6 +1718,69 @@ class WarningActivity : BaseActivity(), OnClickListener, AMapLocationListener, O
                 }
             }
         })
+    }
+
+    /**
+     * 获取预警报告
+     */
+    private fun okHttpWarningReport() {
+        showDialog()
+        Thread(Runnable {
+            val url = "http://decision-admin.tianqi.cn/home/work2019/report_wbm_list"
+            OkHttpUtil.enqueue(Request.Builder().url(url).build(), object : Callback {
+                override fun onFailure(call: Call, e: IOException) {
+                }
+                override fun onResponse(call: Call, response: Response) {
+                    if (!response.isSuccessful) {
+                        return
+                    }
+                    val result = response.body!!.string()
+                    runOnUiThread {
+                        cancelDialog()
+                        if (!TextUtils.isEmpty(result)) {
+                            try {
+                                val obj = JSONObject(result)
+                                if (!obj.isNull("data")) {
+                                    val list = ArrayList<ColumnData>()
+                                    val array = obj.getJSONArray("data")
+                                    for (i in 0 until array.length()) {
+                                        val itemObj = array.getJSONObject(i)
+                                        val cd = ColumnData()
+                                        if (!itemObj.isNull("name")) {
+                                            cd.name = itemObj.getString("name")
+                                        }
+                                        if (!itemObj.isNull("web_url")) {
+                                            cd.dataUrl = itemObj.getString("web_url")
+                                            cd.showType = CONST.URL
+                                            if (TextUtils.isEmpty(cd.dataUrl)) {
+                                                if (!itemObj.isNull("url")) {
+                                                    cd.dataUrl = itemObj.getString("url")
+                                                    cd.showType = CONST.PDF
+                                                }
+                                            }
+                                        } else {
+                                            if (!itemObj.isNull("url")) {
+                                                cd.dataUrl = itemObj.getString("url")
+                                            }
+                                        }
+                                        list.add(cd)
+                                    }
+                                    val intent = Intent(this@WarningActivity, PdfTitleActivity::class.java)
+                                    val bundle = Bundle()
+                                    bundle.putParcelableArrayList("dataList", list)
+                                    intent.putExtras(bundle)
+                                    intent.putExtra(CONST.COLUMN_ID, columnId)
+                                    intent.putExtra(CONST.ACTIVITY_NAME, "预警报告")
+                                    startActivity(intent)
+                                }
+                            } catch (e: JSONException) {
+                                e.printStackTrace()
+                            }
+                        }
+                    }
+                }
+            })
+        }).start()
     }
 
     /**
