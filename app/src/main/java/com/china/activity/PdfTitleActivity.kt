@@ -26,7 +26,6 @@ import kotlinx.android.synthetic.main.layout_title.*
 /**
  * 带有标签页的pdf文档界面
  * @author shawn_sun
- *
  */
 class PdfTitleActivity : BaseFragmentActivity(), OnClickListener {
 
@@ -110,10 +109,9 @@ class PdfTitleActivity : BaseFragmentActivity(), OnClickListener {
 			tvBar.layoutParams = params1
 			llContainer1.addView(tvBar, i)
 
-			var fragment: Fragment? = null
-			when(dto.showType) {
-				CONST.URL -> fragment = WebviewFragment()
-				else -> fragment = PdfListFragment()
+			val fragment = when(dto.showType) {
+				CONST.URL -> WebviewFragment()
+				else -> PdfListFragment()
 			}
 			val bundle = Bundle()
 			bundle.putString(CONST.WEB_URL, dto.dataUrl)

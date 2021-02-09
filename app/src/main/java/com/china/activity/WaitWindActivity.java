@@ -7,6 +7,7 @@ import android.content.Context;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Color;
 import android.graphics.Point;
 import android.media.ThumbnailUtils;
 import android.os.Build;
@@ -16,12 +17,12 @@ import android.support.constraint.ConstraintLayout;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.animation.LinearInterpolator;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
-import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.amap.api.location.AMapLocation;
@@ -37,6 +38,10 @@ import com.amap.api.maps.model.CameraPosition;
 import com.amap.api.maps.model.LatLng;
 import com.amap.api.maps.model.Marker;
 import com.amap.api.maps.model.MarkerOptions;
+import com.amap.api.maps.model.Polyline;
+import com.amap.api.maps.model.PolylineOptions;
+import com.amap.api.maps.model.Text;
+import com.amap.api.maps.model.TextOptions;
 import com.amap.api.services.core.LatLonPoint;
 import com.amap.api.services.geocoder.GeocodeResult;
 import com.amap.api.services.geocoder.GeocodeSearch;
@@ -44,6 +49,7 @@ import com.amap.api.services.geocoder.RegeocodeQuery;
 import com.amap.api.services.geocoder.RegeocodeResult;
 import com.china.R;
 import com.china.common.CONST;
+import com.china.dto.DengYaDto;
 import com.china.dto.TyphoonDto;
 import com.china.dto.WindData;
 import com.china.dto.WindDto;
@@ -54,6 +60,7 @@ import com.china.utils.SecretUrlUtil;
 import com.china.view.WaitWindView2;
 import com.china.view.WindForeView;
 
+import org.jetbrains.annotations.NotNull;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -88,8 +95,8 @@ public class WaitWindActivity extends BaseActivity implements OnClickListener, A
     private SimpleDateFormat sdf1 = new SimpleDateFormat("yyyy", Locale.CHINA);
     private SimpleDateFormat sdf2 = new SimpleDateFormat("yyyyMMddHH", Locale.CHINA);
     private SimpleDateFormat sdf3 = new SimpleDateFormat("yyyy年MM月dd日HH时", Locale.CHINA);
-    private RelativeLayout container;
-    public RelativeLayout container2;
+    private ConstraintLayout container;
+    public ConstraintLayout container2;
     private WaitWindView2 waitWindView;
     private boolean isGfs = true;//默认为风场新数据
     private WindData windDataGFS,windDataT639;
@@ -99,6 +106,10 @@ public class WaitWindActivity extends BaseActivity implements OnClickListener, A
     private String dataHeight = "1000";
     private boolean isShowDetail = false;
     private boolean isShowHeight = true;
+    private boolean isShowDengyaxian = false;//是否显示等压线
+    private ArrayList<DengYaDto> dyData = new ArrayList<>();//等压线数据
+    private ArrayList<Text> texts = new ArrayList<>();
+    private ArrayList<Polyline> polylines = new ArrayList<>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -596,16 +607,18 @@ public class WaitWindActivity extends BaseActivity implements OnClickListener, A
                 aMap.getMapScreenShot(WaitWindActivity.this);
                 break;
             case R.id.ivSwitch:
-                if (isGfs) {
-                    ivSwitch.setImageResource(R.drawable.shawn_icon_switch_data_on);
-                    windDataT639 = null;
-                    OkHttpT639();
+                isShowDengyaxian = !isShowDengyaxian;
+                if (isShowDengyaxian) {
+                    ivSwitch.setImageResource(R.drawable.icon_dengyaxian_press);
+                    if (dyData.size() > 0) {
+                        drawLines();
+                    } else {
+                        okHttpDengyaxian();
+                    }
                 }else {
-                    ivSwitch.setImageResource(R.drawable.shawn_icon_switch_data_off);
-                    windDataGFS = null;
-                    OkHttpGFS();
+                    ivSwitch.setImageResource(R.drawable.icon_dengyaxian);
+                    clearLines();
                 }
-                isGfs = !isGfs;
                 break;
             case R.id.ivLocation:
                 if (zoom >= 12.f) {
@@ -907,6 +920,135 @@ public class WaitWindActivity extends BaseActivity implements OnClickListener, A
                 });
             }
         }).start();
+    }
+
+    /**
+     * 获取等压线数据
+     */
+    private void okHttpDengyaxian() {
+        showDialog();
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                String url = "https://app.tianqi.cn/tile_img/polyline_qy.json";
+                OkHttpUtil.enqueue(new Request.Builder().url(url).build(), new Callback() {
+                    @Override
+                    public void onFailure(@NotNull Call call, @NotNull IOException e) {
+                    }
+                    @Override
+                    public void onResponse(@NotNull Call call, @NotNull Response response) throws IOException {
+                        if (!response.isSuccessful()) {
+                            return;
+                        }
+                        final String result = response.body().string();
+                        runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                cancelDialog();
+                                if (!TextUtils.isEmpty(result)) {
+                                    try {
+                                        dyData.clear();
+                                        texts.clear();
+                                        polylines.clear();
+                                        JSONArray array = new JSONArray(result);
+                                        for (int i = 0; i < 5; i++) {
+                                            DengYaDto dto = new DengYaDto();
+                                            JSONObject itemObj = array.getJSONObject(i);
+                                            if (!itemObj.isNull("v")) {
+                                                dto.v = itemObj.getString("v");
+                                            }
+                                            if (!itemObj.isNull("label_size")) {
+                                                dto.label_size = itemObj.getInt("label_size");
+                                            }
+                                            if (!itemObj.isNull("label_color")) {
+                                                dto.label_color = itemObj.getString("label_color");
+                                            }
+                                            if (!itemObj.isNull("line_color")) {
+                                                dto.line_color = itemObj.getString("line_color");
+                                            }
+                                            if (!itemObj.isNull("line_width")) {
+                                                dto.line_width = Float.parseFloat(itemObj.getString("line_width"));
+                                            }
+                                            if (!itemObj.isNull("p")) {
+                                                JSONArray p = itemObj.getJSONArray("p");
+                                                for (int j = 0; j < p.length(); j++) {
+                                                    ArrayList<DengYaDto> list = new ArrayList<>();
+                                                    JSONArray array1 = p.getJSONArray(j);
+                                                    for (int k = 0; k < array1.length(); k++) {
+                                                        JSONArray array2 = array1.getJSONArray(k);
+                                                        DengYaDto d = new DengYaDto();
+                                                        d.lat = array2.getDouble(1);
+                                                        d.lng = array2.getDouble(0);
+//                                                        if (d.lat > 90) {
+//                                                            d.lat = 89.999;
+//                                                        }
+//                                                        if (d.lat < -90) {
+//                                                            d.lat = -89.999;
+//                                                        }
+//                                                        if (d.lng > 179) {
+//                                                            d.lng = 179.999;
+//                                                        }
+//                                                        if (d.lng < -179) {
+//                                                            d.lng = -179.999;
+//                                                        }
+                                                        list.add(d);
+                                                    }
+                                                    dto.p.addAll(list);
+                                                }
+                                            }
+                                            dyData.add(dto);
+                                        }
+
+                                        drawLines();
+                                    } catch (JSONException e) {
+                                        e.printStackTrace();
+                                    }
+                                }
+                            }
+                        });
+                    }
+                });
+            }
+        }).start();
+    }
+
+    private void clearLines() {
+        for (int i = 0; i < texts.size(); i++) {
+            Text text = texts.get(i);
+            text.remove();
+        }
+        texts.clear();
+
+        for (int i = 0; i < polylines.size(); i++) {
+            Polyline polyline = polylines.get(i);
+            polyline.remove();
+        }
+        polylines.clear();
+    }
+
+    private void drawLines() {
+        for (int i = 0; i < dyData.size(); i++) {
+            DengYaDto dto = dyData.get(i);
+
+            TextOptions textOptions = new TextOptions();
+            textOptions.fontSize((int) CommonUtil.dip2px(this, (float)dto.label_size));
+            textOptions.fontColor(Color.parseColor(dto.label_color));
+            textOptions.text(dto.v);
+            textOptions.backgroundColor(Color.TRANSPARENT);
+
+            PolylineOptions polylineOptions = new PolylineOptions();
+            polylineOptions.width(CommonUtil.dip2px(this, dto.line_width));
+            polylineOptions.color(Color.parseColor(dto.line_color));
+            for (int j = 0; j < dto.p.size(); j++) {
+                DengYaDto p = dto.p.get(j);
+                if (j == dto.p.size()/2) {
+                    textOptions.position(new LatLng(p.lat, p.lng));
+                    texts.add(aMap.addText(textOptions));
+                }
+                polylineOptions.add(new LatLng(p.lat, p.lng));
+            }
+            polylines.add(aMap.addPolyline(polylineOptions));
+        }
     }
 
     //需要申请的所有权限
