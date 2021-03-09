@@ -587,88 +587,87 @@ public class ComForecastActivity extends BaseActivity implements OnClickListener
 				Picasso.get().invalidate(tags[1]);
 				Picasso.get().load(tags[1]).into(ivLegend);
 			}
-		}
-
-		new Thread(new Runnable() {
-			@Override
-			public void run() {
-				OkHttpUtil.enqueue(new Request.Builder().url(tags[0]).build(), new Callback() {
-					@Override
-					public void onFailure(Call call, IOException e) {
-					}
-					@Override
-					public void onResponse(Call call, Response response) throws IOException {
-						if (!response.isSuccessful()) {
-							return;
+			new Thread(new Runnable() {
+				@Override
+				public void run() {
+					OkHttpUtil.enqueue(new Request.Builder().url(tags[0]).build(), new Callback() {
+						@Override
+						public void onFailure(Call call, IOException e) {
 						}
-						final String result = response.body().string();
-						runOnUiThread(new Runnable() {
-							@Override
-							public void run() {
-								if (!TextUtils.isEmpty(result)) {
-									try {
-										JSONArray arr = new JSONArray(result);
-										if (arr.length() > 0) {
-											JSONObject obj = arr.getJSONObject(0);
+						@Override
+						public void onResponse(Call call, Response response) throws IOException {
+							if (!response.isSuccessful()) {
+								return;
+							}
+							final String result = response.body().string();
+							runOnUiThread(new Runnable() {
+								@Override
+								public void run() {
+									if (!TextUtils.isEmpty(result)) {
+										try {
+											JSONArray arr = new JSONArray(result);
+											if (arr.length() > 0) {
+												JSONObject obj = arr.getJSONObject(0);
 
-											if (!obj.isNull("time")) {
-												long time = obj.getLong("time");
-												if (!TextUtils.isEmpty(tags[3])) {
-													int validhour = Integer.parseInt(tags[3])*1000*60*60;
-													int starthour = Integer.parseInt(tags[4])*1000*60*60;
-													tvTime.setText(sdf1.format(time+starthour)+" - "+sdf1.format(time+starthour+validhour));
-												}
-											}
-
-											if (!obj.isNull("areas")) {
-												JSONArray array = obj.getJSONArray("areas");
-												if (array.length() <= 0) {
-													view.setAlpha(0.5f);
-												    return;
-                                                }
-                                                if (!draw) {
-													return;
-												}
-												clearPolygons();
-												if (!TextUtils.isEmpty(tags[2])) {
-													tvName.setText(tags[2]);
-												}
-
-												for (int i = 0; i < array.length(); i++) {
-													JSONObject itemObj = array.getJSONObject(i);
-													String color = itemObj.getString("c");
-													if (color.contains("#")) {
-														color = color.replace("#", "");
+												if (!obj.isNull("time")) {
+													long time = obj.getLong("time");
+													if (!TextUtils.isEmpty(tags[3])) {
+														int validhour = Integer.parseInt(tags[3])*1000*60*60;
+														int starthour = Integer.parseInt(tags[4])*1000*60*60;
+														tvTime.setText(sdf1.format(time+starthour)+" - "+sdf1.format(time+starthour+validhour));
 													}
-													int r = Integer.parseInt(color.substring(0,2), 16);
-													int g = Integer.parseInt(color.substring(2,4), 16);
-													int b = Integer.parseInt(color.substring(4,6), 16);
-													if (!itemObj.isNull("items")) {
-														JSONArray items = itemObj.getJSONArray("items");
-														PolygonOptions polygonOption = new PolygonOptions();
-														polygonOption.strokeColor(Color.rgb(r, g, b)).fillColor(Color.rgb(r, g, b));
-														for (int j = 0; j < items.length(); j++) {
-															JSONObject item = items.getJSONObject(j);
-															double lat = item.getDouble("y");
-															double lng = item.getDouble("x");
-															polygonOption.add(new LatLng(lat, lng));
+												}
+
+												if (!obj.isNull("areas")) {
+													JSONArray array = obj.getJSONArray("areas");
+													if (array.length() <= 0) {
+														view.setAlpha(0.5f);
+														return;
+													}
+													if (!draw) {
+														return;
+													}
+													clearPolygons();
+													if (!TextUtils.isEmpty(tags[2])) {
+														tvName.setText(tags[2]);
+													}
+
+													for (int i = 0; i < array.length(); i++) {
+														JSONObject itemObj = array.getJSONObject(i);
+														String color = itemObj.getString("c");
+														if (color.contains("#")) {
+															color = color.replace("#", "");
 														}
-														Polygon polygon = aMap.addPolygon(polygonOption);
-                                                        polygons.add(polygon);
+														int r = Integer.parseInt(color.substring(0,2), 16);
+														int g = Integer.parseInt(color.substring(2,4), 16);
+														int b = Integer.parseInt(color.substring(4,6), 16);
+														if (!itemObj.isNull("items")) {
+															JSONArray items = itemObj.getJSONArray("items");
+															PolygonOptions polygonOption = new PolygonOptions();
+															polygonOption.strokeColor(Color.rgb(r, g, b)).fillColor(Color.rgb(r, g, b));
+															for (int j = 0; j < items.length(); j++) {
+																JSONObject item = items.getJSONObject(j);
+																double lat = item.getDouble("y");
+																double lng = item.getDouble("x");
+																polygonOption.add(new LatLng(lat, lng));
+															}
+															Polygon polygon = aMap.addPolygon(polygonOption);
+															polygons.add(polygon);
+														}
 													}
 												}
 											}
+										} catch (JSONException e) {
+											e.printStackTrace();
 										}
-									} catch (JSONException e) {
-										e.printStackTrace();
 									}
 								}
-							}
-						});
-					}
-				});
-			}
-		}).start();
+							});
+						}
+					});
+				}
+			}).start();
+		}
 	}
 
 	/**
@@ -690,87 +689,86 @@ public class ComForecastActivity extends BaseActivity implements OnClickListener
 				Picasso.get().invalidate(tags[1]);
 				Picasso.get().load(tags[1]).into(ivLegend);
 			}
-		}
-
-		new Thread(new Runnable() {
-			@Override
-			public void run() {
-				OkHttpUtil.enqueue(new Request.Builder().url(tags[0]).build(), new Callback() {
-					@Override
-					public void onFailure(Call call, IOException e) {
-					}
-					@Override
-					public void onResponse(Call call, Response response) throws IOException {
-						if (!response.isSuccessful()) {
-							return;
+			new Thread(new Runnable() {
+				@Override
+				public void run() {
+					OkHttpUtil.enqueue(new Request.Builder().url(tags[0]).build(), new Callback() {
+						@Override
+						public void onFailure(Call call, IOException e) {
 						}
-						final String result = response.body().string();
-						runOnUiThread(new Runnable() {
-							@Override
-							public void run() {
-								if (!draw) {
-									return;
-								}
-								clearPolygons();
-								try {
-									JSONObject obj = new JSONObject(result);
-
-									if (!obj.isNull("t")) {
-										long time = obj.getLong("t");
-										if (!TextUtils.isEmpty(tags[3])) {
-											int validhour = Integer.parseInt(tags[3])*1000*60*60;
-											int starthour = Integer.parseInt(tags[4])*1000*60*60;
-											tvTime.setText(sdf1.format(time+starthour)+" - "+sdf1.format(time+starthour+validhour));
-										}
+						@Override
+						public void onResponse(Call call, Response response) throws IOException {
+							if (!response.isSuccessful()) {
+								return;
+							}
+							final String result = response.body().string();
+							runOnUiThread(new Runnable() {
+								@Override
+								public void run() {
+									if (!draw) {
+										return;
 									}
+									clearPolygons();
+									try {
+										JSONObject obj = new JSONObject(result);
 
-									if (!obj.isNull("l")) {
-										JSONArray array = obj.getJSONArray("l");
-										if (array.length() <= 0) {
-											return;
+										if (!obj.isNull("t")) {
+											long time = obj.getLong("t");
+											if (!TextUtils.isEmpty(tags[3])) {
+												int validhour = Integer.parseInt(tags[3])*1000*60*60;
+												int starthour = Integer.parseInt(tags[4])*1000*60*60;
+												tvTime.setText(sdf1.format(time+starthour)+" - "+sdf1.format(time+starthour+validhour));
+											}
 										}
 
-										if (!TextUtils.isEmpty(tags[2])) {
-											tvName.setText(tags[2]);
-										}
+										if (!obj.isNull("l")) {
+											JSONArray array = obj.getJSONArray("l");
+											if (array.length() <= 0) {
+												return;
+											}
 
-										for (int i = 0; i < array.length(); i++) {
-											JSONObject itemObj = array.getJSONObject(i);
-											JSONArray c = itemObj.getJSONArray("c");
-											int r = c.getInt(0);
-											int g = c.getInt(1);
-											int b = c.getInt(2);
-											int a = c.getInt(3) * (int)(255 * 0.7f);
+											if (!TextUtils.isEmpty(tags[2])) {
+												tvName.setText(tags[2]);
+											}
 
-											if (!itemObj.isNull("p")) {
-												String p = itemObj.getString("p");
-												if (!TextUtils.isEmpty(p)) {
-													String[] points = p.split(";");
-													PolygonOptions polygonOption = new PolygonOptions();
-													polygonOption.fillColor(Color.argb(a, r, g, b));
-													polygonOption.strokeColor(Color.TRANSPARENT);
-													for (int j = 0; j < points.length; j++) {
-														String[] latLng = points[j].split(",");
-														double lat = Double.valueOf(latLng[1]);
-														double lng = Double.valueOf(latLng[0]);
-														polygonOption.add(new LatLng(lat, lng));
+											for (int i = 0; i < array.length(); i++) {
+												JSONObject itemObj = array.getJSONObject(i);
+												JSONArray c = itemObj.getJSONArray("c");
+												int r = c.getInt(0);
+												int g = c.getInt(1);
+												int b = c.getInt(2);
+												int a = c.getInt(3) * (int)(255 * 0.7f);
+
+												if (!itemObj.isNull("p")) {
+													String p = itemObj.getString("p");
+													if (!TextUtils.isEmpty(p)) {
+														String[] points = p.split(";");
+														PolygonOptions polygonOption = new PolygonOptions();
+														polygonOption.fillColor(Color.argb(a, r, g, b));
+														polygonOption.strokeColor(Color.TRANSPARENT);
+														for (int j = 0; j < points.length; j++) {
+															String[] latLng = points[j].split(",");
+															double lat = Double.valueOf(latLng[1]);
+															double lng = Double.valueOf(latLng[0]);
+															polygonOption.add(new LatLng(lat, lng));
+														}
+														Polygon polygon = aMap.addPolygon(polygonOption);
+														polygons.add(polygon);
 													}
-													Polygon polygon = aMap.addPolygon(polygonOption);
-													polygons.add(polygon);
 												}
 											}
 										}
-									}
 
-								} catch (JSONException e) {
-									e.printStackTrace();
+									} catch (JSONException e) {
+										e.printStackTrace();
+									}
 								}
-							}
-						});
-					}
-				});
-			}
-		}).start();
+							});
+						}
+					});
+				}
+			}).start();
+		}
 	}
 
 	/**
@@ -792,88 +790,87 @@ public class ComForecastActivity extends BaseActivity implements OnClickListener
 				Picasso.get().invalidate(tags[1]);
 				Picasso.get().load(tags[1]).into(ivLegend);
 			}
-		}
-
-		new Thread(new Runnable() {
-			@Override
-			public void run() {
-				OkHttpUtil.enqueue(new Request.Builder().url(tags[0]).build(), new Callback() {
-					@Override
-					public void onFailure(Call call, IOException e) {
-					}
-					@Override
-					public void onResponse(Call call, Response response) throws IOException {
-						if (!response.isSuccessful()) {
-							return;
+			new Thread(new Runnable() {
+				@Override
+				public void run() {
+					OkHttpUtil.enqueue(new Request.Builder().url(tags[0]).build(), new Callback() {
+						@Override
+						public void onFailure(Call call, IOException e) {
 						}
-						final String result = response.body().string();
-						runOnUiThread(new Runnable() {
-							@Override
-							public void run() {
-								if (!draw) {
-									return;
-								}
-								clearPolygons();
-								try {
-									JSONObject obj = new JSONObject(result);
-
-									if (!obj.isNull("time")) {
-										long time = obj.getLong("time");
-										if (!TextUtils.isEmpty(tags[3])) {
-											int validhour = Integer.parseInt(tags[3])*1000*60*60;
-											int starthour = Integer.parseInt(tags[4])*1000*60*60;
-											tvTime.setText(sdf1.format(time+starthour)+" - "+sdf1.format(time+starthour+validhour));
-										}
-									}
-
-									if (!obj.isNull("areas")) {
-										JSONArray array = obj.getJSONArray("areas");
-										if (array.length() <= 0) {
-											view.setAlpha(0.5f);
-											return;
-										}
-										if (!draw) {
-											return;
-										}
-										clearPolygons();
-										if (!TextUtils.isEmpty(tags[2])) {
-											tvName.setText(tags[2]);
-										}
-
-										for (int i = 0; i < array.length(); i++) {
-											JSONObject itemObj = array.getJSONObject(i);
-											String color = itemObj.getString("c");
-											if (color.contains("#")) {
-												color = color.replace("#", "");
-											}
-											int r = Integer.parseInt(color.substring(0,2), 16);
-											int g = Integer.parseInt(color.substring(2,4), 16);
-											int b = Integer.parseInt(color.substring(4,6), 16);
-											if (!itemObj.isNull("items")) {
-												JSONArray items = itemObj.getJSONArray("items");
-												PolygonOptions polygonOption = new PolygonOptions();
-												polygonOption.strokeColor(Color.rgb(r, g, b)).fillColor(Color.rgb(r, g, b));
-												for (int j = 0; j < items.length(); j++) {
-													JSONObject item = items.getJSONObject(j);
-													double lat = item.getDouble("y");
-													double lng = item.getDouble("x");
-													polygonOption.add(new LatLng(lat, lng));
-												}
-												Polygon polygon = aMap.addPolygon(polygonOption);
-												polygons.add(polygon);
-											}
-										}
-									}
-
-								} catch (JSONException e) {
-									e.printStackTrace();
-								}
+						@Override
+						public void onResponse(Call call, Response response) throws IOException {
+							if (!response.isSuccessful()) {
+								return;
 							}
-						});
-					}
-				});
-			}
-		}).start();
+							final String result = response.body().string();
+							runOnUiThread(new Runnable() {
+								@Override
+								public void run() {
+									if (!draw) {
+										return;
+									}
+									clearPolygons();
+									try {
+										JSONObject obj = new JSONObject(result);
+
+										if (!obj.isNull("time")) {
+											long time = obj.getLong("time");
+											if (!TextUtils.isEmpty(tags[3])) {
+												int validhour = Integer.parseInt(tags[3])*1000*60*60;
+												int starthour = Integer.parseInt(tags[4])*1000*60*60;
+												tvTime.setText(sdf1.format(time+starthour)+" - "+sdf1.format(time+starthour+validhour));
+											}
+										}
+
+										if (!obj.isNull("areas")) {
+											JSONArray array = obj.getJSONArray("areas");
+											if (array.length() <= 0) {
+												view.setAlpha(0.5f);
+												return;
+											}
+											if (!draw) {
+												return;
+											}
+											clearPolygons();
+											if (!TextUtils.isEmpty(tags[2])) {
+												tvName.setText(tags[2]);
+											}
+
+											for (int i = 0; i < array.length(); i++) {
+												JSONObject itemObj = array.getJSONObject(i);
+												String color = itemObj.getString("c");
+												if (color.contains("#")) {
+													color = color.replace("#", "");
+												}
+												int r = Integer.parseInt(color.substring(0,2), 16);
+												int g = Integer.parseInt(color.substring(2,4), 16);
+												int b = Integer.parseInt(color.substring(4,6), 16);
+												if (!itemObj.isNull("items")) {
+													JSONArray items = itemObj.getJSONArray("items");
+													PolygonOptions polygonOption = new PolygonOptions();
+													polygonOption.strokeColor(Color.rgb(r, g, b)).fillColor(Color.rgb(r, g, b));
+													for (int j = 0; j < items.length(); j++) {
+														JSONObject item = items.getJSONObject(j);
+														double lat = item.getDouble("y");
+														double lng = item.getDouble("x");
+														polygonOption.add(new LatLng(lat, lng));
+													}
+													Polygon polygon = aMap.addPolygon(polygonOption);
+													polygons.add(polygon);
+												}
+											}
+										}
+
+									} catch (JSONException e) {
+										e.printStackTrace();
+									}
+								}
+							});
+						}
+					});
+				}
+			}).start();
+		}
 	}
 
 	@Override
