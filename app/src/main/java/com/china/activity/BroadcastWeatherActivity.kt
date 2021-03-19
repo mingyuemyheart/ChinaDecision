@@ -162,8 +162,13 @@ class BroadcastWeatherActivity : BaseActivity(), View.OnClickListener {
 
     private fun setSurfaceViewLayout() {
         val params = ConstraintLayout.LayoutParams(CommonUtil.widthPixels(this), CommonUtil.widthPixels(this)*9/16)
-        videoView!!.layoutParams = params
         imageView.layoutParams = params
+
+        val vpa = videoView.layoutParams
+        vpa.width = CommonUtil.widthPixels(this)
+        vpa.height = CommonUtil.widthPixels(this)*9/16
+        videoView!!.layoutParams = vpa
+
     }
 
     /**
