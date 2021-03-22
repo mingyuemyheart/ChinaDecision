@@ -341,6 +341,7 @@ public class PointFactActivity extends BaseActivity implements OnClickListener, 
 											String maxlat = itemObj.getString("maxlat");
 											String maxlon = itemObj.getString("maxlon");
 											ivTemp.setTag(imgurl+","+tuliurl+","+time+","+minlat+","+minlon+","+maxlat+","+maxlon);
+											ivTemp.setVisibility(View.VISIBLE);
 											switchElement();
 										}
 										if (!obj.isNull("RHU")) {
@@ -353,6 +354,7 @@ public class PointFactActivity extends BaseActivity implements OnClickListener, 
 											String maxlat = itemObj.getString("maxlat");
 											String maxlon = itemObj.getString("maxlon");
 											ivHumidity.setTag(imgurl+","+tuliurl+","+time+","+minlat+","+minlon+","+maxlat+","+maxlon);
+											ivHumidity.setVisibility(View.VISIBLE);
 										}
 										if (!obj.isNull("WINS")) {
 											JSONObject itemObj = obj.getJSONObject("WINS");
@@ -364,6 +366,7 @@ public class PointFactActivity extends BaseActivity implements OnClickListener, 
 											String maxlat = itemObj.getString("maxlat");
 											String maxlon = itemObj.getString("maxlon");
 											ivWind.setTag(imgurl+","+tuliurl+","+time+","+minlat+","+minlon+","+maxlat+","+maxlon);
+											ivWind.setVisibility(View.VISIBLE);
 										}
 										if (!obj.isNull("VIS")) {
 											JSONObject itemObj = obj.getJSONObject("VIS");
@@ -375,6 +378,7 @@ public class PointFactActivity extends BaseActivity implements OnClickListener, 
 											String maxlat = itemObj.getString("maxlat");
 											String maxlon = itemObj.getString("maxlon");
 											ivVisible.setTag(imgurl+","+tuliurl+","+time+","+minlat+","+minlon+","+maxlat+","+maxlon);
+											ivVisible.setVisibility(View.VISIBLE);
 										}
 										if (!obj.isNull("TCDC")) {
 											JSONObject itemObj = obj.getJSONObject("TCDC");
@@ -386,6 +390,7 @@ public class PointFactActivity extends BaseActivity implements OnClickListener, 
 											String maxlat = itemObj.getString("maxlat");
 											String maxlon = itemObj.getString("maxlon");
 											ivCloud.setTag(imgurl+","+tuliurl+","+time+","+minlat+","+minlon+","+maxlat+","+maxlon);
+											ivCloud.setVisibility(View.VISIBLE);
 										}
 									} catch (JSONException e) {
 										e.printStackTrace();

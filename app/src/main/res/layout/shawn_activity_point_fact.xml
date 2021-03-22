@@ -31,6 +31,7 @@
             android:textSize="@dimen/level_4" />
 
         <ImageView
+            android:visibility="gone"
             android:id="@+id/ivTemp"
             android:layout_width="35dp"
             android:layout_height="35dp"
@@ -41,6 +42,7 @@
             android:src="@drawable/com_temp_press" />
 
         <ImageView
+            android:visibility="gone"
             android:id="@+id/ivHumidity"
             android:layout_width="35dp"
             android:layout_height="35dp"
@@ -51,6 +53,7 @@
             android:src="@drawable/com_humidity" />
 
         <ImageView
+            android:visibility="gone"
             android:id="@+id/ivWind"
             android:layout_width="35dp"
             android:layout_height="35dp"
@@ -61,6 +64,7 @@
             android:src="@drawable/com_wind" />
 
         <ImageView
+            android:visibility="gone"
             android:id="@+id/ivVisible"
             android:layout_width="35dp"
             android:layout_height="35dp"
@@ -71,6 +75,7 @@
             android:src="@drawable/com_visible" />
 
         <ImageView
+            android:visibility="gone"
             android:id="@+id/ivCloud"
             android:layout_width="35dp"
             android:layout_height="35dp"
