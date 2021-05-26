@@ -2,9 +2,9 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/ChinaDecision.iml" filepath="$PROJECT_DIR$/ChinaDecision.iml" group="ChinaDecision" />
-      <module fileurl="file://$PROJECT_DIR$/android-pdf-viewer/android-pdf-viewer.iml" filepath="$PROJECT_DIR$/android-pdf-viewer/android-pdf-viewer.iml" group="ChinaDecision/android-pdf-viewer" />
-      <module fileurl="file://$PROJECT_DIR$/app/app.iml" filepath="$PROJECT_DIR$/app/app.iml" group="ChinaDecision/app" />
+      <module fileurl="file://$PROJECT_DIR$/ChinaDecision.iml" filepath="$PROJECT_DIR$/ChinaDecision.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/android-pdf-viewer/ChinaDecision.android-pdf-viewer.iml" filepath="$PROJECT_DIR$/.idea/modules/android-pdf-viewer/ChinaDecision.android-pdf-viewer.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/app/ChinaDecision.app.iml" filepath="$PROJECT_DIR$/.idea/modules/app/ChinaDecision.app.iml" />
     </modules>
   </component>
 </project>

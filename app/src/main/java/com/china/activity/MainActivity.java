@@ -1243,19 +1243,19 @@ public class MainActivity extends BaseActivity implements OnClickListener, AMapL
 						dialoaCache(true, getString(R.string.sure_delete_cache), data);
 						break;
 					case 3:
-						intent = new Intent(mContext, WebviewActivity.class);
+						intent = new Intent(mContext, HtmlActivity.class);
 						intent.putExtra(CONST.ACTIVITY_NAME, data.getName());
 						intent.putExtra(CONST.WEB_URL, "http://www.cma.gov.cn/2011zwxx/2011zbmgk/201110/t20111026_117793.html");
 						startActivity(intent);
 						break;
 					case 4:
-						intent = new Intent(mContext, WebviewActivity.class);
+						intent = new Intent(mContext, HtmlActivity.class);
 						intent.putExtra(CONST.ACTIVITY_NAME, data.getName());
 						intent.putExtra(CONST.WEB_URL, CONST.COUNTURL);
 						startActivity(intent);
 						break;
 					case 5:
-						intent = new Intent(mContext, WebviewActivity.class);
+						intent = new Intent(mContext, HtmlActivity.class);
 						intent.putExtra(CONST.ACTIVITY_NAME, data.getName());
 						intent.putExtra(CONST.WEB_URL, CONST.RECOMMENDURL);
 						startActivity(intent);
@@ -1288,13 +1288,13 @@ public class MainActivity extends BaseActivity implements OnClickListener, AMapL
 
 						break;
 					case 13:
-						intent = new Intent(mContext, WebviewActivity.class);
+						intent = new Intent(mContext, HtmlActivity.class);
 						intent.putExtra(CONST.ACTIVITY_NAME, "用户协议");
 						intent.putExtra(CONST.WEB_URL, "http://decision-admin.tianqi.cn/Public/share/chinaweather_links/yhxy.html");
 						startActivity(intent);
 						break;
 					case 14:
-						intent = new Intent(mContext, WebviewActivity.class);
+						intent = new Intent(mContext, HtmlActivity.class);
 						intent.putExtra(CONST.ACTIVITY_NAME, "隐私政策");
 						intent.putExtra(CONST.WEB_URL, "http://decision-admin.tianqi.cn/Public/share/chinaweather_links/yszc.html");
 						startActivity(intent);

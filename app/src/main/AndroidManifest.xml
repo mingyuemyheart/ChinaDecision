@@ -132,7 +132,7 @@
             android:screenOrientation="portrait" />
 
         <activity
-            android:name="com.china.activity.WebviewActivity"
+            android:name="com.china.activity.HtmlActivity"
             android:screenOrientation="portrait" />
 
         <activity
