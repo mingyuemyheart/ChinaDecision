@@ -14,9 +14,7 @@ import android.graphics.Picture;
 import android.location.LocationManager;
 import android.provider.Settings;
 import android.text.TextUtils;
-import android.util.Base64;
 import android.util.DisplayMetrics;
-import android.util.Log;
 import android.view.View;
 import android.view.WindowManager;
 import android.webkit.WebView;
@@ -55,9 +53,6 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
-
-import javax.crypto.Mac;
-import javax.crypto.spec.SecretKeySpec;
 
 import okhttp3.Call;
 import okhttp3.Callback;
@@ -581,56 +576,6 @@ public class CommonUtil {
 			e.printStackTrace();
 		}
 		return "";
-	}
-
-	/**
-	 * 获取http://decision.tianqi.cn域名的请求头
-	 * @return
-	 */
-	public static String getRequestHeader() {
-		SimpleDateFormat sdf1 = new SimpleDateFormat("yyyyMMdd00");
-		SimpleDateFormat sdf2 = new SimpleDateFormat("yyyyMMdd06");
-		SimpleDateFormat sdf3 = new SimpleDateFormat("yyyyMMdd12");
-		SimpleDateFormat sdf4 = new SimpleDateFormat("yyyyMMdd18");
-		SimpleDateFormat sdf5 = new SimpleDateFormat("yyyyMMddHH");
-		long time1 = 0, time2 = 0, time3 = 0, time4 = 0;
-		long currentTime = 0;
-		try {
-			time1 = sdf5.parse(sdf1.format(new Date())).getTime();
-			time2 = sdf5.parse(sdf2.format(new Date())).getTime();
-			time3 = sdf5.parse(sdf3.format(new Date())).getTime();
-			time4 = sdf5.parse(sdf4.format(new Date())).getTime();
-			currentTime = new Date().getTime();
-		} catch (ParseException e1) {
-			e1.printStackTrace();
-		}
-		String date = null;
-		if (currentTime >= time1 && currentTime < time2) {
-			date = sdf1.format(new Date());
-		}else if (currentTime >= time2 && currentTime < time3) {
-			date = sdf2.format(new Date());
-		}else if (currentTime >= time3 && currentTime < time4) {
-			date = sdf3.format(new Date());
-		}else if (currentTime >= time4) {
-			date = sdf4.format(new Date());
-		}
-		String publicKey = "http://decision.tianqi.cn/?date="+date;//公钥
-		String privateKye = "url_private_key_789";//私钥
-		String result = "";
-		try{
-			byte[] rawHmac = null;
-			byte[] keyBytes = privateKye.getBytes("UTF-8");
-			SecretKeySpec signingKey = new SecretKeySpec(keyBytes, "HmacSHA1");
-			Mac mac = Mac.getInstance("HmacSHA1");
-			mac.init(signingKey);
-			rawHmac = mac.doFinal(publicKey.getBytes("UTF-8"));
-			result = Base64.encodeToString(rawHmac, Base64.DEFAULT);
-//			result = URLEncoder.encode(result, "UTF-8");
-			result = "http://decision.tianqi.cn/"+result;
-		}catch(Exception e){
-			Log.e("SceneException", e.getMessage(), e);
-		}
-		return result;
 	}
 
 	/**

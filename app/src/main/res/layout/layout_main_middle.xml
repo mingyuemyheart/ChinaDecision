@@ -70,6 +70,12 @@
                 android:layout_height="wrap_content"
                 android:orientation="vertical">
 
+                <ImageView
+                    android:id="@+id/ivBanner"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:adjustViewBounds="true"/>
+
                 <android.support.constraint.ConstraintLayout
                     android:id="@+id/clFact"
                     android:layout_width="match_parent"

@@ -72,6 +72,7 @@ import com.china.view.MyHorizontalScrollView;
 import com.china.view.MyHorizontalScrollView.ScrollListener;
 import com.china.view.ScrollviewGridview;
 import com.china.view.VerticalSwipeRefreshLayout;
+import com.squareup.picasso.Picasso;
 
 import org.jetbrains.annotations.NotNull;
 import org.json.JSONArray;
@@ -101,7 +102,7 @@ public class MainActivity extends BaseActivity implements OnClickListener, AMapL
 	private TextView tvLocation,tvTime,tvTemperature,tvHumidity,tvWind,tvAqi,tvFifteen,tvHour;
 	private ConstraintLayout clTitle,clFact;
 	private LinearLayout llWarning,llContainer1,llContainer2,llContainer3;
-	private ImageView ivAqi;
+	private ImageView ivBanner,ivAqi;
 	private MyHorizontalScrollView hScrollView1,hScrollView2;
 	private long mExitTime;//记录点击完返回按钮后的long型时间
 	private AMapLocationClientOption mLocationOption;//声明mLocationOption对象
@@ -203,6 +204,8 @@ public class MainActivity extends BaseActivity implements OnClickListener, AMapL
 		tvLocation.setText(cityName);
 		ImageView ivSetting = findViewById(R.id.ivSetting);
 		ivSetting.setOnClickListener(this);
+		ivBanner = findViewById(R.id.ivBanner);
+		ivBanner.setOnClickListener(this);
 		tvTime = findViewById(R.id.tvTime);
 		tvTime.setFocusable(true);
 		tvTime.setFocusableInTouchMode(true);
@@ -227,6 +230,13 @@ public class MainActivity extends BaseActivity implements OnClickListener, AMapL
 		clFact = findViewById(R.id.clFact);
 		llContainer3 = findViewById(R.id.llContainer3);
 		viewGroup = findViewById(R.id.viewGroup);
+
+		if (!TextUtils.isEmpty(MyApplication.getTop_img())) {
+			Picasso.get().load(MyApplication.getTop_img()).into(ivBanner);
+			ivBanner.setVisibility(View.VISIBLE);
+		} else {
+			ivBanner.setVisibility(View.GONE);
+		}
 
 		//侧拉页面
 		drawerlayout = findViewById(R.id.drawerlayout);
@@ -350,28 +360,27 @@ public class MainActivity extends BaseActivity implements OnClickListener, AMapL
 												}
 											}
 
-											if (!MyApplication.FACTENABLE) {
-												if (!l.isNull("l1")) {
-													String factTemp = WeatherUtil.lastValue(l.getString("l1"));
-													tvTemperature.setText(factTemp);
+											if (!l.isNull("l1")) {
+												String factTemp = WeatherUtil.lastValue(l.getString("l1"));
+												tvTemperature.setText(factTemp);
+											}
+											if (!l.isNull("l2")) {
+												String humidity = WeatherUtil.lastValue(l.getString("l2"));
+												if (TextUtils.isEmpty(humidity) || TextUtils.equals(humidity, "null")) {
+													tvHumidity.setText("湿度"+"--");
+												}else {
+													tvHumidity.setText("湿度"+humidity+getString(R.string.unit_percent));
 												}
-												if (!l.isNull("l2")) {
-													String humidity = WeatherUtil.lastValue(l.getString("l2"));
-													if (TextUtils.isEmpty(humidity) || TextUtils.equals(humidity, "null")) {
-														tvHumidity.setText("湿度"+"--");
-													}else {
-														tvHumidity.setText("湿度"+humidity+getString(R.string.unit_percent));
-													}
+											}
+											if (!l.isNull("l4")) {
+												String windDir = WeatherUtil.lastValue(l.getString("l4"));
+												if (!l.isNull("l3")) {
+													String windForce = WeatherUtil.lastValue(l.getString("l3"));
+													tvWind.setText(getString(WeatherUtil.getWindDirection(Integer.valueOf(windDir))) + " " +
+															WeatherUtil.getFactWindForce(Integer.valueOf(windForce)));
 												}
-												if (!l.isNull("l4")) {
-													String windDir = WeatherUtil.lastValue(l.getString("l4"));
-													if (!l.isNull("l3")) {
-														String windForce = WeatherUtil.lastValue(l.getString("l3"));
-														tvWind.setText(getString(WeatherUtil.getWindDirection(Integer.valueOf(windDir))) + " " +
-																WeatherUtil.getFactWindForce(Integer.valueOf(windForce)));
-													}
-												}
-											} else {
+											}
+											if (MyApplication.FACTENABLE) {
 												OkHttpFact();
 											}
 										}
@@ -1473,6 +1482,15 @@ public class MainActivity extends BaseActivity implements OnClickListener, AMapL
 				intent = new Intent(mContext, ReserveCityActivity.class);
 				intent.putExtra("cityName", cityName);
 				intent.putExtra("cityId", cityId);
+				startActivity(intent);
+				break;
+			case R.id.ivBanner:
+				if (TextUtils.isEmpty(MyApplication.getTop_img_title()) || TextUtils.isEmpty(MyApplication.getTop_img_url())) {
+					return;
+				}
+				intent = new Intent(mContext, WebviewActivity.class);
+				intent.putExtra(CONST.ACTIVITY_NAME, MyApplication.getTop_img_title());
+				intent.putExtra(CONST.WEB_URL, MyApplication.getTop_img_url());
 				startActivity(intent);
 				break;
 			case R.id.tvFifteen:

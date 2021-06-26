@@ -9,6 +9,7 @@ import android.util.Log;
 
 import com.china.activity.PDFActivity;
 import com.china.activity.WebviewActivity;
+import com.china.utils.CrashHandler;
 import com.umeng.commonsdk.UMConfigure;
 import com.umeng.message.IUmengRegisterCallback;
 import com.umeng.message.PushAgent;
@@ -33,9 +34,38 @@ public class MyApplication extends Application{
 		appTheme = theme;
 	}
 
+	private static String top_img,top_img_url,top_img_title;
+
+	public static String getTop_img() {
+		return top_img;
+	}
+
+	public static void setTop_img(String top_img) {
+		MyApplication.top_img = top_img;
+	}
+
+	public static String getTop_img_url() {
+		return top_img_url;
+	}
+
+	public static void setTop_img_url(String top_img_url) {
+		MyApplication.top_img_url = top_img_url;
+	}
+
+	public static String getTop_img_title() {
+		return top_img_title;
+	}
+
+	public static void setTop_img_title(String top_img_title) {
+		MyApplication.top_img_title = top_img_title;
+	}
+
 	@Override
 	public void onCreate() {
 		super.onCreate();
+		CrashHandler crashHandler = CrashHandler.getInstance();
+		crashHandler.init(getApplicationContext());
+
 		getUserInfo(this);
 		if (!TextUtils.equals(MyApplication.USERGROUP, "17")) {//公众用户不推送
 			initUmeng();

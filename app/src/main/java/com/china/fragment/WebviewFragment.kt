@@ -14,9 +14,7 @@ import android.webkit.WebSettings.LayoutAlgorithm
 import com.china.R
 import com.china.activity.WebviewActivity
 import com.china.common.CONST
-import com.china.utils.CommonUtil
 import kotlinx.android.synthetic.main.fragment_webview.*
-import java.util.*
 
 /**
  * 天气资讯详情，底部带有分享、收藏等功能
@@ -108,9 +106,7 @@ class WebviewFragment : Fragment() {
 
 	private fun loadUrl() {
 		if (webView != null && !TextUtils.isEmpty(dataUrl)) {
-			val extraHeaders : HashMap<String, String> = HashMap()
-			extraHeaders["Referer"] = CommonUtil.getRequestHeader()
-			webView.loadUrl(dataUrl, extraHeaders)
+			webView.loadUrl(dataUrl)
 		}
 	}
 

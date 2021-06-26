@@ -20,10 +20,6 @@ import android.widget.TextView;
 
 import com.china.R;
 import com.china.common.CONST;
-import com.china.utils.CommonUtil;
-
-import java.util.HashMap;
-import java.util.Map;
 
 /**
  * 视频会商点播
@@ -99,10 +95,7 @@ public class WeatherMeetingVideoActivity extends BaseActivity implements OnClick
 			@Override
 			public void onRefresh() {
 				if (webView != null && !TextUtils.isEmpty(url)) {
-					//添加请求头
-					Map<String, String> extraHeaders = new HashMap<>();
-					extraHeaders.put("Referer", CommonUtil.getRequestHeader());
-					webView.loadUrl(url, extraHeaders);
+					webView.loadUrl(url);
 				}
 			}
 		});
@@ -153,13 +146,8 @@ public class WeatherMeetingVideoActivity extends BaseActivity implements OnClick
 		//自适应屏幕
 		webSettings.setLayoutAlgorithm(LayoutAlgorithm.SINGLE_COLUMN);
 		webSettings.setLoadWithOverviewMode(true);
-//		webView.loadUrl(url);
-		
-		//添加请求头
-		Map<String, String> extraHeaders = new HashMap<>();
-		extraHeaders.put("Referer", CommonUtil.getRequestHeader());
-		webView.loadUrl(url, extraHeaders);
-		
+		webView.loadUrl(url);
+
 		webView.setWebChromeClient(new WebChromeClient() {
 			@Override
 			public void onReceivedTitle(WebView view, String title) {
@@ -174,9 +162,7 @@ public class WeatherMeetingVideoActivity extends BaseActivity implements OnClick
 			@Override
 			public boolean shouldOverrideUrlLoading(WebView view, String itemUrl) {
 				url = itemUrl;
-				Map<String, String> extraHeaders = new HashMap<>();
-				extraHeaders.put("Referer", CommonUtil.getRequestHeader());
-				webView.loadUrl(url, extraHeaders);
+				webView.loadUrl(url);
 				return true;
 			}
 			

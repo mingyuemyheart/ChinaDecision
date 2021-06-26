@@ -337,6 +337,15 @@ class WelcomeActivity : BaseActivity() {
 								if (!obj.isNull("launch_img")) {
 									Picasso.get().load(obj.getString("launch_img")).into(imageView)
 								}
+								if (!obj.isNull("top_img")) {
+									MyApplication.setTop_img(obj.getString("top_img"))
+								}
+								if (!obj.isNull("top_img_url")) {
+									MyApplication.setTop_img_url(obj.getString("top_img_url"))
+								}
+								if (!obj.isNull("top_img_title")) {
+									MyApplication.setTop_img_title(obj.getString("top_img_title"))
+								}
 							} catch (e: JSONException) {
 								e.printStackTrace()
 							}

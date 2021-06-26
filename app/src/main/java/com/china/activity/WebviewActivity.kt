@@ -141,9 +141,7 @@ class WebviewActivity : BaseActivity(), OnClickListener {
 
 	private fun loadUrl() {
 		if (webView != null && !TextUtils.isEmpty(dataUrl)) {
-			val extraHeaders : HashMap<String, String> = HashMap()
-			extraHeaders["Referer"] = CommonUtil.getRequestHeader()
-			webView.loadUrl(dataUrl, extraHeaders)
+			webView.loadUrl(dataUrl)
 		}
 	}
 	
