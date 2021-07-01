@@ -15,7 +15,6 @@ import okhttp3.Response;
 /**
  * Created by shawn on 2017/8/3.
  */
-
 public class OkHttpUtil {
 
     private final static OkHttpClient.Builder builder = new OkHttpClient.Builder();

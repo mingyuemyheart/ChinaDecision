@@ -21,6 +21,7 @@ import okhttp3.Request
 import okhttp3.Response
 import org.json.JSONArray
 import org.json.JSONException
+import org.json.JSONObject
 import java.io.IOException
 import java.text.ParseException
 import java.text.SimpleDateFormat
@@ -78,7 +79,7 @@ class FiveRainRankActivity : BaseActivity(), OnClickListener{
 
     private fun okHttpList() {
         showDialog()
-        val url = String.format("http://decision-171.tianqi.cn/weather/rgwst/NearStation?starttime=%s&endtime=%s&province=%s&map=all&num=30", startTime, endTime, provinceName)
+        val url = String.format("http://data-66.cxwldata.cn/other/fivedayrain?starttime=%s&endtime=%s&province=%s&map=all&num=30", startTime, endTime, provinceName)
         Thread(Runnable {
             OkHttpUtil.enqueue(Request.Builder().url(url).build(), object : Callback {
                 override fun onFailure(call: Call, e: IOException) {}
@@ -93,11 +94,10 @@ class FiveRainRankActivity : BaseActivity(), OnClickListener{
                         cancelDialog()
                         if (!TextUtils.isEmpty(result)) {
                             try {
-                                val array = JSONArray(result)
-                                val obj5 = array.getJSONObject(5)
-                                if (!obj5.isNull("rainfallmax")) {
+                                val obj = JSONObject(result)
+                                if (!obj.isNull("rainfallmax")) {
                                     dataList.clear()
-                                    val itemArray = obj5.getJSONArray("rainfallmax")
+                                    val itemArray = obj.getJSONArray("rainfallmax")
                                     var length = itemArray.length()
                                     if (length > 30) {
                                         length = 30
@@ -113,12 +113,11 @@ class FiveRainRankActivity : BaseActivity(), OnClickListener{
                                         dataList.add(dto)
                                     }
                                 }
-                                val obj6 = array.getJSONObject(6)
-                                if (!obj6.isNull("starttime")) {
-                                    startTime = obj6.getString("starttime")
+                                if (!obj.isNull("starttime")) {
+                                    startTime = obj.getString("starttime")
                                 }
-                                if (!obj6.isNull("endtime")) {
-                                    endTime = obj6.getString("endtime")
+                                if (!obj.isNull("endtime")) {
+                                    endTime = obj.getString("endtime")
                                 }
                                 try {
                                     tvTime.text = sdf4.format(sdf3.parse(startTime)) + " - " + sdf4.format(sdf3.parse(endTime))
