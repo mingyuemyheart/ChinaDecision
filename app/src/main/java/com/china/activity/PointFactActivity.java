@@ -278,13 +278,27 @@ public class PointFactActivity extends BaseActivity implements OnClickListener, 
 									for (int i = 0; i < array.length(); i++) {
 										JSONObject itemObj = array.getJSONObject(i);
 										StationMonitorDto dto = new StationMonitorDto();
-										dto.lat = itemObj.getDouble("LAT");
-										dto.lng = itemObj.getDouble("LON");
-										dto.pointTemp = itemObj.getString("TEM");
-										dto.humidity = itemObj.getString("RHU");
-										dto.windSpeed = itemObj.getString("WINS");
-										dto.visibility = itemObj.getString("VIS");
-										dto.cloud = itemObj.getString("TCDC");
+										if (!itemObj.isNull("LAT")) {
+											dto.lat = itemObj.getDouble("LAT");
+										}
+										if (!itemObj.isNull("LON")) {
+											dto.lng = itemObj.getDouble("LON");
+										}
+										if (!itemObj.isNull("TEM")) {
+											dto.pointTemp = itemObj.getString("TEM");
+										}
+										if (!itemObj.isNull("RHU")) {
+											dto.humidity = itemObj.getString("RHU");
+										}
+										if (!itemObj.isNull("WINS")) {
+											dto.windSpeed = itemObj.getString("WINS");
+										}
+										if (!itemObj.isNull("VIS")) {
+											dto.visibility = itemObj.getString("VIS");
+										}
+										if (!itemObj.isNull("TCDC")) {
+											dto.cloud = itemObj.getString("TCDC");
+										}
 										dataList.add(dto);
 									}
 									cancelDialog();

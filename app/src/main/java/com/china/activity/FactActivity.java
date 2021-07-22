@@ -19,6 +19,7 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -1016,6 +1017,7 @@ public class FactActivity extends BaseActivity implements OnClickListener, AMapL
                             return;
                         }
                         String result = response.body().string();
+                        Log.e("resultresult", result);
                         if (result != null) {
                             try {
                                 JSONArray array = new JSONArray(result);
@@ -1277,6 +1279,8 @@ public class FactActivity extends BaseActivity implements OnClickListener, AMapL
                                                         dir = value;
                                                     }
                                                 }
+                                            } else {
+                                                dir = value;
                                             }
 
                                             float fx = Float.valueOf(dir);
