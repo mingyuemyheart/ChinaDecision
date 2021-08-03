@@ -12,6 +12,8 @@ public class CONST {
 	
 	public static final String WAIT_WIND = "http://www.welife100.com/Wap/Fengc/index";//等风地址
 	public static final String CLOUD_URL = "http://decision.tianqi.cn/data/page/imgs.html?http://decision.tianqi.cn/data/product/JC_YT_DL_WXZXCSYT.html";//云图地址
+	public static final String yhxy = "https://decision-admin.tianqi.cn/Public/htmls/zgqx/yhxy.html";
+	public static final String yszc = "https://decision-admin.tianqi.cn/Public/htmls/zgqx/yscl.html";
 	
 	//showType类型，区分本地类或者图文
 	public static final String LOCAL = "local";

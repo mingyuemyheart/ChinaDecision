@@ -40,8 +40,8 @@
             android:layout_height="wrap_content"
             android:layout_below="@+id/tvContent"
             android:layout_marginTop="10dp"
-            android:layout_marginBottom="10dp"
             android:text="《用户协议》"
+            android:padding="10dp"
             android:textColor="@color/orange"
             android:textSize="@dimen/level_4" />
 
@@ -50,11 +50,11 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_below="@+id/tvContent"
-            android:layout_marginStart="20dp"
             android:layout_marginTop="10dp"
-            android:layout_marginBottom="10dp"
+            android:padding="10dp"
+            android:layout_marginStart="20dp"
             android:layout_toEndOf="@+id/tvProtocal"
-            android:text="《营私政策》"
+            android:text="《隐私政策》"
             android:textColor="@color/orange"
             android:textSize="@dimen/level_4" />
 

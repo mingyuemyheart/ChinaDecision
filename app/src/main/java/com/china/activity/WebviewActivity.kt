@@ -28,6 +28,7 @@ class WebviewActivity : BaseActivity(), OnClickListener {
 	private var dataUrl : String? = null
 	private var isCollected : Boolean = false//是否已收藏
 	private val collectList : ArrayList<NewsDto> = ArrayList()//存放收藏数据的list
+	private var newsDto: NewsDto? = null
 
 	override fun onCreate(savedInstanceState: Bundle?) {
 		super.onCreate(savedInstanceState)
@@ -57,7 +58,6 @@ class WebviewActivity : BaseActivity(), OnClickListener {
 		ivText.setOnClickListener(this)
 		ivShareImg.setOnClickListener(this)
 		ivCollect.setOnClickListener(this)
-		clBottom.visibility = View.VISIBLE
 
 		val title = intent.getStringExtra(CONST.ACTIVITY_NAME)
 		if (!TextUtils.isEmpty(title)) {
@@ -129,7 +129,14 @@ class WebviewActivity : BaseActivity(), OnClickListener {
 			override fun onPageFinished(view: WebView?, url: String?) {
 				super.onPageFinished(view, url)
 				refreshLayout.isRefreshing = false
-				clBottom.visibility = View.VISIBLE
+				if (intent.hasExtra("data")) {
+					newsDto = intent.extras.getParcelable("data")
+					if (newsDto != null) {
+						clBottom.visibility = View.VISIBLE
+					} else {
+						clBottom.visibility = View.GONE
+					}
+				}
 			}
 
 			override fun onReceivedSslError(view: WebView?, handler: SslErrorHandler?, error: SslError?) {
@@ -184,9 +191,8 @@ class WebviewActivity : BaseActivity(), OnClickListener {
 			}
 			R.id.ivCollect -> {
 				if (!isCollected) {
-					val dto : NewsDto = intent.extras.getParcelable("data")
-					if (dto != null) {
-						collectList.add(0, dto)
+					if (newsDto != null) {
+						collectList.add(0, newsDto!!)
 						ivCollect.setImageResource(R.drawable.icon_collection_blue_press)
 						Toast.makeText(this, getString(R.string.collect_success), Toast.LENGTH_SHORT).show()
 						isCollected = true

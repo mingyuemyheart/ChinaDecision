@@ -1299,13 +1299,13 @@ public class MainActivity extends BaseActivity implements OnClickListener, AMapL
 					case 13:
 						intent = new Intent(mContext, HtmlActivity.class);
 						intent.putExtra(CONST.ACTIVITY_NAME, "用户协议");
-						intent.putExtra(CONST.WEB_URL, "http://decision-admin.tianqi.cn/Public/share/chinaweather_links/yhxy.html");
+						intent.putExtra(CONST.WEB_URL, CONST.yhxy);
 						startActivity(intent);
 						break;
 					case 14:
 						intent = new Intent(mContext, HtmlActivity.class);
 						intent.putExtra(CONST.ACTIVITY_NAME, "隐私政策");
-						intent.putExtra(CONST.WEB_URL, "http://decision-admin.tianqi.cn/Public/share/chinaweather_links/yszc.html");
+						intent.putExtra(CONST.WEB_URL, CONST.yszc);
 						startActivity(intent);
 						break;
 					case 15:

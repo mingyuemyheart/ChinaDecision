@@ -66,18 +66,19 @@ class WelcomeActivity : BaseActivity() {
 
 		val dialog = Dialog(this, R.style.CustomProgressDialog)
 		dialog.setContentView(view)
+		dialog.setCanceledOnTouchOutside(false)
 		dialog.show()
 
 		view.tvProtocal.setOnClickListener {
 			val intent = Intent(this, WebviewActivity::class.java)
 			intent.putExtra(CONST.ACTIVITY_NAME, "用户协议")
-			intent.putExtra(CONST.WEB_URL, "http://decision-admin.tianqi.cn/Public/share/chinaweather_links/yhxy.html")
+			intent.putExtra(CONST.WEB_URL, CONST.yhxy)
 			startActivity(intent)
 		}
 		view.tvPolicy.setOnClickListener {
 			val intent = Intent(this, WebviewActivity::class.java)
 			intent.putExtra(CONST.ACTIVITY_NAME, "隐私政策")
-			intent.putExtra(CONST.WEB_URL, "http://decision-admin.tianqi.cn/Public/share/chinaweather_links/yszc.html")
+			intent.putExtra(CONST.WEB_URL, CONST.yszc)
 			startActivity(intent)
 		}
 		view.tvNegtive.setOnClickListener {
