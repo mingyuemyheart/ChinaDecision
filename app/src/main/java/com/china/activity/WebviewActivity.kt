@@ -121,6 +121,9 @@ class WebviewActivity : BaseActivity(), OnClickListener {
 
 		webView.webViewClient = object : WebViewClient() {
 			override fun shouldOverrideUrlLoading(view: WebView?, itemUrl: String?): Boolean {
+				if (view!!.title != null) {
+					tvTitle.text = view.title
+				}
 				dataUrl = itemUrl
 				loadUrl()
 				return true
@@ -129,6 +132,9 @@ class WebviewActivity : BaseActivity(), OnClickListener {
 			override fun onPageFinished(view: WebView?, url: String?) {
 				super.onPageFinished(view, url)
 				refreshLayout.isRefreshing = false
+				if (view!!.title != null) {
+					tvTitle.text = view.title
+				}
 				if (intent.hasExtra("data")) {
 					newsDto = intent.extras.getParcelable("data")
 					if (newsDto != null) {
@@ -212,12 +218,7 @@ class WebviewActivity : BaseActivity(), OnClickListener {
 				MyCollectManager.writeCollect(this, collectList)
 			}
 			R.id.ivShareImg -> {
-				val bitmap1 = CommonUtil.captureWebView(webView)
-				val bitmap2 = BitmapFactory.decodeResource(resources,  R.drawable.legend_share_portrait)
-				val bitmap = CommonUtil.mergeBitmap(this, bitmap1, bitmap2, false)
-				CommonUtil.clearBitmap(bitmap1)
-				CommonUtil.clearBitmap(bitmap2)
-				CommonUtil.share(this, bitmap)
+				CommonUtil.share(this, tvTitle.text.toString(), tvTitle.text.toString(), newsDto!!.imgUrl, dataUrl)
 			}
 		}
 	}

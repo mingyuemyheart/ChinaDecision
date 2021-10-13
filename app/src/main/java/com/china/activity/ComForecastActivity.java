@@ -635,16 +635,26 @@ public class ComForecastActivity extends BaseActivity implements OnClickListener
 													for (int i = 0; i < array.length(); i++) {
 														JSONObject itemObj = array.getJSONObject(i);
 														String color = itemObj.getString("c");
+														int r = 0, g = 0, b = 0, a = 255;
 														if (color.contains("#")) {
 															color = color.replace("#", "");
+															r = Integer.parseInt(color.substring(0,2), 16);
+															g = Integer.parseInt(color.substring(2,4), 16);
+															b = Integer.parseInt(color.substring(4,6), 16);
+															a = 255;
+														} else if (color.startsWith("rgba(")) {
+															color = color.replace("rgba(", "");
+															color = color.replace(")", "");
+															String[] ccc = color.split(",");
+															r = Integer.parseInt(ccc[0]);
+															g = Integer.parseInt(ccc[1]);
+															b = Integer.parseInt(ccc[2]);
+															a = Integer.parseInt(ccc[3]);
 														}
-														int r = Integer.parseInt(color.substring(0,2), 16);
-														int g = Integer.parseInt(color.substring(2,4), 16);
-														int b = Integer.parseInt(color.substring(4,6), 16);
 														if (!itemObj.isNull("items")) {
 															JSONArray items = itemObj.getJSONArray("items");
 															PolygonOptions polygonOption = new PolygonOptions();
-															polygonOption.strokeColor(Color.rgb(r, g, b)).fillColor(Color.rgb(r, g, b));
+															polygonOption.strokeColor(Color.argb(a, r, g, b)).fillColor(Color.argb(a, r, g, b));
 															for (int j = 0; j < items.length(); j++) {
 																JSONObject item = items.getJSONObject(j);
 																double lat = item.getDouble("y");

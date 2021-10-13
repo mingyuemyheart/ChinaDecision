@@ -81,6 +81,9 @@ class GuideFragment : Fragment(), OnClickListener {
 					if (!response.isSuccessful) {
 						return
 					}
+					if (!isAdded) {
+						return
+					}
 					val result = response.body!!.string()
 					activity!!.runOnUiThread {
 						if (!TextUtils.isEmpty(result)) {
