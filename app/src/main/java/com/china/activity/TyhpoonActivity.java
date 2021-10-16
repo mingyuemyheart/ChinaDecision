@@ -1030,6 +1030,8 @@ public class TyhpoonActivity extends BaseActivity implements OnClickListener, On
 															dto.radius_7 = itemArray10.getString(1)+","+itemArray10.getString(2)+","+itemArray10.getString(3)+","+itemArray10.getString(4);
 														}else if (m == 1) {
 															dto.radius_10 = itemArray10.getString(1)+","+itemArray10.getString(2)+","+itemArray10.getString(3)+","+itemArray10.getString(4);
+														}else if (m == 2) {
+															dto.radius_12 = itemArray10.getString(1)+","+itemArray10.getString(2)+","+itemArray10.getString(3)+","+itemArray10.getString(4);
 														}
 													}
 													points.add(dto);
@@ -1243,6 +1245,13 @@ public class TyhpoonActivity extends BaseActivity implements OnClickListener, On
 										}else if (!itemObj.isNull("RR10") && !TextUtils.isEmpty(itemObj.getString("RR10"))) {
 											String r = itemObj.getString("RR10");
 											dto.radius_10 = r+","+r+","+r+","+r;
+										}
+
+										if (!itemObj.isNull("RD12") && !TextUtils.isEmpty(itemObj.getString("RD12"))) {
+											dto.radius_12 = itemObj.getString("RD12");
+										}else if (!itemObj.isNull("RD12") && !TextUtils.isEmpty(itemObj.getString("RD12"))) {
+											String r = itemObj.getString("RD12");
+											dto.radius_12 = r+","+r+","+r+","+r;
 										}
 
 										allPoints.add(dto);
@@ -1714,7 +1723,7 @@ public class TyhpoonActivity extends BaseActivity implements OnClickListener, On
             ivPoint.setImageResource(R.drawable.shawn_typhoon_yb);
         }
         MarkerOptions options = new MarkerOptions();
-        options.title(firstPoint.name+"|"+firstPoint.content(mContext)+"|"+firstPoint.radius_7+"|"+firstPoint.radius_10);
+        options.title(firstPoint.name+"|"+firstPoint.content(mContext)+"|"+firstPoint.radius_7+"|"+firstPoint.radius_10+"|"+firstPoint.radius_12);
         options.snippet(markerType2);
         options.anchor(0.5f, 0.5f);
         options.position(firstLatLng);
@@ -1728,7 +1737,7 @@ public class TyhpoonActivity extends BaseActivity implements OnClickListener, On
 				clickMarker.showInfoWindow();
 
 				//绘制最后一个实况点对应的七级、十级风圈
-				drawWindCircle(firstPoint.radius_7, firstPoint.radius_10, firstLatLng);
+				drawWindCircle(firstPoint.radius_7, firstPoint.radius_10, firstPoint.radius_12, firstLatLng);
 
 				//最后一个实况点处于屏幕中心
 				aMap.animateCamera(CameraUpdateFactory.newLatLng(firstLatLng));
@@ -1760,7 +1769,7 @@ public class TyhpoonActivity extends BaseActivity implements OnClickListener, On
 	/**
 	 * 绘制七级、十级风圈
 	 */
-	private void drawWindCircle(String radius_7, String radius_10, LatLng center) {
+	private void drawWindCircle(String radius_7, String radius_10, String radius_12, LatLng center) {
 		removeWindCircle();
 
 		//七级风圈
@@ -1792,8 +1801,27 @@ public class TyhpoonActivity extends BaseActivity implements OnClickListener, On
 			getWindCirclePoints(center, radiuss[1], 270, wind10Points);
 			if (wind10Points.size() > 0) {
 				PolygonOptions polygonOptions = new PolygonOptions();
-				polygonOptions.strokeWidth(3).strokeColor(Color.RED).fillColor(0x20FF0000);
+				polygonOptions.strokeWidth(3).strokeColor(0xffFE9900).fillColor(0x20FF0000);
 				for (LatLng latLng : wind10Points) {
+					polygonOptions.add(latLng);
+				}
+				Polygon polygon = aMap.addPolygon(polygonOptions);
+				windCirclePolygons.add(polygon);
+			}
+		}
+
+		//十二级风圈
+		if (!TextUtils.isEmpty(radius_12) && !TextUtils.equals(radius_12, "null") && radius_12.contains(",")) {
+			String[] radiuss = radius_12.split(",");
+			List<LatLng> wind12Points = new ArrayList<>();
+			getWindCirclePoints(center, radiuss[0], 0, wind12Points);
+			getWindCirclePoints(center, radiuss[3], 90, wind12Points);
+			getWindCirclePoints(center, radiuss[2], 180, wind12Points);
+			getWindCirclePoints(center, radiuss[1], 270, wind12Points);
+			if (wind12Points.size() > 0) {
+				PolygonOptions polygonOptions = new PolygonOptions();
+				polygonOptions.strokeWidth(3).strokeColor(Color.RED).fillColor(0x20FF0000);
+				for (LatLng latLng : wind12Points) {
 					polygonOptions.add(latLng);
 				}
 				Polygon polygon = aMap.addPolygon(polygonOptions);
@@ -2016,7 +2044,7 @@ public class TyhpoonActivity extends BaseActivity implements OnClickListener, On
         	if (TextUtils.equals(marker.getSnippet(), markerType2)) {//台风点
 				if (!TextUtils.isEmpty(marker.getTitle())) {
 					String[] title = marker.getTitle().split("\\|");
-					drawWindCircle(title[2], title[3], marker.getPosition());
+					drawWindCircle(title[2], title[3], title[4], marker.getPosition());
 				}
 			}else if (TextUtils.equals(marker.getSnippet(), markerType1)) {//预警
 

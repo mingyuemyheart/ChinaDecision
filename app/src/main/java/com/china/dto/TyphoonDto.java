@@ -32,6 +32,7 @@ public class TyphoonDto implements Parcelable {
 	public String type;//台风类型
 	public String radius_7;
 	public String radius_10;
+	public String radius_12;
 	public String time;
 	public boolean isFactPoint = true;//true为实况点，false为预报点
 	public String strength;//台风强度
@@ -82,6 +83,9 @@ public class TyphoonDto implements Parcelable {
 		if(!TextUtils.isEmpty(radius_10)){
 			buffer.append("\n").append("10级风圈半径：").append(radius_10).append("公里");
 		}
+		if(!TextUtils.isEmpty(radius_12)){
+			buffer.append("\n").append("12级风圈半径：").append(radius_12).append("公里");
+		}
 
 		return buffer.toString();
 	}
@@ -130,6 +134,7 @@ public class TyphoonDto implements Parcelable {
 		dest.writeString(this.type);
 		dest.writeString(this.radius_7);
 		dest.writeString(this.radius_10);
+		dest.writeString(this.radius_12);
 		dest.writeString(this.time);
 		dest.writeByte(this.isFactPoint ? (byte) 1 : (byte) 0);
 		dest.writeString(this.strength);
@@ -161,6 +166,7 @@ public class TyphoonDto implements Parcelable {
 		this.type = in.readString();
 		this.radius_7 = in.readString();
 		this.radius_10 = in.readString();
+		this.radius_12 = in.readString();
 		this.time = in.readString();
 		this.isFactPoint = in.readByte() != 0;
 		this.strength = in.readString();
