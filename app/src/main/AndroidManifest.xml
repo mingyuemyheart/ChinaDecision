@@ -362,6 +362,14 @@
             android:name="com.china.activity.WeatherFactActivity"
             android:screenOrientation="portrait" />
 
+        <activity
+            android:name="com.china.activity.PersonInfoActivity"
+            android:screenOrientation="portrait" />
+
+        <activity
+            android:name="com.china.activity.ModifyInfoActivity"
+            android:screenOrientation="portrait" />
+
 
         <!--umeng share-->
         <activity

@@ -245,6 +245,11 @@ public class MainActivity extends BaseActivity implements OnClickListener, AMapL
 		TextView tvUserName = findViewById(R.id.tvUserName);
         TextView tvLogout = findViewById(R.id.tvLogout);
 		tvLogout.setOnClickListener(this);
+		ImageView ivPortrait = findViewById(R.id.ivPortrait);
+		ivPortrait.setOnClickListener(this);
+		if (!TextUtils.isEmpty(MyApplication.PORTRAIT)) {
+			Picasso.get().load(MyApplication.PORTRAIT).into(ivPortrait);
+		}
 
 		ViewGroup.LayoutParams params = clRight.getLayoutParams();
 		params.width = CommonUtil.widthPixels(this)-(int)CommonUtil.dip2px(this, 50);
@@ -1515,6 +1520,9 @@ public class MainActivity extends BaseActivity implements OnClickListener, AMapL
 				break;
 			case R.id.tvLogout:
 				dialogLogout(getString(R.string.sure_logout));
+				break;
+			case R.id.ivPortrait:
+				startActivity(new Intent(mContext, PersonInfoActivity.class));
 				break;
 
 		default:

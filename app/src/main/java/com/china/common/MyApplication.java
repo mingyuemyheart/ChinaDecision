@@ -77,6 +77,12 @@ public class MyApplication extends Application{
 	public static String UID = "";//用户id
 	public static String USERNAME = "";
 	public static String PASSWORD = "";
+	public static String WXACCOUNT = "";
+	public static String NICKNAME = "";
+	public static String MOBILE = "";
+	public static String UNIT = "";
+	public static String PORTRAIT = "";
+	public static String TOKEN = "";
 	public static boolean FACTENABLE;//格点实况
 
 	public static String USERINFO = "userInfo";//userInfo sharedPreferance名称
@@ -85,6 +91,12 @@ public class MyApplication extends Application{
 		private static final String uid = "uid";
 		private static final String userName = "uName";
 		private static final String passWord = "pwd";
+		private static final String wxaccount = "wxaccount";
+		private static final String nickname = "nickname";
+		private static final String mobile = "mobile";
+		private static final String unit = "unit";
+		private static final String portrait = "portrait";
+		private static final String token = "token";
 		private static final String factEnable = "factEnable";
 	}
 
@@ -100,6 +112,12 @@ public class MyApplication extends Application{
 		UID = "";
 		USERNAME = "";
 		PASSWORD = "";
+		WXACCOUNT = "";
+		NICKNAME = "";
+		MOBILE = "";
+		UNIT = "";
+		PORTRAIT = "";
+		TOKEN = "";
 		FACTENABLE = false;
 	}
 
@@ -113,6 +131,12 @@ public class MyApplication extends Application{
 		editor.putString(UserInfo.uid, UID);
 		editor.putString(UserInfo.userName, USERNAME);
 		editor.putString(UserInfo.passWord, PASSWORD);
+		editor.putString(UserInfo.wxaccount, WXACCOUNT);
+		editor.putString(UserInfo.nickname, NICKNAME);
+		editor.putString(UserInfo.mobile, MOBILE);
+		editor.putString(UserInfo.unit, UNIT);
+		editor.putString(UserInfo.portrait, PORTRAIT);
+		editor.putString(UserInfo.token, TOKEN);
 		editor.putBoolean(UserInfo.factEnable, FACTENABLE);
 		editor.apply();
 	}
@@ -126,6 +150,12 @@ public class MyApplication extends Application{
 		UID = sharedPreferences.getString(UserInfo.uid, "");
 		USERNAME = sharedPreferences.getString(UserInfo.userName, "");
 		PASSWORD = sharedPreferences.getString(UserInfo.passWord, "");
+		WXACCOUNT = sharedPreferences.getString(UserInfo.wxaccount, "");
+		NICKNAME = sharedPreferences.getString(UserInfo.nickname, "");
+		MOBILE = sharedPreferences.getString(UserInfo.mobile, "");
+		UNIT = sharedPreferences.getString(UserInfo.unit, "");
+		PORTRAIT = sharedPreferences.getString(UserInfo.portrait, "");
+		TOKEN = sharedPreferences.getString(UserInfo.token, "");
 		FACTENABLE = sharedPreferences.getBoolean(UserInfo.factEnable, false);
 	}
 
@@ -153,7 +183,8 @@ public class MyApplication extends Application{
 	private void initUmeng() {
 		//umeng分享的平台注册
 		UMConfigure.init(this, appKey, "umeng", UMConfigure.DEVICE_TYPE_PHONE, msgSecret);
-		PlatformConfig.setWeixin("wx1fa67f698f7053ad", "f3fc51dcb4518eb80bff808acb10c409");
+//		PlatformConfig.setWeixin("wx1fa67f698f7053ad", "f3fc51dcb4518eb80bff808acb10c409");
+		PlatformConfig.setWeixin("wxaccddc891ca42427", "c8b92831311597b3a7511bafc2f394ef");
 		PlatformConfig.setQQZone("1105876438", "tH05WZYOjbInVhQq");
 		PlatformConfig.setDing("dingoaqfmkgk4d9lo7gbmq");
 		UMConfigure.setLogEnabled(false);

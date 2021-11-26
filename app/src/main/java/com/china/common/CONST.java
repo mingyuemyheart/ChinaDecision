@@ -2,7 +2,7 @@ package com.china.common;
 
 public class CONST {
 
-	public static String APPID = "19";//贵州客户端对应服务器的appid
+	public static String APPID = "19";
 	public static String noValue = "--";
 	public static int MSG_100 = 100;
 	public static int MSG_101 = 101;
