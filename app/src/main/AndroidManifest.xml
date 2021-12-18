@@ -124,6 +124,14 @@
             android:screenOrientation="portrait" />
 
         <activity
+            android:name="com.china.activity.NationForecastActivity"
+            android:screenOrientation="portrait" />
+
+        <activity
+            android:name="com.china.activity.HbhForecastActivity"
+            android:screenOrientation="portrait" />
+
+        <activity
             android:name="com.china.activity.FeedbackActivity"
             android:screenOrientation="portrait" />
 

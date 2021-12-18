@@ -190,6 +190,18 @@ class ProductActivity : BaseActivity(), OnClickListener {
 					intent.putExtra(CONST.COLUMN_ID, dto.columnId)
 					intent.putExtra(CONST.ACTIVITY_NAME, dto.name)
 					startActivity(intent)
+				} else if (TextUtils.equals(dto.id, "205")) { //国外城市天气预报
+					intent = Intent(this, NationForecastActivity::class.java)
+					intent.putExtra(CONST.COLUMN_ID, dto.columnId)
+					intent.putExtra(CONST.ACTIVITY_NAME, dto.name)
+					intent.putExtra(CONST.WEB_URL, dto.dataUrl)
+					startActivity(intent)
+				} else if (TextUtils.equals(dto.id, "206")) { //环渤海天气预报
+					intent = Intent(this, HbhForecastActivity::class.java)
+					intent.putExtra(CONST.COLUMN_ID, dto.columnId)
+					intent.putExtra(CONST.ACTIVITY_NAME, dto.name)
+					intent.putExtra(CONST.WEB_URL, dto.dataUrl)
+					startActivity(intent)
 				}else if (TextUtils.equals(dto.id, "202")) {//分钟级降水估测
 					intent = Intent(this, MinuteFallActivity::class.java)
 					intent.putExtra(CONST.COLUMN_ID, dto.columnId)

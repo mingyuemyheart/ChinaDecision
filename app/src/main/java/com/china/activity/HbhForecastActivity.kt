@@ -1,16 +1,12 @@
 package com.china.activity
 import android.Manifest
-import android.annotation.SuppressLint
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
-import android.graphics.Point
 import android.os.Build
 import android.os.Bundle
-import android.os.Handler
-import android.os.Message
 import android.support.v4.app.ActivityCompat
 import android.support.v4.content.ContextCompat
 import android.text.TextUtils
@@ -27,7 +23,10 @@ import com.china.R
 import com.china.common.CONST
 import com.china.dto.WeatherDto
 import com.china.dto.WeatherStaticsDto
-import com.china.utils.*
+import com.china.utils.AuthorityUtil
+import com.china.utils.CommonUtil
+import com.china.utils.OkHttpUtil
+import com.china.utils.WeatherUtil
 import kotlinx.android.synthetic.main.activity_city_forecast.*
 import kotlinx.android.synthetic.main.layout_marker.view.*
 import kotlinx.android.synthetic.main.layout_marker_info.view.*
@@ -46,22 +45,12 @@ import java.util.*
 import kotlin.collections.LinkedHashMap
 
 /**
- * 城市天气预报
+ * 环渤海天气预报
  */
-class CityForecastActivity : BaseActivity(), OnClickListener, OnMarkerClickListener,
-        OnMapClickListener, OnCameraChangeListener, AMap.InfoWindowAdapter, AMap.OnInfoWindowClickListener, OnMapScreenShotListener {
+class HbhForecastActivity : BaseActivity(), OnClickListener, OnMarkerClickListener, OnMapClickListener, InfoWindowAdapter, OnInfoWindowClickListener, OnMapScreenShotListener {
 
     private var aMap: AMap? = null
-    private val level1List: ArrayList<WeatherStaticsDto> = ArrayList()
-    private val level2List: ArrayList<WeatherStaticsDto> = ArrayList()
-    private val markerMap: LinkedHashMap<String, Marker?> = LinkedHashMap() //按区域id区分
-    private val level1 = "level1"
-    private val level2 = "level2"
-    private val level3 = "level3"
     private var zoom = 3.7f
-    private var zoom1 = 7.0f
-    private var leftlatlng = LatLng(-16.305714763804854, 75.13831436634065)
-    private var rightLatlng = LatLng(63.681687310440864, 135.21788656711578)
     private var clickMarker: Marker? = null
     private val sdf1 = SimpleDateFormat("yyyyMMddHHmm", Locale.CHINA)
     private val sdf2 = SimpleDateFormat("yyyy年MM月dd日 HH时", Locale.CHINA)
@@ -92,7 +81,6 @@ class CityForecastActivity : BaseActivity(), OnClickListener, OnMarkerClickListe
         aMap!!.uiSettings.isRotateGesturesEnabled = false
         aMap!!.setOnMarkerClickListener(this)
         aMap!!.setOnMapClickListener(this)
-        aMap!!.setOnCameraChangeListener(this)
         aMap!!.setInfoWindowAdapter(this)
         aMap!!.setOnInfoWindowClickListener(this)
     }
@@ -105,8 +93,6 @@ class CityForecastActivity : BaseActivity(), OnClickListener, OnMarkerClickListe
         llBack.setOnClickListener(this)
         ivShare.setOnClickListener(this)
         ivShare.visibility = View.VISIBLE
-        ivMapSearch.setOnClickListener(this)
-        ivMapSearch.visibility = View.VISIBLE
 
         val title = intent.getStringExtra(CONST.ACTIVITY_NAME)
         if (!TextUtils.isEmpty(title)) {
@@ -119,9 +105,11 @@ class CityForecastActivity : BaseActivity(), OnClickListener, OnMarkerClickListe
      * 获取所有站点信息
      */
     private fun okHttpList() {
-        Thread(Runnable {
-            OkHttpUtil.enqueue(Request.Builder().url(SecretUrlUtil.statistic()).build(), object : Callback {
+        Thread {
+            val url = intent.getStringExtra(CONST.WEB_URL)
+            OkHttpUtil.enqueue(Request.Builder().url(url).build(), object : Callback {
                 override fun onFailure(call: Call, e: IOException) {}
+
                 @Throws(IOException::class)
                 override fun onResponse(call: Call, response: Response) {
                     if (!response.isSuccessful) {
@@ -130,120 +118,50 @@ class CityForecastActivity : BaseActivity(), OnClickListener, OnMarkerClickListe
                     runOnUiThread { cancelDialog() }
                     val result = response.body!!.string()
                     if (!TextUtils.isEmpty(result)) {
-                        level1List.clear()
-                        level2List.clear()
-                        parseStationInfo(result, level1)
-                        parseStationInfo(result, level2)
-                        parseStationInfo(result, level3)
-                        addMarkers()
-                    }
-                }
-            })
-        }).start()
-    }
+                        try {
+                            val array = JSONArray(result)
+                            val builder = LatLngBounds.builder()
+                            for (i in 0 until array.length()) {
+                                val dto = WeatherStaticsDto()
+                                val itemObj = array.getJSONObject(i)
+                                if (!itemObj.isNull("name")) {
+                                    dto.name = itemObj.getString("name")
+                                }
+                                if (!itemObj.isNull("stationid")) {
+                                    dto.stationId = itemObj.getString("stationid")
+                                }
+                                if (!itemObj.isNull("level")) {
+                                    dto.level = itemObj.getString("level")
+                                }
+                                if (!itemObj.isNull("areaid")) {
+                                    dto.areaId = itemObj.getString("areaid")
+                                }
+                                if (!itemObj.isNull("lat")) {
+                                    dto.lat = itemObj.getDouble("lat")
+                                }
+                                if (!itemObj.isNull("lon")) {
+                                    dto.lng = itemObj.getDouble("lon")
+                                }
+                                builder.include(LatLng(dto.lat, dto.lng))
 
-    /**
-     * 解析数据
-     */
-    private fun parseStationInfo(result: String, level: String) {
-        try {
-            val obj = JSONObject(result)
-            if (!obj.isNull(level)) {
-                val array = JSONArray(obj.getString(level))
-                for (i in 0 until array.length()) {
-                    val dto = WeatherStaticsDto()
-                    val itemObj = array.getJSONObject(i)
-                    if (!itemObj.isNull("name")) {
-                        dto.name = itemObj.getString("name")
-                    }
-                    if (!itemObj.isNull("stationid")) {
-                        dto.stationId = itemObj.getString("stationid")
-                    }
-                    if (!itemObj.isNull("level")) {
-                        dto.level = itemObj.getString("level")
-                    }
-                    if (!itemObj.isNull("areaid")) {
-                        dto.areaId = itemObj.getString("areaid")
-                    }
-                    if (!itemObj.isNull("lat")) {
-                        dto.lat = itemObj.getDouble("lat")
-                    }
-                    if (!itemObj.isNull("lon")) {
-                        dto.lng = itemObj.getDouble("lon")
-                    }
-                    if (TextUtils.equals(level, level1)) {
-                        level1List.add(dto)
-                    } else if (TextUtils.equals(level, level2)) {
-                        level2List.add(dto)
-                    } else if (TextUtils.equals(level, level3)) { //把四个直辖市的区划入地市级
-                        if (dto.areaId.contains("10101") || dto.areaId.contains("10102") || dto.areaId.contains("10103") || dto.areaId.contains("10104")) {
-                            dto.level = "2"
-                            level2List.add(dto)
+                                val weatherDto = WeatherDto()
+                                weatherDto.cityId = dto.areaId
+                                weatherDto.cityName = dto.name
+                                weatherDto.lat = dto.lat
+                                weatherDto.lng = dto.lng
+                                weatherDto.level = dto.level
+                                getWeathersInfo(weatherDto)
+                            }
+                            if (array.length() > 0) {
+                                aMap!!.animateCamera(CameraUpdateFactory.newLatLngBounds(builder.build(), 100))
+                            }
+                        } catch (e: JSONException) {
+                            e.printStackTrace()
                         }
                     }
                 }
-            }
-        } catch (e: JSONException) {
-            e.printStackTrace()
-        }
-    }
-
-    private fun switchMarkers() {
-        for (areaId in markerMap.keys) {
-            if (!TextUtils.isEmpty(areaId) && markerMap.containsKey(areaId)) {
-                val marker = markerMap[areaId]
-                val level = marker!!.snippet
-                val lat = marker.position.latitude
-                val lng = marker.position.longitude
-                if (zoom <= zoom1) {
-                    if (TextUtils.equals(level, "2") || TextUtils.equals(level, "3")) {
-                        marker.remove()
-                    }
-                }
-                if (lat <= leftlatlng.latitude || lat >= rightLatlng.latitude || lng <= leftlatlng.longitude || lng >= rightLatlng.longitude) {
-                    marker.remove()
-                }
-            }
-        }
-    }
-
-    /**
-     * 添加marker
-     */
-    private fun addMarkers() {
-        val list: MutableList<WeatherStaticsDto> = ArrayList()
-        if (zoom <= zoom1) {
-            list.addAll(level1List)
-        } else {
-            list.addAll(level1List)
-            list.addAll(level2List)
-        }
-        for (dto in list) {
-            if (markerMap.containsKey(dto.areaId)) {
-                val m = markerMap[dto.areaId]
-                if (m == null || !m.isVisible) {
-                    addVisibleAreaMarker(dto)
-                }
-            } else {
-                addVisibleAreaMarker(dto)
-            }
-        }
-    }
-
-    /**
-     * 添加可视区域对应的marker
-     * @param dto
-     */
-    private fun addVisibleAreaMarker(dto: WeatherStaticsDto) {
-        if (dto.lat > leftlatlng.latitude && dto.lat < rightLatlng.latitude && dto.lng > leftlatlng.longitude && dto.lng < rightLatlng.longitude) {
-            val weatherDto = WeatherDto()
-            weatherDto.cityId = dto.areaId
-            weatherDto.cityName = dto.name
-            weatherDto.lat = dto.lat
-            weatherDto.lng = dto.lng
-            weatherDto.level = dto.level
-            getWeathersInfo(weatherDto)
-        }
+            })
+        }.start()
     }
 
     /**
@@ -306,7 +224,6 @@ class CityForecastActivity : BaseActivity(), OnClickListener, OnMarkerClickListe
                                             options.icon(BitmapDescriptorFactory.fromView(getTextBitmap(currentHour, dto.lowPheCode)))
                                         }
                                         val marker = aMap!!.addMarker(options)
-                                        markerMap[dto.cityId] = marker
                                         markerExpandAnimation(marker)
                                     }
                                 }
@@ -349,33 +266,6 @@ class CityForecastActivity : BaseActivity(), OnClickListener, OnMarkerClickListe
         animation.setDuration(300)
         marker.setAnimation(animation)
         marker.startAnimation()
-    }
-
-    override fun onCameraChange(arg0: CameraPosition?) {}
-
-    override fun onCameraChangeFinish(arg0: CameraPosition) {
-        val leftPoint = Point(0, CommonUtil.heightPixels(this))
-        val rightPoint = Point(CommonUtil.widthPixels(this), 0)
-        leftlatlng = aMap!!.projection.fromScreenLocation(leftPoint)
-        rightLatlng = aMap!!.projection.fromScreenLocation(rightPoint)
-        zoom = arg0.zoom
-        handler.removeMessages(1001)
-        val msg = handler.obtainMessage()
-        msg.what = 1001
-        handler.sendMessageDelayed(msg, 500)
-    }
-
-    @SuppressLint("HandlerLeak")
-    private val handler: Handler = object : Handler() {
-        override fun handleMessage(msg: Message) {
-            super.handleMessage(msg)
-            when (msg.what) {
-                1001 -> {
-                    switchMarkers()
-                    addMarkers()
-                }
-            }
-        }
     }
 
     override fun onMapClick(arg0: LatLng?) {
@@ -438,7 +328,6 @@ class CityForecastActivity : BaseActivity(), OnClickListener, OnMarkerClickListe
         when (v.id) {
             R.id.llBack -> finish()
             R.id.ivShare -> aMap!!.getMapScreenShot(this)
-            R.id.ivMapSearch -> startActivity(Intent(this, CityActivity::class.java))
         }
     }
 

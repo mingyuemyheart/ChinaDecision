@@ -1033,6 +1033,18 @@ public class MainActivity extends BaseActivity implements OnClickListener, AMapL
 						intent.putExtra(CONST.COLUMN_ID, dto.columnId);
 						intent.putExtra(CONST.ACTIVITY_NAME, dto.name);
 						startActivity(intent);
+					}else if (TextUtils.equals(dto.id, "205")) {//国外城市天气预报
+						intent = new Intent(mContext, NationForecastActivity.class);
+						intent.putExtra(CONST.COLUMN_ID, dto.columnId);
+						intent.putExtra(CONST.ACTIVITY_NAME, dto.name);
+						intent.putExtra(CONST.WEB_URL, dto.dataUrl);
+						startActivity(intent);
+					}else if (TextUtils.equals(dto.id, "206")) {//环渤海天气预报
+						intent = new Intent(mContext, HbhForecastActivity.class);
+						intent.putExtra(CONST.COLUMN_ID, dto.columnId);
+						intent.putExtra(CONST.ACTIVITY_NAME, dto.name);
+						intent.putExtra(CONST.WEB_URL, dto.dataUrl);
+						startActivity(intent);
 					}else if (TextUtils.equals(dto.id, "202")) {//分钟级降水估测
 						intent = new Intent(mContext, MinuteFallActivity.class);
 						intent.putExtra(CONST.COLUMN_ID, dto.columnId);
