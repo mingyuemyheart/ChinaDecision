@@ -85,7 +85,6 @@ class ProductActivity : BaseActivity(), OnClickListener {
 				val bundle = Bundle()
 				bundle.putParcelable("data", data)
 				intent.putExtras(bundle)
-
 				intent.putExtra(CONST.COLUMN_ID, dto.columnId)
 				intent.putExtra(CONST.ACTIVITY_NAME, dto.name)
 				intent.putExtra(CONST.WEB_URL, dto.dataUrl)

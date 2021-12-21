@@ -19,6 +19,10 @@ import com.amap.api.maps.AMap.*
 import com.amap.api.maps.CameraUpdateFactory
 import com.amap.api.maps.model.*
 import com.amap.api.maps.model.animation.ScaleAnimation
+import com.amap.api.services.district.DistrictResult
+import com.amap.api.services.district.DistrictSearch
+import com.amap.api.services.district.DistrictSearch.OnDistrictSearchListener
+import com.amap.api.services.district.DistrictSearchQuery
 import com.china.R
 import com.china.common.CONST
 import com.china.dto.WeatherDto
@@ -42,12 +46,11 @@ import java.io.IOException
 import java.text.ParseException
 import java.text.SimpleDateFormat
 import java.util.*
-import kotlin.collections.LinkedHashMap
 
 /**
  * 环渤海天气预报
  */
-class HbhForecastActivity : BaseActivity(), OnClickListener, OnMarkerClickListener, OnMapClickListener, InfoWindowAdapter, OnInfoWindowClickListener, OnMapScreenShotListener {
+class HbhForecastActivity : BaseActivity(), OnClickListener, OnMarkerClickListener, OnMapClickListener, InfoWindowAdapter, OnInfoWindowClickListener, OnMapScreenShotListener, OnDistrictSearchListener {
 
     private var aMap: AMap? = null
     private var zoom = 3.7f
@@ -83,6 +86,55 @@ class HbhForecastActivity : BaseActivity(), OnClickListener, OnMarkerClickListen
         aMap!!.setOnMapClickListener(this)
         aMap!!.setInfoWindowAdapter(this)
         aMap!!.setOnInfoWindowClickListener(this)
+        aMap!!.setOnMapLoadedListener {
+            drawProvinceBounds("北京")
+            drawProvinceBounds("天津")
+            drawProvinceBounds("辽宁")
+            drawProvinceBounds("河北省")
+            drawProvinceBounds("山东")
+            drawProvinceBounds("山西")
+        }
+    }
+
+    /**
+     * 绘制省份边界
+     */
+    private fun drawProvinceBounds(keywords: String) {
+        if (TextUtils.isEmpty(keywords)) {
+            return
+        }
+        val search = DistrictSearch(this)
+        val query = DistrictSearchQuery()
+        query.keywords = keywords //传入关键字
+        query.isShowBoundary = true //是否返回边界值
+        search.query = query
+        search.setOnDistrictSearchListener(this) //绑定监听器
+        search.searchDistrictAsyn() //开始搜索
+    }
+
+    override fun onDistrictSearched(districtResult: DistrictResult?) {
+        if (districtResult == null || districtResult.district == null) {
+            return
+        }
+        val item = districtResult.district[0] ?: return
+        Thread(Runnable {
+            val polyStr = item.districtBoundary()
+            if (polyStr == null || polyStr.isEmpty()) {
+                return@Runnable
+            }
+            for (str in polyStr) {
+                val lat = str.split(";".toRegex()).toTypedArray()
+                val polylineOptions = PolylineOptions()
+                for (latstr in lat) {
+                    val lats = latstr.split(",".toRegex()).toTypedArray()
+                    val latitude = lats[1].toDouble()
+                    val longitude = lats[0].toDouble()
+                    polylineOptions.add(LatLng(latitude, longitude))
+                }
+                polylineOptions.width(8f).color(0xff598FB2.toInt())
+                val polyline = aMap!!.addPolyline(polylineOptions)
+            }
+        }).start()
     }
 
     /**
