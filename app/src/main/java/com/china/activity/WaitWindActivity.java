@@ -272,6 +272,7 @@ public class WaitWindActivity extends BaseActivity implements OnClickListener, A
                         runOnUiThread(new Runnable() {
                             @Override
                             public void run() {
+                                Log.e("OkHttpWindDetail", result);
                                 if (!TextUtils.isEmpty(result)) {
                                     try {
                                         JSONObject obj = new JSONObject(result);

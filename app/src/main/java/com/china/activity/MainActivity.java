@@ -1584,6 +1584,7 @@ public class MainActivity extends BaseActivity implements OnClickListener, AMapL
 	//需要申请的所有权限
 	private String[] allPermissions = new String[] {
 			Manifest.permission.ACCESS_COARSE_LOCATION,
+			Manifest.permission.ACCESS_FINE_LOCATION,
 			Manifest.permission.READ_PHONE_STATE,
 			Manifest.permission.WRITE_EXTERNAL_STORAGE
 	};

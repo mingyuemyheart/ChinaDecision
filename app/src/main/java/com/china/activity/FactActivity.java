@@ -813,8 +813,9 @@ public class FactActivity extends BaseActivity implements OnClickListener, AMapL
 
     @Override
     public void onLocationChanged(AMapLocation amapLocation) {
-        if (amapLocation != null && amapLocation.getErrorCode() == 0) {
+        if (amapLocation != null && amapLocation.getErrorCode() == AMapLocation.LOCATION_SUCCESS) {
             locationLatLng = new LatLng(amapLocation.getLatitude(), amapLocation.getLongitude());
+            Log.e("locationLatLng", amapLocation.getLatitude()+","+amapLocation.getLongitude());
             addLocationMarker(locationLatLng);
         }
     }
@@ -954,6 +955,7 @@ public class FactActivity extends BaseActivity implements OnClickListener, AMapL
                     dto.stationId = cursor.getString(cursor.getColumnIndex("SID"));
                     dto.lat = cursor.getDouble(cursor.getColumnIndex("LAT"));
                     dto.lng = cursor.getDouble(cursor.getColumnIndex("LON"));
+                    Log.e("latlng", dto.lat+","+dto.lng);
 
                     String pro = cursor.getString(cursor.getColumnIndex("PRO"));
                     String city = cursor.getString(cursor.getColumnIndex("CITY"));
@@ -1030,8 +1032,9 @@ public class FactActivity extends BaseActivity implements OnClickListener, AMapL
                                     }
 
                                     float distance = AMapUtils.calculateLineDistance(locationLatLng, new LatLng(Double.valueOf(dto.lat), Double.valueOf(dto.lng)))/1000;
-                                    float d = new BigDecimal(distance/1000).setScale(1, BigDecimal.ROUND_FLOOR).floatValue();
+                                    float d = new BigDecimal(distance).setScale(1, BigDecimal.ROUND_FLOOR).floatValue();
                                     dto.distance = d+"";
+                                    Log.e("distance", dto.distance);
 
                                     if (!obj.isNull("airpressure")) {
                                         String value = obj.getString("airpressure");
